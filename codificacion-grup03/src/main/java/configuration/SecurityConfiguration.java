@@ -1,6 +1,5 @@
 package configuration;
 
-import com.unla.ghsicilianotfi.services.implementation.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -20,9 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-	private final UserService userService;
+	private final UserDetailsService userService;
 
-	public SecurityConfiguration(UserService userService) {
+	public SecurityConfiguration(UserDetailsService userService) {
 		this.userService = userService;
 	}
 
@@ -59,9 +59,8 @@ public class SecurityConfiguration {
 
 	@Bean
 	AuthenticationProvider authenticationProvider(){
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userService);
 		provider.setPasswordEncoder(passwordEncoder());
-		provider.setUserDetailsService(userService);
 		return provider;
 	}
 
