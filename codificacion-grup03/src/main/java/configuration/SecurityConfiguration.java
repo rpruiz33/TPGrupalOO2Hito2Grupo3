@@ -10,9 +10,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -20,53 +20,46 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-	private final UserDetailsService userService;
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/css/**", "/imgs/**", "/js/**", "/vendor/bootstrap/css/**",
+                            "/vendor/jquery/**", "/vendor/bootstrap/js/**", "/api/v1/**").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .formLogin(login -> {
+                    login.loginPage("/login");
+                    login.loginProcessingUrl("/loginprocess");
+                    login.usernameParameter("username");
+                    login.passwordParameter("password");
+                    login.defaultSuccessUrl("/loginsuccess");
+                    login.permitAll();
+                })
+                .logout(logout -> {
+                    logout.logoutUrl("/logout");
+                    logout.logoutSuccessUrl("/login");
+                    logout.permitAll();
+                })
+                .build();
+    }
 
-	public SecurityConfiguration(UserDetailsService userService) {
-		this.userService = userService;
-	}
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-		return http
-				.csrf(AbstractHttpConfigurer::disable)
-				.cors(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> {
-					auth.requestMatchers("/css/*", "/imgs/*", "/js/*", "/vendor/bootstrap/css/*",
-							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**").permitAll();
-					auth.anyRequest().authenticated();
-				})
-				.formLogin(login -> {
-					login.loginPage("/login");
-					login.loginProcessingUrl("/loginprocess");
-					login.usernameParameter("username");
-					login.passwordParameter("password");
-					login.defaultSuccessUrl("/loginsuccess");
-					login.permitAll();
-				})
-				.logout(logout -> {
-					logout.logoutUrl("/logout");
-					logout.logoutSuccessUrl("/login");
-					logout.permitAll();
-				})
-				.build();
-	}
+    @Bean
+    AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
 
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
-
-	@Bean
-	AuthenticationProvider authenticationProvider(){
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userService);
-		provider.setPasswordEncoder(passwordEncoder());
-		return provider;
-	}
-
-	@Bean
-	PasswordEncoder passwordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
-
