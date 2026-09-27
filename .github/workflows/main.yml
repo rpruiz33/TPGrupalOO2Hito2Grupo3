@@ -1,9 +1,11 @@
-name: Push Email Notification
+name: Push & PR Email Notification
 
 on:
   push:
     branches:
       - '**'
+  pull_request:
+    types: [opened, closed]
 
 jobs:
   send-email:
@@ -23,17 +25,26 @@ jobs:
           secure: true
           username: ${{ env.MAIL_USERNAME }}
           password: ${{ env.MAIL_PASSWORD }}
-          subject: "Nuevo push en ${{ github.repository }} [${{ github.ref_name }}]"
+          subject: >-
+            ${{ github.event_name == 'push' && format('Nuevo push en {0} [{1}]', github.repository, github.ref_name) || format('PR #{0} {1} en {0}', github.event.pull_request.number, github.event.action == 'opened' && 'abierta' || 'cerrada', github.repository) }}
           to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
           from: "GitHub Workflow <${{ env.MAIL_USERNAME }}>"
           body: |
             ¡Hola equipo!
 
-            Se ha realizado un nuevo push en el repositorio:
-            • Repositorio: ${{ github.repository }}
-            • Rama: ${{ github.ref_name }}
-            • Autor: ${{ github.actor }}
-            • Commit: ${{ github.sha }}
+            ${{ github.event_name == 'push' && format('Se ha realizado un nuevo push en el repositorio:
+            • Repositorio: {0}
+            • Rama: {1}
+            • Autor: {2}
+            • Commit: {3}
 
             Ver commit:
-            https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            https://github.com/{0}/commit/{3}', github.repository, github.ref_name, github.actor, github.sha) || format('Se ha {0} una Pull Request en el repositorio:
+            • Repositorio: {1}
+            • Título: {2}
+            • Rama origen: {3} ➔ Rama destino: {4}
+            • Autor/Ator del evento: {5}
+            • Estado PR: {6}
+
+            Ver Pull Request:
+            {7}', github.event.action == 'opened' && 'abierto' || 'cerrado', github.repository, github.event.pull_request.title, github.event.pull_request.head.ref, github.event.pull_request.base.ref, github.actor, github.event.pull_request.state, github.event.pull_request.html_url) }}
