@@ -1,39 +1,66 @@
-name: Push Email Notification
+name: Email Notifications
 
 on:
   push:
     branches:
       - '**'
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+    branches:
+      - '**'
 
 jobs:
-  send-email:
+  push-email:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    env:
-      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Send Email Notification
+      - name: Send Push Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: ${{ env.MAIL_USERNAME }}
-          password: ${{ env.MAIL_PASSWORD }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Nuevo push en ${{ github.repository }} [${{ github.ref_name }}]"
           to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
-          from: "GitHub Workflow <${{ env.MAIL_USERNAME }}>"
+          from: "GitHub Workflow <${{ secrets.MAIL_USERNAME }}>"
           body: |
             ¡Hola equipo!
 
             Se ha realizado un nuevo push en el repositorio:
-            • Repositorio: ${{ github.repository }}
-            • Rama: ${{ github.ref_name }}
-            • Autor: ${{ github.actor }}
-            • Commit: ${{ github.sha }}
+            - Repositorio: ${{ github.repository }}
+            - Rama: ${{ github.ref_name }}
+            - Autor: ${{ github.actor }}
+            - Commit: ${{ github.sha }}
 
             Ver commit:
             https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+  pr-email:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send PR Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Nuevo PR #${{ github.event.pull_request.number }} en ${{ github.repository }}"
+          to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
+          from: "GitHub Workflow <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            ¡Hola equipo!
+
+            Se abrió un nuevo Pull Request:
+            - Repositorio: ${{ github.repository }}
+            - Título: ${{ github.event.pull_request.title }}
+            - Autor: ${{ github.event.pull_request.user.login }}
+            - Rama origen: ${{ github.event.pull_request.head.ref }}
+            - Rama destino: ${{ github.event.pull_request.base.ref }}
+
+            Ver PR:
+            ${{ github.event.pull_request.html_url }}
