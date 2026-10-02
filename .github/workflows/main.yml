@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - '**'
-  pull_request_target:
+  pull_request:
     types: [opened, reopened, ready_for_review]
+    branches:
+      - '**'
 
 jobs:
   push-email:
@@ -27,16 +29,16 @@ jobs:
             ¡Hola equipo!
 
             Se ha realizado un nuevo push en el repositorio:
-            • Repositorio: ${{ github.repository }}
-            • Rama: ${{ github.ref_name }}
-            • Autor: ${{ github.actor }}
-            • Commit: ${{ github.sha }}
+            - Repositorio: ${{ github.repository }}
+            - Rama: ${{ github.ref_name }}
+            - Autor: ${{ github.actor }}
+            - Commit: ${{ github.sha }}
 
             Ver commit:
             https://github.com/${{ github.repository }}/commit/${{ github.sha }}
 
   pr-email:
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Send PR Email
@@ -54,11 +56,11 @@ jobs:
             ¡Hola equipo!
 
             Se abrió un nuevo Pull Request:
-            • Repositorio: ${{ github.repository }}
-            • Título: ${{ github.event.pull_request.title }}
-            • Autor: ${{ github.event.pull_request.user.login }}
-            • Rama origen: ${{ github.event.pull_request.head.ref }}
-            • Rama destino: ${{ github.event.pull_request.base.ref }}
+            - Repositorio: ${{ github.repository }}
+            - Título: ${{ github.event.pull_request.title }}
+            - Autor: ${{ github.event.pull_request.user.login }}
+            - Rama origen: ${{ github.event.pull_request.head.ref }}
+            - Rama destino: ${{ github.event.pull_request.base.ref }}
 
             Ver PR:
             ${{ github.event.pull_request.html_url }}
