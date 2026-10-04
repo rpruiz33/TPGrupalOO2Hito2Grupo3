@@ -1,9 +1,11 @@
-name: Push Email Notification
+name: Email Notifications
 
 on:
   push:
     branches:
       - '**'
+  pull_request:
+    types: [opened, closed]
 
 jobs:
   send-email:
@@ -15,7 +17,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Send Email Notification
+      # 1. Notificación para PUSH
+      - name: Send Email - Push
+        if: github.event_name == 'push'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -37,3 +41,82 @@ jobs:
 
             Ver commit:
             https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+      # 2. Notificación para PR ABIERTA
+      - name: Send Email - PR Opened
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
+          subject: "Nueva PR abierta en ${{ github.repository }} [#${{ github.event.pull_request.number }}]"
+          to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
+          from: "GitHub Workflow <${{ env.MAIL_USERNAME }}>"
+          body: |
+            ¡Hola equipo!
+
+            Se ha abierto una nueva Pull Request:
+            • Repositorio: ${{ github.repository }}
+            • PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+            • Rama origen: ${{ github.event.pull_request.head.ref }}
+            • Rama destino: ${{ github.event.pull_request.base.ref }}
+            • Autor: ${{ github.event.pull_request.user.login }}
+
+            Ver Pull Request:
+            ${{ github.event.pull_request.html_url }}
+
+      # 3. Notificación para PR MERGEADA
+      - name: Send Email - PR Merged
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
+          subject: "PR Mergeada en ${{ github.repository }} [#${{ github.event.pull_request.number }}]"
+          to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
+          from: "GitHub Workflow <${{ env.MAIL_USERNAME }}>"
+          body: |
+            ¡Hola equipo!
+
+            Se ha realizado un MERGE de una Pull Request:
+            • Repositorio: ${{ github.repository }}
+            • PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+            • Rama origen: ${{ github.event.pull_request.head.ref }}
+            • Rama destino: ${{ github.event.pull_request.base.ref }}
+            • Autor PR: ${{ github.event.pull_request.user.login }}
+            • Mergeado por: ${{ github.actor }}
+
+            Ver Pull Request:
+            ${{ github.event.pull_request.html_url }}
+
+      # 4. Notificación para PR CERRADA (Sin Merge)
+      - name: Send Email - PR Closed
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ env.MAIL_USERNAME }}
+          password: ${{ env.MAIL_PASSWORD }}
+          subject: "PR Cerrada en ${{ github.repository }} [#${{ github.event.pull_request.number }}]"
+          to: "anav4332816@gmail.com, fsalvatierra@nectica.com, soloagaleonel@gmail.com, rpruiz33@gmail.com"
+          from: "GitHub Workflow <${{ env.MAIL_USERNAME }}>"
+          body: |
+            ¡Hola equipo!
+
+            Se ha CERRADO (sin mergear) una Pull Request:
+            • Repositorio: ${{ github.repository }}
+            • PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+            • Rama: ${{ github.event.pull_request.head.ref }}
+            • Autor PR: ${{ github.event.pull_request.user.login }}
+            • Cerrado por: ${{ github.actor }}
+
+            Ver Pull Request:
+            ${{ github.event.pull_request.html_url }}
