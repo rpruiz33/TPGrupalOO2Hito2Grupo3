@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "hito2grupo3Application",
+            "request": "launch",
+            "mainClass": "com.example.hito2grupo3.hito2grupo3Application",
+            "projectName": "demo",
+            "env": {
+                "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&serverTimezone=UTC",
+                "USERNAME": "root",
+                "PASSWORD": "admin123"
+            }
+        },
+        {
+            "type": "java",
+            "name": "TestBCryptPasswordEncoder",
+            "request": "launch",
+            "mainClass": "com.example.hito2grupo3.TestBCryptPasswordEncoder",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}
