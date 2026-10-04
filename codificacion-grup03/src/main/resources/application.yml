@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&serverTimezone=UTC}
+    username: ${USERNAME:root}
+    password: ${PASSWORD:root}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      dialect: org.hibernate.dialect.MySQL8Dialect
+  thymeleaf:
+    cache: false
