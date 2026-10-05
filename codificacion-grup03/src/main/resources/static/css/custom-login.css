@@ -1,0 +1,76 @@
+:root {
+    --unla-red: #800020;
+    --text-light: #ffffff;
+    --text-muted: #e0e0e0;
+}
+
+body.login-body {
+    background-color: var(--unla-red) !important;
+    min-height: 100vh;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.login-container {
+    width: 100% !important;
+    max-width: 380px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    float: none !important;
+}
+
+.login-header h3 {
+    color: var(--text-light) !important;
+    font-size: 2.2rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.login-header p {
+    color: var(--text-muted) !important;
+    font-size: 1.05rem !important;
+}
+
+.form-label {
+    color: var(--text-light) !important;
+    display: block !important;
+    text-align: left !important;
+    font-weight: 500 !important;
+}
+
+.form-control {
+    background-color: #ffffff !important;
+    border: 1px solid #ffffff !important;
+    border-radius: 6px !important;
+    padding: 0.75rem 1rem !important;
+    color: #333333 !important;
+}
+
+.btn-primary {
+    background-color: transparent !important;
+    color: var(--text-light) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 6px !important;
+    padding: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+.btn-primary:hover {
+    background-color: #ffffff !important;
+    color: var(--unla-red) !important;
+}
+
+.login-footer .unla-logo-img {
+    display: block !important;
+    margin: 0 auto;
+    width: 110px !important;
+    height: auto !important;
+    opacity: 1 !important;
+}

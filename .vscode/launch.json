@@ -10,7 +10,7 @@
             "env": {
                 "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&serverTimezone=UTC",
                 "USERNAME": "root",
-                "PASSWORD": "admin123"
+                "PASSWORD": "root"
             }
         },
         {
