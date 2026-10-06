@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finanzas - epicentro gourmet</title>
+  <link rel="stylesheet" th:href="@{/css/finanzas.css}">
+</head>
+<body>
+<main class="contenedor">
+
+  <header>
+    <h1>epicentro gourmet</h1>
+    <p>Reporte de finanzas</p>
+  </header>
+
+  <form class="filtros" method="get" th:action="@{/finanzas}">
+    <div>
+      <label for="festivalId">Festival</label>
+      <select id="festivalId" name="festivalId" required>
+        <option value="">Elegir festival</option>
+        <option th:each="f : ${festivales}" th:value="${f.id}" th:text="${f.nombre}"
+                th:selected="${f.id == festivalId}">Festival de ejemplo</option>
+      </select>
+    </div>
+    <div>
+      <label for="desde">Desde (opcional)</label>
+      <input type="date" id="desde" name="desde" th:value="${desde}">
+    </div>
+    <div>
+      <label for="hasta">Hasta (opcional)</label>
+      <input type="date" id="hasta" name="hasta" th:value="${hasta}">
+    </div>
+    <button type="submit">Ver reporte</button>
+  </form>
+  <small class="ayuda">Sin fechas se calcula el festival completo. Con fechas, solo ese período.</small>
+
+  <div class="error" role="alert" th:if="${error}" th:text="${error}">Mensaje de error</div>
+
+  <div class="vacio" th:if="${reporte == null && error == null}">
+    Elegí un festival para ver la rentabilidad de tu unidad.
+  </div>
+
+  <th:block th:if="${reporte != null}">
+
+    <p class="unidad">
+      <span th:text="${reporte.nombreUnidad}">Unidad</span> en
+      <span th:text="${reporte.nombreFestival}">Festival</span>
+    </p>
+
+    <div class="resumen">
+      <div class="dato"><span>Recaudación</span>
+        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.recaudacion,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+      <div class="dato"><span>Costo de platos</span>
+        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.costoPlatos,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+      <div class="dato"><span>Sueldos</span>
+        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.sueldos,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+      <div class="dato"><span>Canon</span>
+        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.canon,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+      <div class="dato principal"><span>Rentabilidad neta</span>
+        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.rentabilidadNeta,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+    </div>
+    <p class="formula">Recaudación − costo de platos − sueldos − canon</p>
+
+    <div class="estrella" th:if="${reporte.platoEstrella != null}">
+      <span>Plato estrella</span>
+      <strong th:text="${reporte.platoEstrella.nombre}">Plato</strong>
+      <span th:text="${reporte.platoEstrella.cantidad} + ' pedidos'">0 pedidos</span>
+    </div>
+
+    <section aria-labelledby="t-detalle">
+      <h2 id="t-detalle">Detalle por plato</h2>
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr><th>Plato</th><th>Cantidad</th><th>Ingresos</th><th>Costo</th></tr>
+          </thead>
+          <tbody>
+            <tr th:each="d : ${reporte.detallePlatos}">
+              <td th:text="${d.nombre}">Plato</td>
+              <td th:text="${d.cantidad}">0</td>
+              <td th:text="'$ ' + ${#numbers.formatDecimal(d.ingresos,1,'POINT',0,'COMMA')}">$ 0</td>
+              <td th:text="'$ ' + ${#numbers.formatDecimal(d.costo,1,'POINT',0,'COMMA')}">$ 0</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(reporte.detallePlatos)}">
+              <td colspan="4">No hay pedidos en este período.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </th:block>
+
+  <div class="acciones">
+    <a class="boton" th:href="@{/}">Volver</a>
+  </div>
+
+  <div class="logo">
+    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+  </div>
+
+</main>
+</body>
+</html>

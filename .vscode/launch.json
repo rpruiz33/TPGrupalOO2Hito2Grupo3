@@ -8,9 +8,9 @@
             "mainClass": "com.example.hito2grupo3.hito2grupo3Application",
             "projectName": "demo",
             "env": {
-                "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&serverTimezone=UTC",
+                "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
                 "USERNAME": "root",
-                "PASSWORD": "root"
+                "PASSWORD": "admin123"
             }
         },
         {

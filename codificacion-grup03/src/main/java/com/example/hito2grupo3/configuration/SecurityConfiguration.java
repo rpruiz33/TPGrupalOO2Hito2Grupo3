@@ -6,11 +6,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -23,36 +20,27 @@ public class SecurityConfiguration {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/vendor/**", "/images/**", "/error").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(login -> login
-                        .loginPage("/login")
-                        .loginProcessingUrl("/loginprocess")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/loginsuccess", true)
-                        .failureUrl("/login?error")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                )
+                .authorizeHttpRequests(auth -> {
+           
+                    auth.requestMatchers("/finanzas", "/error").permitAll();
+                    auth.requestMatchers("/css/**", "/images/**", "/js/**", "/vendor/bootstrap/css/**",
+                            "/vendor/jquery/**", "/vendor/bootstrap/js/**", "/api/v1/**").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .formLogin(login -> {
+                    login.loginPage("/login");
+                    login.loginProcessingUrl("/loginprocess");
+                    login.usernameParameter("username");
+                    login.passwordParameter("password");
+                    login.defaultSuccessUrl("/loginsuccess");
+                    login.permitAll();
+                })
+                .logout(logout -> {
+                    logout.logoutUrl("/logout");
+                    logout.logoutSuccessUrl("/login");
+                    logout.permitAll();
+                })
                 .build();
-    }
-
-    // Usuario temporal de prueba (reemplazar luego por el UserService real)
-    @Bean
-    UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        return new InMemoryUserDetailsManager(
-                User.withUsername("admin")
-                    .password(encoder.encode("admin123"))
-                    .roles("ADMIN")
-                    .build()
-        );
     }
 
     @Bean
