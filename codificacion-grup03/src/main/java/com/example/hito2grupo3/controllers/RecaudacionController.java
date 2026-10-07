@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class FinanzasController {
-    @GetMapping("/finanzas")
+public class RecaudacionController {
+    @GetMapping("/recaudacion")
     public String finanzas() {
-        return "reportes/finanzas";
+        return "reportes/recaudacion";
     }
 }
