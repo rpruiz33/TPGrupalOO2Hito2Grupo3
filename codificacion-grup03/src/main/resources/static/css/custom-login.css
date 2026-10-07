@@ -1,6 +1,6 @@
 :root {
     --unla-red: #800020;
-    --text-light: #ffffff;
+    --text-light: #000000;
     --text-muted: #e0e0e0;
 }
 
@@ -73,4 +73,7 @@ body.login-body {
     width: 110px !important;
     height: auto !important;
     opacity: 1 !important;
+    border: 2px solid black;
+  
+
 }

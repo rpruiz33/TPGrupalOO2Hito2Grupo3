@@ -2,6 +2,7 @@
   --bordo: #80001e;
   --bordo-oscuro: #5e0016;
   --blanco: #ffffff;
+  --negro: #000000;
   --blanco-suave: rgba(255, 255, 255, .78);
   --linea: rgba(255, 255, 255, .28);
 }
@@ -13,7 +14,7 @@
 body {
   margin: 0;
   background: var(--bordo);
-  color: var(--blanco);
+  color: var(--negro);
   font-family: "DejaVu Sans", Verdana, sans-serif;
   line-height: 1.5;
 }
@@ -56,7 +57,7 @@ label {
 small.ayuda {
   display: block;
   margin-bottom: 28px;
-  color: var(--blanco-suave);
+  color: var(--negro);
   font-size: .82rem;
 }
 
@@ -67,7 +68,7 @@ select {
   border: 1px solid var(--blanco);
   border-radius: 8px;
   background: var(--blanco);
-  color: #222;
+  color: #000000;
   font: inherit;
   font-size: .95rem;
 }
@@ -111,7 +112,7 @@ button:hover,
   border-radius: 8px;
   padding: 28px 20px;
   text-align: center;
-  color: var(--blanco-suave);
+  color: var(--blanco);
 }
 
 .unidad {
@@ -237,6 +238,7 @@ tbody tr:last-child td {
 .logo .unla-logo-img {
   width: 110px;
   height: auto;
+  border: 2px solid black;
 }
 
 @media (max-width: 560px) {
