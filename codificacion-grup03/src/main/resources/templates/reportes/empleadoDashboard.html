@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi panel - Epicentro Gourmet</title>
+
+  <link rel="stylesheet" th:href="@{/css/vistas.css}">
+</head>
+<body>
+
+<!-- Variables mockeadas con varias unidades de venta dentro de Epicentro Gourmet -->
+<main class="contenedor" th:with="
+  empleado=${ {
+    'nombre': 'Martín González',
+    'rol': 'Cajero Senior',
+    'antiguedad': 3,
+    'cajero': true
+  } },
+  asignacionActual=${ {
+    'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
+    'festival': 'Epicentro Gourmet 2026'
+  } },
+  historial=${ {
+    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas', 'sueldo': 85000.00 },
+    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas', 'sueldo': 72000.00 },
+    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería', 'sueldo': 68000.00 },
+    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas', 'sueldo': 91000.00 }
+  } }">
+
+  <header>
+    <h1>Epicentro Gourmet</h1>
+    <p>Hola, <span th:text="${empleado.nombre}">Nombre</span></p>
+  </header>
+
+  <!-- Asignación actual -->
+  <div class="aviso" th:if="${asignacionActual != null}">
+    <span>Hoy trabajás en</span>
+    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
+    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
+  </div>
+  <div class="vacio" th:if="${asignacionActual == null}">
+    No tenés asignada ninguna unidad de venta activa en este momento.
+  </div>
+
+  <!-- Datos personales del empleado -->
+  <div class="resumen" style="margin-top: 36px;">
+    <div class="dato"><span>Rol</span>
+      <strong th:text="${empleado.rol}">Rol</strong></div>
+    <div class="dato"><span>Antigüedad</span>
+      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
+  </div>
+
+  <!-- Historial de trabajo en distintas unidades dentro del festival -->
+  <section aria-labelledby="t-historial">
+    <h2 id="t-historial">Mis unidades de trabajo</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Recibo</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="h : ${historial}">
+            <td th:text="${h.festival}">Festival</td>
+            <td th:text="${h.unidad}">Unidad</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
+            <td><a class="enlace" th:href="@{/empleado/recibo/{id}/pdf(id=${h.id})}">Descargar PDF</a></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(historial)}">
+            <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="acciones-doble">
+    <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
+    <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
+  </div>
+
+  <div class="logo">
+    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+  </div>
+
+</main>
+</body>
+</html>

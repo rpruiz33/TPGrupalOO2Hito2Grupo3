@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recibo de sueldo - Epicentro Gourmet</title>
+
+  <link rel="stylesheet" th:href="@{/css/vistas.css}">
+  <style>
+    @media print {
+      .acciones-doble, .logo {
+        display: none !important;
+      }
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .contenedor {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Variables mockeadas directamente en Thymeleaf -->
+<main class="contenedor" th:with="recibo=${ {
+  'nombre': 'Martín',
+  'apellido': 'González',
+  'dni': '38.452.910',
+  'rol': 'Cajero Senior',
+  'festival': 'Epicentro Gourmet 2026',
+  'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
+  'diasFestival': 3,
+  'sueldoBase': 60000.00,
+  'plusCategoria': 15000.00,
+  'montoAntiguedad': 10000.00,
+  'aniosAntiguedad': 3,
+  'coeficiente': 1.2,
+  'total': 102000.00,
+  'fechaEmision': #temporals.createNow()
+} }">
+
+  <header>
+    <h1>Epicentro Gourmet</h1>
+    <p>Recibo de sueldo</p>
+  </header>
+
+  <p class="unidad">
+    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span> ·
+    <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> ·
+    <span th:text="${recibo.rol}">Cajero Senior</span>
+  </p>
+
+  <div class="resumen">
+    <div class="dato">
+      <span>Festival</span>
+      <strong th:text="${recibo.festival}">Epicentro Gourmet 2026</strong>
+    </div>
+    <div class="dato principal">
+      <span>Total a cobrar</span>
+      <strong th:text="'$ ' + ${#numbers.formatDecimal(recibo.total,1,'POINT',0,'COMMA')}">$ 102.000</strong>
+    </div>
+  </div>
+
+  <section aria-labelledby="t-liquidacion">
+    <h2 id="t-liquidacion">Liquidación de haberes</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th style="text-align: right;">Monto / Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Unidad de venta</td>
+            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas & Bebidas</td>
+          </tr>
+          <tr>
+            <td>Duración del festival</td>
+            <td style="text-align: right;" th:text="${recibo.diasFestival} + ' días'">3 días</td>
+          </tr>
+          <tr>
+            <td>Sueldo base</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase,1,'POINT',0,'COMMA')}">$ 60.000</td>
+          </tr>
+          <tr th:if="${recibo.plusCategoria != null}">
+            <td>Plus por categoría</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria,1,'POINT',0,'COMMA')}">$ 15.000</td>
+          </tr>
+          <tr th:if="${recibo.montoAntiguedad != null}">
+            <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad,1,'POINT',0,'COMMA')}">$ 10.000</td>
+          </tr>
+          <tr>
+            <td>Coeficiente por duración</td>
+            <td style="text-align: right;" th:text="${recibo.coeficiente}">1.2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="acciones-doble">
+    <button type="button" class="boton" onclick="window.print()">Imprimir PDF</button>
+    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
+  </div>
+
+  <div class="logo">
+    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+  </div>
+
+</main>
+</body>
+</html>

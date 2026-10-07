@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cierre de caja - Epicentro Gourmet</title>
+
+  <link rel="stylesheet" th:href="@{/css/vistas.css}">
+</head>
+<body>
+
+<!-- th:with simula el objeto 'caja' hardcodeado directamente en la plantilla -->
+<main class="contenedor" th:with="caja=${ {
+    'unidad': 'Sede Central UNLa',
+    'turno': 'Noche',
+    'fecha': #temporals.createNow(),
+    'cantidadPedidos': 4,
+    'totalDia': 38600.00,
+    'cerrada': false,
+    'pedidos': {
+      { 'id': 101, 'resumen': '2x Milanesa con fritas, 2x Coca Cola', 'total': 14500.00 },
+      { 'id': 102, 'resumen': '1x Hamburguesa completa, 1x Cerveza', 'total': 8900.00 },
+      { 'id': 103, 'resumen': '3x Empanadas de carne, 1x Agua mineral', 'total': 4200.00 },
+      { 'id': 104, 'resumen': '1x Pizza Muzzarella, 1x Sprite', 'total': 11000.00 }
+    }
+  } },
+  mensaje='Caja activa para cierre',
+  error=null">
+
+  <header>
+    <h1>Epicentro Gourmet</h1>
+    <p>Cierre de caja</p>
+  </header>
+
+  <div class="exito" role="status" th:if="${mensaje}" th:text="${mensaje}">Caja cerrada</div>
+  <div class="error" role="alert" th:if="${error}" th:text="${error}">Mensaje de error</div>
+
+  <p class="unidad">
+    <span th:text="${caja.unidad}">Unidad</span> ·
+    <span th:text="${caja.turno}">Turno</span> ·
+    <span th:text="${#temporals.format(caja.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+  </p>
+
+  <div class="resumen">
+    <div class="dato"><span>Pedidos del día</span>
+      <strong th:text="${caja.cantidadPedidos}">0</strong></div>
+    <div class="dato principal"><span>Total del día</span>
+      <strong th:text="'$ ' + ${#numbers.formatDecimal(caja.totalDia,1,'POINT',0,'COMMA')}">$ 0</strong></div>
+  </div>
+
+  <section aria-labelledby="t-pedidos">
+    <h2 id="t-pedidos">Pedidos de hoy</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr><th>Pedido</th><th>Platos</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="p : ${caja.pedidos}">
+            <td th:text="'#' + ${p.id}">#1</td>
+            <td th:text="${p.resumen}">Platos</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(p.total,1,'POINT',0,'COMMA')}">$ 0</td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(caja.pedidos)}">
+            <td colspan="3">No hay pedidos registrados hoy.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="acciones-doble">
+    <form method="post" th:action="@{/cajero/cierre-caja}" th:unless="${caja.cerrada}"
+          onsubmit="return confirm('¿Cerrar la caja del día? No se puede deshacer.');">
+      <button type="submit">Cerrar caja</button>
+    </form>
+    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
+  </div>
+
+  <div class="logo">
+    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+  </div>
+
+</main>
+</body>
+</html>

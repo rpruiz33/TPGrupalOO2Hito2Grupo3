@@ -14,4 +14,21 @@ public class RecaudacionController {
     public String finanzas() {
         return "reportes/recaudacion";
     }
+
+    @GetMapping("/cierreCaja")
+    public String cierreCaja() {
+        return "reportes/cierreCaja";
+    }
+      @GetMapping( "/empleadoDashboard")
+    public String  empleadoDashboard(){
+        return "reportes/empleadoDashboard";
+    }
+
+      @GetMapping( "/reciboPdf")
+    public String reciboPdf(){
+        return "reportes/reciboPdf";
+    }
+
+    
+    
 }
