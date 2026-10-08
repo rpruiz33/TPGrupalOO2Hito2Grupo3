@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Epicentro Gourmet - Responsable</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}"/>
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}"/>
+
+    <style>
+        body {
+            background-color: #800020;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-header h1 {
+            color: #000000;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+        }
+
+        .dashboard-card {
+            background-color: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            padding: 35px 25px;
+            text-align: center;
+            height: 100%;
+            transition: 0.2s;
+        }
+
+        .dashboard-card:hover {
+            background-color: #ffffff;
+        }
+
+        .dashboard-card h3 {
+            color: #000000;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card p {
+            color: #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-card:hover p {
+            color: #333333;
+        }
+
+        .dashboard-button {
+            display: inline-block;
+            background-color: transparent;
+            color: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            padding: 10px 25px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .dashboard-button:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .dashboard-footer {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .dashboard-footer img {
+            width: 110px;
+            height: auto;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <div class="dashboard-header">
+            <h1>Epicentro Gourmet</h1>
+            <p>Panel del Responsable</p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+                <div class="dashboard-card">
+
+                    <h3>Empleados</h3>
+
+                    <p>
+                        Alta, modificación, baja y reactivación
+                        de empleados.
+                    </p>
+
+                    <a th:href="@{/responsable/empleados}"
+                       class="dashboard-button">
+                        Gestionar empleados
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="dashboard-card">
+
+                    <h3>Platos</h3>
+
+                    <p>
+                        Gestión de los platos pertenecientes
+                        a la unidad.
+                    </p>
+
+                    <a th:href="@{/responsable/platos}"
+                       class="dashboard-button">
+                        Gestionar platos
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-footer">
+            <img alt="Logo UNLa"
+                 th:src="@{/images/unla-logo.png}"/>
+        </div>
+
+    </div>
+
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

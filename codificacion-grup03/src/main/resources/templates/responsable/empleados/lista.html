@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Empleados - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}"/>
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}"/>
+
+    <style>
+
+        body {
+            background-color: #800020;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .empleados-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .page-header h1 {
+            color: #000000;
+            font-size: 2.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-header p {
+            color: #e0e0e0;
+            margin: 5px 0 0;
+        }
+
+        .btn-menu {
+            background-color: transparent;
+            color: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-menu:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .panel {
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel h2 {
+            color: #000000;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: #000000 !important;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 6px;
+            padding: 0.65rem 0.8rem;
+        }
+
+        .btn-buscar {
+            background-color: transparent;
+            color: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            padding: 9px 25px;
+            font-weight: 600;
+        }
+
+        .btn-buscar:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background-color: #800020;
+            color: #ffffff;
+        }
+
+        .table th {
+            font-weight: 600;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .btn-accion {
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .btn-editar {
+            border: 1px solid #800020;
+            color: #800020;
+            background-color: transparent;
+        }
+
+        .btn-editar:hover {
+            background-color: #800020;
+            color: #ffffff;
+        }
+
+        .btn-baja {
+            border: 1px solid #800020;
+            color: #800020;
+            background-color: transparent;
+        }
+
+        .btn-baja:hover {
+            background-color: #800020;
+            color: #ffffff;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="empleados-container">
+
+    <!-- CABECERA -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Gestión de Empleados</h1>
+            <p>Administración del personal de la unidad</p>
+        </div>
+
+        <div>
+            <a th:href="@{/responsable/dashboard}"
+               class="btn-menu">
+                Volver al Dashboard
+            </a>
+
+            <a th:href="@{/responsable/empleados/nuevo}"
+               class="btn-menu">
+                + Nuevo empleado
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- FILTROS -->
+
+    <div class="panel">
+
+        <h2>Filtros de búsqueda</h2>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+
+                <label for="nombre"
+                       class="form-label">
+                    Nombre
+                </label>
+
+                <input type="text"
+                       id="nombre"
+                       class="form-control"
+                       placeholder="Ingrese nombre">
+
+            </div>
+
+
+            <div class="col-md-4 mb-3">
+
+                <label for="apellido"
+                       class="form-label">
+                    Apellido
+                </label>
+
+                <input type="text"
+                       id="apellido"
+                       class="form-control"
+                       placeholder="Ingrese apellido">
+
+            </div>
+
+
+            <div class="col-md-4 mb-3">
+
+                <label for="tipo"
+                       class="form-label">
+                    Tipo de empleado
+                </label>
+
+                <select id="tipo"
+                        class="form-select">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="COCINERO">
+                        Cocinero
+                    </option>
+
+                    <option value="CAJERO">
+                        Cajero
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+
+                <label for="estado"
+                       class="form-label">
+                    Estado
+                </label>
+
+                <select id="estado"
+                        class="form-select">
+
+                    <option value="ACTIVOS">
+                        Activos
+                    </option>
+
+                    <option value="ELIMINADOS">
+                        Eliminados
+                    </option>
+
+                    <option value="TODOS">
+                        Todos
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-8 mb-3 d-flex align-items-end">
+
+                <button type="button"
+                        class="btn-buscar">
+                    Buscar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+
+    <div class="panel">
+
+        <h2>Empleados</h2>
+
+        <div class="table-container">
+
+            <table class="table table-hover">
+
+                <thead>
+
+                <tr>
+
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Tipo</th>
+                    <th>Fecha ingreso</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <!--
+                    Más adelante esta sección será reemplazada
+                    por un th:each que recorra los empleados
+                    enviados por el Controller.
+                -->
+
+                <tr>
+
+                    <td>Juan</td>
+                    <td>Pérez</td>
+                    <td>Cocinero</td>
+                    <td>01/03/2025</td>
+                    <td>Activo</td>
+
+                    <td>
+
+                        <button class="btn btn-accion btn-editar">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-accion btn-baja">
+                            Dar de baja
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <td>María</td>
+                    <td>Gómez</td>
+                    <td>Cajero</td>
+                    <td>15/04/2025</td>
+                    <td>Activo</td>
+
+                    <td>
+
+                        <button class="btn btn-accion btn-editar">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-accion btn-baja">
+                            Dar de baja
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
