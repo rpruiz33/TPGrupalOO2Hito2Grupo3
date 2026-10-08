@@ -61,7 +61,7 @@ public class RecaudacionController {
 	}
 
     @GetMapping("/reciboPdf")
-	public String reciboPdf() {
+	public String reciboPdf () {
 		return "reportes/reciboPdf";
 	}
 }
