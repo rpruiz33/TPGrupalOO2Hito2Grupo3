@@ -559,3 +559,118 @@ footer {
     font-size: 0.9rem;
   }
 }
+/*/* ==========================================================================
+   CORRECCIÓN DE COLOR ROJO / BORDÓ INSTITUCIONAL (FONDO COMPLETO)
+   ========================================================================== */
+
+/* Fondo global en rojo bordó */
+html, body {
+  background-color: #800020 !important; /* Rojo Bordó UNLa */
+  color: #000000 !important;
+  min-height: 100vh;
+}
+
+/* El contenedor principal se asegura de no tener fondos claros */
+main, .contenedor {
+  background-color: transparent !important;
+}
+
+/* Títulos, etiquetas y textos en blanco para contraste */
+header h1, 
+header p, 
+label, 
+.form-label, 
+h1, h2, h3, h4, 
+p, span, strong {
+  color: #000000 !important;
+}
+
+/* Ajuste de inputs y selectores (Crema amarillento con letras oscuras) */
+input,
+select,
+.form-control,
+.form-select {
+  background-color: #FFFFCC !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Botón Consultar / Ingresar (Rojo oscuro con borde blanco) */
+button,
+.boton,
+.btn-primary,
+.btn-unla {
+  background-color: #5E0016 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+button:hover,
+.boton:hover,
+.btn-primary:hover,
+.btn-unla:hover {
+  background-color: #800020 !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* Tarjetas y Paneles (Contenedores) sobre fondo rojo */
+.card,
+.dato,
+.aviso,
+.estrella {
+  background-color: rgba(0, 0, 0, 0.2) !important; /* Fondo semitransparente oscuro */
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px;
+}
+
+/* Tarjetas de Recaudación y Pedidos */
+.dato.principal {
+  background-color: #FFFFCC !important; /* Cuadros destacados en crema */
+  border: 1px solid #ffffff !important;
+}
+
+.dato.principal span {
+  color: #555555 !important;
+}
+
+.dato.principal strong {
+  color: #800020 !important; /* Números en rojo bordó */
+}
+
+/* Tabla de Ranking */
+.tabla-scroll {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabla-scroll table th {
+  background-color: #5E0016 !important; /* Encabezado de tabla en bordó oscuro */
+  color: #ffffff !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+.tabla-scroll table td {
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Botón Volver */
+.btn-outline-secondary,
+a.boton {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.btn-outline-secondary:hover,
+a.boton:hover {
+  background-color: #ffffff !important;
+  color: #800020 !important;
+}

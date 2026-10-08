@@ -3,103 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Finanzas - epicentro gourmet</title>
-  <link rel="stylesheet" th:href="@{/css/finanzas.css}">
+  <title>Reporte de Recaudación - Epicentro Gourmet</title>
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/vistas.css}">
 </head>
-<body>
+<body class="login-body">
 <main class="contenedor">
 
-  <header>
-    <h1>Epicentro Gourmet</h1>
-    <p>Reporte de recaudacion</p>
+  <!-- Encabezado Centrado -->
+  <header class="text-center mb-4">
+    <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+    <p class="mb-0 text-white-50">Reporte de Recaudación</p>
   </header>
 
-  <form class="filtros" method="get" th:action="@{/finanzas}">
-    <div>
-      <label for="festivalId">Festival</label>
-      <select id="festivalId" name="festivalId" required>
-        <option value="">Elegir festival</option>
-        <option th:each="f : ${festivales}" th:value="${f.id}" th:text="${f.nombre}"
-                th:selected="${f.id == festivalId}">Festival de ejemplo</option>
-      </select>
-    </div>
-    <div>
-      <label for="desde">Desde (opcional)</label>
-      <input type="date" id="desde" name="desde" th:value="${desde}">
-    </div>
-    <div>
-      <label for="hasta">Hasta (opcional)</label>
-      <input type="date" id="hasta" name="hasta" th:value="${hasta}">
-    </div>
-    <button type="submit">Ver reporte</button>
-  </form>
-  <small class="ayuda">Sin fechas se calcula el festival completo. Con fechas, solo ese período.</small>
-
-  <div class="error" role="alert" th:if="${error}" th:text="${error}">Mensaje de error</div>
-
-  <div class="vacio" th:if="${reporte == null && error == null}">
-    Elegí un festival para ver la rentabilidad de tu unidad.
-  </div>
-
-  <th:block th:if="${reporte != null}">
-
-    <p class="unidad">
-      <span th:text="${reporte.nombreUnidad}">Unidad</span> en
-      <span th:text="${reporte.nombreFestival}">Festival</span>
-    </p>
-
-    <div class="resumen">
-      <div class="dato"><span>Recaudación</span>
-        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.recaudacion,1,'POINT',0,'COMMA')}">$ 0</strong></div>
-      <div class="dato"><span>Costo de platos</span>
-        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.costoPlatos,1,'POINT',0,'COMMA')}">$ 0</strong></div>
-      <div class="dato"><span>Sueldos</span>
-        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.sueldos,1,'POINT',0,'COMMA')}">$ 0</strong></div>
-      <div class="dato"><span>Canon</span>
-        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.canon,1,'POINT',0,'COMMA')}">$ 0</strong></div>
-      <div class="dato principal"><span>Rentabilidad neta</span>
-        <strong th:text="'$ ' + ${#numbers.formatDecimal(reporte.rentabilidadNeta,1,'POINT',0,'COMMA')}">$ 0</strong></div>
-    </div>
-    <p class="formula">Recaudación − costo de platos − sueldos − canon</p>
-
-    <div class="estrella" th:if="${reporte.platoEstrella != null}">
-      <span>Plato estrella</span>
-      <strong th:text="${reporte.platoEstrella.nombre}">Plato</strong>
-      <span th:text="${reporte.platoEstrella.cantidad} + ' pedidos'">0 pedidos</span>
-    </div>
-
-    <section aria-labelledby="t-detalle">
-      <h2 id="t-detalle">Detalle por plato</h2>
-      <div class="tabla-scroll">
-        <table>
-          <thead>
-            <tr><th>Plato</th><th>Cantidad</th><th>Ingresos</th><th>Costo</th></tr>
-          </thead>
-          <tbody>
-            <tr th:each="d : ${reporte.detallePlatos}">
-              <td th:text="${d.nombre}">Plato</td>
-              <td th:text="${d.cantidad}">0</td>
-              <td th:text="'$ ' + ${#numbers.formatDecimal(d.ingresos,1,'POINT',0,'COMMA')}">$ 0</td>
-              <td th:text="'$ ' + ${#numbers.formatDecimal(d.costo,1,'POINT',0,'COMMA')}">$ 0</td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(reporte.detallePlatos)}">
-              <td colspan="4">No hay pedidos en este período.</td>
-            </tr>
-          </tbody>
-        </table>
+  <!-- Filtro de Selección de Festival -->
+  <section class="mb-4">
+    <form class="filtros" th:action="@{/recaudacion}" method="get">
+      <div class="w-100">
+        <label for="festivalId" class="text-white fw-medium mb-1">Festival</label>
+        <select id="festivalId" name="festivalId" required>
+          <option value="">Seleccionar festival...</option>
+          <option th:each="f : ${festivales}" 
+                  th:value="${f.id}" 
+                  th:text="${f.nombre}" 
+                  th:selected="${festivalId != null and f.id == festivalId}">Festival</option>
+        </select>
       </div>
-    </section>
+      <div>
+        <button type="submit" class="boton">Consultar</button>
+      </div>
+    </form>
 
-  </th:block>
+    <!-- Errores o Avisos -->
+    <div class="error mt-3" th:if="${error}" th:text="${error}"></div>
+    <div class="aviso mt-3" th:if="${festivalId != null and !esAdministrador}">
+      <strong>Información</strong>
+      <span>Su perfil puede consultar el resumen, pero no el ranking de unidades.</span>
+    </div>
+  </section>
 
-  <div class="acciones">
+  <!-- Tarjetas KPI Resumen -->
+  <section class="resumen mb-4">
+    <div class="dato">
+      <span>Festival Seleccionado</span>
+      <strong th:text="${reporte != null ? reporte.nombreFestival : 'Ninguno'}">Epicentro Gourmet 2026</strong>
+    </div>
+    <div class="dato principal">
+      <span>Total Recaudado</span>
+      <strong th:text="${reporte != null ? '$ ' + #numbers.formatDecimal(reporte.recaudacionTotal, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
+    </div>
+  </section>
+
+  <!-- Tabla de Ranking de Unidades -->
+  <section class="mb-4">
+    <h2 class="h5 fw-bold text-white mb-3">Ranking de Unidades de Venta</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align: left;">Posición</th>
+            <th style="text-align: left;">Nombre Comercial</th>
+            <th style="text-align: left;">Código</th>
+            <th style="text-align: left;">Tipo</th>
+            <th>Recaudación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Caso sin seleccionar festival -->
+          <tr th:if="${festivalId == null}">
+            <td colspan="5" class="vacio">Seleccione un festival para ver la información.</td>
+          </tr>
+          <!-- Caso sin permisos -->
+          <tr th:if="${festivalId != null and !esAdministrador}">
+            <td colspan="5" class="vacio">Ranking disponible solo para perfil ADMINISTRADOR.</td>
+          </tr>
+          <!-- Caso sin registros -->
+          <tr th:if="${festivalId != null and esAdministrador and #lists.isEmpty(ranking)}">
+            <td colspan="5" class="vacio">No hay unidades registradas para el festival seleccionado.</td>
+          </tr>
+          <!-- Filas de Ranking -->
+          <tr th:if="${festivalId != null and esAdministrador}" th:each="u, stat : ${ranking}">
+            <td th:text="${stat.index + 1}">1</td>
+            <td th:text="${u.nombreComercial}">Unidad 1</td>
+            <td th:text="${u.codigo}">COD-01</td>
+            <td th:text="${u.tipoUnidad}">FoodTruck</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(u.recaudacion, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Acciones / Botones estilo Recibo PDF -->
+  <div class="acciones-doble">
+    <a class="boton" href="javascript:window.print();">Imprimir PDF</a>
     <a class="boton" th:href="@{/}">Volver</a>
   </div>
 
+  <!-- Logo Institucional UNLa -->
   <div class="logo">
-    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+    <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa" class="unla-logo-img">
   </div>
 
 </main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
