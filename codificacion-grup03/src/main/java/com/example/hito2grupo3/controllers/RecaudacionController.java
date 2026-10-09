@@ -25,7 +25,7 @@ public class RecaudacionController {
         model.addAttribute("festivalId", festivalId);
         model.addAttribute("ranking", Collections.emptyList());
 
-        // Sin login, habilitamos la visualizacion completa del reporte/ranking.
+  
         model.addAttribute("esAdministrador", true);
 
         try {

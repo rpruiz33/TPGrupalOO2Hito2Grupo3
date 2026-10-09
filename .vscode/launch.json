@@ -9,10 +9,9 @@
       "cwd": "${workspaceFolder}/codificacion-grup03",
       "env": {
         "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
-        "DB_USER": "root",
-        "DB_PASSWORD": "admin123",
+     
         "USERNAME": "root",
-        "PASSWORD": "admin123"
+        "PASSWORD": "root"
       }
     }
   ]
