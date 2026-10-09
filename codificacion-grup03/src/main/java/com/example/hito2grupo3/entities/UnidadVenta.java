@@ -1,21 +1,19 @@
 package com.example.hito2grupo3.entities;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "unidades_venta")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -25,54 +23,38 @@ public abstract class UnidadVenta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreComercial;
-
     private String codigo;
+    private String nombreComercial;
+    private BigDecimal superficieM2;
 
+    // Relación ManyToMany con Plato
+    @ManyToMany
+    @JoinTable(
+        name = "unidad_venta_plato",
+        joinColumns = @JoinColumn(name = "unidad_venta_id"),
+        inverseJoinColumns = @JoinColumn(name = "plato_id")
+    )
+    private List<Plato> platosOfrecidos = new ArrayList<>();
+
+    // 1. Staff Asignado: Muchos a Muchos (1..* asigna 0..*)
+    @ManyToMany
+    @JoinTable(
+        name = "unidad_venta_staff",
+        joinColumns = @JoinColumn(name = "unidad_venta_id"),
+        inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
+    private Set<Staff> staffAsignado = new HashSet<>();
+
+    // 2. Responsable: Muchos a Uno (Un staff puede ser responsable de varias unidades, pero la unidad tiene 1)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "festival_id", nullable = false)
-    private Festival festival;
+    @JoinColumn(name = "responsable_id", nullable = false)
+    private Staff responsable;
 
-    @OneToMany(mappedBy = "unidadVenta", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "unidadesVentaHabilitadas")
+    private Set<Festival> festivales = new HashSet<>();
+
+  
+    @OneToMany(mappedBy = "unidadVenta")
     private List<Pedido> pedidos = new ArrayList<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombreComercial() {
-        return nombreComercial;
-    }
-
-    public void setNombreComercial(String nombreComercial) {
-        this.nombreComercial = nombreComercial;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public Festival getFestival() {
-        return festival;
-    }
-
-    public void setFestival(Festival festival) {
-        this.festival = festival;
-    }
-
-    public List<Pedido> getPedidos() {
-        return pedidos;
-    }
-
-    public void setPedidos(List<Pedido> pedidos) {
-        this.pedidos = pedidos;
-    }
+    
 }

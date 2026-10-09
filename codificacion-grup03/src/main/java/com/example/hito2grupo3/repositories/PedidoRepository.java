@@ -12,7 +12,7 @@ import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    // Req. 2: Agregación en DB para evitar carga masiva en la JVM.
+    
     @Query("""
             SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
                 f.id,
@@ -28,7 +28,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             """)
     ReporteVentaDTO obtenerReporteVentaPorFestival(@Param("festivalId") Long festivalId);
 
-    // Req. 2: Ranking por unidad con LEFT JOIN + GROUP BY + ORDER BY descendente.
+
     @Query("""
             SELECT new com.example.hito2grupo3.dto.RankingUnidadDTO(
                 uv.id,
