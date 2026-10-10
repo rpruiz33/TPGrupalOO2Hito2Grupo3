@@ -7,7 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.hito2grupo3.exceptions.ResourceNotFoundException;
 import com.example.hito2grupo3.services.RecaudacionService;
 
 @Controller
@@ -24,8 +23,6 @@ public class RecaudacionController {
     public String verRecaudacion(@RequestParam(required = false) Long festivalId, Model model) {
         model.addAttribute("festivalId", festivalId);
         model.addAttribute("ranking", Collections.emptyList());
-
-        // Sin login, habilitamos la visualizacion completa del reporte/ranking.
         model.addAttribute("esAdministrador", true);
 
         try {
@@ -40,10 +37,9 @@ public class RecaudacionController {
             try {
                 model.addAttribute("reporte", recaudacionService.obtenerReporteVenta(festivalId));
                 model.addAttribute("ranking", recaudacionService.obtenerRankingUnidades(festivalId));
-            } catch (ResourceNotFoundException ex) {
-                model.addAttribute("error", ex.getMessage());
             } catch (Exception ex) {
-                model.addAttribute("error", "No se pudo obtener el reporte. Revise la conexion a la base de datos.");
+                model.addAttribute("error", ex.getMessage() != null ? ex.getMessage()
+                        : "No se pudo obtener el reporte. Revise la conexion a la base de datos.");
             }
         }
 
@@ -61,7 +57,7 @@ public class RecaudacionController {
 	}
 
     @GetMapping("/reciboPdf")
-	public String reciboPdf() {
+	public String reciboPdf () {
 		return "reportes/reciboPdf";
 	}
 }
