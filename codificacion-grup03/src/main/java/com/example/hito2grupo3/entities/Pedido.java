@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -45,5 +46,5 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ItemPedido> items = new HashSet<>();
 
- 
+ private LocalDate fechaTransaccion;
 }

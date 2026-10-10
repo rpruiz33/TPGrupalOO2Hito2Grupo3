@@ -1,3 +1,4 @@
+
 package com.example.hito2grupo3.entities;
 
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Data
 @Setter
 @Getter
@@ -19,14 +21,11 @@ import lombok.Setter;
 @Table(name = "Roles")
 public class Rol {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)    
-private long id ;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-private enum tipoDeUsuario {ADMIN, EMPLEADO,RESPONSABLE};   
-
-
-
-
-
+    private enum tipoDeUsuario {
+        ADMIN, EMPLEADO, RESPONSABLE
+    }
 }
