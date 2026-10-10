@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Epicentro Gourmet</title>
+    
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    
+    <style>
+        /* Fondo borravino institucional basado en tu login */
+        body {
+            background-color: #800020; /* Color aproximado al de tu imagen */
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar superior semi-transparente para no romper el color de fondo */
+        .admin-header {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Menú lateral */
+        .admin-sidebar {
+            background-color: rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 65px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link-admin {
+            color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-admin:hover, .nav-link-admin.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Tarjetas blancas para mostrar los datos claramente */
+        .card-custom {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-custom h5 {
+            color: #555555;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Botón estilo "Outline" igual al que tenés en tu login */
+        .btn-outline-custom {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar de Administración -->
+    <nav class="navbar navbar-dark admin-header px-4 py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;">
+                <span>Epicentro Gourmet - Admin</span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <span class="small d-none d-md-inline">Administrador</span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Layout principal -->
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Menú Lateral -->
+            <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
+                <nav class="nav flex-column mt-2">
+                    <a class="nav-link nav-link-admin active" href="/admin/dashboard">Inicio</a>
+                    <a class="nav-link nav-link-admin" href="#">Festivales</a>
+                    <a class="nav-link nav-link-admin" href="#">Usuarios</a>
+                    <a class="nav-link nav-link-admin" href="#">Configuración</a>
+                </nav>
+            </div>
+
+            <!-- Área de Contenido Central -->
+            <div class="col-md-10 p-4 p-md-5">
+                <h2 class="fw-bold mb-1">Panel de Control</h2>
+                <p class="mb-5" style="color: #e0e0e0;">Resumen del sistema y gestión de Epicentro Gourmet.</p>
+                
+                <div class="row g-4">
+                    <!-- Tarjeta 1 -->
+                    <div class="col-md-4">
+                        <div class="card card-custom p-2">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Festivales Activos</h5>
+                                <h2 class="fw-bold m-0" style="color: #800020;">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta 2 -->
+                    <div class="col-md-4">
+                        <div class="card card-custom p-2">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Usuarios Registrados</h5>
+                                <h2 class="fw-bold m-0" style="color: #800020;">0</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 3 -->
+                    <div class="col-md-4">
+                        <div class="card card-custom p-2">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Recaudación Mensual</h5>
+                                <h2 class="fw-bold m-0" style="color: #800020;">$0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

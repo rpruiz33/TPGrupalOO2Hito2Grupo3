@@ -1,4 +1,3 @@
-
 package com.example.hito2grupo3.entities;
 
 import jakarta.persistence.Column;
@@ -31,7 +30,8 @@ public class Usuario {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Cambiamos a EAGER para que Spring Security pueda leer el rol al loguear
+    @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "rol_id", referencedColumnName = "id", nullable = false)
-    private Rol roles;
+    private Rol rol; // Le sacamos la "s" final
 }
