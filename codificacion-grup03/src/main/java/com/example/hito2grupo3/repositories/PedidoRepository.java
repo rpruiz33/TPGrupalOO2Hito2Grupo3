@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.hito2grupo3.dto.RankingUnidadDTO;
+import com.example.hito2grupo3.dto.RankingUnidadVentaDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Pedido;
 
@@ -48,5 +48,5 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             GROUP BY uv.id, uv.nombreComercial, uv.codigo, TYPE(uv)
             ORDER BY COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) DESC
             """)
-    List<RankingUnidadDTO> obtenerRankingPorFestival(@Param("festivalId") Long festivalId);
+    List<RankingUnidadVentaDTO> obtenerRankingPorFestival(@Param("festivalId") Long festivalId);
 }

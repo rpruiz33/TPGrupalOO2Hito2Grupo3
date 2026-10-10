@@ -2,7 +2,7 @@ package com.example.hito2grupo3.dto;
 
 import java.math.BigDecimal;
 
-public class RankingUnidadDTO {
+public class RankingUnidadVentaDTO {
 
     private Long unidadVentaId;
     private String nombreComercial;
@@ -10,11 +10,10 @@ public class RankingUnidadDTO {
     private String tipoUnidad;
     private BigDecimal recaudacion;
 
-    public RankingUnidadDTO(Long unidadVentaId, String nombreComercial, String codigo, String tipoUnidad, BigDecimal recaudacion) {
+    public RankingUnidadVentaDTO(Long unidadVentaId, String nombreComercial, String codigo, String tipoUnidad, BigDecimal recaudacion) {
         this.unidadVentaId = unidadVentaId;
         this.nombreComercial = nombreComercial;
         this.codigo = codigo;
-        this.tipoUnidad = tipoUnidad;
         this.recaudacion = recaudacion;
     }
 

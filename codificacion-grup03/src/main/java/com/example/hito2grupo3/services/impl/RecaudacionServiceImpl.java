@@ -5,10 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.hito2grupo3.dto.RankingUnidadDTO;
+import com.example.hito2grupo3.dto.RankingUnidadVentaDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.exceptions.ResourceNotFoundException;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.services.RecaudacionService;
@@ -33,7 +32,7 @@ public class RecaudacionServiceImpl implements RecaudacionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RankingUnidadDTO> obtenerRankingUnidades(Long festivalId) {
+    public List<RankingUnidadVentaDTO> obtenerRankingUnidades(Long festivalId) {
         validarFestival(festivalId);
         return pedidoRepository.obtenerRankingPorFestival(festivalId);
     }
@@ -46,7 +45,7 @@ public class RecaudacionServiceImpl implements RecaudacionService {
 
     private void validarFestival(Long festivalId) {
         if (festivalId == null || !festivalRepository.existsById(festivalId)) {
-            throw new ResourceNotFoundException("No existe el festival con id " + festivalId);
+            throw new IllegalArgumentException("No existe el festival con id " + festivalId);
         }
     }
 }
