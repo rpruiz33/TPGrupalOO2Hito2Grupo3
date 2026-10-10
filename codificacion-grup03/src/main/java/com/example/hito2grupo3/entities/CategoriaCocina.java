@@ -1,7 +1,5 @@
 package com.example.hito2grupo3.entities;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,20 +10,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-@Getter 
-@Setter 
+@NoArgsConstructor
 @Entity
-@Table(name = "platos")
-public class Plato {
+@Table(name = "categorias_cocina")
+public class CategoriaCocina {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; 
+
     private String nombre;
-    private BigDecimal precio;
-
-
+    private BigDecimal plusFijo;
 }

@@ -1,6 +1,6 @@
 package com.example.hito2grupo3.entities;
 
-import jakarta.persistence.Entity;
+import java.math.BigDecimal;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 
@@ -13,9 +13,9 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "food_trucks")
-public class FoodTruck extends UnidadVenta {
-    private String patente;
-    private boolean requiereElectricidad;
+@Table(name = "Cajero")
+public class Cajero extends Staff {
+    private String turno;
+    private Integer NumeroCaja;
+    private BigDecimal plusOadicional;
 }
