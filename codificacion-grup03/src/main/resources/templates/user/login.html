@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>epicentro gourmet</title>
+    
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}"/>
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}"/>
+</head>
+<body class="login-body">
+
+    <div class="login-container">
+        <div class="login-header text-center mb-4">
+            <h3>Epicentro Gourmet</h3>
+            <p>Inicie sesion para continuar</p>
+        </div>
+
+        <div th:if="${error != null}" class="alert alert-danger text-center w-100">
+            Usuario o contrasena invalidos.
+        </div>
+
+        <div th:if="${logout != null}" class="alert alert-success text-center w-100">
+            Cesion finalizada correctamente.
+        </div>
+
+        <form th:action="@{/loginprocess}" method="post" class="w-100">
+            <div class="mb-3 text-start">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required autofocus placeholder="Ingrese su usuario"/>
+            </div>
+            <div class="mb-3 text-start">
+                <label for="password" class="form-label">Contrasena</label>
+                <input type="password" class="form-control" id="password" name="password" required placeholder="Ingrese su contrasena"/>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </form>
+
+
+       <div class="login-footer text-center mt-4">
+            <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}"/>
+        </div>
+    </div>
+
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

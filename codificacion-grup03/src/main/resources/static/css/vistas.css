@@ -1,0 +1,676 @@
+/* ==========================================================================
+   1. VARIABLES Y CONFIGURACIÓN GLOBAL
+   ========================================================================== */
+:root {
+  /* Paleta UNLa / Epicentro Gourmet */
+  --bordo: #80001e;
+  --bordo-oscuro: #5e0016;
+  --unla-red: #800020;
+  --blanco: #ffffff;
+  --negro: #000000;
+  --blanco-suave: rgba(255, 255, 255, 0.78);
+  --linea: rgba(255, 255, 255, 0.28);
+  --text-light: #ffffff;
+  --text-muted: #e0e0e0;
+
+  /* Dashboard / UI moderna */
+  --primary: #2c3e50;
+  --primary-light: #34495e;
+  --accent: #3498db;
+  --accent-hover: #2980b9;
+  --success: #27ae60;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --light: #f8f9fa;
+  --dark: #2c3e50;
+  --gray: #6c757d;
+  --gray-light: #e9ecef;
+  --shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 5px 25px rgba(0, 0, 0, 0.15);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bordo);
+  color: var(--negro);
+  font-family: "DejaVu Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* ==========================================================================
+   2. ESTRUCTURA Y NAVEGACIÓN
+   ========================================================================== */
+.contenedor {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 48px 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+header p {
+  margin: 4px 0 0;
+  color: var(--blanco-suave);
+}
+
+nav.menu {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+nav.menu a {
+  color: var(--blanco-suave);
+  text-decoration: none;
+  padding-bottom: 2px;
+  transition: var(--transition);
+}
+
+nav.menu a:hover,
+nav.menu a[aria-current] {
+  color: var(--blanco);
+  border-bottom: 1px solid var(--blanco);
+}
+
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   3. FORMULARIOS, FILTROS Y BOTONES
+   ========================================================================== */
+form.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.form-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+label,
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+small.ayuda {
+  display: block;
+  margin-bottom: 28px;
+  color: var(--negro);
+  font-size: 0.82rem;
+}
+
+input,
+select,
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--blanco);
+  border-radius: var(--radius-sm);
+  background: var(--blanco);
+  color: #000000;
+  font: inherit;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+input:focus,
+select:focus,
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  outline: none;
+}
+
+button,
+.boton,
+.btn {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--blanco);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--blanco);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  transition: var(--transition);
+}
+
+button:hover,
+.boton:hover {
+  background: var(--blanco);
+  color: var(--bordo);
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--blanco);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--blanco);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+  color: var(--blanco);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: var(--blanco);
+}
+
+.btn-outline-secondary {
+  border-color: var(--gray);
+  color: var(--gray);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--gray);
+  color: var(--blanco);
+}
+
+.acciones {
+  margin-top: 8px;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.acciones-doble {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  max-width: 560px;
+  margin: 8px auto 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blanco);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   4. TARJETAS, PANELES Y COMPONENTES
+   ========================================================================== */
+.card {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  border-radius: var(--radius) var(--radius) 0 0 !important;
+  font-weight: 600;
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dato {
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+}
+
+.dato span {
+  display: block;
+  color: var(--blanco-suave);
+  font-size: 0.88rem;
+}
+
+.dato strong {
+  display: block;
+  font-size: 1.35rem;
+  margin-top: 2px;
+}
+
+.dato.principal {
+  background: var(--blanco);
+  color: var(--bordo);
+  border-color: var(--blanco);
+}
+
+.dato.principal span {
+  color: var(--bordo);
+}
+
+.aviso {
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 36px;
+}
+
+.aviso strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.aviso span {
+  color: var(--blanco-suave);
+  font-size: 0.9rem;
+}
+
+.estrella {
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 36px;
+}
+
+.estrella span {
+  color: var(--blanco-suave);
+  font-size: 0.9rem;
+}
+
+.estrella strong {
+  display: block;
+  font-size: 1.3rem;
+}
+
+.formula,
+.unidad {
+  text-align: center;
+  color: var(--blanco-suave);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+}
+
+.exito {
+  border: 2px solid var(--blanco);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--blanco);
+}
+
+.error,
+.alert {
+  border: 2px solid var(--blanco);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.vacio {
+  border: 1px dashed var(--linea);
+  border-radius: var(--radius-sm);
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--blanco);
+}
+
+/* ==========================================================================
+   5. TABLAS Y DETALLES CON TEXTO BLANCO
+   ========================================================================== */
+section {
+  margin-bottom: 36px;
+}
+
+h2,
+.page-header h2 {
+  font-size: 1.15rem;
+  margin: 0 0 14px;
+  font-weight: 700;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-sm);
+}
+
+table,
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+th,
+td {
+  padding: 12px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--linea);
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  font-weight: 700;
+  background: var(--bordo-oscuro);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+td a.enlace {
+  color: var(--blanco);
+  font-weight: 700;
+}
+
+/* Regla forzada para legibilidad en listas y tablas de detalles */
+.tabla-scroll table th,
+.tabla-scroll table td,
+.tabla-scroll table td * {
+  color: var(--blanco) !important;
+}
+
+.tabla-scroll table td span {
+  color: var(--blanco-suave) !important;
+}
+
+.action-buttons .btn {
+  padding: 4px 12px;
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   6. VISTA ESPECÍFICA DE LOGIN Y FOOTER/LOGO
+   ========================================================================== */
+body.login-body {
+  background-color: var(--unla-red) !important;
+  min-height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 20px !important;
+}
+
+.login-container {
+  width: 100% !important;
+  max-width: 380px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  float: none !important;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-header h3 {
+  color: var(--text-light) !important;
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.login-header p {
+  color: var(--text-muted) !important;
+  font-size: 1.05rem !important;
+}
+
+.logo {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.logo .unla-logo-img,
+.login-footer .unla-logo-img {
+  display: block !important;
+  margin: 0 auto;
+  width: 110px !important;
+  height: auto !important;
+  opacity: 1 !important;
+  border: 2px solid #000000;
+}
+
+footer {
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   7. SECCIÓN HERO, ERRORES Y RESPONSIVE
+   ========================================================================== */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: var(--blanco);
+  padding: 60px 0;
+  margin: -1.5rem -0.75rem 2rem -0.75rem;
+  border-radius: 0 0 20px 20px;
+}
+
+.hero-section h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.hero-section p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.access-card {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.access-card .card-body i,
+.access-card .card-body .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.error-container {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.error-message {
+  font-size: 1.3rem;
+  color: var(--gray);
+  margin: 20px 0 30px;
+}
+
+@media (max-width: 768px) {
+  header h1,
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+
+  .error-code {
+    font-size: 4rem;
+  }
+
+  .tabla-scroll {
+    font-size: 0.9rem;
+  }
+}
+/*/* ==========================================================================
+   CORRECCIÓN DE COLOR ROJO / BORDÓ INSTITUCIONAL (FONDO COMPLETO)
+   ========================================================================== */
+
+/* Fondo global en rojo bordó */
+html, body {
+  background-color: #800020 !important; /* Rojo Bordó UNLa */
+  color: #000000 !important;
+  min-height: 100vh;
+}
+
+/* El contenedor principal se asegura de no tener fondos claros */
+main, .contenedor {
+  background-color: transparent !important;
+}
+
+/* Títulos, etiquetas y textos en blanco para contraste */
+header h1, 
+header p, 
+label, 
+.form-label, 
+h1, h2, h3, h4, 
+p, span, strong {
+  color: #000000 !important;
+}
+
+/* Ajuste de inputs y selectores (Crema amarillento con letras oscuras) */
+input,
+select,
+.form-control,
+.form-select {
+  background-color: #FFFFCC !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Botón Consultar / Ingresar (Rojo oscuro con borde blanco) */
+button,
+.boton,
+.btn-primary,
+.btn-unla {
+  background-color: #5E0016 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+button:hover,
+.boton:hover,
+.btn-primary:hover,
+.btn-unla:hover {
+  background-color: #800020 !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* Tarjetas y Paneles (Contenedores) sobre fondo rojo */
+.card,
+.dato,
+.aviso,
+.estrella {
+  background-color: rgba(0, 0, 0, 0.2) !important; /* Fondo semitransparente oscuro */
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px;
+}
+
+/* Tarjetas de Recaudación y Pedidos */
+.dato.principal {
+  background-color: #FFFFCC !important; /* Cuadros destacados en crema */
+  border: 1px solid #ffffff !important;
+}
+
+.dato.principal span {
+  color: #555555 !important;
+}
+
+.dato.principal strong {
+  color: #800020 !important; /* Números en rojo bordó */
+}
+
+/* Tabla de Ranking */
+.tabla-scroll {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabla-scroll table th {
+  background-color: #5E0016 !important; /* Encabezado de tabla en bordó oscuro */
+  color: #ffffff !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+.tabla-scroll table td {
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Botón Volver */
+.btn-outline-secondary,
+a.boton {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.btn-outline-secondary:hover,
+a.boton:hover {
+  background-color: #ffffff !important;
+  color: #800020 !important;
+}

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Hito2grupo3Application",
+      "request": "launch",
+      "mainClass": "com.example.hito2grupo3.Hito2grupo3Application",
+      "cwd": "${workspaceFolder}/codificacion-grup03",
+      "env": {
+        "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
+        "DB_USER": "root",
+        "DB_PASSWORD": "admin123",
+        "USERNAME": "root",
+        "PASSWORD": "root"
+      }
+    }
+  ]
+}
