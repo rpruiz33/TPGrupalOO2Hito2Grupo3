@@ -22,7 +22,7 @@ public class SecurityConfiguration {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
            
-                    auth.requestMatchers("/cierreCaja" ,"/empleadoDashboard","/recaudacion","/reciboPdf","/error","/recibo-pdf").permitAll();
+                    auth.requestMatchers("/cierreCaja" ,"/empleadoDashboard","/recaudacion","/reciboPdf","/error","/recibo-pdf","/empleadoDashboard").permitAll();
                     auth.requestMatchers("/css/**", "/images/**", "/js/**", "/vendor/bootstrap/css/**",
                             "/vendor/jquery/**", "/vendor/bootstrap/js/**", "/api/v1/**").permitAll();
                     auth.anyRequest().authenticated();

@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MappedSuperclass;
+
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -17,16 +17,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 
 @Data 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+
+
+
 @Entity
-@MappedSuperclass
-@Table(name = "Staff")
+@Table(name = "staff")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Staff {
 
 @Id

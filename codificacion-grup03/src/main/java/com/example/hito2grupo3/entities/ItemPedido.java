@@ -26,7 +26,9 @@ public class ItemPedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Pedido pedido;
+    @ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "pedido_id", nullable = false)
+private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plato_id", nullable = false)

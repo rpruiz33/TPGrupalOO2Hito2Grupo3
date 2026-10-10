@@ -1,3 +1,4 @@
+
 package com.example.hito2grupo3.repositories;
 
 import java.util.List;
@@ -12,7 +13,6 @@ import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    
     @Query("""
             SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
                 f.id,
@@ -26,8 +26,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             WHERE f.id = :festivalId
             GROUP BY f.id, f.nombre
             """)
-    ReporteVentaDTO obtenerReporteVentaPorFestival(@Param("festivalId") Long festivalId);
-
+    ReporteVentaDTO obtenerReporteVentaPorFestival(
+            @Param("festivalId") Long festivalId);
 
     @Query("""
             SELECT new com.example.hito2grupo3.dto.RankingUnidadDTO(
@@ -42,11 +42,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
                 COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
             )
             FROM UnidadVenta uv
-            LEFT JOIN Pedido p ON p.unidadVenta.id = uv.id AND p.festival.id = :festivalId
+            JOIN uv.festivales f
+            LEFT JOIN Pedido p ON p.unidadVenta.id = uv.id
+                AND p.festival.id = :festivalId
             LEFT JOIN ItemPedido ip ON ip.pedido.id = p.id
-            WHERE uv.festival.id = :festivalId
+            WHERE f.id = :festivalId
             GROUP BY uv.id, uv.nombreComercial, uv.codigo, TYPE(uv)
             ORDER BY COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) DESC
             """)
-    List<RankingUnidadDTO> obtenerRankingPorFestival(@Param("festivalId") Long festivalId);
+    List<RankingUnidadDTO> obtenerRankingPorFestival(
+            @Param("festivalId") Long festivalId);
 }

@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+import jakarta.persistence.Entity;
 
 
 @Data
@@ -20,6 +20,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table(name = "Costos")
 public class Costos {
     @Id
