@@ -7,125 +7,231 @@
   --texto-alerta: #721c24;
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
 body {
+  background-color: var(--bordo);
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   min-height: 100vh;
-  background: var(--bordo);
-  color: #fff;
-  font-family: "DejaVu Sans", Verdana, sans-serif;
   display: flex;
   flex-direction: column;
 }
 
-/* ---------- Barra superior ---------- */
-.topbar {
+/* ---------- Barra superior (Topbar / Admin Header) ---------- */
+.topbar, .admin-header {
   height: 70px;
-  background: var(--bordo-oscuro);
-  border-bottom: 1px solid rgba(255, 255, 255, .15);
+  background-color: var(--bordo-oscuro);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
 }
-.marca { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; }
-.marca img { width: 46px; height: 46px; }
-.usuario { display: flex; align-items: center; gap: 12px; font-size: .8rem; }
-.usuario form { margin: 0; }
 
-.btn-borde {
-  background: transparent;
-  color: #fff;
-  border: 1px solid #fff;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: .95rem;
-  cursor: pointer;
-  text-decoration: none;
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  color: #ffffff;
 }
-.btn-borde:hover { background: rgba(255, 255, 255, .15); }
 
-/* ---------- Cuerpo ---------- */
-.layout { flex: 1; display: flex; }
+.marca img {
+  width: 46px;
+  height: 46px;
+}
 
-.sidebar {
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .8rem;
+  color: #ffffff;
+}
+
+.usuario form {
+  margin: 0;
+}
+
+/* ---------- Cuerpo y Sidebar ---------- */
+.layout {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar, .admin-sidebar {
   width: 198px;
-  background: var(--bordo-oscuro);
-  border-right: 1px solid rgba(255, 255, 255, .15);
+  background-color: var(--bordo-oscuro);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   padding-top: 24px;
+  min-height: calc(100vh - 70px);
 }
-.sidebar a {
+
+.sidebar a, .nav-link-admin {
   display: block;
-  padding: 12px 2px;
+  padding: 12px 15px;
   margin-bottom: 6px;
   color: var(--texto-suave);
   text-decoration: none;
   border-radius: 6px;
+  transition: all 0.3s ease;
 }
-.sidebar a:hover { background: rgba(255, 255, 255, .1); }
-.sidebar a.activo {
-  background: rgba(255, 255, 255, .25);
+
+.sidebar a:hover, 
+.nav-link-admin:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.sidebar a.activo, .nav-link-admin.active {
+  background-color: rgba(255, 255, 255, 0.25);
   color: #fff;
   font-weight: bold;
-  margin-right: 16px;
 }
 
-.contenido { flex: 1; padding: 40px 48px; min-width: 0; }
-.contenido h1 { margin: 0; font-size: 2.2rem; font-weight: normal; }
-.contenido .subtitulo { margin: 6px 0 36px; color: var(--texto-suave); }
+/* ---------- Contenido principal (Forzando fondo rojo borgoña) ---------- */
+.contenido {
+  flex: 1 !important;
+  padding: 40px 48px !important;
+  min-width: 0;
+  background-color: var(--bordo) !important; /* Fuerza el fondo rojo */
+  color: #ffffff !important;
+}
 
-/* ---------- Tarjetas ---------- */
+.contenido h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: normal;
+  color: #ffffff !important;
+}
+
+.contenido .subtitulo {
+  margin: 6px 0 36px;
+  color: var(--texto-suave) !important;
+}
+
+/* ---------- Tarjetas y Contenedores (Se mantienen blancos) ---------- */
 .tarjetas {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 30px;
   margin-bottom: 30px;
 }
-.tarjeta {
-  background: var(--tarjeta);
-  color: #555;
+
+.tarjeta, .card, .card-custom {
+  background-color: #ffffff !important; /* Forzamos blanco en la tarjeta */
+  color: #333333 !important;
+  border: none;
   border-radius: 6px;
   padding: 28px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
-.tarjeta .etiqueta { text-transform: uppercase; letter-spacing: .05em; font-size: .95rem; }
-.tarjeta .valor { color: var(--bordo); font-size: 2.2rem; margin-top: 18px; }
-.tarjeta .valor.chico { font-size: 1.5rem; }
 
-/* ---------- Formulario ---------- */
-.filtro { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
-.filtro .campo { flex: 1; min-width: 240px; }
-.filtro label { display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; font-size: .85rem; }
-.filtro select {
+.tarjeta .etiqueta, .card-custom h5, .card label, .card .form-label {
+  color: #555555 !important;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tarjeta .valor {
+  color: var(--bordo);
+  font-size: 2.2rem;
+  margin-top: 18px;
+}
+
+.tarjeta .valor.chico {
+  font-size: 1.5rem;
+}
+
+/* ---------- Formulario y Filtros (Select blanco intacto) ---------- */
+.filtro {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.filtro .campo {
+  flex: 1;
+  min-width: 240px;
+}
+
+.filtro label {
+  display: block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-size: .85rem;
+  color: #555555;
+}
+
+.filtro select, .form-control, .form-select {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  background: #fff;
+  background-color: #ffffff !important; /* Select blanco */
+  color: #333333 !important;           /* Texto oscuro */
   font-size: 1rem;
 }
+
+/* ---------- Botones ---------- */
 .btn-bordo {
-  background: var(--bordo);
+  background-color: var(--bordo);
   color: #fff;
   border: 0;
   border-radius: 6px;
   padding: 13px 22px;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.3s;
 }
-.btn-bordo:hover { background: var(--bordo-oscuro); }
+
+.btn-bordo:hover {
+  background-color: var(--bordo-oscuro);
+}
+
+.btn-borde, .btn-outline-custom {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: .95rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.btn-borde:hover, .btn-outline-custom:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
 
 /* ---------- Alerta y tabla ---------- */
 .alerta {
-  background: var(--rosa-alerta);
+  background-color: var(--rosa-alerta);
   color: var(--texto-alerta);
   padding: 14px;
   border-radius: 6px;
   margin-bottom: 24px;
 }
-.tabla-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; color: #333; }
+
+.tabla-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #333;
+}
+
 th {
   text-align: left;
   padding: 12px 10px;
@@ -135,9 +241,23 @@ th {
   font-size: .78rem;
   border-bottom: 2px solid var(--bordo);
 }
-td { padding: 12px 10px; border-bottom: 1px solid #e6dcdf; font-size: .92rem; }
-th.num, td.num { text-align: right; }
-tfoot td { font-weight: bold; color: var(--bordo); border-bottom: 0; }
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e6dcdf;
+  font-size: .92rem;
+}
+
+th.num, td.num {
+  text-align: right;
+}
+
+tfoot td {
+  font-weight: bold;
+  color: var(--bordo);
+  border-bottom: 0;
+}
+
 .btn-pdf {
   color: var(--bordo);
   border: 1px solid var(--bordo);
@@ -146,13 +266,39 @@ tfoot td { font-weight: bold; color: var(--bordo); border-bottom: 0; }
   font-size: .8rem;
   font-weight: bold;
   text-decoration: none;
+  transition: all 0.3s;
 }
-.btn-pdf:hover { background: var(--bordo); color: #fff; }
-.nota { font-size: .8rem; color: #777; margin: 14px 0 0; }
 
+.btn-pdf:hover {
+  background-color: var(--bordo);
+  color: #fff;
+}
+
+.nota {
+  font-size: .8rem;
+  color: #777;
+  margin: 14px 0 0;
+}
+
+/* ---------- Responsive ---------- */
 @media (max-width: 760px) {
-  .layout { flex-direction: column; }
-  .sidebar { width: 100%; display: flex; gap: 6px; padding: 10px; border-right: 0; }
-  .sidebar a, .sidebar a.activo { margin: 0; padding: 8px 12px; }
-  .contenido { padding: 24px 18px; }
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar, .admin-sidebar {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    padding: 10px;
+    border-right: 0;
+    min-height: auto;
+  }
+  .sidebar a, .sidebar a.activo, .nav-link-admin {
+    margin: 0;
+    padding: 8px 12px;
+  }
+  .contenido {
+    padding: 24px 18px !important;
+  }
+  
 }
