@@ -1,0 +1,158 @@
+:root {
+  --bordo: #800020;
+  --bordo-oscuro: #6b0019;
+  --tarjeta: #f7f1f3;
+  --texto-suave: #f1e4e6;
+  --rosa-alerta: #f8d7da;
+  --texto-alerta: #721c24;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bordo);
+  color: #fff;
+  font-family: "DejaVu Sans", Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Barra superior ---------- */
+.topbar {
+  height: 70px;
+  background: var(--bordo-oscuro);
+  border-bottom: 1px solid rgba(255, 255, 255, .15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+.marca { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; }
+.marca img { width: 46px; height: 46px; }
+.usuario { display: flex; align-items: center; gap: 12px; font-size: .8rem; }
+.usuario form { margin: 0; }
+
+.btn-borde {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: .95rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-borde:hover { background: rgba(255, 255, 255, .15); }
+
+/* ---------- Cuerpo ---------- */
+.layout { flex: 1; display: flex; }
+
+.sidebar {
+  width: 198px;
+  background: var(--bordo-oscuro);
+  border-right: 1px solid rgba(255, 255, 255, .15);
+  padding-top: 24px;
+}
+.sidebar a {
+  display: block;
+  padding: 12px 2px;
+  margin-bottom: 6px;
+  color: var(--texto-suave);
+  text-decoration: none;
+  border-radius: 6px;
+}
+.sidebar a:hover { background: rgba(255, 255, 255, .1); }
+.sidebar a.activo {
+  background: rgba(255, 255, 255, .25);
+  color: #fff;
+  font-weight: bold;
+  margin-right: 16px;
+}
+
+.contenido { flex: 1; padding: 40px 48px; min-width: 0; }
+.contenido h1 { margin: 0; font-size: 2.2rem; font-weight: normal; }
+.contenido .subtitulo { margin: 6px 0 36px; color: var(--texto-suave); }
+
+/* ---------- Tarjetas ---------- */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+.tarjeta {
+  background: var(--tarjeta);
+  color: #555;
+  border-radius: 6px;
+  padding: 28px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+.tarjeta .etiqueta { text-transform: uppercase; letter-spacing: .05em; font-size: .95rem; }
+.tarjeta .valor { color: var(--bordo); font-size: 2.2rem; margin-top: 18px; }
+.tarjeta .valor.chico { font-size: 1.5rem; }
+
+/* ---------- Formulario ---------- */
+.filtro { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
+.filtro .campo { flex: 1; min-width: 240px; }
+.filtro label { display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; font-size: .85rem; }
+.filtro select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 1rem;
+}
+.btn-bordo {
+  background: var(--bordo);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 13px 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-bordo:hover { background: var(--bordo-oscuro); }
+
+/* ---------- Alerta y tabla ---------- */
+.alerta {
+  background: var(--rosa-alerta);
+  color: var(--texto-alerta);
+  padding: 14px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+.tabla-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; color: #333; }
+th {
+  text-align: left;
+  padding: 12px 10px;
+  color: var(--bordo);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: .78rem;
+  border-bottom: 2px solid var(--bordo);
+}
+td { padding: 12px 10px; border-bottom: 1px solid #e6dcdf; font-size: .92rem; }
+th.num, td.num { text-align: right; }
+tfoot td { font-weight: bold; color: var(--bordo); border-bottom: 0; }
+.btn-pdf {
+  color: var(--bordo);
+  border: 1px solid var(--bordo);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: .8rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+.btn-pdf:hover { background: var(--bordo); color: #fff; }
+.nota { font-size: .8rem; color: #777; margin: 14px 0 0; }
+
+@media (max-width: 760px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; display: flex; gap: 6px; padding: 10px; border-right: 0; }
+  .sidebar a, .sidebar a.activo { margin: 0; padding: 8px 12px; }
+  .contenido { padding: 24px 18px; }
+}

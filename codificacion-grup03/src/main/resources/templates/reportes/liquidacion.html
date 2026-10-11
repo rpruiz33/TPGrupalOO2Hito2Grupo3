@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liquidación de Haberes - Epicentro Gourmet</title>
+  <link rel="stylesheet" th:href="@{/css/panel.css}">
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    
+  <style>
+        
+        body {
+            background-color: #800020; /* Color aproximado al de tu imagen */
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+       
+        .admin-header {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        
+        .admin-sidebar {
+            background-color: rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 65px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link-admin {
+            color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link-admin:hover, .nav-link-admin.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        
+        .card-custom {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-custom h5 {
+            color: #555555;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+    
+        .btn-outline-custom {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+    </style>
+</head>
+<body>
+
+  <!-- Barra superior -->
+    <nav class="navbar navbar-dark admin-header px-4 py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;">
+                <span>Epicentro Gourmet - Admin</span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <span class="small d-none d-md-inline">Administrador</span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+  <div class="layout">
+
+    <!-- Menú lateral -->
+    <nav class="sidebar">
+      <a th:href="@{/}">Inicio</a>
+      <a th:href="@{/liquidacion}" class="activo">Liquidación</a>
+      <a th:href="@{/reportes/recaudacion}">Recaudación</a>
+    </nav>
+
+    <!-- Contenido -->
+    <main class="contenido">
+      <h1>Liquidación de Haberes</h1>
+      <p class="subtitulo">Sueldos del personal de tu unidad de venta según el festival.</p>
+
+      <div class="alerta" th:if="${error}" th:text="${error}"></div>
+
+      <!-- Selector de festival -->
+      <form class="tarjeta filtro" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+        <div class="campo">
+          <label for="festivalId">Festival</label>
+          <select id="festivalId" name="festivalId" required>
+            <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
+            <option th:each="f : ${festivales}"
+                    th:value="${f.id}"
+                    th:text="${f.nombre}"
+                    th:selected="${f.id == festivalId}"></option>
+          </select>
+        </div>
+        <button type="submit" class="btn-bordo">Calcular liquidación</button>
+      </form>
+
+      <!-- Resultado -->
+      <div th:if="${liquidaciones != null}">
+
+        <div class="tarjetas">
+          <div class="tarjeta">
+            <div class="etiqueta">Unidad de venta</div>
+            <div class="valor chico" th:text="${unidad}">Unidad</div>
+          </div>
+          <div class="tarjeta">
+            <div class="etiqueta">Duración del festival</div>
+            <div class="valor" th:text="${diasFestival} + ' días'">0 días</div>
+          </div>
+          <div class="tarjeta">
+            <div class="etiqueta">Total a pagar</div>
+            <div class="valor"
+                 th:text="'$' + ${#numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA')}">$0</div>
+          </div>
+        </div>
+
+        <div class="tarjeta">
+          <div class="tabla-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empleado</th>
+                  <th>DNI</th>
+                  <th>Rol</th>
+                  <th class="num">Sueldo base</th>
+                  <th class="num">Plus / Antigüedad</th>
+                  <th class="num">Períodos (x50%)</th>
+                  <th class="num">Total</th>
+                  <th>Recibo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="l : ${liquidaciones}">
+                  <td th:text="${l.nombreCompleto}">Nombre</td>
+                  <td th:text="${l.dni}">00000000</td>
+                  <td th:text="${l.rol}">Cajero</td>
+                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                  <td class="num" th:text="${l.periodos}">0</td>
+                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                  <td>
+                    <a class="btn-pdf"
+                       th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(liquidaciones)}">
+                  <td colspan="8">No hay personal activo asignado a esta unidad.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="6">Total de la unidad</td>
+                  <td class="num" colspan="2"
+                      th:text="'$' + ${#numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="nota">
+            Cocina: sueldo base + plus por categoría · Cajero: sueldo base + años de antigüedad × plus.
+            Cada tramo de 15 días del festival paga el 50%.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

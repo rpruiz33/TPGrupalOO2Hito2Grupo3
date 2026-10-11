@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alta de pedido - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+</head>
+
+<body class="login-body">
+<main class="contenedor">
+
+    <header class="text-center mb-4">
+        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+        <p class="mb-0 text-white-50">Alta de pedido</p>
+    </header>
+
+    <div class="error" role="alert" th:if="${error}" th:text="${error}">
+        Error al registrar el pedido.
+    </div>
+
+    <div class="exito" role="status" th:if="${mensaje}" th:text="${mensaje}">
+        Pedido registrado correctamente.
+    </div>
+
+    <section>
+        <h2 class="h5 fw-bold text-white mb-3">Datos de la venta</h2>
+
+        <form id="formularioPedido" th:action="@{/pedidos/alta}" method="post">
+
+            <div class="mb-3">
+                <label for="fecha" class="text-white fw-medium mb-1">
+                    Fecha de la venta
+                </label>
+                <input type="date"
+                       id="fecha"
+                       name="fecha"
+                       class="form-control"
+                       th:value="${fechaActual}"
+                       required>
+                <small id="avisoFecha" class="text-warning mt-2 d-none">
+                    La fecha seleccionada es distinta a la fecha actual.
+                </small>
+            </div>
+
+            <div class="mb-3">
+                <label for="festivalId" class="text-white fw-medium mb-1">
+                    Festival
+                </label>
+                <select id="festivalId" name="festivalId" class="form-select" required>
+                    <option value="">Selecciona un festival...</option>
+                    <option th:each="festival : ${festivales}"
+                            th:value="${festival.id}"
+                            th:text="${festival.nombre}">
+                        Festival
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="unidadVentaId" class="text-white fw-medium mb-1">
+                    Unidad de venta
+                </label>
+                <select id="unidadVentaId"
+                        name="unidadVentaId"
+                        class="form-select"
+                        required
+                        disabled>
+                    <option value="">Selecciona primero un festival...</option>
+                </select>
+                <small id="avisoUnidades" class="text-warning mt-2 d-none"></small>
+            </div>
+
+            <h2 class="h5 fw-bold text-white mb-3">Platos del pedido</h2>
+
+            <div class="mb-3">
+                <label for="platoId" class="text-white fw-medium mb-1">
+                    Seleccionar plato
+                </label>
+                <select id="platoId" class="form-select" disabled>
+                    <option value="">Selecciona primero una unidad...</option>
+                </select>
+                <small id="avisoPlatos" class="text-warning mt-2 d-none"></small>
+            </div>
+
+            <div class="mb-3">
+                <label for="cantidad" class="text-white fw-medium mb-1">
+                    Cantidad
+                </label>
+                <input type="number"
+                       id="cantidad"
+                       class="form-control"
+                       min="1"
+                       step="1"
+                       value="1"
+                       required>
+            </div>
+
+            <div class="mb-4">
+                <button type="button"
+                        id="btnAgregarPlato"
+                        class="boton"
+                        disabled>
+                    Agregar plato
+                </button>
+            </div>
+
+            <div class="tabla-scroll mb-3">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Plato</th>
+                        <th>Precio unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Accion</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablaItems">
+                    <tr>
+                        <td colspan="5" class="vacio">
+                            Todavia no se agregaron platos.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="resumen">
+                <div class="dato principal">
+                    <span>Total del pedido</span>
+                    <strong id="totalPedido">0.00</strong>
+                </div>
+            </section>
+
+            <div class="acciones-doble mt-4">
+                <button type="button" class="boton" id="btnLimpiar">
+                    Limpiar
+                </button>
+                <button type="submit"
+                        class="boton"
+                        id="btnRegistrar"
+                        disabled>
+                    Registrar pedido
+                </button>
+                <a class="boton" th:href="@{/}">Volver</a>
+            </div>
+
+        </form>
+    </section>
+
+    <div class="logo">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo UNLa"
+             class="unla-logo-img">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const formulario = document.getElementById("formularioPedido");
+    const campoFecha = document.getElementById("fecha");
+    const avisoFecha = document.getElementById("avisoFecha");
+    const festivalSelect = document.getElementById("festivalId");
+    const unidadSelect = document.getElementById("unidadVentaId");
+    const platoSelect = document.getElementById("platoId");
+    const cantidadInput = document.getElementById("cantidad");
+    const avisoUnidades = document.getElementById("avisoUnidades");
+    const avisoPlatos = document.getElementById("avisoPlatos");
+    const btnAgregar = document.getElementById("btnAgregarPlato");
+    const btnLimpiar = document.getElementById("btnLimpiar");
+    const btnRegistrar = document.getElementById("btnRegistrar");
+    const tablaItems = document.getElementById("tablaItems");
+    const totalPedido = document.getElementById("totalPedido");
+
+    const items = new Map();
+    let solicitudUnidades = 0;
+    let solicitudPlatos = 0;
+
+    // La fecha inicial proviene del controlador mediante Thymeleaf.
+    const fechaActual = campoFecha.value;
+
+    function validarFecha() {
+        avisoFecha.classList.toggle(
+            "d-none",
+            campoFecha.value === fechaActual
+        );
+    }
+
+    campoFecha.addEventListener("change", validarFecha);
+
+    function formatoNumero(valor) {
+        return Number(valor).toFixed(2);
+    }
+
+    function actualizarEstadoRegistro() {
+        btnRegistrar.disabled =
+            items.size === 0 ||
+            !festivalSelect.value ||
+            !unidadSelect.value;
+    }
+
+    async function cargarUnidadesPorFestival() {
+        const numeroSolicitud = ++solicitudUnidades;
+        solicitudPlatos++;
+
+        unidadSelect.innerHTML =
+            '<option value="">Cargando unidades...</option>';
+        unidadSelect.disabled = true;
+
+        platoSelect.innerHTML =
+            '<option value="">Seleccione una unidad...</option>';
+        platoSelect.disabled = true;
+        btnAgregar.disabled = true;
+
+        avisoUnidades.textContent = "";
+        avisoUnidades.classList.add("d-none");
+        avisoPlatos.textContent = "";
+        avisoPlatos.classList.add("d-none");
+
+        items.clear();
+        dibujarTabla();
+
+        if (!festivalSelect.value) {
+            unidadSelect.innerHTML =
+                '<option value="">Seleccione un festival...</option>';
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(
+                `/pedidos/festivales/${encodeURIComponent(festivalSelect.value)}/unidades`
+            );
+
+            if (numeroSolicitud !== solicitudUnidades) return;
+
+            if (!respuesta.ok) {
+                throw new Error("No se pudieron cargar las unidades.");
+            }
+
+            const unidades = await respuesta.json();
+
+            unidadSelect.innerHTML =
+                '<option value="">Seleccionar unidad...</option>';
+
+            unidades.forEach(function (unidad) {
+                const opcion = document.createElement("option");
+                opcion.value = unidad.id;
+                opcion.textContent = unidad.nombreComercial;
+                unidadSelect.appendChild(opcion);
+            });
+
+            if (unidades.length === 0) {
+                unidadSelect.innerHTML =
+                    '<option value="">No hay unidades para este festival</option>';
+
+                avisoUnidades.textContent =
+                    "El festival seleccionado no tiene unidades habilitadas.";
+                avisoUnidades.classList.remove("d-none");
+                return;
+            }
+
+            unidadSelect.disabled = false;
+
+        } catch (error) {
+            if (numeroSolicitud !== solicitudUnidades) return;
+
+            console.error(error);
+
+            unidadSelect.innerHTML =
+                '<option value="">Error al cargar las unidades</option>';
+
+            avisoUnidades.textContent =
+                "No se pudieron cargar las unidades. Intenta nuevamente.";
+            avisoUnidades.classList.remove("d-none");
+        }
+    }
+
+    festivalSelect.addEventListener("change", cargarUnidadesPorFestival);
+
+    async function cargarPlatos() {
+        const numeroSolicitud = ++solicitudPlatos;
+
+        items.clear();
+        dibujarTabla();
+
+        platoSelect.disabled = true;
+        btnAgregar.disabled = true;
+
+        avisoPlatos.textContent = "";
+        avisoPlatos.classList.add("d-none");
+
+        if (!unidadSelect.value) {
+            platoSelect.innerHTML =
+                '<option value="">Seleccione una unidad...</option>';
+            return;
+        }
+
+        platoSelect.innerHTML =
+            '<option value="">Cargando platos...</option>';
+
+        try {
+            const respuesta = await fetch(
+                `/pedidos/unidades/${encodeURIComponent(unidadSelect.value)}/platos`
+            );
+
+            if (numeroSolicitud !== solicitudPlatos) return;
+
+            if (!respuesta.ok) {
+                throw new Error("No se pudieron consultar los platos.");
+            }
+
+            const platos = await respuesta.json();
+
+            platoSelect.innerHTML =
+                '<option value="">Seleccionar plato...</option>';
+
+            platos.forEach(function (plato) {
+                const opcion = document.createElement("option");
+                opcion.value = plato.id;
+                opcion.textContent = plato.nombre;
+                opcion.dataset.precio = plato.precio;
+                platoSelect.appendChild(opcion);
+            });
+
+            if (platos.length === 0) {
+                platoSelect.innerHTML =
+                    '<option value="">No hay platos asociados a esta unidad</option>';
+
+                avisoPlatos.textContent =
+                    "La unidad seleccionada no tiene platos asociados.";
+                avisoPlatos.classList.remove("d-none");
+                return;
+            }
+
+            platoSelect.disabled = false;
+
+        } catch (error) {
+            if (numeroSolicitud !== solicitudPlatos) return;
+
+            console.error(error);
+
+            platoSelect.innerHTML =
+                '<option value="">Error al cargar los platos</option>';
+
+            avisoPlatos.textContent =
+                "No se pudieron cargar los platos. Intenta nuevamente.";
+            avisoPlatos.classList.remove("d-none");
+        }
+    }
+
+    unidadSelect.addEventListener("change", cargarPlatos);
+
+    platoSelect.addEventListener("change", function () {
+        btnAgregar.disabled = !platoSelect.value;
+    });
+
+    btnAgregar.addEventListener("click", function () {
+        const opcion = platoSelect.selectedOptions[0];
+        const cantidad = Number(cantidadInput.value);
+
+        if (!festivalSelect.value) {
+            alert("Selecciona un festival.");
+            return;
+        }
+
+        if (!unidadSelect.value) {
+            alert("Selecciona una unidad de venta.");
+            return;
+        }
+
+        if (!opcion || !opcion.value) {
+            alert("Selecciona un plato.");
+            return;
+        }
+
+        if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+            alert("La cantidad debe ser un numero entero mayor a cero.");
+            return;
+        }
+
+        const id = opcion.value;
+        const precio = Number(opcion.dataset.precio);
+
+        if (!Number.isFinite(precio) || precio < 0) {
+            alert("El precio del plato no es valido.");
+            return;
+        }
+
+        if (items.has(id)) {
+            const cantidadNueva = items.get(id).cantidad + cantidad;
+
+            if (!Number.isSafeInteger(cantidadNueva)) {
+                alert("La cantidad total del plato es demasiado grande.");
+                return;
+            }
+
+            items.get(id).cantidad = cantidadNueva;
+
+        } else {
+            items.set(id, {
+                id: id,
+                nombre: opcion.textContent,
+                precio: precio,
+                cantidad: cantidad
+            });
+        }
+
+        dibujarTabla();
+
+        platoSelect.value = "";
+        cantidadInput.value = "1";
+        btnAgregar.disabled = true;
+    });
+
+    function dibujarTabla() {
+        tablaItems.innerHTML = "";
+
+        let total = 0;
+        let indiceFormulario = 0;
+
+        if (items.size === 0) {
+            const fila = document.createElement("tr");
+            const celda = document.createElement("td");
+
+            celda.colSpan = 5;
+            celda.className = "vacio";
+            celda.textContent = "Todavia no se agregaron platos.";
+
+            fila.appendChild(celda);
+            tablaItems.appendChild(fila);
+        }
+
+        items.forEach(function (item, id) {
+            const subtotal = item.precio * item.cantidad;
+            total += subtotal;
+
+            const fila = document.createElement("tr");
+
+            const celdaNombre = document.createElement("td");
+            celdaNombre.textContent = item.nombre;
+            fila.appendChild(celdaNombre);
+
+            const celdaPrecio = document.createElement("td");
+            celdaPrecio.textContent = formatoNumero(item.precio);
+            fila.appendChild(celdaPrecio);
+
+            const celdaCantidad = document.createElement("td");
+            celdaCantidad.textContent = item.cantidad;
+            fila.appendChild(celdaCantidad);
+
+            const celdaSubtotal = document.createElement("td");
+            celdaSubtotal.textContent = formatoNumero(subtotal);
+            fila.appendChild(celdaSubtotal);
+
+            const celdaAccion = document.createElement("td");
+            const botonEliminar = document.createElement("button");
+
+            botonEliminar.type = "button";
+            botonEliminar.className = "boton";
+            botonEliminar.textContent = "Quitar";
+
+            botonEliminar.addEventListener("click", function () {
+                items.delete(id);
+                dibujarTabla();
+            });
+
+            celdaAccion.appendChild(botonEliminar);
+            fila.appendChild(celdaAccion);
+
+            const campoPlato = document.createElement("input");
+            campoPlato.type = "hidden";
+            campoPlato.name = `items[${indiceFormulario}].platoId`;
+            campoPlato.value = item.id;
+
+            const campoCantidad = document.createElement("input");
+            campoCantidad.type = "hidden";
+            campoCantidad.name = `items[${indiceFormulario}].cantidad`;
+            campoCantidad.value = item.cantidad;
+
+            const celdaDatos = document.createElement("td");
+            celdaDatos.hidden = true;
+            celdaDatos.appendChild(campoPlato);
+            celdaDatos.appendChild(campoCantidad);
+            fila.appendChild(celdaDatos);
+
+            indiceFormulario++;
+            tablaItems.appendChild(fila);
+        });
+
+        totalPedido.textContent = formatoNumero(total);
+        actualizarEstadoRegistro();
+    }
+
+    btnLimpiar.addEventListener("click", function () {
+        solicitudUnidades++;
+        solicitudPlatos++;
+
+        formulario.reset();
+
+        campoFecha.value = fechaActual;
+        validarFecha();
+
+        items.clear();
+
+        unidadSelect.innerHTML =
+            '<option value="">Seleccione un festival...</option>';
+        unidadSelect.disabled = true;
+
+        platoSelect.innerHTML =
+            '<option value="">Seleccione una unidad...</option>';
+        platoSelect.disabled = true;
+
+        btnAgregar.disabled = true;
+
+        avisoUnidades.textContent = "";
+        avisoUnidades.classList.add("d-none");
+
+        avisoPlatos.textContent = "";
+        avisoPlatos.classList.add("d-none");
+
+        dibujarTabla();
+    });
+
+    formulario.addEventListener("submit", function (evento) {
+        if (!campoFecha.value) {
+            evento.preventDefault();
+            alert("Seleccione la fecha de venta.");
+            return;
+        }
+
+        if (!festivalSelect.value) {
+            evento.preventDefault();
+            alert("Seleccione un festival.");
+            return;
+        }
+
+        if (!unidadSelect.value) {
+            evento.preventDefault();
+            alert("Seleccione una unidad de venta.");
+            return;
+        }
+
+        if (items.size === 0) {
+            evento.preventDefault();
+            alert("Agregue al menos un plato al pedido.");
+            return;
+        }
+
+        if (unidadSelect.disabled || platoSelect.disabled) {
+            evento.preventDefault();
+            alert("Espere a que terminen de cargarse las opciones.");
+        }
+    });
+
+    dibujarTabla();
+});
+</script>
+
+</body>
+</html>

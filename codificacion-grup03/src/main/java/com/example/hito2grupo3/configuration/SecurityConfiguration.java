@@ -29,7 +29,7 @@ public class SecurityConfiguration {
                             "/vendor/jquery/**", "/vendor/bootstrap/js/**", "/api/v1/**").permitAll();
                     
                     auth.requestMatchers("/admin/**").hasRole("ADMIN");
-                    
+                    auth.requestMatchers("/liquidacion/**").hasAnyRole("ADMIN", "RESPONSABLE");
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(login -> {
