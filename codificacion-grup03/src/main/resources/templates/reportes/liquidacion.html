@@ -10,7 +10,6 @@
 </head>
 <body>
 
-  <!-- Barra superior -->
   <nav class="navbar navbar-dark admin-header px-4 py-2">
       <div class="container-fluid">
           <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
@@ -29,116 +28,103 @@
 
   <div class="layout">
 
-    <!-- Menú lateral -->
+
     <nav class="sidebar admin-sidebar">
       <a class="nav-link-admin" th:href="@{/}">Inicio</a>
       <a class="nav-link-admin active" th:href="@{/liquidacion}">Liquidación</a>
       <a class="nav-link-admin" th:href="@{/reportes/recaudacion}">Recaudación</a>
     </nav>
 
-    <!-- Contenido -->
+    
     <main class="contenido">
-      <h1>Liquidación de Haberes</h1>
-      <p class="subtitulo">Sueldos del personal de tu unidad de venta según el festival.</p>
-
-      <div class="alerta" th:if="${error}" th:text="${error}"></div>
-
-      <!-- Selector de festival -->
-      <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
-        <div class="campo">
-          <label for="festivalId">Festival</label>
-          <select id="festivalId" name="festivalId" class="form-select" required>
-            <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
-            <option th:each="f : ${festivales}"
-                    th:value="${f.id}"
-                    th:text="${f.nombre}"
-                    th:selected="${f.id == festivalId}"></option>
-          </select>
+        <h1>Liquidación de Haberes</h1>
+        <p class="subtitulo">Sueldos del personal de tu unidad de venta según el festival.</p>
+        <div class="alerta" th:if="${error}" th:text="${error}"></div>
+          <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+            <div class="campo">
+              <label for="festivalId">Festival</label>
+              <select id="festivalId" name="festivalId" class="form-select" required>
+                <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
+                <option th:each="f : ${festivales}"
+                        th:value="${f.id}"
+                        th:text="${f.nombre}"
+                        th:selected="${f.id == festivalId}"></option>
+              </select>
+            </div>
+            <button type="submit" class="btn-bordo">Calcular liquidación</button>
+          </form>
+        <div>
+          <div class="tarjetas mb-4">
+            <div class="tarjeta card-custom">
+              <div class="etiqueta">Unidad de venta</div>
+              <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
+            </div>
+            <div class="tarjeta card-custom">
+              <div class="etiqueta">Duración del festival</div>
+              <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
+            </div>
+            <div class="tarjeta card-custom">
+              <div class="etiqueta">Total a pagar</div>
+              <div class="valor"
+                  th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</div>
+            </div>
+          </div>
+          <div class="tarjeta card-custom p-4">
+            <h5 class="mb-3">Detalle de Personal y Haberes</h5>
+            <div class="tabla-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th>DNI</th>
+                    <th>Rol / Categoría</th>
+                    <th class="num">Sueldo base</th>
+                    <th class="num">Plus / Antigüedad</th>
+                    <th class="num">Períodos</th>
+                    <th class="num">Total a Cobrar</th>
+                    <th class="text-center">Recibo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
+                    <td th:text="${l.nombreCompleto}">Nombre</td>
+                    <td th:text="${l.dni}">00000000</td>
+                    <td th:text="${l.rol}">Cajero</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                    <td class="num" th:text="${l.periodos}">0</td>
+                    <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                    <td class="text-center">
+                      <a class="btn-pdf"
+                        th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                    </td>
+                  </tr>
+                  <tr th:if="${liquidaciones == null}">
+                    <td colspan="8" class="text-center text-muted py-4">
+                      Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
+                    </td>
+                  </tr>
+                  <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
+                    <td colspan="8" class="text-center text-muted py-4">
+                      No hay personal activo asignado a esta unidad para el festival seleccionado.
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" class="text-end fw-bold">Total General:</td>
+                    <td class="num fw-bold text-danger" colspan="2"
+                        th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <p class="nota mt-3">
+              Cálculo basado en los intervalos de duración del evento y rol del personal[cite: 7].
+            </p>
+          </div>
         </div>
-        <button type="submit" class="btn-bordo">Calcular liquidación</button>
-      </form>
-
-      <!-- Bloque de Resultados (Estructura fija visible, con datos dinámicos) -->
-      <div>
-        <!-- Tarjetas de Resumen -->
-        <div class="tarjetas mb-4">
-          <div class="tarjeta card-custom">
-            <div class="etiqueta">Unidad de venta</div>
-            <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
-          </div>
-          <div class="tarjeta card-custom">
-            <div class="etiqueta">Duración del festival</div>
-            <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
-          </div>
-          <div class="tarjeta card-custom">
-            <div class="etiqueta">Total a pagar</div>
-            <div class="valor"
-                 th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</div>
-          </div>
-        </div>
-
-        <!-- Tabla detallada de haberes -->
-        <div class="tarjeta card-custom p-4">
-          <h5 class="mb-3">Detalle de Personal y Haberes</h5>
-          <div class="tabla-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Empleado</th>
-                  <th>DNI</th>
-                  <th>Rol / Categoría</th>
-                  <th class="num">Sueldo base</th>
-                  <th class="num">Plus / Antigüedad</th>
-                  <th class="num">Períodos</th>
-                  <th class="num">Total a Cobrar</th>
-                  <th class="text-center">Recibo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Datos dinámicos cuando el backend envía la lista -->
-                <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
-                  <td th:text="${l.nombreCompleto}">Nombre</td>
-                  <td th:text="${l.dni}">00000000</td>
-                  <td th:text="${l.rol}">Cajero</td>
-                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                  <td class="num" th:text="${l.periodos}">0</td>
-                  <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                  <td class="text-center">
-                    <a class="btn-pdf"
-                       th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
-                  </td>
-                </tr>
-
-                <!-- Mensaje inicial antes de calcular -->
-                <tr th:if="${liquidaciones == null}">
-                  <td colspan="8" class="text-center text-muted py-4">
-                    Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
-                  </td>
-                </tr>
-
-                <!-- Mensaje si la unidad no tiene personal asignado -->
-                <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
-                  <td colspan="8" class="text-center text-muted py-4">
-                    No hay personal activo asignado a esta unidad para el festival seleccionado.
-                  </td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="6" class="text-end fw-bold">Total General:</td>
-                  <td class="num fw-bold text-danger" colspan="2"
-                      th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-          <p class="nota mt-3">
-            Cálculo basado en los intervalos de duración del evento y rol del personal[cite: 7].
-          </p>
-        </div>
-      </div>
-    </main>
-  </div>
-</body>
-</html>
+      </main>
+    </div>
+  </body>
+  </html>
