@@ -45,7 +45,6 @@ public class AdminUsuarioController {
     }
 
     
-    // 3. GUARDAR EL ALTA (Con manejo de errores)
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttrs) {
         try {
