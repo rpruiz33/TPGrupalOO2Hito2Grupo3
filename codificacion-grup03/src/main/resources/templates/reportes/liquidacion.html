@@ -71,7 +71,7 @@
 </head>
 <body>
 
-  <!-- Barra superior única -->
+  <!-- Barra superior -->
   <nav class="navbar navbar-dark admin-header px-4 py-2">
       <div class="container-fluid">
           <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
@@ -90,14 +90,14 @@
 
   <div class="layout">
 
-    <!-- Menú lateral único -->
+    <!-- Menú lateral -->
     <nav class="sidebar admin-sidebar">
       <a class="nav-link-admin" th:href="@{/}">Inicio</a>
       <a class="nav-link-admin active" th:href="@{/liquidacion}">Liquidación</a>
       <a class="nav-link-admin" th:href="@{/reportes/recaudacion}">Recaudación</a>
     </nav>
 
-    <!-- Contenido principal -->
+    <!-- Contenido -->
     <main class="contenido">
       <h1>Liquidación de Haberes</h1>
       <p class="subtitulo">Sueldos del personal de tu unidad de venta según el festival.</p>
@@ -119,22 +119,22 @@
         <button type="submit" class="btn-bordo">Calcular liquidación</button>
       </form>
 
-      <!-- Bloque de Resultados (Dinámico con Thymeleaf o visible estático) -->
+      <!-- Bloque de Resultados (Estructura fija visible, con datos dinámicos) -->
       <div>
         <!-- Tarjetas de Resumen -->
         <div class="tarjetas mb-4">
           <div class="tarjeta card-custom">
             <div class="etiqueta">Unidad de venta</div>
-            <div class="valor chico" th:text="${unidad != null ? unidad : 'Food Truck Principal'}">Unidad</div>
+            <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
           </div>
           <div class="tarjeta card-custom">
             <div class="etiqueta">Duración del festival</div>
-            <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '38 días'}">0 días</div>
+            <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
           </div>
           <div class="tarjeta card-custom">
             <div class="etiqueta">Total a pagar</div>
             <div class="valor"
-                 th:text="'$' + ${totalGeneral != null ? #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '455.000'}">$0</div>
+                 th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</div>
           </div>
         </div>
 
@@ -156,7 +156,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null}">
+                <!-- Datos dinámicos cuando el backend envía la lista -->
+                <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
                   <td th:text="${l.nombreCompleto}">Nombre</td>
                   <td th:text="${l.dni}">00000000</td>
                   <td th:text="${l.rol}">Cajero</td>
@@ -169,29 +170,18 @@
                        th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
                   </td>
                 </tr>
-                <!-- Fila de ejemplo estática para previsualización si no hay datos de backend -->
+
+                <!-- Mensaje inicial antes de calcular -->
                 <tr th:if="${liquidaciones == null}">
-                  <td>Juan Pérez</td>
-                  <td>30123456</td>
-                  <td>Cocinero</td>
-                  <td class="num">$100.000</td>
-                  <td class="num">$150.000</td>
-                  <td class="num">3</td>
-                  <td class="num fw-bold">$225.000</td>
-                  <td class="text-center">
-                    <a class="btn-pdf" href="#">PDF</a>
+                  <td colspan="8" class="text-center text-muted py-4">
+                    Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
                   </td>
                 </tr>
-                <tr th:if="${liquidaciones == null}">
-                  <td>María Gómez</td>
-                  <td>35987654</td>
-                  <td>Cajero</td>
-                  <td class="num">$100.000</td>
-                  <td class="num">$15.000</td>
-                  <td class="num">3</td>
-                  <td class="num fw-bold">$230.000</td>
-                  <td class="text-center">
-                    <a class="btn-pdf" href="#">PDF</a>
+
+                <!-- Mensaje si la unidad no tiene personal asignado -->
+                <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
+                  <td colspan="8" class="text-center text-muted py-4">
+                    No hay personal activo asignado a esta unidad para el festival seleccionado.
                   </td>
                 </tr>
               </tbody>
@@ -199,7 +189,7 @@
                 <tr>
                   <td colspan="6" class="text-end fw-bold">Total General:</td>
                   <td class="num fw-bold text-danger" colspan="2"
-                      th:text="'$' + ${totalGeneral != null ? #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '455.000'}">$0</td>
+                      th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
                 </tr>
               </tfoot>
             </table>
