@@ -13,4 +13,9 @@ public class EmpleadoController {
     public String mostrarIndex() {
         return "empleado/index";
     }
+
+    @GetMapping("/dashboard")
+    public String mostrarDashboard() {
+        return "reportes/empleadoDashboard";
+    }
 }
