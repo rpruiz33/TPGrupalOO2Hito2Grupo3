@@ -10,10 +10,10 @@ import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
-import com.example.hito2grupo3.services.RecaudacionService;
+import com.example.hito2grupo3.services.RentabilidadNetaService;
 
 @Service
-public class RecaudacionServiceImpl implements RecaudacionService {
+public class RecaudacionServiceImpl implements RentabilidadNetaService {
 
     private final PedidoRepository pedidoRepository;
     private final FestivalRepository festivalRepository;
