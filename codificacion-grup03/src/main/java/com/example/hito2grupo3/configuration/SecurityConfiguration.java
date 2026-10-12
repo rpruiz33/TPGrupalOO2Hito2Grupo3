@@ -41,16 +41,23 @@ public class SecurityConfiguration {
                     login.passwordParameter("password");
                     
                     // Redirección (Admin vs Usuario)
-                    login.successHandler((request, response, authentication) -> {
-                        boolean isAdmin = authentication.getAuthorities().stream()
-                                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-                        
-                        if (isAdmin) {
-                            response.sendRedirect("/admin/dashboard"); 
-                        } else {
-                            response.sendRedirect("/"); 
-                        }
-                    });
+                login.successHandler((request, response, authentication) -> {
+                boolean esAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+                /*boolean esEmpleado = authentication.getAuthorities().stream()
+                     .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));/* */
+
+                boolean esEmpleado = authentication.getAuthorities().stream()
+                   .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"));
+                    if (esAdmin) {
+                      response.sendRedirect("/admin/dashboard");
+                     } else if (esEmpleado) {
+                     response.sendRedirect("/empleado/index");
+                     } else {
+                         response.sendRedirect("/login");
+                         }
+                });
                     
                     login.failureUrl("/login?error=true");
                     login.permitAll();

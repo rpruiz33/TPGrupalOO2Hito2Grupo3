@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
@@ -145,7 +146,7 @@
                         disabled>
                     Registrar pedido
                 </button>
-                <a class="boton" th:href="@{/}">Volver</a>
+                <a class="boton" th:href="@{/empleado/index}">Volver</a>
             </div>
 
         </form>
@@ -521,7 +522,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         avisoUnidades.textContent = "";
         avisoUnidades.classList.add("d-none");
-
         avisoPlatos.textContent = "";
         avisoPlatos.classList.add("d-none");
 
@@ -529,11 +529,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     formulario.addEventListener("submit", function (evento) {
+
         if (!campoFecha.value) {
             evento.preventDefault();
             alert("Seleccione la fecha de venta.");
             return;
         }
+
+        if (campoFecha.value !== fechaActual) {
+            evento.preventDefault();
+            avisoFecha.classList.remove("d-none");
+            campoFecha.focus();
+            return;
+        }
+
+        avisoFecha.classList.add("d-none");
 
         if (!festivalSelect.value) {
             evento.preventDefault();

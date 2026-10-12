@@ -31,6 +31,11 @@ public class DataCarga {
                 nuevoRol.setNombre("USER");
                 return rolRepository.save(nuevoRol);
             });
+            Rol rolEmpleado = rolRepository.findByNombre("EMPLEADO").orElseGet(() -> {
+             Rol nuevoRol = new Rol();
+             nuevoRol.setNombre("EMPLEADO");
+            return rolRepository.save(nuevoRol);
+            });
 
             
             String emailAdmin = "admin@epicentro.com";
@@ -43,6 +48,18 @@ public class DataCarga {
                 usuarioRepository.save(admin);
                 System.out.println("Usuario administrador creado con éxito (admin@epicentro.com / admin123)");
             }
+            // CREACION DE USUARIO EMPLEADO PARA PRUEBAS
+            String emailEmpleado = "empleado@epicentro.com";
+                if (usuarioRepository.findByEmail(emailEmpleado).isEmpty()) {
+                    Usuario empleado = new Usuario();
+                    empleado.setEmail(emailEmpleado);
+                    empleado.setPasswordHash(passwordEncoder.encode("empleado123")    );
+                    empleado.setRol(rolEmpleado);
+
+                usuarioRepository.save(empleado);
+
+                 System.out.println("Usuario empleado creado con exito " + "(empleado@epicentro.com / empleado123)");
+                }
         };
     }
 }

@@ -2,6 +2,7 @@ package com.example.hito2grupo3.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.time.ZoneId;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,14 +68,15 @@ public class PedidoService {
                     "El pedido debe contener al menos un plato.");
         }
 
-        LocalDate hoy = LocalDate.now();
+        LocalDate hoy = LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")
+);
 
         if (!datos.getFecha().equals(hoy)) {
             throw new IllegalArgumentException(
                     "La fecha de la venta debe ser la fecha actual.");
         }
 
-        // Buscar el festival y la unidad.
+        
         Festival festival = festivalRepository
                 .findById(datos.getFestivalId())
                 .orElseThrow(() ->
@@ -87,7 +89,7 @@ public class PedidoService {
                         new IllegalArgumentException(
                                 "La unidad de venta seleccionada no existe."));
 
-        // Validar el período del festival.
+        
         if (festival.getFechaInicio() == null
                 || festival.getFechaFin() == null
                 || datos.getFecha().isBefore(festival.getFechaInicio())
@@ -97,7 +99,7 @@ public class PedidoService {
                     "La fecha de venta esta fuera del periodo del festival.");
         }
 
-        // La unidad debe estar habilitada para el festival.
+        
         boolean unidadHabilitada = festival.getUnidadesVentaHabilitadas()
                 .stream()
                 .anyMatch(u -> u.getId().equals(unidad.getId()));
@@ -107,13 +109,13 @@ public class PedidoService {
                     "La unidad de venta no esta habilitada para ese festival.");
         }
 
-        // Crear el pedido.
+        
         Pedido pedido = new Pedido();
         pedido.setFestival(festival);
         pedido.setUnidadVenta(unidad);
         pedido.setFechaTransaccion(datos.getFecha());
 
-        // Agregar los ítems y obtener los precios desde la base de datos.
+      
         for (ItemPedidoDTO itemDTO : datos.getItems()) {
 
             if (itemDTO == null

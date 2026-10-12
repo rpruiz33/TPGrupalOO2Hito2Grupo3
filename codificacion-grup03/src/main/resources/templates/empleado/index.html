@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Panel del Empleado - Epicentro Gourmet</title>
+
+    <link rel="stylesheet"
+          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/modern-business.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/custom-login.css}">
+
+    <style>
+        body {
+            background-color: #800020;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .panel-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 45px 20px;
+        }
+
+        .menu-card {
+            background-color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            height: 100%;
+            transition: transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .menu-card .card-body {
+            padding: 28px;
+        }
+
+        .menu-icon {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .menu-button {
+            border: 1px solid #800020;
+            color: #800020;
+            border-radius: 8px;
+            padding: 9px 18px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .menu-button:hover {
+            background-color: #800020;
+            color: #ffffff;
+        }
+
+        .logout-button {
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 8px 18px;
+            background: transparent;
+            text-decoration: none;
+        }
+
+        .logout-button:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .logo {
+            max-width: 85px;
+            height: auto;
+            margin-top: 35px;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="container panel-container">
+
+   
+    <header class="text-center text-white mb-5">
+        <h1 class="fw-bold mb-2">Epicentro Gourmet</h1>
+        <h2 class="h4 mb-3">Panel del Empleado</h2>
+        </header>
+
+    
+    <section>
+        <div class="row g-4 justify-content-center">
+
+            
+            <div class="col-12 col-md-6 col-lg-5">
+                <article class="card menu-card">
+                    <div class="card-body text-center">
+                        <div class="menu-icon" aria-hidden="true">
+                            🛒
+                        </div>
+
+                        <h3 class="h5 fw-bold mb-3">
+                            Alta de pedido
+                        </h3>
+
+                        <p class="text-secondary">
+                            Registrá una venta seleccionando el festival,
+                            la unidad de venta y los platos correspondientes.
+                        </p>
+
+                        <a th:href="@{/pedidos/alta}"
+                           class="menu-button">
+                            Registrar pedido
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            
+            <div class="col-12 col-md-6 col-lg-5">
+                <article class="card menu-card">
+                    <div class="card-body text-center">
+                        <div class="menu-icon" aria-hidden="true">
+                            👤
+                        </div>
+
+                        <h3 class="h5 fw-bold mb-3">
+                            Mi información
+                        </h3>
+
+                        <p class="text-secondary">
+                            Consultá la información de tu actividad
+                            como empleado.
+                        </p>
+                        <a th:href="@{/empleado/dashboard}"
+                           class="menu-button">
+                            Mi información
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Cerrar sesión -->
+    <div class="text-center mt-5">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-button">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
+
+    <!-- Logo -->
+    <footer class="text-center">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo de la UNLa"
+             class="logo">
+    </footer>
+
+</main>
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

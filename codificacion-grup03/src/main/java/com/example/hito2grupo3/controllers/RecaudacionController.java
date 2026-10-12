@@ -53,7 +53,7 @@ public class RecaudacionController {
 
     @GetMapping("/empleadoDashboard")
 	public String empleadoDashboard() {
-		return "reportes/empleadosDashboard";
+		return "reportes/empleadoDashboard";
 	}
 
     @GetMapping("/reciboPdf")
