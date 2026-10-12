@@ -75,7 +75,6 @@ public class LiquidacionService {
         return new ResultadoLiquidacion(unidad.getNombreComercial(), dias, lista, totalGeneral);
     }
 
-    /** Duración del festival en días, contando inicio y fin. */
     public long diasDelFestival(LocalDate inicio, LocalDate fin) {
         if (inicio == null || fin == null || fin.isBefore(inicio)) {
             throw new IllegalArgumentException("El período del festival no es válido.");
@@ -83,7 +82,7 @@ public class LiquidacionService {
         return ChronoUnit.DAYS.between(inicio, fin) + 1;
     }
 
-    /** Cada tramo (o fracción) de 15 días paga el 50%: 1-15 -> 50%, 16-30 -> 100%, 31-45 -> 150%... */
+   
     public int periodos(long diasFestival) {
         return (int) Math.ceil((double) diasFestival / sueldos.diasPorPeriodo());
     }
@@ -99,7 +98,7 @@ public class LiquidacionService {
         return sueldos.porAnioAntiguedad().multiply(BigDecimal.valueOf(anios));
     }
 
-    /** total = periodos * 50% * (sueldoBase + adicional) */
+  
     public BigDecimal total(long diasFestival, BigDecimal adicional) {
         return sueldos.base().add(adicional)
                 .multiply(sueldos.porcentajePorPeriodo())
