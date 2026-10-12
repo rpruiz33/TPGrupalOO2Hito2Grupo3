@@ -18,17 +18,17 @@ public class DataCarga {
                                           PasswordEncoder passwordEncoder) {
         return args -> {
             
-            // 1. Creamos el ROL_ADMIN si no existe en la base de datos
-            Rol rolAdmin = rolRepository.findByNombre("ROLE_ADMIN").orElseGet(() -> {
+            // CREACION DE USUARIO  PARA TEST FEDE
+            Rol rolAdmin = rolRepository.findByNombre("ADMIN").orElseGet(() -> {
                 Rol nuevoRol = new Rol();
-                nuevoRol.setNombre("ROLE_ADMIN");
+                nuevoRol.setNombre("ADMIN");
                 return rolRepository.save(nuevoRol);
             });
 
-            // 2. Creamos el ROL_USER si no existe (necesario para los registros normales)
-            Rol rolUser = rolRepository.findByNombre("ROLE_USER").orElseGet(() -> {
+            
+            Rol rolUser = rolRepository.findByNombre("USER").orElseGet(() -> {
                 Rol nuevoRol = new Rol();
-                nuevoRol.setNombre("ROLE_USER");
+                nuevoRol.setNombre("USER");
                 return rolRepository.save(nuevoRol);
             });
             Rol rolEmpleado = rolRepository.findByNombre("EMPLEADO").orElseGet(() -> {
@@ -37,12 +37,12 @@ public class DataCarga {
             return rolRepository.save(nuevoRol);
             });
 
-            // 3. Creamos el usuario Administrador por defecto si no existe
+            
             String emailAdmin = "admin@epicentro.com";
             if (usuarioRepository.findByEmail(emailAdmin).isEmpty()) {
                 Usuario admin = new Usuario();
                 admin.setEmail(emailAdmin);
-                admin.setPasswordHash(passwordEncoder.encode("admin123")); // Clave por defecto
+                admin.setPasswordHash(passwordEncoder.encode("admin123")); 
                 admin.setRol(rolAdmin);
                 
                 usuarioRepository.save(admin);

@@ -76,12 +76,13 @@ public class PedidoService {
                     "La fecha de la venta debe ser la fecha actual.");
         }
 
-        
-        Festival festival = festivalRepository
-                .findById(datos.getFestivalId())
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El festival seleccionado no existe."));
+
+Festival festival = festivalRepository
+        .findById(datos.getFestivalId())
+        .orElseThrow(() ->
+                new IllegalArgumentException(
+                        "El festival seleccionado no existe."));
+
 
         UnidadVenta unidad = unidadVentaRepository
                 .buscarPorIdConPlatos(datos.getUnidadVentaId())

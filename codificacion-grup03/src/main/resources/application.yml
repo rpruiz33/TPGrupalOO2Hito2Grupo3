@@ -1,17 +1,16 @@
-
- spring:
+spring:
   datasource:
     url: ${DB_URL}
-    username: ${USERNAME}
-    password: ${PASSWORD}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       dialect: org.hibernate.dialect.MySQL8Dialect
+
   thymeleaf:
     cache: false
-
-    
