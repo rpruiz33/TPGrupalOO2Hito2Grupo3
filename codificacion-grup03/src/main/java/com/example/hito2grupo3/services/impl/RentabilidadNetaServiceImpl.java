@@ -13,12 +13,12 @@ import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.services.RentabilidadNetaService;
 
 @Service
-public class RecaudacionServiceImpl implements RentabilidadNetaService {
+public class RentabilidadNetaServiceImpl implements RentabilidadNetaService {
 
     private final PedidoRepository pedidoRepository;
     private final FestivalRepository festivalRepository;
 
-    public RecaudacionServiceImpl(PedidoRepository pedidoRepository, FestivalRepository festivalRepository) {
+    public RentabilidadNetaServiceImpl(PedidoRepository pedidoRepository, FestivalRepository festivalRepository) {
         this.pedidoRepository = pedidoRepository;
         this.festivalRepository = festivalRepository;
     }
