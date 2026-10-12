@@ -6,7 +6,7 @@ import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Festival;
 
-public interface RecaudacionService {
+public interface RentabilidadNetaService {
 
     ReporteVentaDTO obtenerReporteVenta(Long festivalId);
 
