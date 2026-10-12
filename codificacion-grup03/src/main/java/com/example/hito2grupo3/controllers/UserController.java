@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UserController {
-
+ 	@GetMapping("/")
+    public String inicio() {
+        return "redirect:/login";
+    }
 	@GetMapping("/login")
 	public String login(Model model,
 						@RequestParam(required=false) String error,

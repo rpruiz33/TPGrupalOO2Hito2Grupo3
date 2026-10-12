@@ -3,6 +3,7 @@ package com.example.hito2grupo3.controllers;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.time.ZoneId;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -46,7 +47,8 @@ public class PedidoController {
             model.addAttribute("festivales", festivalRepository.findAll());
             model.addAttribute("unidadesVenta", unidadVentaRepository.findAll());
             model.addAttribute("platos", List.of());
-            model.addAttribute("fechaActual",LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")));
+            model.addAttribute("fechaActual",LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires"))
+);
 
             return "pedido/alta";
         }
