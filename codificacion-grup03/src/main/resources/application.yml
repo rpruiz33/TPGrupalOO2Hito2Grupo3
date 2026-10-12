@@ -1,5 +1,4 @@
-
- spring:
+spring:
   datasource:
     url: ${DB_URL}
     username: ${USERNAME}
@@ -8,10 +7,8 @@
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create   # <-- ACÁ ESTÁ EL CAMBIO
     properties:
       dialect: org.hibernate.dialect.MySQL8Dialect
   thymeleaf:
     cache: false
-
-    
