@@ -57,14 +57,14 @@
     <div class="tabla-scroll">
       <table>
         <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Recibo</th></tr>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Haberes</th></tr>
         </thead>
         <tbody>
           <tr th:each="h : ${historial}">
             <td th:text="${h.festival}">Festival</td>
             <td th:text="${h.unidad}">Unidad</td>
             <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
-            <td><a class="enlace" th:href="@{/empleado/recibo/{id}/pdf(id=${h.id})}">Descargar PDF</a></td>
+            <td><a class="enlace" th:href="@{/empleado/recibo/{id}/liquidaciones(id=${h.id})}">Liquidacion de Haberes</a></td>
           </tr>
           <tr th:if="${#lists.isEmpty(historial)}">
             <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
