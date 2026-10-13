@@ -68,8 +68,7 @@ public class PedidoService {
                     "El pedido debe contener al menos un plato.");
         }
 
-        LocalDate hoy = LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")
-);
+        LocalDate hoy = LocalDate.now();
 
         if (!datos.getFecha().equals(hoy)) {
             throw new IllegalArgumentException(

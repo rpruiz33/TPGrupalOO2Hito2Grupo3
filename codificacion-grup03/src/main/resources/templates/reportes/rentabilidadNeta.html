@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de Rentabilidad Neta - Epicentro Gourmet</title>
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/vistas.css}">
+  <style>
+    /* Estilos específicos para la sección de rentabilidad */
+    .filtros-fechas {
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .filtros-fechas .campo {
+      flex: 1;
+      min-width: 180px;
+    }
+    .filtros-fechas input[type="date"] {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+    }
+    .resumen-rentabilidad {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .dato.positivo strong {
+      color: #2e7d32 !important;
+    }
+    .dato.negativo strong {
+      color: #c62828 !important;
+    }
+
+    @media print {
+      .filtros, .acciones-doble, .logo, button, .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      .contenedor {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="login-body">
+<main class="contenedor">
+
+  <!-- Encabezado Centrado -->
+  <header class="text-center mb-4">
+    <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+    <p class="mb-0 text-white-50">Reporte de Rentabilidad Neta</p>
+  </header>
+
+  <!-- Filtro de Selección por Rango de Fechas -->
+  <section class="mb-4">
+    <form class="filtros" th:action="@{/reportes/rentabilidad}" method="get">
+      <div class="filtros-fechas w-100">
+        <div class="campo">
+          <label for="fechaDesde" class="text-white fw-medium mb-1">Fecha Desde</label>
+          <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}" required>
+        </div>
+        <div class="campo">
+          <label for="fechaHasta" class="text-white fw-medium mb-1">Fecha Hasta</label>
+          <input type="date" id="fechaHasta" name="fechaHasta" th:value="${fechaHasta}" required>
+        </div>
+        <div>
+          <button type="submit" class="boton">Consultar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Errores o Avisos -->
+    <div class="error mt-3" th:if="${error}" th:text="${error}"></div>
+    <div class="aviso mt-3" th:if="${mensaje}" th:text="${mensaje}"></div>
+  </section>
+
+  <!-- Tarjetas KPI Resumen de Rentabilidad -->
+  <section class="resumen resumen-rentabilidad mb-4">
+    <div class="dato">
+      <span>Total Ingresos</span>
+      <strong th:text="${totalIngresos != null ? '$ ' + #numbers.formatDecimal(totalIngresos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
+    </div>
+    <div class="dato">
+      <span>Costos / Gastos</span>
+      <strong th:text="${totalCostos != null ? '$ ' + #numbers.formatDecimal(totalCostos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
+    </div>
+    <div class="dato principal" th:classappend="${rentabilidadNeta != null and rentabilidadNeta < 0 ? 'negativo' : 'positivo'}">
+      <span>Rentabilidad Neta</span>
+      <strong th:text="${rentabilidadNeta != null ? '$ ' + #numbers.formatDecimal(rentabilidadNeta, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
+    </div>
+  </section>
+
+  <!-- Tabla Detalle de la Rentabilidad -->
+  <section class="mb-4">
+    <h2 class="h5 fw-bold text-white mb-3">Detalle por Periodo / Concepto</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align: left;">Concepto / Evento</th>
+            <th style="text-align: left;">Periodo</th>
+            <th>Ingresos</th>
+            <th>Costos Operativos</th>
+            <th>Ganancia Neta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Caso sin consultar fechas -->
+          <tr th:if="${detalles == null}">
+            <td colspan="5" class="vacio">Seleccione un rango de fechas y presione "Consultar" para ver el reporte.</td>
+          </tr>
+          <!-- Caso sin registros en ese rango -->
+          <tr th:if="${detalles != null and #lists.isEmpty(detalles)}">
+            <td colspan="5" class="vacio">No se registraron movimientos en el rango de fechas seleccionado.</td>
+          </tr>
+          <!-- Filas de Detalle -->
+          <tr th:if="${detalles != null}" th:each="d : ${detalles}">
+            <td th:text="${d.concepto}">Festival de Música 2026</td>
+            <td th:text="${d.periodo}">01/10/2026 - 10/10/2026</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(d.ingresos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(d.costos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+            <td th:classappend="${d.gananciaNeta < 0 ? 'text-danger fw-bold' : 'text-success fw-bold'}"
+                th:text="'$ ' + ${#numbers.formatDecimal(d.gananciaNeta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Acciones / Botones -->
+  <div class="acciones-doble">
+    <a class="boton" href="javascript:window.print();">Imprimir PDF</a>
+    <a class="boton" th:href="@{/}">Volver</a>
+  </div>
+
+  <!-- Logo Institucional UNLa -->
+  <div class="logo">
+    <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa" class="unla-logo-img">
+  </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
