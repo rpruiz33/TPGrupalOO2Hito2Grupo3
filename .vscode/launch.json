@@ -12,7 +12,7 @@
         "DB_USER": "root",
         "DB_PASSWORD": "admin123",
         "USERNAME": "root",
-        "PASSWORD": "root"
+        "PASSWORD": "admin123"
       }
     }
   ]
