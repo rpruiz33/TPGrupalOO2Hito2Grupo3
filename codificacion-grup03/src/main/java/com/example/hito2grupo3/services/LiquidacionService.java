@@ -1,6 +1,5 @@
 package com.example.hito2grupo3.services;
 
-import com.example.hito2grupo3.configuration.SueldoProperties;
 import com.example.hito2grupo3.dto.LiquidacionDTO;
 import com.example.hito2grupo3.entities.Cajero;
 import com.example.hito2grupo3.entities.Cocinero;
@@ -12,8 +11,8 @@ import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,18 +21,19 @@ public class LiquidacionService {
 
     public record ResultadoLiquidacion(String unidad,
                                        long diasFestival,
-                                       List<LiquidacionDTO> liquidaciones,
+                                       Set<LiquidacionDTO> liquidaciones,
                                        BigDecimal totalGeneral) {
     }
 
-    private final SueldoProperties sueldos;
+    // Valores fijos requeridos definidos directamente en el servicio
+    private static final BigDecimal SUELDO_BASE = new BigDecimal("100000");
+    private static final BigDecimal VALOR_ANIO_ANTIGUEDAD = new BigDecimal("5000");
+
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
 
-    public LiquidacionService(SueldoProperties sueldos,
-                              FestivalRepository festivalRepository,
+    public LiquidacionService(FestivalRepository festivalRepository,
                               UnidadVentaRepository unidadVentaRepository) {
-        this.sueldos = sueldos;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
     }
@@ -47,32 +47,56 @@ public class LiquidacionService {
                 .orElseThrow(() -> new IllegalArgumentException("No tenés una unidad de venta asignada."));
 
         long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
-        int periodos = periodos(dias);
+        
+        // Fórmula proporcional solicitada: (int(diasDurFest / 15) + 1)
+        int periodos = (int) (dias / 15) + 1;
 
-        List<LiquidacionDTO> lista = new ArrayList<>();
+        Set<LiquidacionDTO> conjuntoLiquidaciones = new HashSet<>();
         BigDecimal totalGeneral = BigDecimal.ZERO;
 
         for (Staff s : unidad.getStaffAsignado()) {
             long anios = aniosAntiguedad(s.getFechaIngreso(), festival.getFechaInicio());
             BigDecimal adicional;
             String rol;
+            BigDecimal baseCalculo;
 
             if (s instanceof Cocinero c) {
-                adicional = c.getCategoriaCocina().getPlusFijo();
-                rol = c.getCategoriaCocina().getNombre();
+                // Plus por categoría de cocina ($150.000, $100.000 o $50.000)
+                adicional = c.getCategoriaCocina() != null ? c.getCategoriaCocina().getPlusFijo() : BigDecimal.ZERO;
+                rol = c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Cocinero";
+                
+                // (Sueldo Base + Plus por categoría)
+                baseCalculo = SUELDO_BASE.add(adicional);
             } else if (s instanceof Cajero) {
-                adicional = antiguedadTotal(anios);
+                // Antigüedad: $5000 por cada año
+                adicional = VALOR_ANIO_ANTIGUEDAD.multiply(BigDecimal.valueOf(anios));
                 rol = "Cajero";
+                
+                // (Sueldo Base + Antigüedad)
+                baseCalculo = SUELDO_BASE.add(adicional);
             } else {
                 continue;
             }
 
-            BigDecimal total = total(dias, adicional);
+            // totalAcobrar = (int(diasDurFest/15) + 1) * 50% * (baseCalculo)
+            BigDecimal factorProporcional = BigDecimal.valueOf(periodos).multiply(BigDecimal.valueOf(0.5));
+            BigDecimal total = baseCalculo.multiply(factorProporcional);
+
             totalGeneral = totalGeneral.add(total);
-            lista.add(new LiquidacionDTO(s.getId(), s.getNombre() + " " + s.getApellido(), s.getDni(),
-                    rol, anios, sueldos.base(), adicional, periodos, total));
+            
+            conjuntoLiquidaciones.add(new LiquidacionDTO(
+                    s.getId(), 
+                    s.getNombre() + " " + s.getApellido(), 
+                    s.getDni(),
+                    rol, 
+                    anios, 
+                    SUELDO_BASE, 
+                    adicional, 
+                    periodos, 
+                    total
+            ));
         }
-        return new ResultadoLiquidacion(unidad.getNombreComercial(), dias, lista, totalGeneral);
+        return new ResultadoLiquidacion(unidad.getNombreComercial(), dias, conjuntoLiquidaciones, totalGeneral);
     }
 
     public long diasDelFestival(LocalDate inicio, LocalDate fin) {
@@ -82,26 +106,10 @@ public class LiquidacionService {
         return ChronoUnit.DAYS.between(inicio, fin) + 1;
     }
 
-   
-    public int periodos(long diasFestival) {
-        return (int) Math.ceil((double) diasFestival / sueldos.diasPorPeriodo());
-    }
-
     public long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia) {
         if (fechaIngreso == null || fechaIngreso.isAfter(referencia)) {
             return 0;
         }
         return ChronoUnit.YEARS.between(fechaIngreso, referencia);
-    }
-
-    public BigDecimal antiguedadTotal(long anios) {
-        return sueldos.porAnioAntiguedad().multiply(BigDecimal.valueOf(anios));
-    }
-
-  
-    public BigDecimal total(long diasFestival, BigDecimal adicional) {
-        return sueldos.base().add(adicional)
-                .multiply(sueldos.porcentajePorPeriodo())
-                .multiply(BigDecimal.valueOf(periodos(diasFestival)));
     }
 }

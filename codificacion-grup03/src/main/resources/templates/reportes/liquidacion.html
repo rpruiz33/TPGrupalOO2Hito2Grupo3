@@ -8,7 +8,6 @@
   <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
   <link rel="stylesheet" th:href="@{/css/liquidacion.css}">
   <style>
-    /* Estilos generales (pantalla) */
     .card-custom, 
     .tarjeta.card-custom, 
     .filtro,
@@ -36,11 +35,7 @@
       color: #5c0617 !important;
     }
 
-    /* ---------------------------------------------------
-       Reglas específicas para la IMPRESIÓN / EXPORTACIÓN
-       --------------------------------------------------- */
     @media print {
-      /* Ocultar barra superior, sidebar y botones no necesarios */
       .admin-header,
       .sidebar,
       .filtro,
@@ -51,7 +46,6 @@
         display: none !important;
       }
 
-      /* Ajustar el contenedor principal a todo el ancho de la hoja */
       body {
         background-color: #ffffff !important;
         color: #000000 !important;
@@ -78,7 +72,6 @@
         color: #333333 !important;
       }
 
-      /* Dar contraste limpio a las tarjetas e impresiones */
       .card-custom, .tarjeta {
         background-color: #ffffff !important;
         border: 1px solid #ccc !important;
@@ -130,9 +123,8 @@
             <h1 style="color: #ffffff;">Liquidación de Haberes</h1>
             <p class="subtitulo" style="color: #ffffff !important;">Sueldos del personal de tu unidad de venta según el festival.</p>
           </div>
-          <!-- Botón de Imprimir -->
           <button type="button" onclick="window.print();" class="btn btn-outline-light btn-print px-3 py-2 fw-bold">
-            🖨️ Imprimir Liquidacion Haberes
+            🖨️ Imprimir Liquidación Haberes
           </button>
         </div>
         
@@ -178,9 +170,9 @@
                     <th>Empleado</th>
                     <th>DNI</th>
                     <th>Rol / Categoría</th>
-                    <th class="num">Sueldo base</th>
+                    <th class="num">Sueldo Base</th>
                     <th class="num">Plus / Antigüedad</th>
-                    <th class="num">Períodos</th>
+                    <th class="num">Factor (Períodos)</th>
                     <th class="num">Total a Cobrar</th>
                     <th class="text-center no-print">Recibo</th>
                   </tr>
@@ -192,7 +184,7 @@
                     <td th:text="${l.rol}">Cajero</td>
                     <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
                     <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                    <td class="num" th:text="${l.periodos}">0</td>
+                    <td class="num" th:text="${l.periodos} + ' (x 50%)'">0</td>
                     <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
                     <td class="text-center no-print">
                       <a class="btn-pdf"
@@ -220,7 +212,7 @@
               </table>
             </div>
             <p class="nota mt-3">
-              Cálculo basado en los intervalos de duración del evento y rol del personal.
+              Cálculo basado en sueldo base ($100.000), antigüedad ($5.000 por año), plus por categoría y proporción por bloques de 15 días de duración del evento.
             </p>
           </div>
         </div>

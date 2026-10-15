@@ -10,7 +10,7 @@ public record LiquidacionDTO(
         String rol,
         long aniosAntiguedad,
         BigDecimal sueldoBase,
-        BigDecimal adicional,   // plus por categoría (cocina) o antigüedad total (cajero)
-        int periodos,           // cantidad de tramos de 15 días
+        BigDecimal adicional,   
+        int periodos,           
         BigDecimal total) {
 }

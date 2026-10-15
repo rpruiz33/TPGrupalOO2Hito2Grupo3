@@ -2,6 +2,7 @@ package com.example.hito2grupo3.entities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity 
 @Table(name = "LiquidacionHaberes")
 public class LiquidacionHaberes {
     @Id

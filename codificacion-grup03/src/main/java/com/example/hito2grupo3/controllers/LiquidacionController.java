@@ -42,6 +42,6 @@ public class LiquidacionController {
                 model.addAttribute("error", e.getMessage());
             }
         }
-        return "reportes/liquidacion";   // templates/reportes/liquidacion.html
+        return "reportes/liquidacion";   
     }
 }
