@@ -131,6 +131,7 @@
         <div class="alerta" th:if="${error}" th:text="${error}"></div>
         
         <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+          <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
           <div class="campo">
             <label for="festivalId" class="fw-bold">Festival</label>
             <select id="festivalId" name="festivalId" class="form-select" required>
@@ -146,6 +147,10 @@
 
         <div>
           <div class="tarjetas mb-4">
+            <div class="tarjeta card-custom" th:if="${sueldo != null}">
+              <div class="etiqueta fw-bold">Sueldo Asignado / Cobrado</div>
+              <div class="valor fw-bold" th:text="'$' + ${#numbers.formatDecimal(sueldo, 1, 'POINT', 0, 'COMMA')}">$0</div>
+            </div>
             <div class="tarjeta card-custom">
               <div class="etiqueta fw-bold">Unidad de venta</div>
               <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>

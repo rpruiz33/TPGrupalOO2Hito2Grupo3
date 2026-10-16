@@ -26,10 +26,12 @@ public class LiquidacionController {
 
     @GetMapping("/liquidacion")
     public String liquidacion(@RequestParam(required = false) Long festivalId,
+                              @RequestParam(required = false) Double sueldo,
                               Principal principal, Model model) {
 
         model.addAttribute("festivales", festivalRepository.findAll());
         model.addAttribute("festivalId", festivalId);
+        model.addAttribute("sueldo", sueldo);
 
         if (festivalId != null) {
             try {

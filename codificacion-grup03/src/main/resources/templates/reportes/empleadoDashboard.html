@@ -65,7 +65,7 @@
             <td th:text="${h.unidad}">Unidad</td>
             <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
             <td class="text-center no-print">
-              <a class="boton" th:href="@{/liquidacion}">Ver liquidación</a>
+              <a class="boton" th:href="@{/liquidacion(sueldo=${h.sueldo})}">Ver liquidación</a>
             </td>
           </tr>
           <tr th:if="${#lists.isEmpty(historial)}">
