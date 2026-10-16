@@ -130,10 +130,27 @@
         
         <div class="alerta" th:if="${error}" th:text="${error}"></div>
         
+<<<<<<< HEAD
         <div class="tarjeta card-custom p-3 mb-4">
           <span class="etiqueta fw-bold">Festival:</span>
           <span class="fs-5 fw-bold ms-2" th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Epicentro Gourmet UNLa 2026</span>
         </div>
+=======
+        <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+          <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
+          <div class="campo">
+            <label for="festivalId" class="fw-bold">Festival</label>
+            <select id="festivalId" name="festivalId" class="form-select" required>
+              <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
+              <option th:each="f : ${festivales}"
+                      th:value="${f.id}"
+                      th:text="${f.nombre}"
+                      th:selected="${f.id == festivalId}"></option>
+            </select>
+          </div>
+          <button type="submit" class="btn-bordo">Calcular liquidación</button>
+        </form>
+>>>>>>> 274db79 (algunos cambios en liquidacion)
 
         <div>
           <div class="tarjetas mb-4">

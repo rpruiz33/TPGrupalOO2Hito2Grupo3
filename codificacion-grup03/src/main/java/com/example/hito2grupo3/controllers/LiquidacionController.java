@@ -35,6 +35,7 @@ public class LiquidacionController {
 
     @GetMapping("/liquidacion")
     public String liquidacion(@RequestParam(required = false) Long festivalId,
+<<<<<<< HEAD
             @RequestParam(required = false) Long unidadId,
             @RequestParam(required = false) String codigo,
             @RequestParam(required = false) Double sueldo,
@@ -49,6 +50,14 @@ public class LiquidacionController {
         model.addAttribute("festival", festival);
         Long idFestival = festival != null ? festival.getId() : null;
         model.addAttribute("festivalId", idFestival);
+=======
+                              @RequestParam(required = false) Double sueldo,
+                              Principal principal, Model model) {
+
+        model.addAttribute("festivales", festivalRepository.findAll());
+        model.addAttribute("festivalId", festivalId);
+        model.addAttribute("sueldo", sueldo);
+>>>>>>> 274db79 (algunos cambios en liquidacion)
 
         Double sueldoMostrar = sueldo;
 
