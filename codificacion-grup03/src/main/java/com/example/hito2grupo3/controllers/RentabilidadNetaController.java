@@ -7,15 +7,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.hito2grupo3.services.RentabilidadNetaService;
+import com.example.hito2grupo3.services.IRentabilidadNetaService;
 
 @Controller
 public class RentabilidadNetaController {
 
-    private final RentabilidadNetaService  r;
+    private final IRentabilidadNetaService  r;
 ;
 
-    public RentabilidadNetaController(RentabilidadNetaService rentabilidadNetaService  ){
+    public RentabilidadNetaController(IRentabilidadNetaService rentabilidadNetaService  ){
         this.r = rentabilidadNetaService ;
     }
 

@@ -1,13 +1,10 @@
-package com.example.hito2grupo3.services;
+package com.example.hito2grupo3.services.impl;
 
 import com.example.hito2grupo3.dto.LiquidacionDTO;
-import com.example.hito2grupo3.entities.Cajero;
-import com.example.hito2grupo3.entities.Cocinero;
-import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.entities.Staff;
-import com.example.hito2grupo3.entities.UnidadVenta;
+import com.example.hito2grupo3.entities.*;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.ILiquidacionService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -17,13 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class LiquidacionService {
-
-    public record ResultadoLiquidacion(String unidad,
-                                       long diasFestival,
-                                       Set<LiquidacionDTO> liquidaciones,
-                                       BigDecimal totalGeneral) {
-    }
+public class LiquidacionService implements ILiquidacionService {
 
     // Valores fijos requeridos definidos directamente en el servicio
     private static final BigDecimal SUELDO_BASE = new BigDecimal("100000");
@@ -38,6 +29,7 @@ public class LiquidacionService {
         this.unidadVentaRepository = unidadVentaRepository;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId) {
         Festival festival = festivalRepository.findById(festivalId)
@@ -103,6 +95,7 @@ public class LiquidacionService {
         return new ResultadoLiquidacion(unidad.getNombreComercial(), dias, conjuntoLiquidaciones, totalGeneral);
     }
 
+    @Override
     public long diasDelFestival(LocalDate inicio, LocalDate fin) {
         if (inicio == null || fin == null || fin.isBefore(inicio)) {
             throw new IllegalArgumentException("El período del festival no es válido.");
@@ -110,6 +103,7 @@ public class LiquidacionService {
         return ChronoUnit.DAYS.between(inicio, fin) + 1;
     }
 
+    @Override
     public long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia) {
         if (fechaIngreso == null || fechaIngreso.isAfter(referencia)) {
             return 0;

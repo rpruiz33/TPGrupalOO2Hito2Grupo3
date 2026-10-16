@@ -1,8 +1,8 @@
 package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.services.LiquidacionService;
-import com.example.hito2grupo3.services.LiquidacionService.ResultadoLiquidacion;
+import com.example.hito2grupo3.services.impl.LiquidacionService;
+
 import java.security.Principal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -34,7 +34,7 @@ public class LiquidacionController {
         if (festivalId != null) {
             try {
                 // principal.getName() es el email del usuario logueado
-                ResultadoLiquidacion r = liquidacionService.liquidar(principal.getName(), festivalId);
+                var r = liquidacionService.liquidar(principal.getName(), festivalId);
                 model.addAttribute("unidad", r.unidad());
                 model.addAttribute("diasFestival", r.diasFestival());
                 model.addAttribute("liquidaciones", r.liquidaciones());
@@ -58,7 +58,7 @@ public String verReciboLiquidacion(@PathVariable Long id,
 
         // Validar que se haya recibido un festivalId
         if (festivalId != null) {
-            ResultadoLiquidacion resultado = liquidacionService.liquidar(principal.getName(), festivalId);
+            var resultado = liquidacionService.liquidar(principal.getName(), festivalId);
             
             // Buscar el DTO del empleado puntual en la lista calculada
             var liquidacionDTO = resultado.liquidaciones().stream()
