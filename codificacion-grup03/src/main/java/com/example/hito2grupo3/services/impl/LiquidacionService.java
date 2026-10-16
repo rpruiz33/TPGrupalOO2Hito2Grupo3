@@ -16,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LiquidacionService implements ILiquidacionService {
 
+<<<<<<< HEAD
+=======
+    // Valores fijos requeridos definidos directamente en el servicio
+>>>>>>> 36ab455 (poniendo los Iservices y la implementacion en el lugar)
     private static final BigDecimal SUELDO_BASE = new BigDecimal("100000");
     private static final BigDecimal VALOR_ANIO_ANTIGUEDAD = new BigDecimal("5000");
 
