@@ -12,9 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
+@Getter 
+@Setter 
 @Entity
 @Table(name = "platos")
 public class Plato {
@@ -24,5 +26,6 @@ public class Plato {
     private Long id;
     private String nombre;
     private BigDecimal precio;
+
 
 }

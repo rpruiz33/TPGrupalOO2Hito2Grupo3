@@ -6,16 +6,21 @@ import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 =======
 
+<<<<<<< HEAD
 import com.example.hito2grupo3.entities.*;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+=======
+package com.example.hito2grupo3.controllers;
+
+>>>>>>> 02913d7 (fix para atras)
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,10 +32,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 
+=======
+>>>>>>> 02913d7 (fix para atras)
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
@@ -53,12 +61,15 @@ public class EmpleadoController {
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
     }
 
+=======
+>>>>>>> 02913d7 (fix para atras)
     @GetMapping("/index")
     public String mostrarIndex() {
         return "empleado/index";
     }
 
     @GetMapping("/dashboard")
+<<<<<<< HEAD
 <<<<<<< HEAD
     public String mostrarDashboard(Model model) {
         Festival festival = festivalRepository.findAll().stream()
@@ -136,6 +147,9 @@ public class EmpleadoController {
         }
 
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
+=======
+    public String mostrarDashboard() {
+>>>>>>> 02913d7 (fix para atras)
         return "reportes/empleadoDashboard";
     }
 }

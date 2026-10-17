@@ -12,6 +12,7 @@
 <body>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   <main class="contenedor" th:with="
   nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
   listaUnidades=${unidades != null ? unidades : {
@@ -37,42 +38,48 @@
       <span>Festival Activo:</span>
       <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
 =======
+=======
+<!-- Variables mockeadas con varias unidades de venta dentro de Epicentro Gourmet -->
+>>>>>>> 02913d7 (fix para atras)
 <main class="contenedor" th:with="
-  emp=${empleado != null ? empleado : {
+  empleado=${ {
     'nombre': 'Martín González',
     'rol': 'Cajero Senior',
     'antiguedad': 3,
     'cajero': true
-  }},
-  asig=${asignacionActual != null ? asignacionActual : {
+  } },
+  asignacionActual=${ {
     'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
-    'festival': 'Epicentro Gourmet UNLa 2026'
-  }},
-  hist=${historial != null ? historial : {
-    { 'id': 101, 'festivalId': 1, 'festival': 'Epicentro Gourmet UNLa 2026', 'unidad': 'Puesto 1 - Hamburguesas', 'sueldo': 100000.00 }
-  }}">
+    'festival': 'Epicentro Gourmet 2026'
+  } },
+  historial=${ {
+    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas', 'sueldo': 85000.00 },
+    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas', 'sueldo': 72000.00 },
+    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería', 'sueldo': 68000.00 },
+    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas', 'sueldo': 91000.00 }
+  } }">
 
   <header>
     <h1>Epicentro Gourmet</h1>
-    <p>Hola, <span th:text="${emp.nombre}">Nombre</span></p>
+    <p>Hola, <span th:text="${empleado.nombre}">Nombre</span></p>
   </header>
 
   <!-- Asignación actual -->
-  <div class="aviso" th:if="${asig != null}">
+  <div class="aviso" th:if="${asignacionActual != null}">
     <span>Hoy trabajás en</span>
-    <strong th:text="${asig.unidad}">Unidad</strong>
-    <span th:text="'Festival: ' + ${asig.festival}">Festival</span>
+    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
+    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
   </div>
-  <div class="vacio" th:if="${asig == null}">
+  <div class="vacio" th:if="${asignacionActual == null}">
     No tenés asignada ninguna unidad de venta activa en este momento.
   </div>
 
   <!-- Datos personales del empleado -->
   <div class="resumen" style="margin-top: 36px;">
     <div class="dato"><span>Rol</span>
-      <strong th:text="${emp.rol}">Rol</strong></div>
+      <strong th:text="${empleado.rol}">Rol</strong></div>
     <div class="dato"><span>Antigüedad</span>
-      <strong th:text="${emp.antiguedad} + ' años'">0 años</strong></div>
+      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
   </div>
 
   <!-- Historial de trabajo en distintas unidades dentro del festival -->
@@ -81,18 +88,18 @@
     <div class="tabla-scroll">
       <table>
         <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo Base</th><th>Haberes</th></tr>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Haberes</th></tr>
         </thead>
         <tbody>
-          <tr th:each="h : ${hist}">
+          <tr th:each="h : ${historial}">
             <td th:text="${h.festival}">Festival</td>
             <td th:text="${h.unidad}">Unidad</td>
             <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
             <td class="text-center no-print">
-              <a class="boton" th:href="@{/liquidacion(festivalId=${h.festivalId != null ? h.festivalId : 1}, sueldo=${h.sueldo})}">Ver liquidación</a>
+              <a class="boton" th:href="@{/liquidacion(sueldo=${h.sueldo})}">Ver liquidación</a>
             </td>
           </tr>
-          <tr th:if="${#lists.isEmpty(hist)}">
+          <tr th:if="${#lists.isEmpty(historial)}">
             <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
           </tr>
         </tbody>
@@ -132,8 +139,7 @@
     </section>
 =======
   <div class="acciones-doble">
-    <a class="boton" th:if="${emp.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
-    <a class="boton" th:href="@{/empleado/index}">Volver</a>
+    <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
     <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
   </div>
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)

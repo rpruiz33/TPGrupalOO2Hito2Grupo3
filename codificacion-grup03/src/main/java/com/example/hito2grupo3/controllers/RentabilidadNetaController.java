@@ -54,7 +54,7 @@ public class RentabilidadNetaController {
 
     @GetMapping("/empleadoDashboard")
 	public String empleadoDashboard() {
-		return "redirect:/empleado/dashboard";
+		return "reportes/empleadoDashboard";
 	}
 
     @GetMapping("/reciboPdf")
