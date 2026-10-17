@@ -114,6 +114,7 @@ public class LiquidacionController {
                 }
             }
 
+<<<<<<< HEAD
             model.addAttribute("empleadoId", id);
             model.addAttribute("festivalId", targetFestivalId);
             model.addAttribute("unidadId", unidadId);
@@ -159,6 +160,32 @@ public class LiquidacionController {
                 model.addAttribute("unidad", resultado.unidad());
             } else {
                 model.addAttribute("error", "No se encontró un festival activo para ver el recibo.");
+=======
+    @GetMapping({"/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones"})
+    public String verReciboLiquidacion(@PathVariable Long id,
+                                       @RequestParam(required = false) Long festivalId,
+                                       Principal principal,
+                                       Model model) {
+        try {
+            model.addAttribute("empleadoId", id);
+            model.addAttribute("festivalId", festivalId);
+
+            if (festivalId != null) {
+                var resultado = liquidacionService.liquidar(principal.getName(), festivalId);
+                
+                var liquidacionDTO = resultado.liquidaciones().stream()
+                        .filter(l -> l.empleadoId().equals(id))
+                        .findFirst()
+                        .orElse(null);
+
+                model.addAttribute("liquidacion", liquidacionDTO);
+                model.addAttribute("unidad", resultado.unidad());
+                model.addAttribute("diasFestival", resultado.diasFestival());
+                
+                festivalRepository.findById(festivalId).ifPresent(f -> model.addAttribute("festival", f));
+            } else {
+                model.addAttribute("error", "Debe seleccionar un festival para ver el recibo.");
+>>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
             }
         } catch (Exception e) {
             model.addAttribute("error", "No se pudo obtener el recibo: " + e.getMessage());

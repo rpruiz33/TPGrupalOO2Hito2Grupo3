@@ -11,6 +11,7 @@
 
 <body>
 
+<<<<<<< HEAD
   <main class="contenedor" th:with="
   nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
   listaUnidades=${unidades != null ? unidades : {
@@ -35,8 +36,71 @@
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
       <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+=======
+<main class="contenedor" th:with="
+  emp=${empleado != null ? empleado : {
+    'nombre': 'Martín González',
+    'rol': 'Cajero Senior',
+    'antiguedad': 3,
+    'cajero': true
+  }},
+  asig=${asignacionActual != null ? asignacionActual : {
+    'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
+    'festival': 'Epicentro Gourmet UNLa 2026'
+  }},
+  hist=${historial != null ? historial : {
+    { 'id': 101, 'festivalId': 1, 'festival': 'Epicentro Gourmet UNLa 2026', 'unidad': 'Puesto 1 - Hamburguesas', 'sueldo': 100000.00 }
+  }}">
+
+  <header>
+    <h1>Epicentro Gourmet</h1>
+    <p>Hola, <span th:text="${emp.nombre}">Nombre</span></p>
+  </header>
+
+  <!-- Asignación actual -->
+  <div class="aviso" th:if="${asig != null}">
+    <span>Hoy trabajás en</span>
+    <strong th:text="${asig.unidad}">Unidad</strong>
+    <span th:text="'Festival: ' + ${asig.festival}">Festival</span>
+  </div>
+  <div class="vacio" th:if="${asig == null}">
+    No tenés asignada ninguna unidad de venta activa en este momento.
+  </div>
+
+  <!-- Datos personales del empleado -->
+  <div class="resumen" style="margin-top: 36px;">
+    <div class="dato"><span>Rol</span>
+      <strong th:text="${emp.rol}">Rol</strong></div>
+    <div class="dato"><span>Antigüedad</span>
+      <strong th:text="${emp.antiguedad} + ' años'">0 años</strong></div>
+  </div>
+
+  <!-- Historial de trabajo en distintas unidades dentro del festival -->
+  <section aria-labelledby="t-historial">
+    <h2 id="t-historial">Mis unidades de trabajo</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo Base</th><th>Haberes</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="h : ${hist}">
+            <td th:text="${h.festival}">Festival</td>
+            <td th:text="${h.unidad}">Unidad</td>
+            <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
+            <td class="text-center no-print">
+              <a class="boton" th:href="@{/liquidacion(festivalId=${h.festivalId != null ? h.festivalId : 1}, sueldo=${h.sueldo})}">Ver liquidación</a>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(hist)}">
+            <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
+          </tr>
+        </tbody>
+      </table>
+>>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
     </div>
 
+<<<<<<< HEAD
     <!-- Unidades de venta del festival -->
     <section aria-labelledby="t-unidades" style="margin-top: 28px;">
       <h2 id="t-unidades">Unidades de Venta Habilitadas</h2>
@@ -66,6 +130,13 @@
         </table>
       </div>
     </section>
+=======
+  <div class="acciones-doble">
+    <a class="boton" th:if="${emp.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
+    <a class="boton" th:href="@{/empleado/index}">Volver</a>
+    <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
+  </div>
+>>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 
     <div class="logo">
       <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">

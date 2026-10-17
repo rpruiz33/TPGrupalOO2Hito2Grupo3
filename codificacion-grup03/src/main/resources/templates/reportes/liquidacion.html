@@ -123,7 +123,7 @@
   <div class="layout">
 
     <nav class="sidebar admin-sidebar">
-      <a class="nav-link-admin" th:href="@{/admin/usuarios}">Inicio</a>
+      <a class="nav-link-admin" th:href="@{/empleado/index}">Inicio</a>
       <a class="nav-link-admin active" th:href="@{/liquidacion}">Liquidación</a>
     </nav>
 
@@ -141,12 +141,27 @@
 
       <div class="alerta" th:if="${error}" th:text="${error}"></div>
 
+<<<<<<< HEAD
       <div class="tarjeta card-custom p-3 mb-4">
         <span class="etiqueta fw-bold">Festival:</span>
         <span class="fs-5 fw-bold ms-2"
           th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Epicentro Gourmet UNLa
           2026</span>
       </div>
+=======
+      <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+        <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
+        <div class="campo">
+          <label for="festivalId" class="fw-bold">Festival</label>
+          <select id="festivalId" name="festivalId" class="form-select" required>
+            <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
+            <option th:each="f : ${festivales}" th:value="${f.id}" th:text="${f.nombre}"
+              th:selected="${f.id == festivalId}"></option>
+          </select>
+        </div>
+        <button type="submit" class="btn-bordo">Calcular liquidación</button>
+      </form>
+>>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 
       <div>
         <div class="tarjetas mb-4">
@@ -200,10 +215,22 @@
                   </td>
                   <td class="text-center no-print">
                     <a class="btn-pdf"
+<<<<<<< HEAD
                       th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId}, unidadId=${unidadId})}">PDF</a>
                   </td>
                 </tr>
                 <tr th:if="${liquidaciones == null or #lists.isEmpty(liquidaciones)}">
+=======
+                      th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                  </td>
+                </tr>
+                <tr th:if="${liquidaciones == null}">
+                  <td colspan="8" class="text-center text-muted py-4">
+                    Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
+                  </td>
+                </tr>
+                <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
+>>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
                   <td colspan="8" class="text-center text-muted py-4">
                     No hay personal activo asignado a esta unidad para el festival seleccionado.
                   </td>
