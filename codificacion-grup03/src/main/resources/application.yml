@@ -1,14 +1,30 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${USERNAME}
-    password: ${PASSWORD}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create   # <-- ACÁ ESTÁ EL CAMBIO
+      ddl-auto: update
     properties:
-      dialect: org.hibernate.dialect.MySQL8Dialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
   thymeleaf:
     cache: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: rpruiz33@gmail.com
+    password: "qwkbibgsqkwxvkie"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  mail:
+    from: ${MAIL_FROM:rpruiz33@gmail.com}

@@ -18,14 +18,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PedidoService implements IPedidoService {
+public class PedidoServiceImpl implements IPedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
     private final PlatoRepository platoRepository;
 
-    public PedidoService(
+    public PedidoServiceImpl(
             PedidoRepository pedidoRepository,
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository,

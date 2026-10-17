@@ -11,120 +11,21 @@
 
 <body>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
-  <main class="contenedor" th:with="
-  nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
-  listaUnidades=${unidades != null ? unidades : {
-    { 'codigo': 'FT-101', 'nombreComercial': 'La Trinchera Gourmet' },
-    { 'codigo': 'PD-101', 'nombreComercial': 'Sabores Criollos' },
-    { 'codigo': 'FT-102', 'nombreComercial': 'El Buen Sabor Rodante' },
-    { 'codigo': 'PD-102', 'nombreComercial': 'La Esquina Dulce' },
-    { 'codigo': 'FT-103', 'nombreComercial': 'Burger Master Truck' },
-    { 'codigo': 'PD-103', 'nombreComercial': 'Brasas Serranas' },
-    { 'codigo': 'FT-104', 'nombreComercial': 'Tacos El Guero' },
-    { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
-    { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
-    { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
-<<<<<<< HEAD
-  } }">
+  <main class="contenedor">
 
     <header>
       <h1>Epicentro Gourmet</h1>
       <p>Panel General de Unidades de Venta</p>
     </header>
 
-    <!-- Festival Activo Único -->
+    <!-- Festival Activo -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
-      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
-=======
-=======
-<!-- Variables mockeadas con varias unidades de venta dentro de Epicentro Gourmet -->
->>>>>>> 02913d7 (fix para atras)
-<main class="contenedor" th:with="
-  empleado=${ {
-    'nombre': 'Martín González',
-    'dni': '34.125.890',
-    'rol': 'Cajero Senior',
-    'antiguedad': 3,
-    'cajero': true
-  } },
-  asignacionActual=${ {
-    'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
-    'festival': 'Epicentro Gourmet 2026'
-  } },
-  historial=${ {
-    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas' },
-    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas' },
-    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería' },
-    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas' }
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
-  } }">
-
-    <header>
-      <h1>Epicentro Gourmet</h1>
-      <p>Panel General de Unidades de Venta</p>
-    </header>
-
-<<<<<<< HEAD
-  <!-- Asignación actual -->
-  <div class="aviso" th:if="${asignacionActual != null}">
-    <span>Hoy trabajás en</span>
-    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
-    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
-  </div>
-  <div class="vacio" th:if="${asignacionActual == null}">
-    No tenés asignada ninguna unidad de venta activa en este momento.
-  </div>
-
-  <!-- Datos personales del empleado -->
-  <div class="resumen" style="margin-top: 36px;">
-    <div class="dato"><span>DNI</span>
-      <strong th:text="${empleado.dni}">DNI</strong></div>
-    <div class="dato"><span>Rol</span>
-      <strong th:text="${empleado.rol}">Rol</strong></div>
-    <div class="dato"><span>Antigüedad</span>
-      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
-  </div>
-
-  <!-- Historial de trabajo en distintas unidades dentro del festival -->
-  <section aria-labelledby="t-historial">
-    <h2 id="t-historial">Mis unidades de trabajo</h2>
-    <div class="tabla-scroll">
-      <table>
-        <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Acciones</th></tr>
-        </thead>
-        <tbody>
-          <tr th:each="h : ${historial}">
-            <td th:text="${h.festival}">Festival</td>
-            <td th:text="${h.unidad}">Unidad</td>
-            <td class="text-center no-print">
-              <a class="boton" th:href="@{/liquidacion}">Ver mi liquidación</a>
-            </td>
-          </tr>
-          <tr th:if="${#lists.isEmpty(historial)}">
-            <td colspan="3">Todavía no trabajaste en ninguna unidad de venta.</td>
-          </tr>
-        </tbody>
-      </table>
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
+      <strong th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">
+        Epicentro Gourmet UNLa 2026
+      </strong>
     </div>
 
-<<<<<<< HEAD
-=======
-    <!-- Festival Activo Único -->
-    <div class="aviso" style="margin-top: 20px;">
-      <span>Festival Activo:</span>
-      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
-    </div>
-
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     <!-- Unidades de venta del festival -->
     <section aria-labelledby="t-unidades" style="margin-top: 28px;">
       <h2 id="t-unidades">Unidades de Venta Habilitadas</h2>
@@ -139,30 +40,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="u : ${listaUnidades}">
-              <td th:text="${u.codigo}">FT-101</td>
+            <tr th:each="u : ${unidades}">
+              <td th:text="${u.codigo}">FT-001</td>
               <td th:text="${u.nombreComercial}">La Trinchera Gourmet</td>
-              <td th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</td>
+              <td th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Festival</td>
               <td class="text-center no-print">
-                <a class="boton" th:href="@{/liquidacion(codigo=${u.codigo})}">Ver liquidación</a>
+                <a class="boton" th:href="@{/liquidacion(unidadId=${u.id})}">Ver liquidación</a>
               </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(listaUnidades)}">
+            <tr th:if="${unidades == null or #lists.isEmpty(unidades)}">
               <td colspan="4">No hay unidades de venta habilitadas registradas.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
-<<<<<<< HEAD
-=======
-  <div class="acciones-doble">
-    <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
-    <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
-  </div>
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 
     <div class="logo">
       <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">

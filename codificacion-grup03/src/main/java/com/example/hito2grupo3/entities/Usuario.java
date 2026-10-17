@@ -34,4 +34,7 @@ public class Usuario {
     @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "rol_id", referencedColumnName = "id", nullable = false)
     private Rol rol; // Le sacamos la "s" final
+
+    @Column(name = "debe_cambiar_password", nullable = false)
+    private boolean debeCambiarPassword = true;
 }
