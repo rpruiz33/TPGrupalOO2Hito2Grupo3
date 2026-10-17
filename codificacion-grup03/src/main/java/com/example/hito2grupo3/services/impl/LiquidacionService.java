@@ -8,7 +8,7 @@ import com.example.hito2grupo3.services.ILiquidacionService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LiquidacionService implements ILiquidacionService {
 
-    // Valores fijos requeridos definidos directamente en el servicio
     private static final BigDecimal SUELDO_BASE = new BigDecimal("100000");
     private static final BigDecimal VALOR_ANIO_ANTIGUEDAD = new BigDecimal("5000");
 
@@ -36,62 +35,84 @@ public class LiquidacionService implements ILiquidacionService {
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
 
         UnidadVenta unidad = unidadVentaRepository.findAll().stream()
-            .filter(u -> u.getResponsable() != null
-                && u.getResponsable().getUsuario() != null
-                && emailResponsable.equals(u.getResponsable().getUsuario().getEmail()))
-            .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No tenés una unidad de venta asignada."));
+                .filter(u -> u.getResponsable() != null
+                        && u.getResponsable().getUsuario() != null
+                        && emailResponsable != null
+                        && emailResponsable.equals(u.getResponsable().getUsuario().getEmail()))
+                .findFirst()
+                .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("No hay unidades de venta registradas.")));
 
+        return calcularLiquidacion(unidad, festival);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId) {
+        Festival festival = festivalRepository.findById(festivalId)
+                .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+
+        UnidadVenta unidad = unidadVentaRepository.findById(unidadId)
+                .orElseThrow(() -> new IllegalArgumentException("La unidad de venta seleccionada no existe."));
+
+        return calcularLiquidacion(unidad, festival);
+    }
+
+    private ResultadoLiquidacion calcularLiquidacion(UnidadVenta unidad, Festival festival) {
         long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
-        
-        // Fórmula proporcional solicitada: (int(diasDurFest / 15) + 1)
         int periodos = (int) (dias / 15) + 1;
 
-        Set<LiquidacionDTO> conjuntoLiquidaciones = new HashSet<>();
+        Set<LiquidacionDTO> conjuntoLiquidaciones = new LinkedHashSet<>();
         BigDecimal totalGeneral = BigDecimal.ZERO;
 
-        for (Staff s : unidad.getStaffAsignado()) {
+        Set<Staff> personal = new LinkedHashSet<>();
+        if (unidad.getResponsable() != null) {
+            personal.add(unidad.getResponsable());
+        }
+        if (unidad.getStaffAsignado() != null) {
+            personal.addAll(unidad.getStaffAsignado());
+        }
+
+        for (Staff s : personal) {
             long anios = aniosAntiguedad(s.getFechaIngreso(), festival.getFechaInicio());
-            BigDecimal adicional;
+            BigDecimal sueldoEmp = s.getSueldo() != null ? s.getSueldo() : SUELDO_BASE;
+            BigDecimal adicional = BigDecimal.ZERO;
             String rol;
-            BigDecimal baseCalculo;
 
             if (s instanceof Cocinero c) {
-                // Plus por categoría de cocina ($150.000, $100.000 o $50.000)
-                adicional = c.getCategoriaCocina() != null ? c.getCategoriaCocina().getPlusFijo() : BigDecimal.ZERO;
+                BigDecimal plusCat = (c.getCategoriaCocina() != null && c.getCategoriaCocina().getPlusFijo() != null)
+                        ? c.getCategoriaCocina().getPlusFijo() : BigDecimal.ZERO;
+                BigDecimal bonoPelig = c.getBonoPeligrosidad() != null ? c.getBonoPeligrosidad() : BigDecimal.ZERO;
+                adicional = plusCat.add(bonoPelig);
                 rol = c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Cocinero";
-                
-                // (Sueldo Base + Plus por categoría)
-                baseCalculo = SUELDO_BASE.add(adicional);
-            } else if (s instanceof Cajero) {
-                // Antigüedad: $5000 por cada año
-                adicional = VALOR_ANIO_ANTIGUEDAD.multiply(BigDecimal.valueOf(anios));
+            } else if (s instanceof Cajero caj) {
+                BigDecimal plusAntig = VALOR_ANIO_ANTIGUEDAD.multiply(BigDecimal.valueOf(anios));
+                BigDecimal plusOad = caj.getPlusOadicional() != null ? caj.getPlusOadicional() : BigDecimal.ZERO;
+                adicional = plusAntig.add(plusOad);
                 rol = "Cajero";
-                
-                // (Sueldo Base + Antigüedad)
-                baseCalculo = SUELDO_BASE.add(adicional);
             } else {
                 continue;
             }
 
-            // totalAcobrar = (int(diasDurFest/15) + 1) * 50% * (baseCalculo)
+            BigDecimal baseCalculo = sueldoEmp.add(adicional);
             BigDecimal factorProporcional = BigDecimal.valueOf(periodos).multiply(BigDecimal.valueOf(0.5));
             BigDecimal total = baseCalculo.multiply(factorProporcional);
 
             totalGeneral = totalGeneral.add(total);
-            
+
             conjuntoLiquidaciones.add(new LiquidacionDTO(
-                    s.getId(), 
-                    s.getNombre() + " " + s.getApellido(), 
+                    s.getId(),
+                    s.getNombre() + " " + s.getApellido(),
                     s.getDni(),
-                    rol, 
-                    anios, 
-                    SUELDO_BASE, 
-                    adicional, 
-                    periodos, 
+                    rol,
+                    anios,
+                    sueldoEmp,
+                    adicional,
+                    periodos,
                     total
             ));
         }
+
         return new ResultadoLiquidacion(unidad.getNombreComercial(), dias, conjuntoLiquidaciones, totalGeneral);
     }
 

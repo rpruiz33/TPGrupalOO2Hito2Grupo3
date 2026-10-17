@@ -130,12 +130,9 @@
         
         <div class="alerta" th:if="${error}" th:text="${error}"></div>
         
-        <div class="tarjeta card-custom p-3 mb-4 d-flex justify-content-between align-items-center">
-          <div>
-            <span class="etiqueta fw-bold">Festival:</span>
-            <span class="fs-5 fw-bold ms-2" th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Epicentro Gourmet UNLa 2026</span>
-          </div>
-          <span class="badge bg-danger px-3 py-2 text-white">Evento Único</span>
+        <div class="tarjeta card-custom p-3 mb-4">
+          <span class="etiqueta fw-bold">Festival:</span>
+          <span class="fs-5 fw-bold ms-2" th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Epicentro Gourmet UNLa 2026</span>
         </div>
 
         <div>
@@ -186,7 +183,7 @@
                     <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
                     <td class="text-center no-print">
                       <a class="btn-pdf"
-                        th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                        th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId}, unidadId=${unidadId})}">PDF</a>
                     </td>
                   </tr>
                   <tr th:if="${liquidaciones == null or #lists.isEmpty(liquidaciones)}">

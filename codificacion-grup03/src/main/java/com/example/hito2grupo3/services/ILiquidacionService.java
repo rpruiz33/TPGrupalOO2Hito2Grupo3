@@ -9,6 +9,8 @@ public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId);
     
+    ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
+    
     long diasDelFestival(LocalDate inicio, LocalDate fin);
     
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
