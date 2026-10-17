@@ -49,35 +49,35 @@ public class LiquidacionController {
     }
 
 
-    @GetMapping("/empleado/recibo/{id}/liquidaciones")
-public String verReciboLiquidacion(@PathVariable Long id,
-                                   @RequestParam(required = false) Long festivalId,
-                                   Principal principal,
-                                   Model model) {
-    try {
-        model.addAttribute("empleadoId", id);
-        model.addAttribute("festivalId", festivalId);
+    @GetMapping({"/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones"})
+    public String verReciboLiquidacion(@PathVariable Long id,
+                                       @RequestParam(required = false) Long festivalId,
+                                       Principal principal,
+                                       Model model) {
+        try {
+            model.addAttribute("empleadoId", id);
+            model.addAttribute("festivalId", festivalId);
 
-        // Validar que se haya recibido un festivalId
-        if (festivalId != null) {
-            var resultado = liquidacionService.liquidar(principal.getName(), festivalId);
-            
-            // Buscar el DTO del empleado puntual en la lista calculada
-            var liquidacionDTO = resultado.liquidaciones().stream()
-                    .filter(l -> l.empleadoId().equals(id))
-                    .findFirst()
-                    .orElse(null);
+            if (festivalId != null) {
+                var resultado = liquidacionService.liquidar(principal.getName(), festivalId);
+                
+                var liquidacionDTO = resultado.liquidaciones().stream()
+                        .filter(l -> l.empleadoId().equals(id))
+                        .findFirst()
+                        .orElse(null);
 
-            model.addAttribute("liquidacion", liquidacionDTO);
-            model.addAttribute("unidad", resultado.unidad());
-        } else {
-            model.addAttribute("error", "Debe seleccionar un festival para ver el recibo.");
+                model.addAttribute("liquidacion", liquidacionDTO);
+                model.addAttribute("unidad", resultado.unidad());
+                model.addAttribute("diasFestival", resultado.diasFestival());
+                
+                festivalRepository.findById(festivalId).ifPresent(f -> model.addAttribute("festival", f));
+            } else {
+                model.addAttribute("error", "Debe seleccionar un festival para ver el recibo.");
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "No se pudo obtener el recibo: " + e.getMessage());
         }
-    } catch (Exception e) {
-        // En lugar de arrojar Error 500, capturamos la excepción y la mostramos en la vista
-        model.addAttribute("error", "No se pudo obtener el recibo: " + e.getMessage());
-    }
 
-    return "reportes/recibo"; // Asegurate de que exista src/main/resources/templates/reportes/recibo.html
-}
+        return "reportes/reciboPdf";
+    }
 }

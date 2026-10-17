@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Liquidación de Haberes - Epicentro Gourmet</title>
   <link rel="stylesheet" th:href="@{/css/panel.css}">
-  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}" />
   <link rel="stylesheet" th:href="@{/css/liquidacion.css}">
   <style>
-    .card-custom, 
-    .tarjeta.card-custom, 
+    .card-custom,
+    .tarjeta.card-custom,
     .filtro,
     .tarjeta {
       background-color: #fffde7 !important;
@@ -17,25 +18,31 @@
       border: 1px solid rgba(255, 253, 231, 0.3) !important;
     }
 
-    .form-select, 
+    .form-select,
     .form-control {
       background-color: #fffde7 !important;
       color: #5c0617 !important;
       border: 1px solid #c9b037 !important;
     }
 
-    .table, 
-    .table th, 
+    .table,
+    .table th,
     .table td {
       background-color: transparent !important;
       color: #5c0617 !important;
     }
 
-    .etiqueta, .subtitulo, label, h5, .nota, .valor {
+    .etiqueta,
+    .subtitulo,
+    label,
+    h5,
+    .nota,
+    .valor {
       color: #5c0617 !important;
     }
 
     @media print {
+
       .admin-header,
       .sidebar,
       .filtro,
@@ -72,7 +79,8 @@
         color: #333333 !important;
       }
 
-      .card-custom, .tarjeta {
+      .card-custom,
+      .tarjeta {
         background-color: #ffffff !important;
         border: 1px solid #ccc !important;
         box-shadow: none !important;
@@ -84,7 +92,8 @@
         width: 100% !important;
       }
 
-      .table th, .table td {
+      .table th,
+      .table td {
         border: 1px solid #ddd !important;
         padding: 8px !important;
         color: #000000 !important;
@@ -92,136 +101,143 @@
     }
   </style>
 </head>
+
 <body>
 
   <nav class="navbar navbar-dark admin-header px-4 py-2">
-      <div class="container-fluid">
-          <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
-              <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;">
-              <span>Epicentro Gourmet</span>
-          </a>
-          
-          <div class="d-flex align-items-center gap-3">
-              <span class="small d-none d-md-inline"></span>
-              <form th:action="@{/logout}" method="post" class="m-0">
-                  <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
-              </form>
-          </div>
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
+        <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;">
+        <span>Epicentro Gourmet</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <span class="small d-none d-md-inline"></span>
+        <form th:action="@{/logout}" method="post" class="m-0">
+          <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+        </form>
       </div>
+    </div>
   </nav>
 
   <div class="layout">
 
     <nav class="sidebar admin-sidebar">
-      <a class="nav-link-admin" th:href="@{/admin/usuarios}">Inicio</a>
+      <a class="nav-link-admin" th:href="@{/empleado/index}">Inicio</a>
       <a class="nav-link-admin active" th:href="@{/liquidacion}">Liquidación</a>
     </nav>
-    
+
     <main class="contenido">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h1 style="color: #ffffff;">Liquidación de Haberes</h1>
-            <p class="subtitulo" style="color: #ffffff !important;">Sueldos del personal de tu unidad de venta según el festival.</p>
-          </div>
-          <button type="button" onclick="window.print();" class="btn btn-outline-light btn-print px-3 py-2 fw-bold">
-            🖨️ Imprimir Liquidación Haberes
-          </button>
-        </div>
-        
-        <div class="alerta" th:if="${error}" th:text="${error}"></div>
-        
-        <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
-          <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
-          <div class="campo">
-            <label for="festivalId" class="fw-bold">Festival</label>
-            <select id="festivalId" name="festivalId" class="form-select" required>
-              <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
-              <option th:each="f : ${festivales}"
-                      th:value="${f.id}"
-                      th:text="${f.nombre}"
-                      th:selected="${f.id == festivalId}"></option>
-            </select>
-          </div>
-          <button type="submit" class="btn-bordo">Calcular liquidación</button>
-        </form>
-
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <div class="tarjetas mb-4">
-            <div class="tarjeta card-custom" th:if="${sueldo != null}">
-              <div class="etiqueta fw-bold">Sueldo Asignado / Cobrado</div>
-              <div class="valor fw-bold" th:text="'$' + ${#numbers.formatDecimal(sueldo, 1, 'POINT', 0, 'COMMA')}">$0</div>
-            </div>
-            <div class="tarjeta card-custom">
-              <div class="etiqueta fw-bold">Unidad de venta</div>
-              <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
-            </div>
-            <div class="tarjeta card-custom">
-              <div class="etiqueta fw-bold">Duración del festival</div>
-              <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
-            </div>
-            <div class="tarjeta card-custom">
-              <div class="etiqueta fw-bold">Total a pagar</div>
-              <div class="valor fw-bold"
-                  th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</div>
+          <h1 style="color: #ffffff;">Liquidación de Haberes</h1>
+          <p class="subtitulo" style="color: #ffffff !important;">Sueldos del personal de tu unidad de venta según el
+            festival.</p>
+        </div>
+        <button type="button" onclick="window.print();" class="btn btn-outline-light btn-print px-3 py-2 fw-bold">
+          🖨️ Imprimir Liquidación Haberes
+        </button>
+      </div>
+
+      <div class="alerta" th:if="${error}" th:text="${error}"></div>
+
+      <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
+        <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
+        <div class="campo">
+          <label for="festivalId" class="fw-bold">Festival</label>
+          <select id="festivalId" name="festivalId" class="form-select" required>
+            <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
+            <option th:each="f : ${festivales}" th:value="${f.id}" th:text="${f.nombre}"
+              th:selected="${f.id == festivalId}"></option>
+          </select>
+        </div>
+        <button type="submit" class="btn-bordo">Calcular liquidación</button>
+      </form>
+
+      <div>
+        <div class="tarjetas mb-4">
+          <div class="tarjeta card-custom" th:if="${sueldo != null}">
+            <div class="etiqueta fw-bold">Sueldo Asignado / Cobrado</div>
+            <div class="valor fw-bold" th:text="'$' + ${#numbers.formatDecimal(sueldo, 1, 'POINT', 0, 'COMMA')}">$0
             </div>
           </div>
-
-          <div class="tarjeta card-custom p-4">
-            <h5 class="mb-3 fw-bold">Detalle de Personal y Haberes</h5>
-            <div class="tabla-wrap">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Empleado</th>
-                    <th>DNI</th>
-                    <th>Rol / Categoría</th>
-                    <th class="num">Sueldo Base</th>
-                    <th class="num">Plus / Antigüedad</th>
-                    <th class="num">Factor (Períodos)</th>
-                    <th class="num">Total a Cobrar</th>
-                    <th class="text-center no-print">Recibo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
-                    <td th:text="${l.nombreCompleto}">Nombre</td>
-                    <td th:text="${l.dni}">00000000</td>
-                    <td th:text="${l.rol}">Cajero</td>
-                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                    <td class="num" th:text="${l.periodos} + ' (x 50%)'">0</td>
-                    <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                    <td class="text-center no-print">
-                      <a class="btn-pdf"
-                        th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
-                    </td>
-                  </tr>
-                  <tr th:if="${liquidaciones == null}">
-                    <td colspan="8" class="text-center text-muted py-4">
-                      Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
-                    </td>
-                  </tr>
-                  <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
-                    <td colspan="8" class="text-center text-muted py-4">
-                      No hay personal activo asignado a esta unidad para el festival seleccionado.
-                    </td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="6" class="text-end fw-bold">Total General:</td>
-                    <td class="num fw-bold text-danger" colspan="2"
-                        th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-            <p class="nota mt-3">
-              Cálculo basado en sueldo base ($100.000), antigüedad ($5.000 por año), plus por categoría y proporción por bloques de 15 días de duración del evento.
-            </p>
+          <div class="tarjeta card-custom">
+            <div class="etiqueta fw-bold">Unidad de venta</div>
+            <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
+          </div>
+          <div class="tarjeta card-custom">
+            <div class="etiqueta fw-bold">Duración del festival</div>
+            <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
+          </div>
+          <div class="tarjeta card-custom">
+            <div class="etiqueta fw-bold">Total a pagar</div>
+            <div class="valor fw-bold"
+              th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">
+              $0</div>
           </div>
         </div>
-      </main>
+
+        <div class="tarjeta card-custom p-4">
+          <h5 class="mb-3 fw-bold">Detalle de Personal y Haberes</h5>
+          <div class="tabla-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Empleado</th>
+                  <th>DNI</th>
+                  <th>Rol / Categoría</th>
+                  <th class="num">Sueldo Base</th>
+                  <th class="num">Plus / Antigüedad</th>
+                  <th class="num">Factor (Períodos)</th>
+                  <th class="num">Total a Cobrar</th>
+                  <th class="text-center no-print">Recibo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
+                  <td th:text="${l.nombreCompleto}">Nombre</td>
+                  <td th:text="${l.dni}">00000000</td>
+                  <td th:text="${l.rol}">Cajero</td>
+                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0
+                  </td>
+                  <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                  <td class="num" th:text="${l.periodos} + ' (x 50%)'">0</td>
+                  <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0
+                  </td>
+                  <td class="text-center no-print">
+                    <a class="btn-pdf"
+                      th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                  </td>
+                </tr>
+                <tr th:if="${liquidaciones == null}">
+                  <td colspan="8" class="text-center text-muted py-4">
+                    Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
+                  </td>
+                </tr>
+                <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
+                  <td colspan="8" class="text-center text-muted py-4">
+                    No hay personal activo asignado a esta unidad para el festival seleccionado.
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="6" class="text-end fw-bold">Total General:</td>
+                  <td class="num fw-bold text-danger" colspan="2"
+                    th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">
+                    $0</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="nota mt-3">
+            Cálculo basado en sueldo base ($100.000), antigüedad ($5.000 por año), plus por categoría y proporción por
+            bloques de 15 días de duración del evento.
+          </p>
+        </div>
+      </div>
+    </main>
   </div>
 </body>
+
 </html>
