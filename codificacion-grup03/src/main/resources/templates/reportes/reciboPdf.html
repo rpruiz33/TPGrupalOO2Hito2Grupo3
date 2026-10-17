@@ -25,44 +25,33 @@
 </head>
 <body>
 
-<!-- Si no viene el objeto liquidacion desde el controlador, usamos variables mock por defecto -->
-<main class="contenedor" th:with="recibo=${liquidacion != null ? {
-  'nombre': liquidacion.nombreCompleto,
-  'dni': liquidacion.dni,
-  'rol': liquidacion.rol,
-  'festival': (festival != null ? festival.nombre : 'Festival Asignado'),
-  'unidad': (unidad != null ? unidad : 'Unidad de Venta'),
-  'diasFestival': (diasFestival != null ? diasFestival : 0),
-  'sueldoBase': liquidacion.sueldoBase,
-  'adicional': liquidacion.adicional,
-  'aniosAntiguedad': liquidacion.aniosAntiguedad,
-  'periodos': liquidacion.periodos,
-  'total': liquidacion.total,
-  'fechaEmision': #temporals.createNow()
-} : {
-  'nombre': 'Martín González',
+<!-- Variables mockeadas directamente en Thymeleaf -->
+<main class="contenedor" th:with="recibo=${ {
+  'nombre': 'Martín',
+  'apellido': 'González',
   'dni': '38.452.910',
-  'rol': 'Cajero',
+  'rol': 'Cajero Senior',
   'festival': 'Epicentro Gourmet 2026',
   'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
   'diasFestival': 3,
-  'sueldoBase': 100000.00,
-  'adicional': 15000.00,
+  'sueldoBase': 60000.00,
+  'plusCategoria': 15000.00,
+  'montoAntiguedad': 10000.00,
   'aniosAntiguedad': 3,
-  'periodos': 1,
-  'total': 57500.00,
+  'coeficiente': 1.2,
+  'total': 102000.00,
   'fechaEmision': #temporals.createNow()
 } }">
 
   <header>
     <h1>Epicentro Gourmet</h1>
-    <p>Recibo de liquidación de sueldo</p>
+    <p>Recibo de sueldo</p>
   </header>
 
   <p class="unidad">
-    <span th:text="${recibo.nombre}">Martín González</span> ·
+    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span> ·
     <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> ·
-    <span th:text="${recibo.rol}">Cajero</span>
+    <span th:text="${recibo.rol}">Cajero Senior</span>
   </p>
 
   <div class="resumen">
@@ -72,12 +61,12 @@
     </div>
     <div class="dato principal">
       <span>Total a cobrar</span>
-      <strong th:text="'$ ' + ${#numbers.formatDecimal(recibo.total,1,'POINT',0,'COMMA')}">$ 57.500</strong>
+      <strong th:text="'$ ' + ${#numbers.formatDecimal(recibo.total,1,'POINT',0,'COMMA')}">$ 102.000</strong>
     </div>
   </div>
 
   <section aria-labelledby="t-liquidacion">
-    <h2 id="t-liquidacion">Detalle de haberes</h2>
+    <h2 id="t-liquidacion">Liquidación de haberes</h2>
     <div class="tabla-scroll">
       <table>
         <thead>
@@ -97,30 +86,28 @@
           </tr>
           <tr>
             <td>Sueldo base</td>
-            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase,1,'POINT',0,'COMMA')}">$ 100.000</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase,1,'POINT',0,'COMMA')}">$ 60.000</td>
           </tr>
-          <tr th:if="${recibo.adicional != null and recibo.adicional > 0}">
-            <td th:text="${#strings.containsIgnoreCase(recibo.rol, 'Cajero')} ? ('Antigüedad (' + ${recibo.aniosAntiguedad} + ' años - $5.000/año)') : ('Plus por categoría (' + ${recibo.rol} + ')')">Adicional / Antigüedad</td>
-            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.adicional,1,'POINT',0,'COMMA')}">$ 15.000</td>
+          <tr th:if="${recibo.plusCategoria != null}">
+            <td>Plus por categoría</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria,1,'POINT',0,'COMMA')}">$ 15.000</td>
+          </tr>
+          <tr th:if="${recibo.montoAntiguedad != null}">
+            <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
+            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad,1,'POINT',0,'COMMA')}">$ 10.000</td>
           </tr>
           <tr>
-            <td>Factor de duración (bloques de 15 días)</td>
-            <td style="text-align: right;" th:text="${recibo.periodos} + ' período(s) (x 50%)'">1 (x 50%)</td>
+            <td>Coeficiente por duración</td>
+            <td style="text-align: right;" th:text="${recibo.coeficiente}">1.2</td>
           </tr>
         </tbody>
-        <tfoot>
-          <tr>
-            <td style="font-weight: bold;">Neto a liquidar</td>
-            <td style="text-align: right; font-weight: bold; color: #800020;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.total,1,'POINT',0,'COMMA')}">$ 57.500</td>
-          </tr>
-        </tfoot>
       </table>
     </div>
   </section>
 
   <div class="acciones-doble">
-    <button type="button" class="boton" onclick="window.print()">🖨️ Imprimir PDF</button>
-    <a class="boton" th:href="${festivalId != null ? '/liquidacion?festivalId=' + festivalId : '/liquidacion'}">Volver</a>
+    <button type="button" class="boton" onclick="window.print()">Imprimir PDF</button>
+    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
   </div>
 
   <div class="logo">
