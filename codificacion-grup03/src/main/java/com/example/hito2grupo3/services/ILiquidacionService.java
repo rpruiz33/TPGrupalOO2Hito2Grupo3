@@ -8,18 +8,19 @@ import java.util.Set;
 public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId);
-    
+
     ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
-    
+
     long diasDelFestival(LocalDate inicio, LocalDate fin);
-    
+
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
 
-    // El record se define aquí para que sea el contrato oficial devuelto por el servicio
+    // El record se define aquí para que sea el contrato oficial devuelto por el
+    // servicio
     record ResultadoLiquidacion(
             String unidad,
             long diasFestival,
             Set<LiquidacionDTO> liquidaciones,
-            BigDecimal totalGeneral
-    ) {}
+            BigDecimal totalGeneral) {
+    }
 }
