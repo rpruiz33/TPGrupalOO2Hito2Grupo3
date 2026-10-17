@@ -26,7 +26,7 @@
 <body>
 
 <!-- Variables mockeadas directamente en Thymeleaf -->
-<main class="contenedor" th:with="recibo=${ {
+<main class="contenedor" th:with="recibo=${ recibo != null ? recibo : {
   'nombre': 'Martín',
   'apellido': 'González',
   'dni': '38.452.910',
