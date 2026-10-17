@@ -31,53 +31,10 @@
       <p>Panel General de Unidades de Venta</p>
     </header>
 
-<<<<<<< HEAD
     <!-- Festival Activo Único -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
       <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
-=======
-  <!-- Asignación actual -->
-  <div class="aviso" th:if="${asignacionActual != null}">
-    <span>Hoy trabajás en</span>
-    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
-    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
-  </div>
-  <div class="vacio" th:if="${asignacionActual == null}">
-    No tenés asignada ninguna unidad de venta activa en este momento.
-  </div>
-
-  <!-- Datos personales del empleado -->
-  <div class="resumen" style="margin-top: 36px;">
-    <div class="dato"><span>Rol</span>
-      <strong th:text="${empleado.rol}">Rol</strong></div>
-    <div class="dato"><span>Antigüedad</span>
-      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
-  </div>
-
-  <!-- Historial de trabajo en distintas unidades dentro del festival -->
-  <section aria-labelledby="t-historial">
-    <h2 id="t-historial">Mis unidades de trabajo</h2>
-    <div class="tabla-scroll">
-      <table>
-        <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Haberes</th></tr>
-        </thead>
-        <tbody>
-          <tr th:each="h : ${historial}">
-            <td th:text="${h.festival}">Festival</td>
-            <td th:text="${h.unidad}">Unidad</td>
-            <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
-            <td class="text-center no-print">
-              <a class="boton" th:href="@{/liquidacion(sueldo=${h.sueldo})}">Ver liquidación</a>
-            </td>
-          </tr>
-          <tr th:if="${#lists.isEmpty(historial)}">
-            <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
-          </tr>
-        </tbody>
-      </table>
->>>>>>> 274db79 (algunos cambios en liquidacion)
     </div>
 
     <!-- Unidades de venta del festival -->

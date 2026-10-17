@@ -3,8 +3,9 @@ package com.example.hito2grupo3.controllers;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.services.LiquidacionService;
-import com.example.hito2grupo3.services.LiquidacionService.ResultadoLiquidacion;
+import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.ILiquidacionService;
+import com.example.hito2grupo3.services.impl.LiquidacionService;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ public class LiquidacionController {
 
     @GetMapping("/liquidacion")
     public String liquidacion(@RequestParam(required = false) Long festivalId,
-<<<<<<< HEAD
             @RequestParam(required = false) Long unidadId,
             @RequestParam(required = false) String codigo,
             @RequestParam(required = false) Double sueldo,
@@ -50,21 +50,31 @@ public class LiquidacionController {
         model.addAttribute("festival", festival);
         Long idFestival = festival != null ? festival.getId() : null;
         model.addAttribute("festivalId", idFestival);
-=======
-                              @RequestParam(required = false) Double sueldo,
-                              Principal principal, Model model) {
-
-        model.addAttribute("festivales", festivalRepository.findAll());
-        model.addAttribute("festivalId", festivalId);
-        model.addAttribute("sueldo", sueldo);
->>>>>>> 274db79 (algunos cambios en liquidacion)
 
         Double sueldoMostrar = sueldo;
 
         if (idFestival != null) {
             try {
-                // principal.getName() es el email del usuario logueado
-                ResultadoLiquidacion r = liquidacionService.liquidar(principal.getName(), festivalId);
+                ILiquidacionService.ResultadoLiquidacion r;
+
+                if (unidadId != null) {
+                    r = liquidacionService.liquidarPorUnidad(unidadId, idFestival);
+                    model.addAttribute("unidadId", unidadId);
+                } else if (codigo != null && !codigo.isBlank()) {
+                    UnidadVenta uv = unidadVentaRepository.findAll().stream()
+                            .filter(u -> codigo.equalsIgnoreCase(u.getCodigo()))
+                            .findFirst()
+                            .orElse(null);
+                    if (uv != null) {
+                        r = liquidacionService.liquidarPorUnidad(uv.getId(), idFestival);
+                        model.addAttribute("unidadId", uv.getId());
+                    } else {
+                        r = liquidacionService.liquidar(principal.getName(), idFestival);
+                    }
+                } else {
+                    r = liquidacionService.liquidar(principal.getName(), idFestival);
+                }
+
                 model.addAttribute("unidad", r.unidad());
                 model.addAttribute("diasFestival", r.diasFestival());
                 model.addAttribute("liquidaciones", r.liquidaciones());
@@ -85,22 +95,40 @@ public class LiquidacionController {
         return "reportes/liquidacion";
     }
 
-    @GetMapping("/empleado/recibo/{id}/liquidaciones")
+    @GetMapping({ "/reciboPdf/{id}", "/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones" })
     public String verReciboLiquidacion(@PathVariable Long id,
             @RequestParam(required = false) Long festivalId,
+            @RequestParam(required = false) Long unidadId,
             Principal principal,
             Model model) {
         try {
+            Long targetFestivalId = festivalId;
+            if (targetFestivalId == null) {
+                Festival f = festivalRepository.findAll().stream()
+                        .filter(fest -> fest.getNombre() != null
+                                && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
+                        .findFirst()
+                        .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
+                if (f != null) {
+                    targetFestivalId = f.getId();
+                }
+            }
+
             model.addAttribute("empleadoId", id);
-            model.addAttribute("festivalId", festivalId);
+            model.addAttribute("festivalId", targetFestivalId);
+            model.addAttribute("unidadId", unidadId);
 
-            // Validar que se haya recibido un festivalId
-            if (festivalId != null) {
-                ResultadoLiquidacion resultado = liquidacionService.liquidar(principal.getName(), festivalId);
+            if (targetFestivalId != null) {
+                Festival f = festivalRepository.findById(targetFestivalId).orElse(null);
+                ILiquidacionService.ResultadoLiquidacion resultado;
+                if (unidadId != null) {
+                    resultado = liquidacionService.liquidarPorUnidad(unidadId, targetFestivalId);
+                } else {
+                    resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId);
+                }
 
-                // Buscar el DTO del empleado puntual en la lista calculada
                 var liquidacionDTO = resultado.liquidaciones().stream()
-                        .filter(l -> l.empleadoId().equals(id))
+                        .filter(l -> Objects.equals(l.empleadoId(), id))
                         .findFirst()
                         .orElse(null);
 
