@@ -8,15 +8,9 @@ import java.util.Set;
 public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId);
-<<<<<<< HEAD
 
     ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
 
-=======
-    
-    ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
-    
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     long diasDelFestival(LocalDate inicio, LocalDate fin);
 
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
