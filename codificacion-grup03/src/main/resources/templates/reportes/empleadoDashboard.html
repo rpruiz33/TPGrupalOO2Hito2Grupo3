@@ -44,6 +44,7 @@
 <main class="contenedor" th:with="
   empleado=${ {
     'nombre': 'Martín González',
+    'dni': '34.125.890',
     'rol': 'Cajero Senior',
     'antiguedad': 3,
     'cajero': true
@@ -53,10 +54,10 @@
     'festival': 'Epicentro Gourmet 2026'
   } },
   historial=${ {
-    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas', 'sueldo': 85000.00 },
-    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas', 'sueldo': 72000.00 },
-    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería', 'sueldo': 68000.00 },
-    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas', 'sueldo': 91000.00 }
+    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas' },
+    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas' },
+    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería' },
+    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas' }
   } }">
 
   <header>
@@ -76,6 +77,8 @@
 
   <!-- Datos personales del empleado -->
   <div class="resumen" style="margin-top: 36px;">
+    <div class="dato"><span>DNI</span>
+      <strong th:text="${empleado.dni}">DNI</strong></div>
     <div class="dato"><span>Rol</span>
       <strong th:text="${empleado.rol}">Rol</strong></div>
     <div class="dato"><span>Antigüedad</span>
@@ -88,19 +91,18 @@
     <div class="tabla-scroll">
       <table>
         <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Haberes</th></tr>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Acciones</th></tr>
         </thead>
         <tbody>
           <tr th:each="h : ${historial}">
             <td th:text="${h.festival}">Festival</td>
             <td th:text="${h.unidad}">Unidad</td>
-            <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
             <td class="text-center no-print">
-              <a class="boton" th:href="@{/liquidacion(sueldo=${h.sueldo})}">Ver liquidación</a>
+              <a class="boton" th:href="@{/liquidacion}">Ver mi liquidación</a>
             </td>
           </tr>
           <tr th:if="${#lists.isEmpty(historial)}">
-            <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
+            <td colspan="3">Todavía no trabajaste en ninguna unidad de venta.</td>
           </tr>
         </tbody>
       </table>

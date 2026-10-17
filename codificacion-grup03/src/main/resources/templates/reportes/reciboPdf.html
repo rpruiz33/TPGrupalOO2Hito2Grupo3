@@ -51,7 +51,7 @@
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 =======
 <!-- Variables mockeadas directamente en Thymeleaf -->
-<main class="contenedor" th:with="recibo=${ {
+<main class="contenedor" th:with="recibo=${ recibo != null ? recibo : {
   'nombre': 'Martín',
   'apellido': 'González',
 >>>>>>> 02913d7 (fix para atras)

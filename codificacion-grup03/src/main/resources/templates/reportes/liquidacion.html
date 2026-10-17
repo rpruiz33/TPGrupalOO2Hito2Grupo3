@@ -130,20 +130,13 @@
         
         <div class="alerta" th:if="${error}" th:text="${error}"></div>
         
-        <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
-          <input type="hidden" name="sueldo" th:if="${sueldo != null}" th:value="${sueldo}" />
-          <div class="campo">
-            <label for="festivalId" class="fw-bold">Festival</label>
-            <select id="festivalId" name="festivalId" class="form-select" required>
-              <option value="" disabled th:selected="${festivalId == null}">Seleccione un festival</option>
-              <option th:each="f : ${festivales}"
-                      th:value="${f.id}"
-                      th:text="${f.nombre}"
-                      th:selected="${f.id == festivalId}"></option>
-            </select>
+        <div class="tarjeta card-custom p-3 mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="etiqueta fw-bold">Festival:</span>
+            <span class="fs-5 fw-bold ms-2" th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Epicentro Gourmet UNLa 2026</span>
           </div>
-          <button type="submit" class="btn-bordo">Calcular liquidación</button>
-        </form>
+          <span class="badge bg-danger px-3 py-2 text-white">Evento Único</span>
+        </div>
 
         <div>
 <<<<<<< HEAD
@@ -295,15 +288,10 @@
                     <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
                     <td class="text-center no-print">
                       <a class="btn-pdf"
-                        th:href="@{/liquidacion/recibo/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
+                        th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId})}">PDF</a>
                     </td>
                   </tr>
-                  <tr th:if="${liquidaciones == null}">
-                    <td colspan="8" class="text-center text-muted py-4">
-                      Seleccione un festival y presione "Calcular liquidación" para ver el detalle.
-                    </td>
-                  </tr>
-                  <tr th:if="${liquidaciones != null and #lists.isEmpty(liquidaciones)}">
+                  <tr th:if="${liquidaciones == null or #lists.isEmpty(liquidaciones)}">
                     <td colspan="8" class="text-center text-muted py-4">
                       No hay personal activo asignado a esta unidad para el festival seleccionado.
                     </td>
