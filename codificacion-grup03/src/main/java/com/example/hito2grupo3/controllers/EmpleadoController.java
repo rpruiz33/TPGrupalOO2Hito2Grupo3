@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
+<<<<<<< HEAD
 =======
 
 <<<<<<< HEAD
@@ -16,10 +20,15 @@ import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 package com.example.hito2grupo3.controllers;
 
 >>>>>>> 02913d7 (fix para atras)
+=======
+import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 import java.util.ArrayList;
@@ -34,12 +43,21 @@ import java.util.*;
 
 =======
 >>>>>>> 02913d7 (fix para atras)
+=======
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
 
@@ -47,6 +65,7 @@ public class EmpleadoController {
                               UnidadVentaRepository unidadVentaRepository) {
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
+<<<<<<< HEAD
 =======
     private final StaffRepository staffRepository;
     private final UnidadVentaRepository unidadVentaRepository;
@@ -63,6 +82,10 @@ public class EmpleadoController {
 
 =======
 >>>>>>> 02913d7 (fix para atras)
+=======
+    }
+
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     @GetMapping("/index")
     public String mostrarIndex() {
         return "empleado/index";
@@ -71,6 +94,9 @@ public class EmpleadoController {
     @GetMapping("/dashboard")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     public String mostrarDashboard(Model model) {
         Festival festival = festivalRepository.findAll().stream()
                 .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
@@ -88,6 +114,7 @@ public class EmpleadoController {
         lista.sort(Comparator.comparing(UnidadVenta::getCodigo, Comparator.nullsLast(String::compareTo)));
 
         model.addAttribute("unidades", lista);
+<<<<<<< HEAD
 =======
     public String mostrarDashboard(Principal principal, Model model) {
         String email = principal != null ? principal.getName() : "empleado@epicentro.com";
@@ -150,6 +177,8 @@ public class EmpleadoController {
 =======
     public String mostrarDashboard() {
 >>>>>>> 02913d7 (fix para atras)
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
         return "reportes/empleadoDashboard";
     }
 }

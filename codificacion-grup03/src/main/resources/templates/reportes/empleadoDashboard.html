@@ -13,6 +13,9 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
   <main class="contenedor" th:with="
   nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
   listaUnidades=${unidades != null ? unidades : {
@@ -26,6 +29,7 @@
     { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
     { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
     { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
+<<<<<<< HEAD
   } }">
 
     <header>
@@ -58,13 +62,16 @@
     { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas' },
     { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería' },
     { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas' }
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
   } }">
 
-  <header>
-    <h1>Epicentro Gourmet</h1>
-    <p>Hola, <span th:text="${empleado.nombre}">Nombre</span></p>
-  </header>
+    <header>
+      <h1>Epicentro Gourmet</h1>
+      <p>Panel General de Unidades de Venta</p>
+    </header>
 
+<<<<<<< HEAD
   <!-- Asignación actual -->
   <div class="aviso" th:if="${asignacionActual != null}">
     <span>Hoy trabajás en</span>
@@ -110,6 +117,14 @@
     </div>
 
 <<<<<<< HEAD
+=======
+    <!-- Festival Activo Único -->
+    <div class="aviso" style="margin-top: 20px;">
+      <span>Festival Activo:</span>
+      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+    </div>
+
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     <!-- Unidades de venta del festival -->
     <section aria-labelledby="t-unidades" style="margin-top: 28px;">
       <h2 id="t-unidades">Unidades de Venta Habilitadas</h2>
@@ -139,12 +154,15 @@
         </table>
       </div>
     </section>
+<<<<<<< HEAD
 =======
   <div class="acciones-doble">
     <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
     <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
   </div>
 >>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 
     <div class="logo">
       <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">

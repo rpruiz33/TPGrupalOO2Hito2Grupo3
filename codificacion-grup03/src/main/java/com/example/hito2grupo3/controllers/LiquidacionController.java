@@ -2,9 +2,13 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Festival;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.example.hito2grupo3.entities.UnidadVenta;
 =======
 >>>>>>> fea9818 (se va mejorando la problematica de la visualizacion de liuidacion de haberes y lÃa generacion del pdf)
+=======
+import com.example.hito2grupo3.entities.UnidadVenta;
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.ILiquidacionService;
@@ -30,8 +34,13 @@ public class LiquidacionController {
     private final UnidadVentaRepository unidadVentaRepository;
 
     public LiquidacionController(LiquidacionService liquidacionService,
+<<<<<<< HEAD
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository) {
+=======
+                                 FestivalRepository festivalRepository,
+                                 UnidadVentaRepository unidadVentaRepository) {
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
         this.liquidacionService = liquidacionService;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
@@ -39,10 +48,17 @@ public class LiquidacionController {
 
     @GetMapping("/liquidacion")
     public String liquidacion(@RequestParam(required = false) Long festivalId,
+<<<<<<< HEAD
             @RequestParam(required = false) Long unidadId,
             @RequestParam(required = false) String codigo,
             @RequestParam(required = false) Double sueldo,
             Principal principal, Model model) {
+=======
+                              @RequestParam(required = false) Long unidadId,
+                              @RequestParam(required = false) String codigo,
+                              @RequestParam(required = false) Double sueldo,
+                              Principal principal, Model model) {
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 
         Festival festival = festivalRepository.findAll().stream()
                 .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
@@ -72,6 +88,9 @@ public class LiquidacionController {
         if (idFestival != null) {
             try {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
                 ILiquidacionService.ResultadoLiquidacion r;
 
                 if (unidadId != null) {
@@ -92,9 +111,12 @@ public class LiquidacionController {
                     r = liquidacionService.liquidar(principal.getName(), idFestival);
                 }
 
+<<<<<<< HEAD
 =======
                 var r = liquidacionService.liquidar(principal.getName(), idFestival);
 >>>>>>> fea9818 (se va mejorando la problematica de la visualizacion de liuidacion de haberes y lÃa generacion del pdf)
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
                 model.addAttribute("unidad", r.unidad());
                 model.addAttribute("diasFestival", r.diasFestival());
                 model.addAttribute("liquidaciones", r.liquidaciones());
@@ -129,6 +151,7 @@ public class LiquidacionController {
     @GetMapping({"/reciboPdf/{id}", "/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones"})
     public String verReciboLiquidacion(@PathVariable Long id,
                                        @RequestParam(required = false) Long festivalId,
+                                       @RequestParam(required = false) Long unidadId,
                                        Principal principal,
                                        Model model) {
 >>>>>>> fea9818 (se va mejorando la problematica de la visualizacion de liuidacion de haberes y lÃa generacion del pdf)
@@ -155,6 +178,7 @@ public class LiquidacionController {
             model.addAttribute("empleadoId", id);
             model.addAttribute("festivalId", targetFestivalId);
             model.addAttribute("unidadId", unidadId);
+<<<<<<< HEAD
 
             if (targetFestivalId != null) {
                 Festival f = festivalRepository.findById(targetFestivalId).orElse(null);
@@ -220,10 +244,18 @@ public String verReciboLiquidacion(@PathVariable Long id,
             model.addAttribute("empleadoId", id);
             model.addAttribute("festivalId", targetFestivalId);
 >>>>>>> fea9818 (se va mejorando la problematica de la visualizacion de liuidacion de haberes y lÃa generacion del pdf)
+=======
+>>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 
             if (targetFestivalId != null) {
                 Festival f = festivalRepository.findById(targetFestivalId).orElse(null);
-                var resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId);
+                ILiquidacionService.ResultadoLiquidacion resultado;
+                if (unidadId != null) {
+                    resultado = liquidacionService.liquidarPorUnidad(unidadId, targetFestivalId);
+                } else {
+                    resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId);
+                }
+
                 var liquidacionDTO = resultado.liquidaciones().stream()
                         .filter(l -> Objects.equals(l.empleadoId(), id))
                         .findFirst()
