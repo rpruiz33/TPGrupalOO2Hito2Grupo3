@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.example.hito2grupo3.services.impl.EmailServiceImpl;
+import com.example.hito2grupo3.services.IEmailService;
 
 @Component
 public class UsuarioCreadoListener {
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioCreadoListener.class);
 
-    private final EmailServiceImpl emailService;
+    private final IEmailService emailService;
 
-    public UsuarioCreadoListener(EmailServiceImpl emailService) {
+    public UsuarioCreadoListener(IEmailService emailService) {
         this.emailService = emailService;
     }
 
