@@ -10,6 +10,8 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import com.example.hito2grupo3.services.impl.EmailServiceImpl;
+
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,11 +23,11 @@ class EmailServiceTest {
     @Mock
     private JavaMailSender mailSender;
 
-    private EmailService emailService;
+    private EmailServiceImpl emailService;
 
     @BeforeEach
     void setUp() {
-        emailService = new EmailService(mailSender, "no-reply@epicentro.com");
+        emailService = new EmailServiceImpl(mailSender, "no-reply@epicentro.com");
     }
 
     @Test

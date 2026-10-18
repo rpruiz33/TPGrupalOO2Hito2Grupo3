@@ -3,8 +3,9 @@ package com.example.hito2grupo3.services.impl;
 import com.example.hito2grupo3.entities.Usuario;
 import com.example.hito2grupo3.events.UsuarioCreadoEvent;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
+import com.example.hito2grupo3.services.IPasswordGenerator;
 import com.example.hito2grupo3.services.IUsuarioService;
-import com.example.hito2grupo3.services.PasswordGenerator;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final PasswordGenerator passwordGenerator;
+    private final IPasswordGenerator passwordGenerator;
     private final ApplicationEventPublisher eventPublisher;
 
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository,
                               PasswordEncoder passwordEncoder,
-                              PasswordGenerator passwordGenerator,
+                              IPasswordGenerator passwordGenerator,
                               ApplicationEventPublisher eventPublisher) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;

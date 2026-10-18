@@ -5,6 +5,8 @@ import com.example.hito2grupo3.entities.Usuario;
 import com.example.hito2grupo3.events.UsuarioCreadoEvent;
 import com.example.hito2grupo3.events.UsuarioCreadoListener;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
+import com.example.hito2grupo3.services.impl.EmailServiceImpl;
+import com.example.hito2grupo3.services.impl.PasswordGeneratorImpl;
 import com.example.hito2grupo3.services.impl.UsuarioServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,13 +33,13 @@ class UsuarioServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private PasswordGenerator passwordGenerator;
+    private PasswordGeneratorImpl passwordGenerator;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
     @Mock
-    private EmailService emailService;
+    private EmailServiceImpl emailService;
 
     @InjectMocks
     private UsuarioServiceImpl usuarioService;

@@ -3,17 +3,19 @@ package com.example.hito2grupo3.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.example.hito2grupo3.services.impl.PasswordGeneratorImpl;
+
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordGeneratorTest {
 
-    private PasswordGenerator passwordGenerator;
+    private PasswordGeneratorImpl passwordGenerator;
 
     @BeforeEach
     void setUp() {
-        passwordGenerator = new PasswordGenerator();
+        passwordGenerator = new PasswordGeneratorImpl();
     }
 
     @Test

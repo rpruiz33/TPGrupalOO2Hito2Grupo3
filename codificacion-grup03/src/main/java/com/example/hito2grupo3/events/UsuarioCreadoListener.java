@@ -1,6 +1,5 @@
 package com.example.hito2grupo3.events;
 
-import com.example.hito2grupo3.services.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -8,14 +7,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import com.example.hito2grupo3.services.impl.EmailServiceImpl;
+
 @Component
 public class UsuarioCreadoListener {
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioCreadoListener.class);
 
-    private final EmailService emailService;
+    private final EmailServiceImpl emailService;
 
-    public UsuarioCreadoListener(EmailService emailService) {
+    public UsuarioCreadoListener(EmailServiceImpl emailService) {
         this.emailService = emailService;
     }
 

@@ -1,5 +1,6 @@
-package com.example.hito2grupo3.services;
+package com.example.hito2grupo3.services.impl;
 
+import com.example.hito2grupo3.services.IEmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,19 +9,20 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailService {
+public class EmailServiceImpl implements IEmailService {
 
-    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender mailSender;
     private final String fromEmail;
 
-    public EmailService(JavaMailSender mailSender,
+    public EmailServiceImpl(JavaMailSender mailSender,
                         @Value("${app.mail.from:no-reply@epicentro.com}") String fromEmail) {
         this.mailSender = mailSender;
         this.fromEmail = fromEmail;
     }
 
+    @Override
     public void enviarCredenciales(String destinatario, String passwordPlano) {
         try {
             SimpleMailMessage mensaje = new SimpleMailMessage();
@@ -38,7 +40,8 @@ public class EmailService {
         }
     }
 
-    private String construirCuerpo(String email, String passwordPlano) {
+    @Override
+    public String construirCuerpo(String email, String passwordPlano) {
         return """
                 Estimado/a usuario/a,
 

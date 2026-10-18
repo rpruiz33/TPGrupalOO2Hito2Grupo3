@@ -1,5 +1,6 @@
-package com.example.hito2grupo3.services;
+package com.example.hito2grupo3.services.impl;
 
+import com.example.hito2grupo3.services.IPasswordGenerator;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -8,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class PasswordGenerator {
+public class PasswordGeneratorImpl implements IPasswordGenerator {
 
     private static final int LONGITUD_MINIMA = 12;
 
@@ -22,10 +23,12 @@ public class PasswordGenerator {
 
     private final SecureRandom random = new SecureRandom();
 
+    @Override
     public String generarPassword() {
         return generarPassword(LONGITUD_MINIMA);
     }
 
+    @Override
     public String generarPassword(int longitud) {
         if (longitud < LONGITUD_MINIMA) {
             throw new IllegalArgumentException("La longitud mínima de la contraseña debe ser " + LONGITUD_MINIMA);
