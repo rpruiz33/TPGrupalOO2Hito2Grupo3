@@ -11,7 +11,20 @@
 
 <body>
 
-  <main class="contenedor">
+  <main class="contenedor" th:with="
+  nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
+  listaUnidades=${unidades != null ? unidades : {
+    { 'codigo': 'FT-101', 'nombreComercial': 'La Trinchera Gourmet' },
+    { 'codigo': 'PD-101', 'nombreComercial': 'Sabores Criollos' },
+    { 'codigo': 'FT-102', 'nombreComercial': 'El Buen Sabor Rodante' },
+    { 'codigo': 'PD-102', 'nombreComercial': 'La Esquina Dulce' },
+    { 'codigo': 'FT-103', 'nombreComercial': 'Burger Master Truck' },
+    { 'codigo': 'PD-103', 'nombreComercial': 'Brasas Serranas' },
+    { 'codigo': 'FT-104', 'nombreComercial': 'Tacos El Guero' },
+    { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
+    { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
+    { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
+  } }">
 
     <header>
       <h1>Epicentro Gourmet</h1>
@@ -21,9 +34,87 @@
     <!-- Festival Activo -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
+      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+<main class="contenedor" th:with="
+  empleado=${ {
+    'nombre': 'Martín González',
+    'dni': '34.125.890',
+    'rol': 'Cajero Senior',
+    'antiguedad': 3,
+    'cajero': true
+  } },
+  asignacionActual=${ {
+    'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
+    'festival': 'Epicentro Gourmet 2026'
+  } },
+  historial=${ {
+    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas' },
+    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas' },
+    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería' },
+    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas' }
+
+  } }">
+
+    <header>
+      <h1>Epicentro Gourmet</h1>
+      <p>Panel General de Unidades de Venta</p>
+    </header>
+
+
+  <!-- Asignación actual -->
+  <div class="aviso" th:if="${asignacionActual != null}">
+    <span>Hoy trabajás en</span>
+    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
+    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
+  </div>
+  <div class="vacio" th:if="${asignacionActual == null}">
+    No tenés asignada ninguna unidad de venta activa en este momento.
+  </div>
+
+  <!-- Datos personales del empleado -->
+  <div class="resumen" style="margin-top: 36px;">
+    <div class="dato"><span>DNI</span>
+      <strong th:text="${empleado.dni}">DNI</strong></div>
+    <div class="dato"><span>Rol</span>
+      <strong th:text="${empleado.rol}">Rol</strong></div>
+    <div class="dato"><span>Antigüedad</span>
+      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
+  </div>
+
+  <!-- Historial de trabajo en distintas unidades dentro del festival -->
+  <section aria-labelledby="t-historial">
+    <h2 id="t-historial">Mis unidades de trabajo</h2>
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr><th>Festival</th><th>Unidad de Venta</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="h : ${historial}">
+            <td th:text="${h.festival}">Festival</td>
+            <td th:text="${h.unidad}">Unidad</td>
+            <td class="text-center no-print">
+              <a class="boton" th:href="@{/liquidacion}">Ver mi liquidación</a>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(historial)}">
+            <td colspan="3">Todavía no trabajaste en ninguna unidad de venta.</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+
+    <!-- Festival Activo Único -->
+    <div class="aviso" style="margin-top: 20px;">
+      <span>Festival Activo:</span>
+      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+
       <strong th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">
         Epicentro Gourmet UNLa 2026
       </strong>
+
     </div>
 
     <!-- Unidades de venta del festival -->
@@ -55,6 +146,7 @@
         </table>
       </div>
     </section>
+
 
     <div class="logo">
       <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">

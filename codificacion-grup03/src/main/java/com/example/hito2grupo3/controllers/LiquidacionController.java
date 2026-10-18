@@ -2,10 +2,11 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.FestivalRepository;
+
+import com.example.hito2grupo3.entities.UnidadVenta;import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.ILiquidacionService;
-import com.example.hito2grupo3.services.impl.LiquidacionServiceImpl;
+import com.example.hito2grupo3.services.impl.LiquidacionService;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -26,9 +27,14 @@ public class LiquidacionController {
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
 
+    public LiquidacionController(LiquidacionService liquidacionService,
+            FestivalRepository festivalRepository,
+            UnidadVentaRepository unidadVentaRepository) {
+
     public LiquidacionController(LiquidacionServiceImpl liquidacionService,
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository) {
+
         this.liquidacionService = liquidacionService;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
@@ -101,10 +107,28 @@ public class LiquidacionController {
             @RequestParam(required = false) Long unidadId,
             Principal principal,
             Model model) {
+    }
+
+    @GetMapping({ "/reciboPdf/{id}", "/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones" })
+    public String verReciboLiquidacion(@PathVariable Long id,
+
+                                       @RequestParam(required = false) Long festivalId,
+                                       @RequestParam(required = false) Long unidadId,
+                                       Principal principal,
+                                       Model model) {
+
+            @RequestParam(required = false) Long festivalId,
+            @RequestParam(required = false) Long unidadId,
+            Principal principal,
+            Model model) {
+
         try {
             Long targetFestivalId = festivalId;
             if (targetFestivalId == null) {
                 Festival f = festivalRepository.findAll().stream()
+                        .filter(fest -> fest.getNombre() != null
+                                && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
+
                         .filter(fest -> fest.getNombre() != null
                                 && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
                         .findFirst()
@@ -159,9 +183,74 @@ public class LiquidacionController {
                 model.addAttribute("unidad", resultado.unidad());
             } else {
                 model.addAttribute("error", "No se encontró un festival activo para ver el recibo.");
+
+            model.addAttribute("empleadoId", id);
+            model.addAttribute("festivalId", targetFestivalId);
+
+
+            if (targetFestivalId != null) {
+                Festival f = festivalRepository.findById(targetFestivalId).orElse(null);
+                ILiquidacionService.ResultadoLiquidacion resultado;
+                if (unidadId != null) {
+                    resultado = liquidacionService.liquidarPorUnidad(unidadId, targetFestivalId);
+                } else {
+                    resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId);
+                }
+
+                var liquidacionDTO = resultado.liquidaciones().stream()
+                        .filter(l -> Objects.equals(l.empleadoId(), id))
+                        .findFirst()
+                        .orElse(null);
+
+
+                model.addAttribute("liquidacion", liquidacionDTO);
+                model.addAttribute("unidad", resultado.unidad());
+                model.addAttribute("diasFestival", resultado.diasFestival());
+                
+                festivalRepository.findById(festivalId).ifPresent(f -> model.addAttribute("festival", f));
+            } else {
+                model.addAttribute("error", "Debe seleccionar un festival para ver el recibo.");
+
             }
         } catch (Exception e) {
             model.addAttribute("error", "No se pudo obtener el recibo: " + e.getMessage());
+
+            model.addAttribute("liquidacion", liquidacionDTO);
+            model.addAttribute("unidad", resultado.unidad());
+        } else {
+            model.addAttribute("error", "Debe seleccionar un festival para ver el recibo.");
+
+                if (liquidacionDTO != null) {
+                    Map<String, Object> reciboMap = new HashMap<>();
+                    String[] partes = liquidacionDTO.nombreCompleto() != null
+                            ? liquidacionDTO.nombreCompleto().split(" ", 2)
+                            : new String[] { "", "" };
+                    reciboMap.put("nombre", partes[0]);
+                    reciboMap.put("apellido", partes.length > 1 ? partes[1] : "");
+                    reciboMap.put("dni", liquidacionDTO.dni());
+                    reciboMap.put("rol", liquidacionDTO.rol());
+                    reciboMap.put("festival", f != null ? f.getNombre() : "Epicentro Gourmet UNLa 2026");
+                    reciboMap.put("unidad", resultado.unidad());
+                    reciboMap.put("diasFestival", resultado.diasFestival());
+                    reciboMap.put("sueldoBase", liquidacionDTO.sueldoBase());
+                    reciboMap.put("plusCategoria", liquidacionDTO.adicional());
+                    reciboMap.put("montoAntiguedad", null);
+                    reciboMap.put("aniosAntiguedad", liquidacionDTO.aniosAntiguedad());
+                    reciboMap.put("coeficiente", liquidacionDTO.periodos() * 0.5);
+                    reciboMap.put("total", liquidacionDTO.total());
+                    reciboMap.put("fechaEmision", LocalDate.now());
+
+                    model.addAttribute("recibo", reciboMap);
+                }
+
+                model.addAttribute("liquidacion", liquidacionDTO);
+                model.addAttribute("unidad", resultado.unidad());
+            } else {
+                model.addAttribute("error", "No se encontró un festival activo para ver el recibo.");
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "No se pudo obtener el recibo: " + e.getMessage());
+
         }
 
         return "reportes/reciboPdf";

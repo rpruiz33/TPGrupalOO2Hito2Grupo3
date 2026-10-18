@@ -11,7 +11,6 @@ public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
 
-    
     long diasDelFestival(LocalDate inicio, LocalDate fin);
 
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
