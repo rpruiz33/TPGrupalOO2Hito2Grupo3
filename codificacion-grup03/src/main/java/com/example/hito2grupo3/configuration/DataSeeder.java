@@ -18,6 +18,8 @@ public class DataSeeder {
     private final RolRepository rolRepo;
     private final CategoriaCocinaRepository categoriaCocinaRepo;
     private final StaffRepository staffRepo;
+    private final CajeroRepository cajeroRepo;
+    private final CocineroRepository cocineroRepo;
     private final UnidadVentaRepository unidadVentaRepo;
     private final FestivalRepository festivalRepo;
     private final TransactionTemplate tx;
@@ -25,12 +27,16 @@ public class DataSeeder {
     public DataSeeder(RolRepository rolRepo,
                       CategoriaCocinaRepository categoriaCocinaRepo,
                       StaffRepository staffRepo,
+                      CajeroRepository cajeroRepo,
+                      CocineroRepository cocineroRepo,
                       UnidadVentaRepository unidadVentaRepo,
                       FestivalRepository festivalRepo,
                       TransactionTemplate tx) {
         this.rolRepo             = rolRepo;
         this.categoriaCocinaRepo = categoriaCocinaRepo;
         this.staffRepo           = staffRepo;
+        this.cajeroRepo          = cajeroRepo;
+        this.cocineroRepo        = cocineroRepo;
         this.unidadVentaRepo     = unidadVentaRepo;
         this.festivalRepo        = festivalRepo;
         this.tx                  = tx;
@@ -40,28 +46,17 @@ public class DataSeeder {
     // DATOS ESTÁTICOS
     // =========================================================================
 
-    /** [nombre, fechaInicio, fechaFin] */
     private static final String[][] FESTIVALES = {
         {"Sabores del Norte",   "2025-03-14", "2025-03-16"},
         {"Festival Gourmet BA", "2025-07-04", "2025-07-07"},
     };
 
-    /**
-     * [codigo, nombreComercial, superficieM2, tipo(FT|PD), extra1, extra2]
-     *  FT -> extra1=patente, extra2=requiereElectricidad (true/false)
-     *  PD -> extra1=cantidadCarpas, extra2=tiempoMontajeMin
-     */
     private static final String[][] UNIDADES = {
         {"FT-001", "El Asador Viajero",   "18", "FT", "AA123BB", "true"},
         {"PD-001", "La Empanada Criolla", "24", "PD", "3",       "45"},
         {"FT-002", "Tacos y Cia",         "15", "FT", "CC456DD", "false"},
     };
 
-    /**
-     * Por unidad: 4 empleados (2 cajeros + 2 cocineros).
-     * Cajero  (C): [tipo, nombre, apellido, dni, fechaNac, sueldo, turno, numeroCaja, plusOadicional, ""]
-     * Cocinero(K): [tipo, nombre, apellido, dni, fechaNac, sueldo, especialidad, libretaSan, bonoPelig, catIdx]
-     */
     private static final String[][][] EMPLEADOS_POR_UNIDAD = {
         // Unidad 0 -> FT-001
         {
@@ -86,7 +81,6 @@ public class DataSeeder {
         },
     };
 
-    /** [nombre, plusFijo]  — una categoria por cocinero (UNIQUE FK en Cocinero) */
     private static final String[][] CATEGORIAS_COCINA = {
         {"Chef Ejecutivo",          "25000.00"},
         {"Pastelero Repostero",     "18000.00"},
@@ -167,7 +161,7 @@ public class DataSeeder {
     // =========================================================================
 
     private Cajero crearCajero(String[] emp) {
-        return (Cajero) staffRepo.findByDni(emp[3]).orElseGet(() -> {
+        return cajeroRepo.findByDni(emp[3]).orElseGet(() -> {
             Cajero c = new Cajero();
             c.setNombre(emp[1]);
             c.setApellido(emp[2]);
@@ -179,12 +173,12 @@ public class DataSeeder {
             c.setNumeroCaja(Integer.parseInt(emp[7]));
             c.setPlusOadicional(new BigDecimal(emp[8]));
             c.setUsuario(null);
-            return staffRepo.save(c);
+            return cajeroRepo.save(c);
         });
     }
 
     private Cocinero crearCocinero(String[] emp, List<CategoriaCocina> categorias) {
-        return (Cocinero) staffRepo.findByDni(emp[3]).orElseGet(() -> {
+        return cocineroRepo.findByDni(emp[3]).orElseGet(() -> {
             Cocinero co = new Cocinero();
             co.setNombre(emp[1]);
             co.setApellido(emp[2]);
@@ -197,7 +191,7 @@ public class DataSeeder {
             co.setBonoPeligrosidad(new BigDecimal(emp[8]));
             co.setCategoriaCocina(categorias.get(Integer.parseInt(emp[9])));
             co.setUsuario(null);
-            return staffRepo.save(co);
+            return cocineroRepo.save(co);
         });
     }
 

@@ -5,8 +5,7 @@ import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.ILiquidacionService;
-import com.example.hito2grupo3.services.impl.LiquidacionService;
-
+import com.example.hito2grupo3.services.impl.LiquidacionServiceImpl;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -23,13 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE','EMPLEADO')")
 public class LiquidacionController {
 
-    private final LiquidacionService liquidacionService;
+    private final LiquidacionServiceImpl liquidacionService;
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
 
-    public LiquidacionController(LiquidacionService liquidacionService,
-                                 FestivalRepository festivalRepository,
-                                 UnidadVentaRepository unidadVentaRepository) {
+    public LiquidacionController(LiquidacionServiceImpl liquidacionService,
+            FestivalRepository festivalRepository,
+            UnidadVentaRepository unidadVentaRepository) {
         this.liquidacionService = liquidacionService;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
@@ -37,10 +36,10 @@ public class LiquidacionController {
 
     @GetMapping("/liquidacion")
     public String liquidacion(@RequestParam(required = false) Long festivalId,
-                              @RequestParam(required = false) Long unidadId,
-                              @RequestParam(required = false) String codigo,
-                              @RequestParam(required = false) Double sueldo,
-                              Principal principal, Model model) {
+            @RequestParam(required = false) Long unidadId,
+            @RequestParam(required = false) String codigo,
+            @RequestParam(required = false) Double sueldo,
+            Principal principal, Model model) {
 
         Festival festival = festivalRepository.findAll().stream()
                 .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
@@ -93,20 +92,21 @@ public class LiquidacionController {
         }
 
         model.addAttribute("sueldo", sueldoMostrar);
-        return "reportes/liquidacion";   
+        return "reportes/liquidacion";
     }
 
-    @GetMapping({"/reciboPdf/{id}", "/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones"})
+    @GetMapping({ "/reciboPdf/{id}", "/liquidacion/recibo/{id}", "/empleado/recibo/{id}/liquidaciones" })
     public String verReciboLiquidacion(@PathVariable Long id,
-                                       @RequestParam(required = false) Long festivalId,
-                                       @RequestParam(required = false) Long unidadId,
-                                       Principal principal,
-                                       Model model) {
+            @RequestParam(required = false) Long festivalId,
+            @RequestParam(required = false) Long unidadId,
+            Principal principal,
+            Model model) {
         try {
             Long targetFestivalId = festivalId;
             if (targetFestivalId == null) {
                 Festival f = festivalRepository.findAll().stream()
-                        .filter(fest -> fest.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
+                        .filter(fest -> fest.getNombre() != null
+                                && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
                         .findFirst()
                         .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
                 if (f != null) {
@@ -134,9 +134,9 @@ public class LiquidacionController {
 
                 if (liquidacionDTO != null) {
                     Map<String, Object> reciboMap = new HashMap<>();
-                    String[] partes = liquidacionDTO.nombreCompleto() != null 
-                            ? liquidacionDTO.nombreCompleto().split(" ", 2) 
-                            : new String[]{"", ""};
+                    String[] partes = liquidacionDTO.nombreCompleto() != null
+                            ? liquidacionDTO.nombreCompleto().split(" ", 2)
+                            : new String[] { "", "" };
                     reciboMap.put("nombre", partes[0]);
                     reciboMap.put("apellido", partes.length > 1 ? partes[1] : "");
                     reciboMap.put("dni", liquidacionDTO.dni());

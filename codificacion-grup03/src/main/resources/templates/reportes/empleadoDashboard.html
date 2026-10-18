@@ -11,30 +11,19 @@
 
 <body>
 
-  <main class="contenedor" th:with="
-  nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
-  listaUnidades=${unidades != null ? unidades : {
-    { 'codigo': 'FT-101', 'nombreComercial': 'La Trinchera Gourmet' },
-    { 'codigo': 'PD-101', 'nombreComercial': 'Sabores Criollos' },
-    { 'codigo': 'FT-102', 'nombreComercial': 'El Buen Sabor Rodante' },
-    { 'codigo': 'PD-102', 'nombreComercial': 'La Esquina Dulce' },
-    { 'codigo': 'FT-103', 'nombreComercial': 'Burger Master Truck' },
-    { 'codigo': 'PD-103', 'nombreComercial': 'Brasas Serranas' },
-    { 'codigo': 'FT-104', 'nombreComercial': 'Tacos El Guero' },
-    { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
-    { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
-    { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
-  } }">
+  <main class="contenedor">
 
     <header>
       <h1>Epicentro Gourmet</h1>
       <p>Panel General de Unidades de Venta</p>
     </header>
 
-    <!-- Festival Activo Único -->
+    <!-- Festival Activo -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
-      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+      <strong th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">
+        Epicentro Gourmet UNLa 2026
+      </strong>
     </div>
 
     <!-- Unidades de venta del festival -->
@@ -51,15 +40,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="u : ${listaUnidades}">
-              <td th:text="${u.codigo}">FT-101</td>
+            <tr th:each="u : ${unidades}">
+              <td th:text="${u.codigo}">FT-001</td>
               <td th:text="${u.nombreComercial}">La Trinchera Gourmet</td>
-              <td th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</td>
+              <td th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Festival</td>
               <td class="text-center no-print">
-                <a class="boton" th:href="@{/liquidacion(codigo=${u.codigo})}">Ver liquidación</a>
+                <a class="boton" th:href="@{/liquidacion(unidadId=${u.id})}">Ver liquidación</a>
               </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(listaUnidades)}">
+            <tr th:if="${unidades == null or #lists.isEmpty(unidades)}">
               <td colspan="4">No hay unidades de venta habilitadas registradas.</td>
             </tr>
           </tbody>

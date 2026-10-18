@@ -1,5 +1,5 @@
 package com.example.hito2grupo3.configuration;
-
+import org.hibernate.Hibernate;
 import com.example.hito2grupo3.entities.*;
 import com.example.hito2grupo3.repositories.*;
 import org.springframework.boot.CommandLineRunner;
@@ -160,47 +160,54 @@ public class LiquidacionSeeder {
         });
     }
 
-    private Cajero crearCajero(String[] emp, Usuario usuario) {
-        if (usuario != null) {
-            Optional<Staff> staffConUsuario = staffRepo.findByUsuario_Email(usuario.getEmail());
-            if (staffConUsuario.isPresent() && staffConUsuario.get() instanceof Cajero c) {
-                return c;
-            }
+  private Cajero crearCajero(String[] emp, Usuario usuario) {
+    if (usuario != null) {
+        Optional<Staff> staffConUsuario = staffRepo.findByUsuario_Email(usuario.getEmail());
+        if (staffConUsuario.isPresent()
+                && Hibernate.unproxy(staffConUsuario.get()) instanceof Cajero c) {
+            return c;
         }
-
-        return (Cajero) staffRepo.findByDni(emp[3]).orElseGet(() -> {
-            Cajero c = new Cajero();
-            c.setNombre(emp[1]);
-            c.setApellido(emp[2]);
-            c.setDni(emp[3]);
-            c.setFechaNacimiento(LocalDate.parse(emp[4]));
-            c.setSueldo(new BigDecimal(emp[5]));
-            c.setTurno(emp[6]);
-            c.setNumeroCaja(Integer.parseInt(emp[7]));
-            c.setPlusOadicional(new BigDecimal(emp[8]));
-            c.setFechaIngreso(LocalDate.parse(emp[9]));
-            c.setUsuario(usuario);
-            return staffRepo.save(c);
-        });
     }
 
-    private Cocinero crearCocinero(String[] emp, List<CategoriaCocina> categorias) {
-        return (Cocinero) staffRepo.findByDni(emp[3]).orElseGet(() -> {
-            Cocinero co = new Cocinero();
-            co.setNombre(emp[1]);
-            co.setApellido(emp[2]);
-            co.setDni(emp[3]);
-            co.setFechaNacimiento(LocalDate.parse(emp[4]));
-            co.setSueldo(new BigDecimal(emp[5]));
-            co.setEspecialidad(emp[6]);
-            co.setLibretaSanitaria(Boolean.parseBoolean(emp[7]));
-            co.setBonoPeligrosidad(new BigDecimal(emp[8]));
-            co.setCategoriaCocina(categorias.get(Integer.parseInt(emp[9])));
-            co.setFechaIngreso(LocalDate.parse(emp[10]));
-            co.setUsuario(null);
-            return staffRepo.save(co);
-        });
+    Optional<Staff> existente = staffRepo.findByDni(emp[3]);
+    if (existente.isPresent()) {
+        return (Cajero) Hibernate.unproxy(existente.get());
     }
+
+    Cajero c = new Cajero();
+    c.setNombre(emp[1]);
+    c.setApellido(emp[2]);
+    c.setDni(emp[3]);
+    c.setFechaNacimiento(LocalDate.parse(emp[4]));
+    c.setSueldo(new BigDecimal(emp[5]));
+    c.setTurno(emp[6]);
+    c.setNumeroCaja(Integer.parseInt(emp[7]));
+    c.setPlusOadicional(new BigDecimal(emp[8]));
+    c.setFechaIngreso(LocalDate.parse(emp[9]));
+    c.setUsuario(usuario);
+    return staffRepo.save(c);
+}
+
+private Cocinero crearCocinero(String[] emp, List<CategoriaCocina> categorias) {
+    Optional<Staff> existente = staffRepo.findByDni(emp[3]);
+    if (existente.isPresent()) {
+        return (Cocinero) Hibernate.unproxy(existente.get());
+    }
+
+    Cocinero co = new Cocinero();
+    co.setNombre(emp[1]);
+    co.setApellido(emp[2]);
+    co.setDni(emp[3]);
+    co.setFechaNacimiento(LocalDate.parse(emp[4]));
+    co.setSueldo(new BigDecimal(emp[5]));
+    co.setEspecialidad(emp[6]);
+    co.setLibretaSanitaria(Boolean.parseBoolean(emp[7]));
+    co.setBonoPeligrosidad(new BigDecimal(emp[8]));
+    co.setCategoriaCocina(categorias.get(Integer.parseInt(emp[9])));
+    co.setFechaIngreso(LocalDate.parse(emp[10]));
+    co.setUsuario(null);
+    return staffRepo.save(co);
+}
 
     private UnidadVenta crearUnidad(String[] uData, Staff responsable, List<Staff> staffList) {
         Optional<UnidadVenta> existing = unidadRepo.findAll().stream()

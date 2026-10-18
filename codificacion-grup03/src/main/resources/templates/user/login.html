@@ -44,5 +44,13 @@
 
     <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function() {
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            if (email) email.value = email.value.trim();
+            if (password) password.value = password.value.trim();
+        });
+    </script>
 </body>
 </html>
