@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class LiquidacionService implements ILiquidacionService {
+public class LiquidacionServiceImpl implements ILiquidacionService {
 
     private static final BigDecimal SUELDO_BASE = new BigDecimal("100000");
     private static final BigDecimal VALOR_ANIO_ANTIGUEDAD = new BigDecimal("5000");
@@ -22,7 +22,7 @@ public class LiquidacionService implements ILiquidacionService {
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
 
-    public LiquidacionService(FestivalRepository festivalRepository,
+    public LiquidacionServiceImpl(FestivalRepository festivalRepository,
                               UnidadVentaRepository unidadVentaRepository) {
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;

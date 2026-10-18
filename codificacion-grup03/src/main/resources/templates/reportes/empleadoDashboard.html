@@ -11,11 +11,6 @@
 
 <body>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
   <main class="contenedor" th:with="
   nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
   listaUnidades=${unidades != null ? unidades : {
@@ -29,7 +24,6 @@
     { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
     { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
     { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
-<<<<<<< HEAD
   } }">
 
     <header>
@@ -37,14 +31,10 @@
       <p>Panel General de Unidades de Venta</p>
     </header>
 
-    <!-- Festival Activo Único -->
+    <!-- Festival Activo -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
       <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
-=======
-=======
-<!-- Variables mockeadas con varias unidades de venta dentro de Epicentro Gourmet -->
->>>>>>> 02913d7 (fix para atras)
 <main class="contenedor" th:with="
   empleado=${ {
     'nombre': 'Martín González',
@@ -62,8 +52,7 @@
     { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas' },
     { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería' },
     { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas' }
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
+
   } }">
 
     <header>
@@ -71,7 +60,7 @@
       <p>Panel General de Unidades de Venta</p>
     </header>
 
-<<<<<<< HEAD
+
   <!-- Asignación actual -->
   <div class="aviso" th:if="${asignacionActual != null}">
     <span>Hoy trabajás en</span>
@@ -113,18 +102,21 @@
           </tr>
         </tbody>
       </table>
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
+
     </div>
 
-<<<<<<< HEAD
-=======
+
     <!-- Festival Activo Único -->
     <div class="aviso" style="margin-top: 20px;">
       <span>Festival Activo:</span>
       <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
+
+      <strong th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">
+        Epicentro Gourmet UNLa 2026
+      </strong>
+
     </div>
 
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     <!-- Unidades de venta del festival -->
     <section aria-labelledby="t-unidades" style="margin-top: 28px;">
       <h2 id="t-unidades">Unidades de Venta Habilitadas</h2>
@@ -139,30 +131,22 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="u : ${listaUnidades}">
-              <td th:text="${u.codigo}">FT-101</td>
+            <tr th:each="u : ${unidades}">
+              <td th:text="${u.codigo}">FT-001</td>
               <td th:text="${u.nombreComercial}">La Trinchera Gourmet</td>
-              <td th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</td>
+              <td th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Festival</td>
               <td class="text-center no-print">
-                <a class="boton" th:href="@{/liquidacion(codigo=${u.codigo})}">Ver liquidación</a>
+                <a class="boton" th:href="@{/liquidacion(unidadId=${u.id})}">Ver liquidación</a>
               </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(listaUnidades)}">
+            <tr th:if="${unidades == null or #lists.isEmpty(unidades)}">
               <td colspan="4">No hay unidades de venta habilitadas registradas.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
-<<<<<<< HEAD
-=======
-  <div class="acciones-doble">
-    <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
-    <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
-  </div>
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
+
 
     <div class="logo">
       <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">

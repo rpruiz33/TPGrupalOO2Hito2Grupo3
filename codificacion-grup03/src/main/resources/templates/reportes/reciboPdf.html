@@ -25,13 +25,11 @@
 </head>
 <body>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 <!-- Variables mockeadas directamente en Thymeleaf -->
 <main class="contenedor" th:with="recibo=${ recibo != null ? recibo : {
   'nombre': 'Martín',
   'apellido': 'González',
-=======
+
 <!-- Si no viene el objeto liquidacion desde el controlador, usamos variables mock por defecto -->
 <main class="contenedor" th:with="recibo=${liquidacion != null ? {
   'nombre': liquidacion.nombreCompleto,
@@ -48,13 +46,11 @@
   'fechaEmision': #temporals.createNow()
 } : {
   'nombre': 'Martín González',
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
-=======
+
 <!-- Variables mockeadas directamente en Thymeleaf -->
 <main class="contenedor" th:with="recibo=${ recibo != null ? recibo : {
   'nombre': 'Martín',
   'apellido': 'González',
->>>>>>> 02913d7 (fix para atras)
   'dni': '38.452.910',
   'rol': 'Cajero Senior',
   'festival': 'Epicentro Gourmet 2026',
@@ -104,7 +100,7 @@
         <tbody>
           <tr>
             <td>Unidad de venta</td>
-            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas & Bebidas</td>
+            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas &amp; Bebidas</td>
           </tr>
           <tr>
             <td>Duración del festival</td>
