@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,6 @@ import jakarta.persistence.Entity;
 @Data
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "Costos")
@@ -30,5 +28,10 @@ public class Costos {
     private BigDecimal monto;
     private String tipoUnidadDeMedida;
 
-
+    public Costos(long id, String tipoCosto, BigDecimal monto, String tipoUnidadDeMedida) {
+        this.id = id;
+        this.tipoCosto = tipoCosto;
+        this.monto = monto;
+        this.tipoUnidadDeMedida = tipoUnidadDeMedida;
+    }
 }

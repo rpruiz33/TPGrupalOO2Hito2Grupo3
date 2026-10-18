@@ -1,75 +1,27 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 package com.example.hito2grupo3.controllers;
 
-import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.FestivalRepository;
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
 import com.example.hito2grupo3.entities.*;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
-=======
-package com.example.hito2grupo3.controllers;
 
->>>>>>> 02913d7 (fix para atras)
-=======
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-=======
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
 
-=======
->>>>>>> 02913d7 (fix para atras)
-=======
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
-    private final FestivalRepository festivalRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
-
-    public EmpleadoController(FestivalRepository festivalRepository,
-                              UnidadVentaRepository unidadVentaRepository) {
-        this.festivalRepository = festivalRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
-<<<<<<< HEAD
-=======
-    private final StaffRepository staffRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
-    private final FestivalRepository festivalRepository;
+    final StaffRepository staffRepository;
+    final UnidadVentaRepository unidadVentaRepository;
+    final FestivalRepository festivalRepository;
 
     public EmpleadoController(StaffRepository staffRepository,
                               UnidadVentaRepository unidadVentaRepository,
@@ -77,27 +29,16 @@ public class EmpleadoController {
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.festivalRepository = festivalRepository;
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
     }
 
-=======
->>>>>>> 02913d7 (fix para atras)
-=======
-    }
-
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
     @GetMapping("/index")
     public String mostrarIndex() {
         return "empleado/index";
     }
 
     @GetMapping("/dashboard")
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
-    public String mostrarDashboard(Model model) {
+    public String mostrarDashboard(Principal principal, Model model) {
+        // Obtener festival activo
         Festival festival = festivalRepository.findAll().stream()
                 .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
                 .findFirst()
@@ -112,11 +53,9 @@ public class EmpleadoController {
             lista.addAll(unidadVentaRepository.findAll());
         }
         lista.sort(Comparator.comparing(UnidadVenta::getCodigo, Comparator.nullsLast(String::compareTo)));
-
         model.addAttribute("unidades", lista);
-<<<<<<< HEAD
-=======
-    public String mostrarDashboard(Principal principal, Model model) {
+
+        // Obtener datos del empleado logueado
         String email = principal != null ? principal.getName() : "empleado@epicentro.com";
 
         // Buscar staff por email del usuario logueado o tomar el primero disponible
@@ -145,8 +84,6 @@ public class EmpleadoController {
                     .findFirst()
                     .orElse(null);
 
-            Festival festival = festivalRepository.findAll().stream().findFirst().orElse(null);
-
             if (unidad != null) {
                 Map<String, Object> asignacion = new HashMap<>();
                 asignacion.put("unidad", unidad.getNombreComercial());
@@ -173,12 +110,6 @@ public class EmpleadoController {
             }
         }
 
->>>>>>> f429b4d (fix de como llega la informacion a liquidaciones)
-=======
-    public String mostrarDashboard() {
->>>>>>> 02913d7 (fix para atras)
-=======
->>>>>>> 1b337b0 (mejorando los estilos visuales y cargando datos en las unidades de venta)
         return "reportes/empleadoDashboard";
     }
 }
