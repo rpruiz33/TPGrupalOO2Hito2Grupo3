@@ -16,8 +16,9 @@
 <body>
 
     <nav class="navbar navbar-dark admin-header px-4 py-2 mb-4">
-        <div class="container-fluid">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
             <a class="navbar-brand fw-bold" href="/admin/dashboard">Volver al Panel</a>
+            <a class="btn btn-sm btn-outline-light" href="/cambiar-password">🔒 Cambiar mi Contraseña</a>
         </div>
     </nav>
 
@@ -40,6 +41,7 @@
                         <th>ID</th>
                         <th>Email</th>
                         <th>Rol</th>
+                        <th>Estado de Contraseña</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
@@ -48,10 +50,24 @@
                         <td th:text="${u.id}"></td>
                         <td class="fw-bold" th:text="${u.email}"></td>
                         <td>
-                            <span class="badge bg-secondary" th:text="${u.rol.nombre}"></span>
+                            <span class="badge bg-secondary" th:text="${u.rol != null ? u.rol.nombre : '-'}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${u.debeCambiarPassword}" class="badge bg-warning text-dark">
+                                ✉️ Temporal (enviada por mail)
+                            </span>
+                            <span th:unless="${u.debeCambiarPassword}" class="badge bg-success">
+                                ✓ Clave definitiva
+                            </span>
                         </td>
                         <td class="text-center">
                             <a th:href="@{/admin/usuarios/editar/{id}(id=${u.id})}" class="btn btn-sm btn-primary">Editar</a>
+                            <a th:href="@{/admin/usuarios/reenviar/{id}(id=${u.id})}" 
+                               class="btn btn-sm btn-outline-dark ms-1"
+                               title="Regenerar y reenviar credenciales por correo electrónico"
+                               onclick="return confirm('¿Desea regenerar la contraseña y reenviarla por mail a este usuario?');">
+                                Reenviar Mail
+                            </a>
                             <a th:href="@{/admin/usuarios/eliminar/{id}(id=${u.id})}" 
                                class="btn btn-sm btn-danger ms-1"
                                onclick="return confirm('¿Estás seguro de eliminar este usuario?');">Eliminar</a>

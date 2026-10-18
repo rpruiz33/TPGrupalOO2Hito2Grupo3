@@ -4,6 +4,7 @@ import com.example.hito2grupo3.entities.Rol;
 import com.example.hito2grupo3.entities.Usuario;
 import com.example.hito2grupo3.repositories.RolRepository;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
+import com.example.hito2grupo3.services.IUsuarioService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,13 +15,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/usuarios")
 public class AdminUsuarioController {
 
+    private final IUsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminUsuarioController(UsuarioRepository usuarioRepository, 
+    public AdminUsuarioController(IUsuarioService usuarioService,
+                                  UsuarioRepository usuarioRepository, 
                                   RolRepository rolRepository, 
                                   PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.passwordEncoder = passwordEncoder;
@@ -48,24 +52,11 @@ public class AdminUsuarioController {
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttrs) {
         try {
-            
-            if (usuario.getPasswordHash() == null || usuario.getPasswordHash().isEmpty()) {
-                redirectAttrs.addFlashAttribute("error", "La contraseña es obligatoria para un usuario nuevo.");
-                return "redirect:/admin/usuarios";
-            }
-
-            
-            usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
-            
-            
-            usuarioRepository.save(usuario);
-            redirectAttrs.addFlashAttribute("mensaje", "Usuario creado exitosamente");
-            
+            usuarioService.crearUsuario(usuario);
+            redirectAttrs.addFlashAttribute("mensaje", "Usuario creado exitosamente. Se ha enviado un correo con sus credenciales de acceso.");
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            
             redirectAttrs.addFlashAttribute("error", "Error: El correo electrónico ya está registrado.");
         } catch (Exception e) {
-           
             redirectAttrs.addFlashAttribute("error", "Ocurrió un error inesperado al guardar el usuario.");
         }
         
@@ -108,6 +99,17 @@ public class AdminUsuarioController {
     public String eliminarUsuario(@PathVariable("id") Long id, RedirectAttributes redirectAttrs) {
         usuarioRepository.deleteById(id);
         redirectAttrs.addFlashAttribute("mensaje", "Usuario eliminado exitosamente");
+        return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping("/reenviar/{id}")
+    public String reenviarCredenciales(@PathVariable("id") Long id, RedirectAttributes redirectAttrs) {
+        try {
+            usuarioService.reenviarCredenciales(id);
+            redirectAttrs.addFlashAttribute("mensaje", "Se ha regenerado la contraseña y enviado el correo de credenciales exitosamente.");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("error", "Error al reenviar credenciales: " + e.getMessage());
+        }
         return "redirect:/admin/usuarios";
     }
 }

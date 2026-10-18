@@ -25,8 +25,7 @@
 </head>
 <body>
 
-<!-- Variables mockeadas directamente en Thymeleaf -->
-<main class="contenedor" th:with="recibo=${ recibo != null ? recibo : {
+<main class="contenedor" th:with="recibo=${recibo != null ? recibo : {
   'nombre': 'Martín',
   'apellido': 'González',
   'dni': '38.452.910',
@@ -78,7 +77,7 @@
         <tbody>
           <tr>
             <td>Unidad de venta</td>
-            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas & Bebidas</td>
+            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas &amp; Bebidas</td>
           </tr>
           <tr>
             <td>Duración del festival</td>
