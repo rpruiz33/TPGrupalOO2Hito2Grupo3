@@ -82,8 +82,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             if (s instanceof Cocinero c) {
                 BigDecimal plusCat = (c.getCategoriaCocina() != null && c.getCategoriaCocina().getPlusFijo() != null)
                         ? c.getCategoriaCocina().getPlusFijo() : BigDecimal.ZERO;
-                BigDecimal bonoPelig = c.getBonoPeligrosidad() != null ? c.getBonoPeligrosidad() : BigDecimal.ZERO;
-                adicional = plusCat.add(bonoPelig);
+                adicional = plusCat;
                 rol = c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Cocinero";
             } else if (s instanceof Cajero caj) {
                 BigDecimal plusAntig = VALOR_ANIO_ANTIGUEDAD.multiply(BigDecimal.valueOf(anios));
