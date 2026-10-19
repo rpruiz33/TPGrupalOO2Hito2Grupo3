@@ -98,11 +98,16 @@
             color: #800020;
         }
 
-        .logo {
-            max-width: 75px;
-            height: auto;
-            margin-top: 25px;
-        }
+   .logo {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.logo .unla-logo-img {
+  width: 110px;
+  height: auto;
+  border: 2px solid black;
+}
     </style>
 </head>
 
@@ -204,12 +209,9 @@
         </form>
     </div>
 
-    <!-- Logo -->
-    <footer class="text-center">
-        <img th:src="@{/images/unla-logo.png}"
-             alt="Logo de la UNLa"
-             class="logo">
-    </footer>
+    <div class="logo">
+    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+  </div>
 
 </main>
 
