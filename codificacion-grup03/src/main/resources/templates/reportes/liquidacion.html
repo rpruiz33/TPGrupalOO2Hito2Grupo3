@@ -127,10 +127,7 @@
 
       <!-- Summary cards -->
       <div class="tarjetas mb-4">
-        <div class="tarjeta card-custom" th:if="${sueldo != null}">
-          <div class="etiqueta fw-bold">Sueldo Asignado / Cobrado</div>
-          <div class="valor fw-bold" th:text="'$' + ${#numbers.formatDecimal(sueldo, 1, 'POINT', 0, 'COMMA')}">$0</div>
-        </div>
+
         <div class="tarjeta card-custom">
           <div class="etiqueta fw-bold">Unidad de venta</div>
           <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
