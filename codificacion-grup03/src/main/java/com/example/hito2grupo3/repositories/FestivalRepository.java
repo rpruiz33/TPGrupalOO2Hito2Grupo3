@@ -11,6 +11,8 @@ import com.example.hito2grupo3.entities.UnidadVenta;
 
 public interface FestivalRepository extends JpaRepository<Festival, Long> {
 
+    List<Festival> findAllByOrderByFechaInicioAsc();
+
     @Query("""
         SELECT u
         FROM Festival f

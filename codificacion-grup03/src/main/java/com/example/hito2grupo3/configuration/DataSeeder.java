@@ -52,9 +52,9 @@ public class DataSeeder {
     };
 
     private static final String[][] UNIDADES = {
-        {"FT-001", "El Asador Viajero",   "18", "FT", "AA123BB", "true"},
-        {"PD-001", "La Empanada Criolla", "24", "PD", "3",       "45"},
-        {"FT-002", "Tacos y Cia",         "15", "FT", "CC456DD", "false"},
+        {"FT-0000001", "El Asador Viajero",   "18", "FT", "AA123BB", "true"},
+        {"PD-0000001", "La Empanada Criolla", "24", "PD", "3",       "45"},
+        {"FT-0000002", "Tacos y Cia",         "15", "FT", "CC456DD", "false"},
     };
 
     private static final String[][][] EMPLEADOS_POR_UNIDAD = {
