@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro de unidad de venta - Epicentro Gourmet</title>
+
+    <link rel="stylesheet"
+          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+</head>
+
+<body class="login-body">
+
+<main class="contenedor">
+
+    <header class="text-center mb-4">
+        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+        <p class="mb-0 text-white-50">Registro de unidad de venta</p>
+    </header>
+
+    <div class="error"
+         role="alert"
+         th:if="${error}"
+         th:text="${error}">
+        Ocurrió un error al registrar la unidad.
+    </div>
+
+    <div class="exito"
+         role="status"
+         th:if="${mensaje}"
+         th:text="${mensaje}">
+        Registro realizado correctamente.
+    </div>
+
+    <form id="formularioRegistro"
+          th:action="@{/registro}"
+          method="post">
+
+        <!-- DATOS DE LA UNIDAD -->
+
+        <section class="mb-4">
+            <h2 class="h5 fw-bold text-white mb-3">
+                Datos de la unidad de venta
+            </h2>
+
+            <div class="mb-3">
+               <label class="form-label text-white">
+                    Código de la unidad
+               </label>
+               <p class="form-text text-white">
+                  El código se asignará automáticamente al registrar la unidad.
+               </p>
+            </div>
+
+            <div class="mb-3">
+                <label for="nombreComercial"
+                       class="form-label text-white">
+                    Nombre comercial
+                </label>
+                <input type="text"
+                       id="nombreComercial"
+                       name="nombreComercial"
+                       class="form-control"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="superficieM2"
+                       class="form-label text-white">
+                    Superficie (m²)
+                </label>
+                <input type="number"
+                       id="superficieM2"
+                       name="superficieM2"
+                       class="form-control"
+                       min="0.1"
+                       step="0.1"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <span class="form-label text-white d-block">
+                    Tipo de unidad
+                </span>
+
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           id="foodTruck"
+                           name="tipoUnidad"
+                           value="FOOD_TRUCK"
+                           required
+                           checked>
+                    <label class="form-check-label text-white"
+                           for="foodTruck">
+                        Food Truck
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           id="puestoDesarmable"
+                           name="tipoUnidad"
+                           value="PUESTO_DESARMABLE"
+                           required>
+                    <label class="form-check-label text-white"
+                           for="puestoDesarmable">
+                        Puesto desarmable
+                    </label>
+                </div>
+            </div>
+
+            <!-- CAMPOS EXCLUSIVOS DE FOOD TRUCK -->
+
+            <div id="datosFoodTruck"
+                 class="border border-light rounded p-3 mb-3">
+
+                <h3 class="h6 fw-bold text-white mb-3">
+                    Datos del Food Truck
+                </h3>
+
+                <div class="mb-3">
+                    <label for="patente" class="form-label text-white">
+                        Patente
+                    </label>
+                    <input type="text"
+                           id="patente"
+                           name="patente"
+                           class="form-control"
+                           maxlength="20"
+                           required>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="requiereElectricidad"
+                           name="requiereElectricidad"
+                           value="true">
+                    <label class="form-check-label text-white"
+                           for="requiereElectricidad">
+                        ¿Requiere conexión eléctrica?
+                    </label>
+                </div>
+            </div>
+
+            <!-- CAMPOS EXCLUSIVOS DE PUESTO DESARMABLE -->
+
+            <div id="datosPuesto"
+                 class="border border-light rounded p-3 mb-3"
+                 hidden>
+
+                <h3 class="h6 fw-bold text-white mb-3">
+                    Datos del puesto desarmable
+                </h3>
+
+                <div class="mb-3">
+                    <label for="cantidadCarpas"
+                           class="form-label text-white">
+                        Cantidad de carpas
+                    </label>
+                    <input type="number"
+                           id="cantidadCarpas"
+                           name="cantidadCarpas"
+                           class="form-control"
+                           min="1"
+                           step="1"
+                           disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tiempoMontajeMin"
+                           class="form-label text-white">
+                        Tiempo de montaje (minutos)
+                    </label>
+                    <input type="number"
+                           id="tiempoMontajeMin"
+                           name="tiempoMontajeMin"
+                           class="form-control"
+                           min="1"
+                           step="1"
+                           disabled>
+                </div>
+            </div>
+        </section>
+
+        <!-- DATOS DEL RESPONSABLE -->
+
+        <section class="mb-4">
+            <h2 class="h5 fw-bold text-white mb-3">
+                Datos del responsable
+            </h2>
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label text-white">
+                    Nombre
+                </label>
+                <input type="text"
+                       id="nombre"
+                       name="nombre"
+                       class="form-control"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="apellido" class="form-label text-white">
+                    Apellido
+                </label>
+                <input type="text"
+                       id="apellido"
+                       name="apellido"
+                       class="form-control"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="dni" class="form-label text-white">
+                    DNI
+                </label>
+                <input type="text"
+                       id="dni"
+                       name="dni"
+                       class="form-control"
+                       maxlength="20"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="fechaNacimiento"
+                       class="form-label text-white">
+                    Fecha de nacimiento
+                </label>
+                <input type="date"
+                       id="fechaNacimiento"
+                       name="fechaNacimiento"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="fechaIngreso"
+                       class="form-label text-white">
+                    Fecha de ingreso
+                </label>
+                <input type="date"
+                       id="fechaIngreso"
+                       name="fechaIngreso"
+                       class="form-control"
+                       required>
+            </div>
+        </section>
+
+        <!-- CREDENCIALES -->
+
+        <section class="mb-4">
+            <h2 class="h5 fw-bold text-white mb-3">
+                Datos de acceso
+            </h2>
+
+            <p class="text-white-50 small">
+                Estos datos permitirán al responsable iniciar sesión
+                en el sistema.
+            </p>
+
+            <div class="mb-3">
+                <label for="email" class="form-label text-white">
+                    Correo electrónico
+                </label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       class="form-control"
+                       maxlength="150"
+                       autocomplete="email"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label text-white">
+                    Contraseña
+                </label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       class="form-control"
+                       minlength="8"
+                       autocomplete="new-password"
+                       required>
+                <small class="text-white-50">
+                    Debe tener al menos 8 caracteres.
+                </small>
+            </div>
+        </section>
+
+        <!-- BOTONES -->
+
+        <div class="acciones-doble">
+            <button type="submit" class="boton">
+                Registrarme
+            </button>
+
+            <a th:href="@{/}" class="boton text-center">
+                Volver al inicio
+            </a>
+        </div>
+
+    </form>
+
+    <div class="logo mt-4">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo UNLa"
+             class="unla-logo-img">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+    const foodTruckRadio = document.getElementById("foodTruck");
+    const puestoRadio = document.getElementById("puestoDesarmable");
+
+    const datosFoodTruck = document.getElementById("datosFoodTruck");
+    const datosPuesto = document.getElementById("datosPuesto");
+
+    const patente = document.getElementById("patente");
+    const cantidadCarpas = document.getElementById("cantidadCarpas");
+    const tiempoMontajeMin = document.getElementById("tiempoMontajeMin");
+
+    function actualizarTipoUnidad() {
+        const esFoodTruck = foodTruckRadio.checked;
+
+        datosFoodTruck.hidden = !esFoodTruck;
+        datosPuesto.hidden = esFoodTruck;
+
+        patente.disabled = !esFoodTruck;
+        patente.required = esFoodTruck;
+
+        cantidadCarpas.disabled = esFoodTruck;
+        cantidadCarpas.required = !esFoodTruck;
+
+        tiempoMontajeMin.disabled = esFoodTruck;
+        tiempoMontajeMin.required = !esFoodTruck;
+    }
+
+    foodTruckRadio.addEventListener("change", actualizarTipoUnidad);
+    puestoRadio.addEventListener("change", actualizarTipoUnidad);
+
+    actualizarTipoUnidad();
+</script>
+
+</body>
+</html>
