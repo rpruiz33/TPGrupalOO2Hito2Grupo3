@@ -2,7 +2,7 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
-import com.example.hito2grupo3.services.impl.ReporteVentaService;
+import com.example.hito2grupo3.services.IReporteVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,17 +17,14 @@ import java.util.List;
 public class ReporteController {
 
     @Autowired
-    private ReporteVentaService reporteVentaService;
+    private IReporteVentaService reporteVentaService;
 
     @GetMapping("/recaudacion/festival/{festivalId}")
     public String verReporteRecaudacion(@PathVariable Long festivalId, Model model) {
         try {
-            // Obtenemos los totales
             ReporteVentaDTO reporte = reporteVentaService.obtenerTotalesFestival(festivalId);
-            // Obtenemos la lista
             List<RankingUnidadDTO> ranking = reporteVentaService.obtenerRankingFestival(festivalId);
             
-            // Mandamos AMBAS cosas a la vista HTML por separado
             model.addAttribute("reporte", reporte);
             model.addAttribute("ranking", ranking);
             
