@@ -50,9 +50,9 @@ public class RegistroUnidadVentaServiceImpl
         String prefijo;
 
         if ("FOOD_TRUCK".equals(tipoUnidad)) {
-            prefijo = "FT-";
+            prefijo = FoodTruck.PREFIJO_CODIGO;
         } else if ("PUESTO_DESARMABLE".equals(tipoUnidad)) {
-            prefijo = "PD-";
+            prefijo = PuestoDesarmable.PREFIJO_CODIGO;
         } else {
             throw new IllegalArgumentException(
                     "Seleccioná un tipo de unidad de venta válido.");

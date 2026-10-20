@@ -37,7 +37,6 @@
             <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
                 <nav class="nav flex-column mt-2">
                     <a class="nav-link nav-link-admin" href="/admin/dashboard">Inicio</a>
-                    <a class="nav-link nav-link-admin" href="#">Festivales</a>
                     <a class="nav-link nav-link-admin" href="/admin/usuarios">Usuarios</a>
                     <a class="nav-link nav-link-admin active" th:href="@{/admin/reportes/recaudacion/festival/1}">Reporte Recaudación</a>
                     <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
@@ -88,7 +87,7 @@
                         </thead>
                         <tbody>
                             <tr th:each="unidad : ${ranking}">
-                                <td class="ps-3 fw-semibold" th:text="${unidad.codigo}">PD-001</td>
+                                <td class="ps-3 fw-semibold" th:text="${unidad.codigo}">PD-0000001</td>
                                 <td th:text="${unidad.nombreComercial}">Puesto de Prueba</td>
                                 <td>
                                     <span class="badge bg-secondary" th:text="${unidad.tipoUnidad}">FoodTruck</span>

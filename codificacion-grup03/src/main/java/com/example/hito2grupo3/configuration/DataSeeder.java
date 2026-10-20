@@ -58,21 +58,21 @@ public class DataSeeder {
     };
 
     private static final String[][][] EMPLEADOS_POR_UNIDAD = {
-        // Unidad 0 -> FT-001
+        // Unidad 0 -> FT-0000001
         {
             {"C","Lucia",    "Fernandez","32541897","1990-04-12","115000","Manana",    "1","5000.00",""},
             {"C","Martin",   "Gonzalez", "28763412","1988-09-23","110000","Tarde",     "2","4500.00",""},
             {"K","Romina",   "Soria",    "35129876","1993-11-05","130000","Parrilla",  "true","8000.00","0"},
             {"K","Fernando", "Aguirre",  "26874531","1985-06-30","145000","Reposteria","true","9000.00","1"},
         },
-        // Unidad 1 -> PD-001
+        // Unidad 1 -> PD-0000001
         {
             {"C","Valentina","Rios",    "40123654","1998-02-17","95000", "Manana",   "3","3500.00",""},
             {"C","Santiago", "Mendez",  "33987214","1991-07-08","100000","Tarde",    "4","4000.00",""},
             {"K","Camila",   "Herrera", "38456201","1996-12-22","125000","Italiana", "true","7500.00","2"},
             {"K","Diego",    "Ramos",   "29345678","1987-03-14","155000","Alta Cocina","false","12000.00","3"},
         },
-        // Unidad 2 -> FT-002
+        // Unidad 2 -> FT-0000002
         {
             {"C","Agustina", "Lopez",   "41250369","1999-08-03","93000", "Noche",    "5","3000.00",""},
             {"C","Nicolas",  "Castro",  "30874156","1989-05-19","108000","Manana",   "6","4200.00",""},
@@ -197,10 +197,20 @@ public class DataSeeder {
 
     private UnidadVenta crearUnidad(String[] uData, Staff responsable, List<Staff> staffList) {
         Optional<UnidadVenta> existing = unidadVentaRepo.findAll().stream()
-                .filter(u -> Objects.equals(u.getCodigo(), uData[0]))
+                .filter(u -> Objects.equals(u.getCodigo(), uData[0])
+                        || ("FT-0000001".equals(uData[0]) && "FT-001".equals(u.getCodigo()))
+                        || ("PD-0000001".equals(uData[0]) && "PD-001".equals(u.getCodigo()))
+                        || ("FT-0000002".equals(uData[0]) && "FT-002".equals(u.getCodigo())))
                 .findFirst();
 
-        return existing.orElseGet(() -> {
+        if (existing.isPresent()) {
+            UnidadVenta uv = existing.get();
+            if (!Objects.equals(uv.getCodigo(), uData[0])) {
+                uv.setCodigo(uData[0]);
+                uv = unidadVentaRepo.save(uv);
+            }
+            return uv;
+        }
             UnidadVenta uv;
             if ("FT".equals(uData[3])) {
                 FoodTruck ft = new FoodTruck();
@@ -219,6 +229,5 @@ public class DataSeeder {
             uv.setResponsable(responsable);
             uv.setStaffAsignado(new HashSet<>(staffList));
             return unidadVentaRepo.save(uv);
-        });
     }
 }

@@ -61,10 +61,12 @@ public class LiquidacionController {
                     r = liquidacionService.liquidarPorUnidad(unidadId, idFestival);
                     model.addAttribute("unidadId", unidadId);
                 } else if (codigo != null && !codigo.isBlank()) {
-                    UnidadVenta uv = unidadVentaRepository.findAll().stream()
-                            .filter(u -> codigo.equalsIgnoreCase(u.getCodigo()))
-                            .findFirst()
-                            .orElse(null);
+                    String codBuscado = codigo.trim();
+                    UnidadVenta uv = unidadVentaRepository.findByCodigoIgnoreCase(codBuscado)
+                            .orElseGet(() -> unidadVentaRepository.findAll().stream()
+                                    .filter(u -> codBuscado.equalsIgnoreCase(u.getCodigo()))
+                                    .findFirst()
+                                    .orElse(null));
                     if (uv != null) {
                         r = liquidacionService.liquidarPorUnidad(uv.getId(), idFestival);
                         model.addAttribute("unidadId", uv.getId());

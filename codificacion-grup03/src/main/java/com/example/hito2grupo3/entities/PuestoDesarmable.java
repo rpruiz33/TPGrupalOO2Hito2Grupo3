@@ -20,8 +20,35 @@ import java.util.Set;
 
 @Table(name = "puestos_desarmables")
 public class PuestoDesarmable extends UnidadVenta {
+    public static final String PREFIJO_CODIGO = "PD-";
+    public static final String REGEX_CODIGO_PUESTO = "^PD-[0-9]{7}$";
+
     private Integer cantidadCarpas;
     private Integer tiempoMontajeMin;
+
+    public static boolean esCodigoValidoPuesto(String codigo) {
+        if (codigo == null) {
+            return false;
+        }
+        String limpio = codigo.trim();
+        return limpio.length() == LONGITUD_CODIGO && limpio.matches(REGEX_CODIGO_PUESTO);
+    }
+
+    @Override
+    public boolean validarCodigo(String codigoAValidar) {
+        return esCodigoValidoPuesto(codigoAValidar);
+    }
+
+    @Override
+    public void setCodigo(String codigo) {
+        if (!validarCodigo(codigo)) {
+            throw new IllegalArgumentException(
+                    "Código de Puesto Desarmable inválido: '" + codigo
+                    + "'. Debe tener exactamente " + LONGITUD_CODIGO
+                    + " caracteres y comenzar con '" + PREFIJO_CODIGO + "' (ej: PD-0000001).");
+        }
+        super.setCodigo(codigo);
+    }
 
     public PuestoDesarmable(Long id, String codigo, String nombreComercial, BigDecimal superficieM2,
                             List<Plato> platosOfrecidos, Set<Staff> staffAsignado,
