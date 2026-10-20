@@ -1,8 +1,10 @@
-
-package com.example.hito2grupo3.services;
+package com.example.hito2grupo3.services.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,11 @@ import com.example.hito2grupo3.repositories.RolRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.example.hito2grupo3.services.IRegistroUnidadVentaService;
 
 @Service
-public class RegistroUnidadVentaService {
+public class RegistroUnidadVentaServiceImpl
+        implements IRegistroUnidadVentaService {
 
     private final UsuarioRepository usuarioRepository;
     private final StaffRepository staffRepository;
@@ -32,7 +32,7 @@ public class RegistroUnidadVentaService {
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public RegistroUnidadVentaService(
+    public RegistroUnidadVentaServiceImpl(
             UsuarioRepository usuarioRepository,
             StaffRepository staffRepository,
             UnidadVentaRepository unidadVentaRepository,
@@ -58,10 +58,10 @@ public class RegistroUnidadVentaService {
                     "Seleccioná un tipo de unidad de venta válido.");
         }
 
-        List<UnidadVenta> unidades = unidadVentaRepository.findByCodigoStartingWith(prefijo);
+        List<UnidadVenta> unidades =
+                unidadVentaRepository.findByCodigoStartingWith(prefijo);
 
         int numeroMayor = 0;
-
         Pattern patron = Pattern.compile("^" + prefijo + "([0-9]+)$");
 
         for (UnidadVenta unidad : unidades) {
@@ -84,6 +84,7 @@ public class RegistroUnidadVentaService {
         return prefijo + String.format("%07d", numeroMayor + 1);
     }
 
+    @Override
     @Transactional
     public void registrar(
             String nombreComercial,
@@ -110,11 +111,16 @@ public class RegistroUnidadVentaService {
 
         // Validar campos obligatorios
         if (nombreComercial.isBlank()
-                || nombre.isBlank() || apellido.isBlank()
-                || dni.isBlank() || email.isBlank()
-                || password == null || password.isBlank()
-                || superficieM2 == null || tipoUnidad == null
-                || fechaNacimiento == null || fechaIngreso == null) {
+                || nombre.isBlank()
+                || apellido.isBlank()
+                || dni.isBlank()
+                || email.isBlank()
+                || password == null
+                || password.isBlank()
+                || superficieM2 == null
+                || tipoUnidad == null
+                || fechaNacimiento == null
+                || fechaIngreso == null) {
             throw new IllegalArgumentException(
                     "Completá todos los campos obligatorios.");
         }
@@ -149,13 +155,13 @@ public class RegistroUnidadVentaService {
                     "Ya existe una persona registrada con ese DNI.");
         }
 
-        // Generar automáticamente el código según el tipo de unidad
         String codigo = generarCodigo(tipoUnidad);
 
-        // Validar tipo y datos específicos de la unidad
+        // Validar el tipo y los datos específicos de la unidad
         UnidadVenta unidad;
 
         if ("FOOD_TRUCK".equals(tipoUnidad)) {
+
             if (patente == null || patente.isBlank()) {
                 throw new IllegalArgumentException(
                         "La patente es obligatoria para un Food Truck.");
@@ -168,6 +174,7 @@ public class RegistroUnidadVentaService {
             unidad = foodTruck;
 
         } else if ("PUESTO_DESARMABLE".equals(tipoUnidad)) {
+
             if (cantidadCarpas == null || cantidadCarpas <= 0) {
                 throw new IllegalArgumentException(
                         "La cantidad de carpas debe ser mayor que cero.");
@@ -193,7 +200,7 @@ public class RegistroUnidadVentaService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No se encontró el rol RESPONSABLE en la base de datos."));
 
-        // Crear usuario y encriptar su contraseña
+        // Crear usuario y encriptar la contraseña
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setPasswordHash(passwordEncoder.encode(password));
@@ -210,7 +217,7 @@ public class RegistroUnidadVentaService {
         responsable.setUsuario(usuario);
         responsable = staffRepository.save(responsable);
 
-        // Completar los datos comunes de la unidad
+        // Completar datos comunes de la unidad
         unidad.setCodigo(codigo);
         unidad.setNombreComercial(nombreComercial);
         unidad.setSuperficieM2(superficieM2);
