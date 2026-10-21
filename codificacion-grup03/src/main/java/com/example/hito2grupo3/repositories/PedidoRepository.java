@@ -1,6 +1,7 @@
 
 package com.example.hito2grupo3.repositories;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -52,4 +53,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             """)
     List<RankingUnidadDTO> obtenerRankingPorFestival(
             @Param("festivalId") Long festivalId);
+
+    
+
+    @Query("SELECT COALESCE(SUM(i.cantidad * i.precioUnitario), 0) FROM ItemPedido i")
+    BigDecimal sumarRecaudacionGlobal();
+
 }
