@@ -41,13 +41,32 @@ INSERT INTO festivales (id, nombre, fecha_inicio, fecha_fin) VALUES (1, 'Sabores
 INSERT INTO festivales (id, nombre, fecha_inicio, fecha_fin) VALUES (2, 'Festival Gourmet BA', '2025-07-04', '2025-07-07');
 
 -- 6. PLATOS
-INSERT INTO platos (id, nombre, precio) VALUES (1, 'Sandwich de Vacio Gourmet', 9500.00);
-INSERT INTO platos (id, nombre, precio) VALUES (2, 'Burger Asadora Doble Cheddar', 8800.00);
-INSERT INTO platos (id, nombre, precio) VALUES (3, 'Papas Fritas Rústicas', 4500.00);
+INSERT INTO platos (id, nombre, precio) VALUES (1, 'Sandwich de Vacio ', 9500.00);
+INSERT INTO platos (id, nombre, precio) VALUES (2, 'Burger Doble Cheddar', 8800.00);
+INSERT INTO platos (id, nombre, precio) VALUES (3, 'Papas con Chedas y Verdeo', 4500.00);
 INSERT INTO platos (id, nombre, precio) VALUES (4, 'Empanada Cortada a Cuchillo (Unidad)', 1800.00);
 INSERT INTO platos (id, nombre, precio) VALUES (5, 'Empanada Jamón y Queso (Unidad)', 1600.00);
-INSERT INTO platos (id, nombre, precio) VALUES (6, 'Locro Tradicional (Porción)', 8500.00);
-INSERT INTO platos (id, nombre, precio) VALUES (7, 'Combo 3 Tacos Birria', 9200.00);
+INSERT INTO platos (id, nombre, precio) VALUES (6, 'Empanada Pollo y Verdeo (Unidad)', 1600.00);
+INSERT INTO platos (id, nombre, precio) VALUES (7, 'Papas Fritas Rusticas', 4000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (8, 'Burger Kid', 8000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (9, 'Burger Triple Bacon', 10500.00);
+INSERT INTO platos (id, nombre, precio) VALUES (10, 'Veggie Burger ', 8900.00);
+INSERT INTO platos (id, nombre, precio) VALUES (11, 'Pizza Muzzarella Individual', 10000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (12, 'Pizza Fugazzeta Especial', 14000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (13, 'Pizza Calabrsa', 14000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (14, 'Pizza Jamon y Morron', 12000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (15, 'Pizza Napolitana', 10000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (16, 'Sorrentinos', 7000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (17, 'Ravioles', 7000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (18, 'Capeletis', 7000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (19, 'Ñoqis', 7000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (20, 'Fideos Frescos', 7000.00);
+-- POSTRES
+INSERT INTO platos (id, nombre, precio) VALUES (21, 'Frutilla con Cremas', 5000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (22, 'Duraznos con Crema', 5000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (23, 'Flan', 7000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (24, 'Torta (Porcion)', 8000.00);
+INSERT INTO platos (id, nombre, precio) VALUES (25, 'Cañoncitos', 10000.00);
 
 -- 7. UNIDADES DE VENTA
 INSERT INTO unidades_venta (id, codigo, nombre_comercial, superficie_m2, responsable_id) VALUES 
@@ -89,3 +108,23 @@ INSERT INTO costos (id, tipo_costo, monto, tipo_unidad_de_medida) VALUES
 (2, 'Seguridad y Limpieza', 45000.00, 'Por Dia'),
 (3, 'Licencia Municipal', 30000.00, 'Evento'),
 (4, 'Inspeccion Sanitaria', 12000.00, 'Unico');
+
+-- 13. PEDIDOS 
+INSERT INTO pedidos (id, fecha_transaccion, festival_id, unidad_venta_id) VALUES
+(1, '2025-03-02 12:30:00', 1, 1),
+(2, '2025-03-02 14:15:00', 1, 1),
+(3, '2025-03-03 20:00:00', 1, 2),
+(4, '2025-04-05 13:45:00', 2, 2),
+(5, '2025-04-06 21:10:00', 2, 1);
+
+-- 14. UNIDAD DE VENTA - PLATO
+INSERT INTO unidad_venta_plato (unidad_venta_id, plato_id) VALUES
+-- Unidad de Venta 1 (La Trinchera Gourmet)
+(1, 1),
+(1, 2),
+(1, 3),
+-- Unidad de Venta 2 (Sabores de la Tierra)
+(2, 4),
+(2, 5),
+(2, 6);
+
