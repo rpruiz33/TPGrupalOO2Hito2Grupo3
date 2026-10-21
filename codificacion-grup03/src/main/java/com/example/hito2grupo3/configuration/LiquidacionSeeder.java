@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
-@Configuration
+//@Configuration
 public class LiquidacionSeeder {
 
     private final RolRepository rolRepo;
@@ -49,8 +49,8 @@ public class LiquidacionSeeder {
     };
 
     private static final String[][] UNIDADES = {
-        {"FT-001", "La Trinchera Gourmet", "22.50", "FT", "AF123CD", "true"},
-        {"PD-001", "Sabores de la Tierra", "35.00", "PD", "3",       "45"}
+        {"FT-0000101", "La Trinchera Gourmet", "22.50", "FT", "AF123CD", "true"},
+        {"PD-0000101", "Sabores de la Tierra", "35.00", "PD", "3",       "45"}
     };
 
     private static final String[][] CATEGORIAS = {
@@ -211,12 +211,19 @@ private Cocinero crearCocinero(String[] emp, List<CategoriaCocina> categorias) {
 
     private UnidadVenta crearUnidad(String[] uData, Staff responsable, List<Staff> staffList) {
         Optional<UnidadVenta> existing = unidadRepo.findAll().stream()
-                .filter(u -> Objects.equals(u.getCodigo(), uData[0]))
+                .filter(u -> Objects.equals(u.getCodigo(), uData[0])
+                        || ("FT-0000101".equals(uData[0]) && "FT-001".equals(u.getCodigo()))
+                        || ("PD-0000101".equals(uData[0]) && "PD-001".equals(u.getCodigo())))
                 .findFirst();
 
         if (existing.isPresent()) {
             UnidadVenta uv = existing.get();
             boolean changed = false;
+
+            if (!Objects.equals(uv.getCodigo(), uData[0])) {
+                uv.setCodigo(uData[0]);
+                changed = true;
+            }
 
             if (responsable.getUsuario() != null
                     && (uv.getResponsable() == null || uv.getResponsable().getUsuario() == null)) {

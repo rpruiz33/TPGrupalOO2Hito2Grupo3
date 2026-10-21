@@ -88,7 +88,9 @@
                         </thead>
                         <tbody>
                             <tr th:each="unidad : ${ranking}">
-                                <td class="ps-3 fw-semibold" th:text="${unidad.codigo}">PD-001</td>
+
+                                <td class="ps-3 fw-semibold" th:text="${unidad.codigo}">PD-0000001</td>
+
                                 <td th:text="${unidad.nombreComercial}">Puesto de Prueba</td>
                                 <td>
                                     <span class="badge bg-secondary" th:text="${unidad.tipoUnidad}">FoodTruck</span>

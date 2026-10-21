@@ -19,5 +19,7 @@ public interface UnidadVentaRepository
 
     // Verifica si ya existe una unidad con ese código
     boolean existsByCodigo(String codigo);
+    Optional<UnidadVenta> findByCodigo(String codigo);
+    Optional<UnidadVenta> findByCodigoIgnoreCase(String codigo);
     List<UnidadVenta> findByCodigoStartingWith(String prefijo);
 }

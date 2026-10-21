@@ -14,16 +14,16 @@
   <main class="contenedor" th:with="
   nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
   listaUnidades=${unidades != null ? unidades : {
-    { 'codigo': 'FT-101', 'nombreComercial': 'La Trinchera Gourmet' },
-    { 'codigo': 'PD-101', 'nombreComercial': 'Sabores Criollos' },
-    { 'codigo': 'FT-102', 'nombreComercial': 'El Buen Sabor Rodante' },
-    { 'codigo': 'PD-102', 'nombreComercial': 'La Esquina Dulce' },
-    { 'codigo': 'FT-103', 'nombreComercial': 'Burger Master Truck' },
-    { 'codigo': 'PD-103', 'nombreComercial': 'Brasas Serranas' },
-    { 'codigo': 'FT-104', 'nombreComercial': 'Tacos El Guero' },
-    { 'codigo': 'PD-104', 'nombreComercial': 'Pastas de la Nonna' },
-    { 'codigo': 'FT-105', 'nombreComercial': 'Ahumados Patagonicos' },
-    { 'codigo': 'PD-105', 'nombreComercial': 'Empanadas Salteñas' }
+    { 'codigo': 'FT-0000101', 'nombreComercial': 'La Trinchera Gourmet' },
+    { 'codigo': 'PD-0000101', 'nombreComercial': 'Sabores Criollos' },
+    { 'codigo': 'FT-0000102', 'nombreComercial': 'El Buen Sabor Rodante' },
+    { 'codigo': 'PD-0000102', 'nombreComercial': 'La Esquina Dulce' },
+    { 'codigo': 'FT-0000103', 'nombreComercial': 'Burger Master Truck' },
+    { 'codigo': 'PD-0000103', 'nombreComercial': 'Brasas Serranas' },
+    { 'codigo': 'FT-0000104', 'nombreComercial': 'Tacos El Guero' },
+    { 'codigo': 'PD-0000104', 'nombreComercial': 'Pastas de la Nonna' },
+    { 'codigo': 'FT-0000105', 'nombreComercial': 'Ahumados Patagonicos' },
+    { 'codigo': 'PD-0000105', 'nombreComercial': 'Empanadas Salteñas' }
   } }">
 
     <header>
@@ -58,7 +58,7 @@
           </thead>
           <tbody>
             <tr th:each="u : ${unidades}">
-              <td th:text="${u.codigo}">FT-001</td>
+              <td th:text="${u.codigo}">FT-0000101</td>
               <td th:text="${u.nombreComercial}">La Trinchera Gourmet</td>
               <td th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Festival</td>
               <td class="text-center no-print">

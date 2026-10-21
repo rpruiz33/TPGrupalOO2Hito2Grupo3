@@ -1,30 +1,48 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: always 
+
   jpa:
+    defer-datasource-initialization: true 
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop 
     properties:
       hibernate:
+        format_sql: true
+        hbm2ddl.import_files: import.sql #
         dialect: org.hibernate.dialect.MySQLDialect
+
   thymeleaf:
     cache: false
+
   mail:
     host: smtp.gmail.com
     port: 587
-    username: rpruiz33@gmail.com
-    password: "qwkbibgsqkwxvkie"
+    username: ${MAIL_USERNAME:no-reply@example.invalid}
+    password: ${MAIL_PASSWORD:${MAIL_APP_PASSWORD:change-me}}
     properties:
       mail:
         smtp:
           auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
           starttls:
             enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
 
 app:
   mail:
-    from: ${MAIL_FROM:rpruiz33@gmail.com}
+    from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@example.invalid}}

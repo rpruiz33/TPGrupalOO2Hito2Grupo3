@@ -5,7 +5,7 @@ import com.example.hito2grupo3.entities.Usuario;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
 import com.example.hito2grupo3.services.IUsuarioService;
-import com.example.hito2grupo3.services.RegistroUnidadVentaService;
+import com.example.hito2grupo3.services.IRegistroUnidadVentaService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,13 +25,13 @@ public class UserController {
     private final IUsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
     private final FestivalRepository festivalRepository;
-    private final RegistroUnidadVentaService registroUnidadVentaService;
+    private final IRegistroUnidadVentaService registroUnidadVentaService;
 
     public UserController(
             IUsuarioService usuarioService,
             UsuarioRepository usuarioRepository,
             FestivalRepository festivalRepository,
-            RegistroUnidadVentaService registroUnidadVentaService) {
+            IRegistroUnidadVentaService registroUnidadVentaService) {
         this.usuarioService = usuarioService;
         this.usuarioRepository = usuarioRepository;
         this.festivalRepository = festivalRepository;

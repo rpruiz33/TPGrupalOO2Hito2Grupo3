@@ -19,8 +19,35 @@ import java.util.Set;
 @Entity
 @Table(name = "food_trucks")
 public class FoodTruck extends UnidadVenta {
+    public static final String PREFIJO_CODIGO = "FT-";
+    public static final String REGEX_CODIGO_FOOD_TRUCK = "^FT-[0-9]{7}$";
+
     private String patente;
     private boolean requiereElectricidad;
+
+    public static boolean esCodigoValidoFoodTruck(String codigo) {
+        if (codigo == null) {
+            return false;
+        }
+        String limpio = codigo.trim();
+        return limpio.length() == LONGITUD_CODIGO && limpio.matches(REGEX_CODIGO_FOOD_TRUCK);
+    }
+
+    @Override
+    public boolean validarCodigo(String codigoAValidar) {
+        return esCodigoValidoFoodTruck(codigoAValidar);
+    }
+
+    @Override
+    public void setCodigo(String codigo) {
+        if (!validarCodigo(codigo)) {
+            throw new IllegalArgumentException(
+                    "Código de Food Truck inválido: '" + codigo
+                    + "'. Debe tener exactamente " + LONGITUD_CODIGO
+                    + " caracteres y comenzar con '" + PREFIJO_CODIGO + "' (ej: FT-0000001).");
+        }
+        super.setCodigo(codigo);
+    }
 
     public FoodTruck(Long id, String codigo, String nombreComercial, BigDecimal superficieM2,
                      List<Plato> platosOfrecidos, Set<Staff> staffAsignado,
