@@ -9,17 +9,16 @@ spring:
 
   sql:
     init:
-      mode: always 
+      mode: always
 
   jpa:
-    defer-datasource-initialization: true 
+    defer-datasource-initialization: true
     show-sql: true
     hibernate:
-      ddl-auto: create-drop 
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
-        hbm2ddl.import_files: import.sql #
         dialect: org.hibernate.dialect.MySQLDialect
 
   thymeleaf:
