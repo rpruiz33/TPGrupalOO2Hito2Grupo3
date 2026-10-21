@@ -128,3 +128,15 @@ INSERT INTO unidad_venta_plato (unidad_venta_id, plato_id) VALUES
 (2, 5),
 (2, 6);
 
+-- 15. ITEMS DE PEDIDO 
+INSERT INTO items_pedido (id, cantidad, precio_unitario, pedido_id, plato_id) VALUES
+-- Pedido 1 ( Festival 1 y Unidad 1)
+(1, 2, 9500.00, 1, 1), -- 2x Sandwich de Vacío Gourmet = $19.000
+(2, 1, 4500.00, 1, 3), -- 1x Papas Fritas Rústicas = $4.500
+
+-- Pedido 2 ( Festival 1 y Unidad 1)
+(3, 1, 8800.00, 2, 2), -- 1x Burger Asadora Doble Cheddar = $8.800
+
+-- Pedido 3 ( Festival 1 y Unidad 2)
+(4, 3, 1800.00, 3, 4), -- 3x Empanada Cortada a Cuchillo = $5.400
+(5, 1, 9200.00, 3, 7); -- 1x Combo 3 Tacos Birria = $9.200
