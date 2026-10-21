@@ -56,7 +56,7 @@ INSERT INTO unidades_venta (id, codigo, nombre_comercial, superficie_m2, respons
 (3, 'FT-0000002', 'Tacos y Cia', 15.00, 9);
 
 -- 8. FOOD TRUCKS
--- Debe enlazar directamente con los IDs 1 y 3 creados en unidades_venta
+
 INSERT INTO food_trucks (id, patente, requiere_electricidad) VALUES
 (1, 'AA123BB', 1),
 (3, 'CC456DD', 0);
@@ -71,3 +71,21 @@ INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id) VALUES
 INSERT INTO festival_unidad_venta (festival_id, unidad_venta_id) VALUES
 (1, 1), (1, 2), (1, 3),
 (2, 1), (2, 2), (2, 3);
+
+
+-- 11. PUESTO DESARMABLE ADICIONAL (Corregido a ID 4)
+INSERT INTO unidades_venta (id, codigo, nombre_comercial, superficie_m2, responsable_id) 
+VALUES (4, 'PD-0000102', 'La Rinconada Criolla', 40.00, 8);
+
+INSERT INTO puestos_desarmables (id, cantidad_carpas, tiempo_montaje_min) 
+VALUES (4, 4, 60);
+
+INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id) VALUES (4, 8), (4, 9);
+INSERT INTO festival_unidad_venta (festival_id, unidad_venta_id) VALUES (1, 4);
+
+-- 12. COSTOS
+INSERT INTO costos (id, tipo_costo, monto, tipo_unidad_de_medida) VALUES
+(1, 'Alquiler de Espacio', 150000.00, 'Fijo'),
+(2, 'Seguridad y Limpieza', 45000.00, 'Por Dia'),
+(3, 'Licencia Municipal', 30000.00, 'Evento'),
+(4, 'Inspeccion Sanitaria', 12000.00, 'Unico');
