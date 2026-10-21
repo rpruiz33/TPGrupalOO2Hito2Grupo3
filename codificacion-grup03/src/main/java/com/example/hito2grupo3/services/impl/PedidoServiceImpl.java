@@ -1,11 +1,4 @@
-package com.example.hito2grupo3.services;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.time.ZoneId;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+package com.example.hito2grupo3.services.impl;
 
 import com.example.hito2grupo3.dto.ItemPedidoDTO;
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
@@ -18,16 +11,21 @@ import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.repositories.PlatoRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.IPedidoService;
+import java.time.LocalDate;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class PedidoService {
+public class PedidoServiceImpl implements IPedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
     private final PlatoRepository platoRepository;
 
-    public PedidoService(
+    public PedidoServiceImpl(
             PedidoRepository pedidoRepository,
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository,
@@ -39,9 +37,9 @@ public class PedidoService {
         this.platoRepository = platoRepository;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Plato> obtenerPlatosPorUnidad(Long unidadVentaId) {
-
         UnidadVenta unidad = unidadVentaRepository
                 .buscarPorIdConPlatos(unidadVentaId)
                 .orElseThrow(() ->
@@ -51,9 +49,9 @@ public class PedidoService {
         return unidad.getPlatosOfrecidos();
     }
 
+    @Override
     @Transactional
     public Pedido registrarPedido(PedidoAltaDTO datos) {
-
         if (datos == null
                 || datos.getFecha() == null
                 || datos.getFestivalId() == null
@@ -68,21 +66,18 @@ public class PedidoService {
                     "El pedido debe contener al menos un plato.");
         }
 
-        LocalDate hoy = LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")
-);
+        LocalDate hoy = LocalDate.now();
 
         if (!datos.getFecha().equals(hoy)) {
             throw new IllegalArgumentException(
                     "La fecha de la venta debe ser la fecha actual.");
         }
 
-
-Festival festival = festivalRepository
-        .findById(datos.getFestivalId())
-        .orElseThrow(() ->
-                new IllegalArgumentException(
-                        "El festival seleccionado no existe."));
-
+        Festival festival = festivalRepository
+                .findById(datos.getFestivalId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "El festival seleccionado no existe."));
 
         UnidadVenta unidad = unidadVentaRepository
                 .buscarPorIdConPlatos(datos.getUnidadVentaId())
@@ -90,7 +85,6 @@ Festival festival = festivalRepository
                         new IllegalArgumentException(
                                 "La unidad de venta seleccionada no existe."));
 
-        
         if (festival.getFechaInicio() == null
                 || festival.getFechaFin() == null
                 || datos.getFecha().isBefore(festival.getFechaInicio())
@@ -100,7 +94,6 @@ Festival festival = festivalRepository
                     "La fecha de venta esta fuera del periodo del festival.");
         }
 
-        
         boolean unidadHabilitada = festival.getUnidadesVentaHabilitadas()
                 .stream()
                 .anyMatch(u -> u.getId().equals(unidad.getId()));
@@ -110,15 +103,12 @@ Festival festival = festivalRepository
                     "La unidad de venta no esta habilitada para ese festival.");
         }
 
-        
         Pedido pedido = new Pedido();
         pedido.setFestival(festival);
         pedido.setUnidadVenta(unidad);
         pedido.setFechaTransaccion(datos.getFecha());
 
-      
         for (ItemPedidoDTO itemDTO : datos.getItems()) {
-
             if (itemDTO == null
                     || itemDTO.getPlatoId() == null
                     || itemDTO.getCantidad() == null

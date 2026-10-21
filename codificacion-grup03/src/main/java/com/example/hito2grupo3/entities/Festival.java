@@ -17,7 +17,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +25,6 @@ import lombok.Setter;
 @Data
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "festivales")
@@ -55,6 +53,17 @@ public class Festival {
     @JoinColumn(name = "festival_id") // Crea la columna 'festival_id' en la tabla 'costos'
     private Set<Costos> costos = new HashSet<>();
 
+    public Festival(Long id, String nombre, Set<Usuario> staffGeneral,
+            Set<UnidadVenta> unidadesVentaHabilitadas, LocalDate fechaInicio,
+            LocalDate fechaFin, Set<Costos> costos) {
+        this.id = id;
+        this.nombre = nombre;
+        this.staffGeneral = staffGeneral;
+        this.unidadesVentaHabilitadas = unidadesVentaHabilitadas;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.costos = costos;
+    }
 
 
 }

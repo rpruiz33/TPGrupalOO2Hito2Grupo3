@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,9 +23,6 @@ import jakarta.persistence.InheritanceType;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-
-
 
 @Entity
 @Table(name = "staff")
@@ -47,8 +43,17 @@ private BigDecimal sueldo;
 @JoinColumn(name = "usuario_id", referencedColumnName = "id", unique = true)
 private Usuario usuario;
 
-
-
-
+public Staff(long id, String nombre, String apellido, String dni,
+             LocalDate fechaNacimiento, LocalDate fechaIngreso,
+             BigDecimal sueldo, Usuario usuario) {
+    this.id = id;
+    this.nombre = nombre;
+    this.apellido = apellido;
+    this.dni = dni;
+    this.fechaNacimiento = fechaNacimiento;
+    this.fechaIngreso = fechaIngreso;
+    this.sueldo = sueldo;
+    this.usuario = usuario;
+}
 
 }

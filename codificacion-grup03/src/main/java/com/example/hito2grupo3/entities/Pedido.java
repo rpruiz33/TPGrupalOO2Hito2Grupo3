@@ -1,10 +1,8 @@
 package com.example.hito2grupo3.entities;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -16,15 +14,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Getter 
 @Setter 
 @Entity
@@ -44,12 +41,24 @@ public class Pedido {
     private UnidadVenta unidadVenta;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ItemPedido> items = new HashSet<>();
+    private Set<ItemPedido> items;
 
- private LocalDate fechaTransaccion;
+    private LocalDate fechaTransaccion;
 
- 
-public double calcularTotal() {
+    public Pedido() {
+        this.items = new HashSet<>();
+    }
+
+    public Pedido(Long id, Festival festival, UnidadVenta unidadVenta,
+                  Set<ItemPedido> items, LocalDate fechaTransaccion) {
+        this.id = id;
+        this.festival = festival;
+        this.unidadVenta = unidadVenta;
+        this.items = items != null ? items : new HashSet<>();
+        this.fechaTransaccion = fechaTransaccion;
+    }
+
+    public double calcularTotal() {
     return items.stream()
             .mapToDouble(item -> item.calcularSubtotal().doubleValue())
             .sum();

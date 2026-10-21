@@ -10,15 +10,15 @@ import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
-import com.example.hito2grupo3.services.RecaudacionService;
+import com.example.hito2grupo3.services.IRentabilidadNetaService;
 
 @Service
-public class RecaudacionServiceImpl implements RecaudacionService {
+public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
 
     private final PedidoRepository pedidoRepository;
     private final FestivalRepository festivalRepository;
 
-    public RecaudacionServiceImpl(PedidoRepository pedidoRepository, FestivalRepository festivalRepository) {
+    public RentabilidadNetaServiceImpl(PedidoRepository pedidoRepository, FestivalRepository festivalRepository) {
         this.pedidoRepository = pedidoRepository;
         this.festivalRepository = festivalRepository;
     }

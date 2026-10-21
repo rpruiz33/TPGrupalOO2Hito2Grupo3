@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+    <link rel="stylesheet" th:href="@{/css/inicio.css}">
+</head>
+<body>
+
+    <header class="inicio-header">
+        <div class="contenedor">
+            <h1>Epicentro Gourmet</h1>
+            <p>Sabores, encuentros y experiencias gastronómicas.</p>
+
+            <nav class="menu">
+                <a th:href="@{/login}">Iniciar sesión</a>
+                <a th:href="@{/registro}">Registrar unidad de venta</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="inicio-main">
+        <div class="contenedor">
+            <section class="festivales">
+                <h2>Conocé nuestros festivales</h2>
+
+                <p class="vacio"
+                   th:if="${#lists.isEmpty(festivales)}">
+                    Actualmente no hay festivales cargados.
+                </p>
+
+                <div class="festivales-grid"
+                     th:unless="${#lists.isEmpty(festivales)}">
+
+                    <article class="festival-card"
+                             th:each="festival : ${festivales}">
+
+                        <h3 th:text="${festival.nombre}">
+                            Nombre del festival
+                        </h3>
+
+                        <p>
+                            <strong>Fecha de inicio:</strong>
+                            <span th:text="${festival.fechaInicio}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Fecha de finalización:</strong>
+                            <span th:text="${festival.fechaFin}"></span>
+                        </p>
+                    </article>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="inicio-footer">
+        <p>Epicentro Gourmet · Universidad Nacional de Lanús</p>
+    </footer>
+
+</body>
+</html>

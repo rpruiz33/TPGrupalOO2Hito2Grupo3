@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,82 +8,77 @@
   <link rel="stylesheet" th:href="@{/css/finanzas.css}">
   <link rel="stylesheet" th:href="@{/css/vistas.css}">
 </head>
+
 <body>
 
-<!-- Variables mockeadas con varias unidades de venta dentro de Epicentro Gourmet -->
-<main class="contenedor" th:with="
-  empleado=${ {
-    'nombre': 'Martín González',
-    'rol': 'Cajero Senior',
-    'antiguedad': 3,
-    'cajero': true
-  } },
-  asignacionActual=${ {
-    'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
-    'festival': 'Epicentro Gourmet 2026'
-  } },
-  historial=${ {
-    { 'id': 101, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 1 - Hamburguesas & Bebidas', 'sueldo': 85000.00 },
-    { 'id': 102, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 3 - Pizzas & Cervezas', 'sueldo': 72000.00 },
-    { 'id': 103, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Stand Central - Cafetería', 'sueldo': 68000.00 },
-    { 'id': 104, 'festival': 'Epicentro Gourmet 2026', 'unidad': 'Puesto 5 - Parrilla & Bebidas', 'sueldo': 91000.00 }
+  <main class="contenedor" th:with="
+  nombreFestival=${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'},
+  listaUnidades=${unidades != null ? unidades : {
+    { 'codigo': 'FT-0000101', 'nombreComercial': 'La Trinchera Gourmet' },
+    { 'codigo': 'PD-0000101', 'nombreComercial': 'Sabores Criollos' },
+    { 'codigo': 'FT-0000102', 'nombreComercial': 'El Buen Sabor Rodante' },
+    { 'codigo': 'PD-0000102', 'nombreComercial': 'La Esquina Dulce' },
+    { 'codigo': 'FT-0000103', 'nombreComercial': 'Burger Master Truck' },
+    { 'codigo': 'PD-0000103', 'nombreComercial': 'Brasas Serranas' },
+    { 'codigo': 'FT-0000104', 'nombreComercial': 'Tacos El Guero' },
+    { 'codigo': 'PD-0000104', 'nombreComercial': 'Pastas de la Nonna' },
+    { 'codigo': 'FT-0000105', 'nombreComercial': 'Ahumados Patagonicos' },
+    { 'codigo': 'PD-0000105', 'nombreComercial': 'Empanadas Salteñas' }
   } }">
 
-  <header>
-    <h1>Epicentro Gourmet</h1>
-    <p>Hola, <span th:text="${empleado.nombre}">Nombre</span></p>
-  </header>
+    <header>
+      <h1>Epicentro Gourmet</h1>
+      <p>Panel General de Unidades de Venta</p>
+    </header>
 
-  <!-- Asignación actual -->
-  <div class="aviso" th:if="${asignacionActual != null}">
-    <span>Hoy trabajás en</span>
-    <strong th:text="${asignacionActual.unidad}">Unidad</strong>
-    <span th:text="'Festival: ' + ${asignacionActual.festival}">Festival</span>
-  </div>
-  <div class="vacio" th:if="${asignacionActual == null}">
-    No tenés asignada ninguna unidad de venta activa en este momento.
-  </div>
+    <!-- Festival Activo -->
+    <div class="aviso" style="margin-top: 20px;">
+      <span>Festival Activo:</span>
+      <strong th:text="${nombreFestival}">Epicentro Gourmet UNLa 2026</strong>
 
-  <!-- Datos personales del empleado -->
-  <div class="resumen" style="margin-top: 36px;">
-    <div class="dato"><span>Rol</span>
-      <strong th:text="${empleado.rol}">Rol</strong></div>
-    <div class="dato"><span>Antigüedad</span>
-      <strong th:text="${empleado.antiguedad} + ' años'">0 años</strong></div>
-  </div>
+    <header>
+      <h1>Epicentro Gourmet</h1>
+      <p>Panel General de Unidades de Venta</p>
+    </header>
 
-  <!-- Historial de trabajo en distintas unidades dentro del festival -->
-  <section aria-labelledby="t-historial">
-    <h2 id="t-historial">Mis unidades de trabajo</h2>
-    <div class="tabla-scroll">
-      <table>
-        <thead>
-          <tr><th>Festival</th><th>Unidad de Venta</th><th>Sueldo</th><th>Recibo</th></tr>
-        </thead>
-        <tbody>
-          <tr th:each="h : ${historial}">
-            <td th:text="${h.festival}">Festival</td>
-            <td th:text="${h.unidad}">Unidad</td>
-            <td th:text="'$ ' + ${#numbers.formatDecimal(h.sueldo,1,'POINT',0,'COMMA')}">$ 0</td>
-            <td><a class="enlace" th:href="@{/empleado/recibo/{id}/pdf(id=${h.id})}">Descargar PDF</a></td>
-          </tr>
-          <tr th:if="${#lists.isEmpty(historial)}">
-            <td colspan="4">Todavía no trabajaste en ninguna unidad de venta.</td>
-          </tr>
-        </tbody>
-      </table>
+
+
+    <!-- Unidades de venta del festival -->
+    <section aria-labelledby="t-unidades" style="margin-top: 28px;">
+      <h2 id="t-unidades">Unidades de Venta Habilitadas</h2>
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Unidad de Venta</th>
+              <th>Festival</th>
+              <th class="text-center no-print">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="u : ${unidades}">
+              <td th:text="${u.codigo}">FT-0000101</td>
+              <td th:text="${u.nombreComercial}">La Trinchera Gourmet</td>
+              <td th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet UNLa 2026'}">Festival</td>
+              <td class="text-center no-print">
+                <a class="boton" th:href="@{/liquidacion(unidadId=${u.id})}">Ver liquidación</a>
+              </td>
+            </tr>
+            <tr th:if="${unidades == null or #lists.isEmpty(unidades)}">
+              <td colspan="4">No hay unidades de venta habilitadas registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <div class="logo">
+      <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
     </div>
-  </section>
 
-  <div class="acciones-doble">
-    <a class="boton" th:if="${empleado.cajero}" th:href="@{/cajero/cierre-caja}">Cerrar caja</a>
-    <a class="boton" th:href="@{/logout}">Cerrar sesión</a>
-  </div>
-
-  <div class="logo">
-    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
-  </div>
-
-</main>
+  </main>
 </body>
+
 </html>

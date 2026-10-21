@@ -1,6 +1,7 @@
 package com.example.hito2grupo3.repositories;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,10 @@ public interface UnidadVentaRepository
     @Query("SELECT u FROM UnidadVenta u WHERE u.id = :id")
     @EntityGraph(attributePaths = "platosOfrecidos")
     Optional<UnidadVenta> buscarPorIdConPlatos(@Param("id") Long id);
+
+    // Verifica si ya existe una unidad con ese código
+    boolean existsByCodigo(String codigo);
+    Optional<UnidadVenta> findByCodigo(String codigo);
+    Optional<UnidadVenta> findByCodigoIgnoreCase(String codigo);
+    List<UnidadVenta> findByCodigoStartingWith(String prefijo);
 }

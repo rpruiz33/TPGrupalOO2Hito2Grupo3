@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "cierres_caja")
@@ -44,4 +42,13 @@ public class CierreCaja {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidad_venta_id", nullable = false)
     private UnidadVenta unidadVenta;
+
+    public CierreCaja(Long id, LocalDate fecha, BigDecimal montoRecaudado,
+                      Cajero cajero, UnidadVenta unidadVenta) {
+        this.id = id;
+        this.fecha = fecha;
+        this.montoRecaudado = montoRecaudado;
+        this.cajero = cajero;
+        this.unidadVenta = unidadVenta;
+    }
 }

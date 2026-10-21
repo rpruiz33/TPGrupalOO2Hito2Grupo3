@@ -7,26 +7,27 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.hito2grupo3.services.RecaudacionService;
+import com.example.hito2grupo3.services.IRentabilidadNetaService;
 
 @Controller
-public class RecaudacionController {
+public class RentabilidadNetaController {
 
-    private final RecaudacionService recaudacionService;
+    private final IRentabilidadNetaService  r;
+;
 
-    public RecaudacionController(RecaudacionService recaudacionService) {
-        this.recaudacionService = recaudacionService;
+    public RentabilidadNetaController(IRentabilidadNetaService rentabilidadNetaService  ){
+        this.r = rentabilidadNetaService ;
     }
 
     // Req. 4: vista que renderiza selector + resumen + tabla de ranking.
-    @GetMapping("/recaudacion")
+    @GetMapping("/rentabilidadNeta")
     public String verRecaudacion(@RequestParam(required = false) Long festivalId, Model model) {
         model.addAttribute("festivalId", festivalId);
         model.addAttribute("ranking", Collections.emptyList());
         model.addAttribute("esAdministrador", true);
 
         try {
-            model.addAttribute("festivales", recaudacionService.listarFestivales());
+            model.addAttribute("festivales", r.listarFestivales());
         } catch (Exception ex) {
             model.addAttribute("festivales", Collections.emptyList());
             model.addAttribute("error", "No se pudo cargar la lista de festivales. Revise la conexion a la base de datos.");
@@ -35,15 +36,15 @@ public class RecaudacionController {
 
         if (festivalId != null) {
             try {
-                model.addAttribute("reporte", recaudacionService.obtenerReporteVenta(festivalId));
-                model.addAttribute("ranking", recaudacionService.obtenerRankingUnidades(festivalId));
+                model.addAttribute("reporte", r.obtenerReporteVenta(festivalId));
+                model.addAttribute("ranking", r.obtenerRankingUnidades(festivalId));
             } catch (Exception ex) {
                 model.addAttribute("error", ex.getMessage() != null ? ex.getMessage()
                         : "No se pudo obtener el reporte. Revise la conexion a la base de datos.");
             }
         }
 
-        return "reportes/recaudacion";
+        return "reportes/rentabilidadNeta";
     }
 
     @GetMapping("/cierreCaja")

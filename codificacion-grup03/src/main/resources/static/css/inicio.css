@@ -1,0 +1,230 @@
+
+/* ==========================================================================
+   1. PÁGINA PRINCIPAL - EPICENTRO GOURMET
+   ========================================================================== */
+
+.inicio-header {
+    background-color: #800020;
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+}
+
+.inicio-header .contenedor {
+    max-width: 1100px;
+    padding: 42px 20px;
+    margin: 0 auto;
+}
+
+.inicio-header h1 {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.inicio-header p {
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* ==========================================================================
+   2. NAVEGACIÓN Y BOTONES
+   ========================================================================== */
+
+.inicio-header nav.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 26px;
+}
+
+.inicio-header nav.menu a {
+    display: inline-block;
+    width: auto;
+    padding: 12px 22px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background-color: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.inicio-header nav.menu a:hover {
+    background-color: #ffffff;
+    color: #800020;
+    transform: translateY(-2px);
+}
+
+/* Destacar el registro de unidades de venta */
+.inicio-header nav.menu a:last-child {
+    background-color: #ffffff;
+    color: #800020;
+}
+
+.inicio-header nav.menu a:last-child:hover {
+    background-color: #f5e8cf;
+    border-color: #f5e8cf;
+}
+
+/* ==========================================================================
+   3. CONTENIDO PRINCIPAL
+   ========================================================================== */
+
+.inicio-main {
+    flex: 1;
+    background-color: #800020;
+    color: #ffffff;
+}
+
+.inicio-main .contenedor {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 42px 24px 54px;
+}
+
+.festivales h2 {
+    color: #ffffff;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 32px;
+}
+
+/* ==========================================================================
+   4. TARJETAS DE FESTIVALES
+   ========================================================================== */
+
+.festivales-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.festival-card {
+    background-color: #ffffff;
+    color: #333333;
+    padding: 26px;
+    border: 1px solid #e5e5e5;
+    border-top: 5px solid #d6a354;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.16);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.festival-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+.festival-card h3 {
+    color: #800020;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0 0 20px;
+}
+
+.festival-card p {
+    color: #555555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 12px 0;
+    overflow-wrap: anywhere;
+}
+
+.festival-card strong {
+    color: #5e0016;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   5. MENSAJE CUANDO NO HAY FESTIVALES
+   ========================================================================== */
+
+.festivales .vacio {
+    background-color: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+    border: 1px dashed rgba(255, 255, 255, 0.55);
+    border-radius: 10px;
+    padding: 28px 20px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   6. PIE DE PÁGINA
+   ========================================================================== */
+
+.inicio-footer {
+    background-color: #5e0016;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+}
+
+.inicio-footer p {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ==========================================================================
+   7. DISEÑO RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .inicio-header .contenedor {
+        padding: 34px 18px;
+    }
+
+    .inicio-header h1 {
+        font-size: 2rem;
+    }
+
+    .inicio-header p {
+        font-size: 1rem;
+    }
+
+    .inicio-main .contenedor {
+        padding: 32px 18px 40px;
+    }
+
+    .festivales h2 {
+        font-size: 1.5rem;
+    }
+
+    .festivales-grid {
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .inicio-header nav.menu {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inicio-header nav.menu a {
+        width: 100%;
+    }
+
+    .festivales-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .festival-card {
+        padding: 22px;
+    }
+
+    .inicio-footer {
+        padding: 18px 12px;
+    }
+}

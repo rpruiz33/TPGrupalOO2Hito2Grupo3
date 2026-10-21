@@ -25,23 +25,7 @@
 </head>
 <body>
 
-<!-- Variables mockeadas directamente en Thymeleaf -->
-<main class="contenedor" th:with="recibo=${ {
-  'nombre': 'Martín',
-  'apellido': 'González',
-  'dni': '38.452.910',
-  'rol': 'Cajero Senior',
-  'festival': 'Epicentro Gourmet 2026',
-  'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
-  'diasFestival': 3,
-  'sueldoBase': 60000.00,
-  'plusCategoria': 15000.00,
-  'montoAntiguedad': 10000.00,
-  'aniosAntiguedad': 3,
-  'coeficiente': 1.2,
-  'total': 102000.00,
-  'fechaEmision': #temporals.createNow()
-} }">
+<main class="contenedor" th:with="recibo=${recibo}">
 
   <header>
     <h1>Epicentro Gourmet</h1>
@@ -78,7 +62,7 @@
         <tbody>
           <tr>
             <td>Unidad de venta</td>
-            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas & Bebidas</td>
+            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas &amp; Bebidas</td>
           </tr>
           <tr>
             <td>Duración del festival</td>
