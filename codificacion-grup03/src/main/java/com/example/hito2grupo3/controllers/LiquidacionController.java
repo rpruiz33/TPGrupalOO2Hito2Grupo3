@@ -66,7 +66,7 @@ public class LiquidacionController {
         }
         if (festival == null) {
             festival = festivalRepository.findAll().stream()
-                    .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
+                    .filter(f -> f.getNombre() != null && "Epicentro Gourmet 2026".equalsIgnoreCase(f.getNombre()))
                     .findFirst()
                     .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
         }
@@ -181,7 +181,7 @@ public class LiquidacionController {
             if (targetFestivalId == null) {
                 Festival f = festivalRepository.findAll().stream()
                         .filter(fest -> fest.getNombre() != null
-                                && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(fest.getNombre()))
+                                && "Epicentro Gourmet 2026".equalsIgnoreCase(fest.getNombre()))
                         .findFirst()
                         .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
                 if (f != null) {
@@ -234,7 +234,7 @@ public class LiquidacionController {
                     reciboMap.put("email", liquidacionDTO.email());
                     reciboMap.put("dni", liquidacionDTO.dni());
                     reciboMap.put("rol", liquidacionDTO.rol());
-                    reciboMap.put("festival", f != null ? f.getNombre() : "Epicentro Gourmet UNLa 2026");
+                    reciboMap.put("festival", f != null ? f.getNombre() : "Epicentro Gourmet 2026");
                     reciboMap.put("unidad", resultado.unidad());
                     reciboMap.put("diasFestival", resultado.diasFestival());
                     boolean esCajero = "Cajero".equalsIgnoreCase(liquidacionDTO.rol());
@@ -255,7 +255,7 @@ public class LiquidacionController {
                     reciboMap.put("email", principal != null ? principal.getName() : "empleado@epicentro.com");
                     reciboMap.put("dni", "38452910");
                     reciboMap.put("rol", "Cajero");
-                    reciboMap.put("festival", f != null ? f.getNombre() : "Epicentro Gourmet UNLa 2026");
+                    reciboMap.put("festival", f != null ? f.getNombre() : "Epicentro Gourmet 2026");
                     reciboMap.put("unidad", "Food Truck 1 - El Asador Viajero");
                     reciboMap.put("diasFestival", 20L);
                     reciboMap.put("sueldoBase", new BigDecimal("100000"));

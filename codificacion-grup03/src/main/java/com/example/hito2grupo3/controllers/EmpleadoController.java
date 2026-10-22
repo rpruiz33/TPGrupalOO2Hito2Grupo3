@@ -40,7 +40,7 @@ public class EmpleadoController {
     public String mostrarDashboard(Principal principal, Model model) {
         // Obtener festival activo
         Festival festival = festivalRepository.findAll().stream()
-                .filter(f -> f.getNombre() != null && "Epicentro Gourmet UNLa 2026".equalsIgnoreCase(f.getNombre()))
+                .filter(f -> f.getNombre() != null && "Epicentro Gourmet 2026".equalsIgnoreCase(f.getNombre()))
                 .findFirst()
                 .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
 
@@ -93,7 +93,7 @@ public class EmpleadoController {
 
         Map<String, Object> asignacion = new HashMap<>();
         asignacion.put("unidad", unidad != null ? unidad.getNombreComercial() : "Food Truck 1 - El Asador Viajero");
-        asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet UNLa 2026");
+        asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
         model.addAttribute("asignacionActual", asignacion);
 
         return "reportes/empleadoDashboard";
