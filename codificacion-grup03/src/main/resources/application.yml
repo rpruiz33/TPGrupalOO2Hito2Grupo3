@@ -18,8 +18,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:no-reply@example.invalid}
-    password: ${MAIL_PASSWORD:${MAIL_APP_PASSWORD:change-me}}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -36,3 +36,12 @@ spring:
 app:
   mail:
     from: ${MAIL_FROM:${MAIL_USERNAME:no-reply@example.invalid}}
+
+sueldos:
+  base: 100000
+  por-anio-antiguedad: 5000
+  plus-cocinero: 150000
+  plus-cocinero-ayudante: 100000
+  plus-lavaplatos: 50000
+  dias-por-periodo: 15
+  porcentaje-por-periodo: 0.50

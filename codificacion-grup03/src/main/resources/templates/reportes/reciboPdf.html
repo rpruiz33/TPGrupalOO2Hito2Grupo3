@@ -33,7 +33,8 @@
   </header>
 
   <p class="unidad">
-    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span> ·
+    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span>
+    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}" th:text="' · ' + ${recibo.email}"> · empleado@epicentro.com</span> ·
     <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> ·
     <span th:text="${recibo.rol}">Cajero Senior</span>
   </p>
@@ -91,7 +92,7 @@
 
   <div class="acciones-doble">
     <button type="button" class="boton" onclick="window.print()">Imprimir PDF</button>
-    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
+    <a class="boton" th:href="@{/liquidacion}">Volver</a>
   </div>
 
   <div class="logo">

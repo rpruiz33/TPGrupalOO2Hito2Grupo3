@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 public record LiquidacionDTO(
         Long empleadoId,
         String nombreCompleto,
+        String email,
         String dni,
         String rol,
         long aniosAntiguedad,
@@ -13,4 +14,17 @@ public record LiquidacionDTO(
         BigDecimal adicional,   
         int periodos,           
         BigDecimal total) {
+
+    public LiquidacionDTO(
+            Long empleadoId,
+            String nombreCompleto,
+            String dni,
+            String rol,
+            long aniosAntiguedad,
+            BigDecimal sueldoBase,
+            BigDecimal adicional,
+            int periodos,
+            BigDecimal total) {
+        this(empleadoId, nombreCompleto, "", dni, rol, aniosAntiguedad, sueldoBase, adicional, periodos, total);
+    }
 }

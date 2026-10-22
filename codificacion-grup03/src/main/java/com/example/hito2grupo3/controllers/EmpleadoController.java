@@ -46,15 +46,6 @@ public class EmpleadoController {
 
         model.addAttribute("festival", festival);
 
-        List<UnidadVenta> lista = new ArrayList<>();
-        if (festival != null && festival.getUnidadesVentaHabilitadas() != null && !festival.getUnidadesVentaHabilitadas().isEmpty()) {
-            lista.addAll(festival.getUnidadesVentaHabilitadas());
-        } else {
-            lista.addAll(unidadVentaRepository.findAll());
-        }
-        lista.sort(Comparator.comparing(UnidadVenta::getCodigo, Comparator.nullsLast(String::compareTo)));
-        model.addAttribute("unidades", lista);
-
         // Obtener datos del empleado logueado
         String email = principal != null ? principal.getName() : "empleado@epicentro.com";
 
@@ -62,53 +53,48 @@ public class EmpleadoController {
         Staff staff = staffRepository.findByUsuario_Email(email)
                 .orElseGet(() -> staffRepository.findAll().stream().findFirst().orElse(null));
 
+        Map<String, Object> empleadoMap = new HashMap<>();
         if (staff != null) {
             long antiguedad = staff.getFechaIngreso() != null ?
                     ChronoUnit.YEARS.between(staff.getFechaIngreso(), LocalDate.now()) : 0;
             boolean esCajero = staff instanceof Cajero;
             String rol = esCajero ? "Cajero" : (staff instanceof Cocinero c && c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Staff General");
 
-            Map<String, Object> empleadoMap = new HashMap<>();
             empleadoMap.put("id", staff.getId());
             empleadoMap.put("nombre", staff.getNombre() + " " + staff.getApellido());
             empleadoMap.put("dni", staff.getDni());
             empleadoMap.put("rol", rol);
             empleadoMap.put("antiguedad", antiguedad);
             empleadoMap.put("cajero", esCajero);
-            model.addAttribute("empleado", empleadoMap);
+            empleadoMap.put("email", email);
+        } else {
+            // Datos ficticios de muestra para el panel del usuario
+            empleadoMap.put("id", 1L);
+            empleadoMap.put("nombre", "Martín González");
+            empleadoMap.put("dni", "38452910");
+            empleadoMap.put("rol", "Cajero");
+            empleadoMap.put("antiguedad", 3L);
+            empleadoMap.put("cajero", true);
+            empleadoMap.put("email", email);
+        }
+        model.addAttribute("empleado", empleadoMap);
 
-            // Asignación actual: buscar si es responsable o staff asignado de alguna unidad
-            UnidadVenta unidad = unidadVentaRepository.findAll().stream()
+        // Asignación actual: buscar asignación real o proveer ficticia representativa
+        UnidadVenta unidad = null;
+        if (staff != null) {
+            unidad = unidadVentaRepository.findAll().stream()
                     .filter(u -> (u.getResponsable() != null && u.getResponsable().getId() == staff.getId())
                             || (u.getStaffAsignado() != null && u.getStaffAsignado().stream().anyMatch(s -> s.getId() == staff.getId())))
                     .findFirst()
-                    .orElse(null);
-
-            if (unidad != null) {
-                Map<String, Object> asignacion = new HashMap<>();
-                asignacion.put("unidad", unidad.getNombreComercial());
-                asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet UNLa 2026");
-                model.addAttribute("asignacionActual", asignacion);
-            }
-
-            // Historial de unidades y festivales
-            List<Map<String, Object>> historialList = new ArrayList<>();
-            List<UnidadVenta> todasUnidades = unidadVentaRepository.findAll();
-            for (UnidadVenta uv : todasUnidades) {
-                for (Festival f : uv.getFestivales().isEmpty() && festival != null ? List.of(festival) : uv.getFestivales()) {
-                    Map<String, Object> h = new HashMap<>();
-                    h.put("id", staff.getId());
-                    h.put("festivalId", f.getId());
-                    h.put("festival", f.getNombre());
-                    h.put("unidad", uv.getNombreComercial());
-                    h.put("sueldo", staff.getSueldo() != null ? staff.getSueldo() : 100000.00);
-                    historialList.add(h);
-                }
-            }
-            if (!historialList.isEmpty()) {
-                model.addAttribute("historial", historialList);
-            }
+                    .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst().orElse(null));
+        } else {
+            unidad = unidadVentaRepository.findAll().stream().findFirst().orElse(null);
         }
+
+        Map<String, Object> asignacion = new HashMap<>();
+        asignacion.put("unidad", unidad != null ? unidad.getNombreComercial() : "Food Truck 1 - El Asador Viajero");
+        asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet UNLa 2026");
+        model.addAttribute("asignacionActual", asignacion);
 
         return "reportes/empleadoDashboard";
     }

@@ -11,12 +11,14 @@ public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId);
 
+    ResultadoLiquidacion liquidarTodos(Long festivalId);
+
+    ResultadoLiquidacion liquidarEmpleado(String emailEmpleado, Long festivalId);
+
     long diasDelFestival(LocalDate inicio, LocalDate fin);
 
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
 
-    // El record se define aquí para que sea el contrato oficial devuelto por el
-    // servicio
     record ResultadoLiquidacion(
             String unidad,
             long diasFestival,

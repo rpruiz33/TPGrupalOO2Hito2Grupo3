@@ -41,11 +41,11 @@ public class SecurityConfiguration {
                     ).permitAll();
 
                     auth.requestMatchers(
-                            "/cierreCaja", "/empleadoDashboard", "/recaudacion",
-                            "/reciboPdf", "/recibo-pdf", "/liquidacion"
+                            "/cierreCaja", "/empleadoDashboard", "/recaudacion"
                     ).permitAll();
                     auth.requestMatchers("/admin/**").hasRole("ADMIN");
-                    auth.requestMatchers("/liquidacion/**").hasAnyRole("ADMIN", "RESPONSABLE");
+                    auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
+                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "USER");
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(login -> {

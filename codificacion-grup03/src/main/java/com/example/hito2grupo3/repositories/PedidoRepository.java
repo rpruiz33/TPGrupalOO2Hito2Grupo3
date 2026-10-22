@@ -1,6 +1,8 @@
 
 package com.example.hito2grupo3.repositories;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +14,20 @@ import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+
+    @Query("SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) FROM ItemPedido ip")
+    BigDecimal calcularRecaudacionTotal();
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM ItemPedido ip
+            WHERE ip.pedido.fechaTransaccion >= :desde
+              AND ip.pedido.fechaTransaccion <= :hasta
+            """)
+    BigDecimal calcularRecaudacionEntreFechas(
+            @Param("desde") LocalDate desde,
+            @Param("hasta") LocalDate hasta);
+
 
     @Query("""
             SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
