@@ -119,7 +119,7 @@ public class PedidoController {
 
     @SuppressWarnings("unchecked")
     private <T> T invocarServicio(String metodo, Object argumento) {
-        Object servicio = applicationContext.getBean("pedidoService");
+        Object servicio = applicationContext.getBean("pedidoServiceImpl");
         try {
             return (T) servicio.getClass()
                     .getMethod(metodo, argumento.getClass())
