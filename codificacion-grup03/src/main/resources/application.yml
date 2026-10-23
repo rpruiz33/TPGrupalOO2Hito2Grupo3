@@ -1,11 +1,14 @@
+
 spring:
   config:
     import: optional:file:.env[.properties]
+
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USER:root}
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     show-sql: true
     hibernate:
@@ -13,8 +16,16 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:CargaDatos.sql
+
   thymeleaf:
     cache: false
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -32,5 +43,3 @@ spring:
             required: true
           ssl:
             trust: smtp.gmail.com
-
-

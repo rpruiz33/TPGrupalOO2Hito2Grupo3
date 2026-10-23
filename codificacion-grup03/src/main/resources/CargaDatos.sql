@@ -1,15 +1,4 @@
--- =============================================================================
--- EPICENTRO GOURMET - RESET TOTAL + CARGA COMPLETA
--- Orden:
---   PARTE 0: Vaciar TODAS las tablas (el esquema queda intacto) y resetear IDs
---   PARTE 1: Roles y usuarios (contraseña de ambos: Epicentro2026)
---   PARTE 2: Festival, categorías, staff, unidades y relaciones
---   PARTE 3: Platos, menús y pedidos del festival
--- =============================================================================
-
--- #############################################################################
--- PARTE 0: RESET (TRUNCATE hace commit implícito, por eso va antes de la transacción)
--- #############################################################################
+--Resteo la base cada vez que se ejecuta el script de carga de datos (FEDE)
 SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE items_pedido;
@@ -31,14 +20,6 @@ TRUNCATE TABLE roles;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- (OPCIONAL) Si querés BORRAR las tablas en vez de vaciarlas, descomentá este bloque
--- y NO corras el resto: después levantá la app para que Hibernate recree el esquema
--- y recién ahí corré este script con la PARTE 0 comentada.
--- SET FOREIGN_KEY_CHECKS = 0;
--- SET @tablas = (SELECT GROUP_CONCAT(CONCAT('`', table_name, '`')) FROM information_schema.tables WHERE table_schema = DATABASE());
--- SET @sql = CONCAT('DROP TABLE IF EXISTS ', @tablas);
--- PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
--- SET FOREIGN_KEY_CHECKS = 1;
 
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
@@ -47,13 +28,13 @@ START TRANSACTION;
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
 INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'EMPLEADO');
-
-SET @hash_pw = '$2a$10$EEXJEXQcpkJbTo9MyAsav.MXAW7KH.U84sopGD6iWAxsXCUpuC9.C';
+ --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
+SET @hash_pw = '$2a$10$ua6UHW4aUoZqmFL9fpwp6OYpU9gBMHaBtCOvRkwy2uTilT4jzIznW';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 2);
-
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 2),
+(3, 0, 'admin@epicentro.com',  @hash_pw, 1);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################

@@ -1,9 +1,6 @@
+
 package com.example.hito2grupo3.configuration;
 
-import com.example.hito2grupo3.entities.Rol;
-import com.example.hito2grupo3.entities.Usuario;
-import com.example.hito2grupo3.repositories.RolRepository;
-import com.example.hito2grupo3.repositories.UsuarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,53 +10,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DataCarga {
 
     @Bean
-    public CommandLineRunner initDatabase(UsuarioRepository usuarioRepository, 
-                                          RolRepository rolRepository, 
-                                          PasswordEncoder passwordEncoder) {
+    public CommandLineRunner generarHash(
+            PasswordEncoder passwordEncoder) {
+
         return args -> {
-            
-            // CREACION DE USUARIO  PARA TEST FEDE
-            Rol rolAdmin = rolRepository.findByNombre("ADMIN").orElseGet(() -> {
-                Rol nuevoRol = new Rol();
-                nuevoRol.setNombre("ADMIN");
-                return rolRepository.save(nuevoRol);
-            });
+            String password = "Epicentro2026";
+            String hash = passwordEncoder.encode(password);
 
-            
-            Rol rolUser = rolRepository.findByNombre("USER").orElseGet(() -> {
-                Rol nuevoRol = new Rol();
-                nuevoRol.setNombre("USER");
-                return rolRepository.save(nuevoRol);
-            });
-            Rol rolEmpleado = rolRepository.findByNombre("EMPLEADO").orElseGet(() -> {
-             Rol nuevoRol = new Rol();
-             nuevoRol.setNombre("EMPLEADO");
-            return rolRepository.save(nuevoRol);
-            });
+            System.out.println("--------------------------------");
+            System.out.println("HASH PARA CargaDatos.sql:");
+            System.out.println(hash);
+            System.out.println("--------------------------------");
 
-            
-            String emailAdmin = "admin@epicentro.com";
-            if (usuarioRepository.findByEmail(emailAdmin).isEmpty()) {
-                Usuario admin = new Usuario();
-                admin.setEmail(emailAdmin);
-                admin.setPasswordHash(passwordEncoder.encode("admin123")); 
-                admin.setRol(rolAdmin);
-                
-                usuarioRepository.save(admin);
-                System.out.println("Usuario administrador creado con éxito (admin@epicentro.com / admin123)");
-            }
-            // CREACION DE USUARIO EMPLEADO PARA PRUEBAS
-            String emailEmpleado = "empleado@epicentro.com";
-                if (usuarioRepository.findByEmail(emailEmpleado).isEmpty()) {
-                    Usuario empleado = new Usuario();
-                    empleado.setEmail(emailEmpleado);
-                    empleado.setPasswordHash(passwordEncoder.encode("empleado123")    );
-                    empleado.setRol(rolEmpleado);
-
-                usuarioRepository.save(empleado);
-
-                 System.out.println("Usuario empleado creado con exito " + "(empleado@epicentro.com / empleado123)");
-                }
+            System.out.println(
+                "Verificación: " +
+                passwordEncoder.matches(password, hash)
+            );
         };
     }
 }
