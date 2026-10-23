@@ -1,151 +1,71 @@
 -- =============================================================================
--- SCRIPT UNIFICADO - EPICENTRO GOURMET
--- Orden de ejecución:
---   PARTE 1: Limpieza de unidades de venta con código inválido (!= 10 chars)
---   PARTE 2: Carga de festival, categorías, staff, unidades y relaciones
---   PARTE 3: Festival único (Epicentro Gourmet UNLa 2026) + platos + pedidos
--- Todo corre dentro de una única transacción.
+-- EPICENTRO GOURMET - RESET TOTAL + CARGA COMPLETA
+-- Orden:
+--   PARTE 0: Vaciar TODAS las tablas (el esquema queda intacto) y resetear IDs
+--   PARTE 1: Roles y usuarios (contraseña de ambos: Epicentro2026)
+--   PARTE 2: Festival, categorías, staff, unidades y relaciones
+--   PARTE 3: Platos, menús y pedidos del festival
 -- =============================================================================
+
+-- #############################################################################
+-- PARTE 0: RESET (TRUNCATE hace commit implícito, por eso va antes de la transacción)
+-- #############################################################################
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE items_pedido;
+TRUNCATE TABLE pedidos;
+TRUNCATE TABLE unidad_venta_plato;
+TRUNCATE TABLE festival_unidad_venta;
+TRUNCATE TABLE unidad_venta_staff;
+TRUNCATE TABLE food_trucks;
+TRUNCATE TABLE puestos_desarmables;
+TRUNCATE TABLE unidades_venta;
+TRUNCATE TABLE cajero;
+TRUNCATE TABLE cocineros;
+TRUNCATE TABLE staff;
+TRUNCATE TABLE categorias_cocina;
+TRUNCATE TABLE platos;
+TRUNCATE TABLE festivales;
+TRUNCATE TABLE usuarios;
+TRUNCATE TABLE roles;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- (OPCIONAL) Si querés BORRAR las tablas en vez de vaciarlas, descomentá este bloque
+-- y NO corras el resto: después levantá la app para que Hibernate recree el esquema
+-- y recién ahí corré este script con la PARTE 0 comentada.
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- SET @tablas = (SELECT GROUP_CONCAT(CONCAT('`', table_name, '`')) FROM information_schema.tables WHERE table_schema = DATABASE());
+-- SET @sql = CONCAT('DROP TABLE IF EXISTS ', @tablas);
+-- PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- SET FOREIGN_KEY_CHECKS = 1;
 
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
 
 -- #############################################################################
--- PARTE 1: LIMPIEZA DE UNIDADES DE VENTA CON CÓDIGOS INVÁLIDOS
--- Formato válido: XX-NNNNNNN (ej: FT-0000001, PD-0000101)
+-- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
+INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'EMPLEADO');
 
--- -----------------------------------------------------------------------------
--- 1.1 DIAGNÓSTICO
--- -----------------------------------------------------------------------------
-SELECT '=== UNIDADES DE VENTA CON CÓDIGO INVÁLIDO ===' AS diagnostico;
-SELECT
-    uv.id,
-    uv.codigo,
-    CHAR_LENGTH(uv.codigo) AS longitud_codigo,
-    uv.nombre_comercial,
-    uv.superficie_m2,
-    s.nombre AS responsable_nombre,
-    s.apellido AS responsable_apellido,
-    CASE
-        WHEN ft.id IS NOT NULL THEN 'FOOD_TRUCK'
-        WHEN pd.id IS NOT NULL THEN 'PUESTO_DESARMABLE'
-        ELSE 'DESCONOCIDO'
-    END AS tipo_unidad
-FROM unidades_venta uv
-LEFT JOIN staff s ON s.id = uv.responsable_id
-LEFT JOIN food_trucks ft ON ft.id = uv.id
-LEFT JOIN puestos_desarmables pd ON pd.id = uv.id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
+SET @hash_pw = '$2a$10$EEXJEXQcpkJbTo9MyAsav.MXAW7KH.U84sopGD6iWAxsXCUpuC9.C';
 
-SELECT '=== STAFF ASIGNADO A UNIDADES INVÁLIDAS ===' AS diagnostico;
-SELECT uv.codigo, uv.nombre_comercial, s.nombre, s.apellido, s.dni
-FROM unidad_venta_staff uvs
-JOIN unidades_venta uv ON uv.id = uvs.unidad_venta_id
-JOIN staff s ON s.id = uvs.staff_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-
-SELECT '=== FESTIVALES ASOCIADOS A UNIDADES INVÁLIDAS ===' AS diagnostico;
-SELECT uv.codigo, uv.nombre_comercial, f.nombre AS festival
-FROM festival_unidad_venta fuv
-JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
-JOIN festivales f ON f.id = fuv.festival_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-
-SELECT '=== PEDIDOS ASOCIADOS A UNIDADES INVÁLIDAS ===' AS diagnostico;
-SELECT
-    uv.codigo,
-    uv.nombre_comercial,
-    p.id AS pedido_id,
-    p.fecha_transaccion,
-    COUNT(ip.id) AS cantidad_items,
-    COALESCE(SUM(ip.cantidad * ip.precio_unitario), 0) AS total_pedido
-FROM pedidos p
-JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
-LEFT JOIN items_pedido ip ON ip.pedido_id = p.id
-WHERE CHAR_LENGTH(uv.codigo) != 10
-GROUP BY uv.codigo, uv.nombre_comercial, p.id, p.fecha_transaccion;
-
-SELECT '=== PLATOS ASIGNADOS A UNIDADES INVÁLIDAS ===' AS diagnostico;
-SELECT uv.codigo, uv.nombre_comercial, pl.nombre AS plato, pl.precio
-FROM unidad_venta_plato uvp
-JOIN unidades_venta uv ON uv.id = uvp.unidad_venta_id
-JOIN platos pl ON pl.id = uvp.plato_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-
-SELECT '=== RESUMEN (ANTES DE LIMPIAR) ===' AS diagnostico;
-SELECT
-    (SELECT COUNT(*) FROM unidades_venta WHERE CHAR_LENGTH(codigo) != 10) AS unidades_invalidas,
-    (SELECT COUNT(*) FROM unidades_venta WHERE CHAR_LENGTH(codigo) = 10) AS unidades_validas,
-    (SELECT COUNT(*) FROM unidades_venta) AS total_unidades;
-
--- -----------------------------------------------------------------------------
--- 1.2 ELIMINACIÓN EN CASCADA (respetando foreign keys)
--- -----------------------------------------------------------------------------
-DELETE ip FROM items_pedido ip
-JOIN pedidos p ON ip.pedido_id = p.id
-JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS items_pedido_eliminados;
-
-DELETE p FROM pedidos p
-JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS pedidos_eliminados;
-
-DELETE uvp FROM unidad_venta_plato uvp
-JOIN unidades_venta uv ON uv.id = uvp.unidad_venta_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS relaciones_plato_eliminadas;
-
-DELETE fuv FROM festival_unidad_venta fuv
-JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS relaciones_festival_eliminadas;
-
-DELETE uvs FROM unidad_venta_staff uvs
-JOIN unidades_venta uv ON uv.id = uvs.unidad_venta_id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS relaciones_staff_eliminadas;
-
-DELETE ft FROM food_trucks ft
-JOIN unidades_venta uv ON uv.id = ft.id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS food_trucks_eliminados;
-
-DELETE pd FROM puestos_desarmables pd
-JOIN unidades_venta uv ON uv.id = pd.id
-WHERE CHAR_LENGTH(uv.codigo) != 10;
-SELECT ROW_COUNT() AS puestos_desarmables_eliminados;
-
-DELETE FROM unidades_venta
-WHERE CHAR_LENGTH(codigo) != 10;
-SELECT ROW_COUNT() AS unidades_venta_eliminadas;
-
-SELECT COUNT(*) AS codigos_invalidos_restantes
-FROM unidades_venta
-WHERE CHAR_LENGTH(codigo) != 10;
-
+INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
+(1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 2);
 
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
 
--- =============================================================================
--- 2.1 FESTIVAL ÚNICO
--- =============================================================================
+-- 2.1 FESTIVAL
 INSERT INTO festivales (nombre, fecha_inicio, fecha_fin)
-SELECT 'Epicentro Gourmet UNLa 2026', '2026-10-01', '2026-10-20'
-WHERE NOT EXISTS (
-    SELECT 1 FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa 2026'
-);
+VALUES ('Epicentro Gourmet UNLa 2026', '2026-10-01', '2026-10-20');
 
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa 2026' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
 
--- =============================================================================
 -- 2.2 TABLAS TEMPORALES DE CARGA
--- =============================================================================
 DROP TEMPORARY TABLE IF EXISTS tmp_categorias;
 CREATE TEMPORARY TABLE tmp_categorias (
     nombre VARCHAR(100),
@@ -209,7 +129,7 @@ CREATE TEMPORARY TABLE tmp_empleados (
 );
 
 INSERT INTO tmp_empleados VALUES
--- U1: FT-0000101 (Principal, responsable empleado@epicentro.com)
+-- U1: FT-0000101 (responsable empleado@epicentro.com)
 ('C', 'Carlos',    'Benitez',   '34125890', '1988-04-12', '2024-05-01', 180000.00, 'Manana', 1,  12000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Mariana',   'Gomez',     '36781245', '1992-08-19', '2022-03-15', 145000.00, 'Tarde',  2,   8500.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Lucas',     'Fernandez', '30456123', '1984-11-05', '2017-06-10', 165000.00, 'Noche',  3,  15000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
@@ -289,36 +209,20 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Melisa',    'Carrizo',   '36987451', '1992-04-11', '2020-07-15', 140000.00, NULL, NULL, NULL, 'Locro',          1, 13500.00, 'Minutero U10',             'PD-0000105'),
 ('K', 'Walter',    'Farías',    '33521478', '1988-03-02', '2019-01-22', 170000.00, NULL, NULL, NULL, 'Tamales',        1, 16500.00, 'Pizzero U10',              'PD-0000105');
 
--- =============================================================================
 -- 2.3 CATEGORÍAS DE COCINA
--- =============================================================================
 INSERT INTO categorias_cocina (nombre, plus_fijo)
 SELECT t.nombre, t.plus_fijo
 FROM tmp_categorias t
-WHERE NOT EXISTS (
-    SELECT 1 FROM categorias_cocina c WHERE c.nombre = t.nombre
-);
+WHERE NOT EXISTS (SELECT 1 FROM categorias_cocina c WHERE c.nombre = t.nombre);
 
--- =============================================================================
--- 2.4 STAFF
--- =============================================================================
+-- 2.4 STAFF (Carlos Benitez queda vinculado a empleado@epicentro.com)
 INSERT INTO staff (nombre, apellido, dni, fecha_nacimiento, fecha_ingreso, sueldo, usuario_id)
 SELECT t.nombre, t.apellido, t.dni, t.fecha_nac, t.fecha_ingreso, t.sueldo,
        CASE WHEN t.dni = '34125890' THEN @user_empleado_id ELSE NULL END
 FROM tmp_empleados t
-WHERE NOT EXISTS (
-    SELECT 1 FROM staff s WHERE s.dni = t.dni
-);
+WHERE NOT EXISTS (SELECT 1 FROM staff s WHERE s.dni = t.dni);
 
-UPDATE staff
-SET usuario_id = @user_empleado_id
-WHERE id = (SELECT id FROM (SELECT id FROM staff WHERE dni = '34125890' LIMIT 1) sub)
-  AND usuario_id IS NULL
-  AND @user_empleado_id IS NOT NULL;
-
--- =============================================================================
 -- 2.5 CAJEROS Y COCINEROS
--- =============================================================================
 INSERT INTO cajero (id, turno, numero_caja, plus_oadicional)
 SELECT s.id, t.turno, t.num_caja, t.plus_adicional
 FROM tmp_empleados t
@@ -334,20 +238,14 @@ JOIN categorias_cocina c ON c.nombre = t.cat_nombre
 WHERE t.tipo = 'K'
   AND NOT EXISTS (SELECT 1 FROM cocineros k WHERE k.id = s.id);
 
--- =============================================================================
 -- 2.6 UNIDADES DE VENTA
--- =============================================================================
 INSERT INTO unidades_venta (codigo, nombre_comercial, superficie_m2, responsable_id)
 SELECT u.codigo, u.nombre_comercial, u.superficie, s.id
 FROM tmp_unidades u
 JOIN staff s ON s.dni = u.dni_responsable
-WHERE NOT EXISTS (
-    SELECT 1 FROM unidades_venta uv WHERE uv.codigo = u.codigo
-);
+WHERE NOT EXISTS (SELECT 1 FROM unidades_venta uv WHERE uv.codigo = u.codigo);
 
--- =============================================================================
 -- 2.7 FOOD TRUCKS Y PUESTOS DESARMABLES
--- =============================================================================
 INSERT INTO food_trucks (id, patente, requiere_electricidad)
 SELECT uv.id, u.patente, u.electrico
 FROM tmp_unidades u
@@ -362,9 +260,7 @@ JOIN unidades_venta uv ON uv.codigo = u.codigo
 WHERE u.tipo = 'PD'
   AND NOT EXISTS (SELECT 1 FROM puestos_desarmables pd WHERE pd.id = uv.id);
 
--- =============================================================================
--- 2.8 RELACIONES: UNIDAD_VENTA_STAFF Y FESTIVAL_UNIDAD_VENTA
--- =============================================================================
+-- 2.8 RELACIONES
 INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
 SELECT uv.id, s.id
 FROM tmp_empleados t
@@ -389,28 +285,11 @@ DROP TEMPORARY TABLE IF EXISTS tmp_empleados;
 DROP TEMPORARY TABLE IF EXISTS tmp_unidades;
 DROP TEMPORARY TABLE IF EXISTS tmp_categorias;
 
-
 -- #############################################################################
--- PARTE 3: FESTIVAL ÚNICO + PLATOS + PEDIDOS (REPORTE DE RECAUDACIÓN)
--- Todo queda asociado al festival "Epicentro Gourmet UNLa 2026" (@festival_id).
+-- PARTE 3: PLATOS + MENÚS + PEDIDOS (REPORTE DE RECAUDACIÓN)
 -- #############################################################################
 
--- 3.1 Dejar un único festival: se eliminan los demás y sus pedidos/relaciones
-DELETE ip FROM items_pedido ip
-JOIN pedidos p ON p.id = ip.pedido_id
-WHERE p.festival_id <> @festival_id;
-
-DELETE FROM pedidos WHERE festival_id <> @festival_id;
-DELETE FROM festival_unidad_venta WHERE festival_id <> @festival_id;
-DELETE FROM festivales WHERE id <> @festival_id;
-
--- Reset de pedidos del festival único (idempotente)
-DELETE ip FROM items_pedido ip
-JOIN pedidos p ON p.id = ip.pedido_id
-WHERE p.festival_id = @festival_id;
-DELETE FROM pedidos WHERE festival_id = @festival_id;
-
--- 3.2 Platos
+-- 3.1 Platos
 INSERT INTO platos (nombre, precio) VALUES
 ('Vacío al Libro con Papas Rústicas', 8500.00),
 ('Choripán Clásico con Chimichurri', 4500.00),
@@ -427,10 +306,9 @@ INSERT INTO platos (nombre, precio) VALUES
 ('Nachos con Cheddar y Jalapeños', 4800.00),
 ('Gaseosa Línea Cola 500ml', 2000.00),
 ('Cerveza Artesanal Tirada 500ml', 4000.00),
-('Agua Mineral 500ml', 1500.00)
-ON DUPLICATE KEY UPDATE precio = VALUES(precio);
+('Agua Mineral 500ml', 1500.00);
 
--- 3.3 Menús: A = asador, E = empanadas/criollo, T = tacos/mexicano
+-- 3.2 Menús: A = asador, E = empanadas/criollo, T = tacos/mexicano
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
 CREATE TEMPORARY TABLE tmp_menu_unidad (codigo VARCHAR(10), menu CHAR(1));
 INSERT INTO tmp_menu_unidad VALUES
@@ -466,11 +344,7 @@ INSERT INTO tmp_menu_plato VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
--- 3.4 Asignar platos a las 10 unidades (unidad_venta_plato)
-DELETE uvp FROM unidad_venta_plato uvp
-JOIN unidades_venta uv ON uv.id = uvp.unidad_venta_id
-JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo;
-
+-- 3.3 Platos por unidad
 INSERT INTO unidad_venta_plato (unidad_venta_id, plato_id)
 SELECT uv.id, pl.id
 FROM tmp_menu_unidad mu
@@ -478,7 +352,7 @@ JOIN unidades_venta uv ON uv.codigo = mu.codigo
 JOIN tmp_menu_plato mp ON mp.menu = mu.menu
 JOIN platos pl ON pl.nombre = mp.plato;
 
--- 3.5 Pedidos: 1 por unidad y por día del festival (01/10/2026 al 20/10/2026)
+-- 3.4 Pedidos: 1 por unidad y por día (01/10/2026 al 20/10/2026)
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 CREATE TEMPORARY TABLE tmp_dias (d INT);
 INSERT INTO tmp_dias VALUES
@@ -493,7 +367,7 @@ JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
 CROSS JOIN tmp_dias d
 WHERE fuv.festival_id = @festival_id;
 
--- 3.6 Items: 2 platos distintos por pedido (según día y menú), cantidad 1 a 4
+-- 3.5 Items: 2 platos distintos por pedido, cantidad 1 a 4
 INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
 SELECT p.id,
        pl.id,
@@ -512,20 +386,15 @@ DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_plato;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
 
-
 -- #############################################################################
 -- VERIFICACIÓN FINAL
 -- #############################################################################
-SELECT
-    uv.id,
-    uv.codigo,
-    CHAR_LENGTH(uv.codigo) AS longitud,
-    uv.nombre_comercial,
-    CASE
-        WHEN ft.id IS NOT NULL THEN 'FOOD_TRUCK'
-        WHEN pd.id IS NOT NULL THEN 'PUESTO_DESARMABLE'
-        ELSE 'DESCONOCIDO'
-    END AS tipo
+SELECT u.id, u.email, r.nombre AS rol FROM usuarios u JOIN roles r ON r.id = u.rol_id;
+
+SELECT uv.id, uv.codigo, uv.nombre_comercial,
+       CASE WHEN ft.id IS NOT NULL THEN 'FOOD_TRUCK'
+            WHEN pd.id IS NOT NULL THEN 'PUESTO_DESARMABLE'
+            ELSE 'DESCONOCIDO' END AS tipo
 FROM unidades_venta uv
 LEFT JOIN food_trucks ft ON ft.id = uv.id
 LEFT JOIN puestos_desarmables pd ON pd.id = uv.id
@@ -542,8 +411,5 @@ LEFT JOIN items_pedido ip ON ip.pedido_id = p.id
 GROUP BY f.nombre, uv.codigo, uv.nombre_comercial
 ORDER BY uv.codigo;
 
-SELECT COUNT(*) AS festivales_totales FROM festivales;
-
 COMMIT;
 SET SQL_SAFE_UPDATES = 1;
-
