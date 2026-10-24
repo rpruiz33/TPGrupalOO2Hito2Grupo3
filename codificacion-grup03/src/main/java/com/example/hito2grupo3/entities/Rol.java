@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "Roles")
+@Table(name = "roles")
 public class Rol {
 
     @Id

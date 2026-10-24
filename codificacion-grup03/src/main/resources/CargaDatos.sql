@@ -1,4 +1,5 @@
 --Resteo la base cada vez que se ejecuta el script de carga de datos (FEDE)
+use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE items_pedido;
@@ -27,13 +28,13 @@ START TRANSACTION;
 -- #############################################################################
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
-INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'EMPLEADO');
+INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
  --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
 SET @hash_pw = '$2a$10$ua6UHW4aUoZqmFL9fpwp6OYpU9gBMHaBtCOvRkwy2uTilT4jzIznW';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 2),
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
@@ -45,7 +46,7 @@ INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES
 ('Epicentro Gourmet UNLa (Edición Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
 
 -- Finalizados: Pasados respecto al día de ejecución
-('Epicentro Gourmet UNLa (Edición Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
+('Epicentro Gourmet UNLa (EdiciOn Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
 ('Epicentro Gourmet UNLa (Edición Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
 
 -- Asignamos el ID del festival activo
