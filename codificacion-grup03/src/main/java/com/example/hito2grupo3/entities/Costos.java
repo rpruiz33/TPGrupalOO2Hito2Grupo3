@@ -34,4 +34,8 @@ public class Costos {
         this.monto = monto;
         this.tipoUnidadDeMedida = tipoUnidadDeMedida;
     }
+
+    public Object getMonto() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

@@ -47,4 +47,8 @@ public class ReporteVentaDTO {
     public void setCantidadPedidos(Long cantidadPedidos) {
         this.cantidadPedidos = cantidadPedidos;
     }
+
+    public Object getTotalRecaudado() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
