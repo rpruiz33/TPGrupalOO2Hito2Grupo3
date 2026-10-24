@@ -186,7 +186,7 @@
                 <th>Rol / Categoría</th>
                 <th class="num">Sueldo Base</th>
                 <th class="num">Plus / Antigüedad</th>
-                <th class="num">Factor (Períodos)</th>
+                <th class="num">Períodos (Base 30 días)</th>
                 <th class="num">Total a Cobrar</th>
                 <th class="text-center no-print">Recibo</th>
               </tr>
@@ -199,7 +199,7 @@
                 <td th:text="${l.rol}">Cajero</td>
                 <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
                 <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                <td class="num" th:text="${l.periodos} + ' (x 50%)'">0</td>
+                <td class="num" th:text="${l.periodos} + ' período(s)'">0</td>
                 <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
                 <td class="text-center no-print">
                   <a class="btn-pdf" th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId}, unidadId=${unidadId})}">Ver PDF</a>
@@ -222,7 +222,7 @@
       </div>
 
       <p class="nota mt-3">
-        Cálculo basado en sueldo base ($100.000), antigüedad ($5.000 por año), plus por categoría y proporción según duración del evento.
+        Cálculo basado en sueldo base, antigüedad ($5.000 por año), plus por categoría y proporción de haberes calculada cada 30 días.
       </p>
     </main>
   </div>

@@ -39,10 +39,16 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
 
--- 2.1 FESTIVAL
-INSERT INTO festivales (nombre, fecha_inicio, fecha_fin)
-VALUES ('Epicentro Gourmet UNLa 2026', '2026-10-01', '2026-10-20');
+-- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
+INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES 
+-- Active: Empezó hace 10 días y termina en 15 días
+('Epicentro Gourmet UNLa (Edición Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
 
+-- Finalizados: Pasados respecto al día de ejecución
+('Epicentro Gourmet UNLa (Edición Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
+('Epicentro Gourmet UNLa (Edición Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
+
+-- Asignamos el ID del festival activo
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa 2026' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
 

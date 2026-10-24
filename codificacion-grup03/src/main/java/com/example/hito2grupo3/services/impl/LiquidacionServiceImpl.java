@@ -209,15 +209,15 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     }
 
     private int calcularPeriodos(long dias) {
-        int diasPorPeriodo = sueldoProperties.diasPorPeriodoOrDefault();
-        if (dias <= diasPorPeriodo) {
+        
+        int diasPorPeriodo = 30; // o usa sueldoProperties.diasPorPeriodoOrDefault() si lo tienes configurado
+        if (dias <= 0) {
             return 1;
-        } else if (dias <= diasPorPeriodo * 2) {
-            return 2;
-        } else {
-            return (int) (dias / diasPorPeriodo) + 1;
         }
+        return (int) Math.ceil((double) dias / diasPorPeriodo);
     }
+
+  
 
     private BigDecimal calcularFactorProporcional(long dias) {
         int periodos = calcularPeriodos(dias);
