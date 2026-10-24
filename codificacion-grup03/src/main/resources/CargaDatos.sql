@@ -49,7 +49,7 @@ INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES
 ('Epicentro Gourmet UNLa (Edición Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
 
 -- Asignamos el ID del festival activo
-SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa 2026' LIMIT 1);
+SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Actual)' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
 
 -- 2.2 TABLAS TEMPORALES DE CARGA
