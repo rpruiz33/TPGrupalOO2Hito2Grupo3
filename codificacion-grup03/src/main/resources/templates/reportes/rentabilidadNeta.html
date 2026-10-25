@@ -18,12 +18,14 @@
       flex: 1;
       min-width: 180px;
     }
-    .filtros-fechas input[type="date"] {
+    .filtros-fechas input[type="date"],
+    .filtros-fechas select {
       width: 100%;
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
       background-color: #fff;
+      color: #333;
     }
     .resumen-rentabilidad {
       display: grid;
@@ -62,20 +64,31 @@
     <p class="mb-0 text-white-50">Reporte de Rentabilidad Neta</p>
   </header>
 
-  <!-- Filtro de Selección por Rango de Fechas -->
+  <!-- Filtro de Selección por Rango de Fechas y Festival -->
   <section class="mb-4">
     <form class="filtros" th:action="@{/reportes/rentabilidad}" method="get">
-      <input type="hidden" name="festivalId" th:value="${festivalId != null ? festivalId : 1}">
       <div class="filtros-fechas w-100">
+        <div class="campo" th:if="${festivales != null and !festivales.isEmpty()}">
+          <label for="festivalId" class="text-white fw-medium mb-1">Festival</label>
+          <select id="festivalId" name="festivalId" onchange="actualizarFechasFestival()">
+            <option th:each="f : ${festivales}"
+                    th:value="${f.id}"
+                    th:text="${f.nombre}"
+                    th:selected="${festivalId == f.id}"
+                    th:data-inicio="${f.fechaInicio}"
+                    th:data-fin="${f.fechaFin}">
+            </option>
+          </select>
+        </div>
         <div class="campo">
           <label for="fechaDesde" class="text-white fw-medium mb-1">Fecha Desde</label>
-          <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}" required>
+          <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}">
         </div>
         <div class="campo">
           <label for="fechaHasta" class="text-white fw-medium mb-1">Fecha Hasta</label>
-          <input type="date" id="fechaHasta" name="fechaHasta" th:value="${fechaHasta}" required>
+          <input type="date" id="fechaHasta" name="fechaHasta" th:value="${fechaHasta}">
         </div>
-        <div>
+        <div style="display: flex; align-items: flex-end;">
           <button type="submit" class="boton">Consultar</button>
         </div>
       </div>
@@ -153,5 +166,34 @@
 </main>
 
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script>
+  function actualizarFechasFestival() {
+    const select = document.getElementById('festivalId');
+    if (!select) return;
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption) {
+      const fechaInicio = selectedOption.getAttribute('data-inicio');
+      const fechaFin = selectedOption.getAttribute('data-fin');
+      if (fechaInicio) {
+        document.getElementById('fechaDesde').value = fechaInicio;
+      }
+      if (fechaFin) {
+        document.getElementById('fechaHasta').value = fechaFin;
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('festivalId');
+    if (select) {
+      select.addEventListener('change', actualizarFechasFestival);
+      const fechaDesde = document.getElementById('fechaDesde');
+      const fechaHasta = document.getElementById('fechaHasta');
+      if ((!fechaDesde.value || !fechaHasta.value) && select.selectedIndex >= 0) {
+        actualizarFechasFestival();
+      }
+    }
+  });
+</script>
 </body>
 </html>

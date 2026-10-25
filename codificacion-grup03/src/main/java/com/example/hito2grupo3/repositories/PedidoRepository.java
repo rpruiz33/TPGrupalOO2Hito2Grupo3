@@ -70,14 +70,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             @Param("festivalId") Long festivalId);
 
     @Query("""
-            SELECT SUM(ip.cantidad * ip.precioUnitario) 
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) 
             FROM Pedido p 
             JOIN p.items ip 
             WHERE p.festival.id = :festivalId 
               AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde) 
               AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
             """)
-    Double sumarIngresosPorFestivalYFechas(
+    BigDecimal sumarIngresosPorFestivalYFechas(
             @Param("festivalId") Long festivalId, 
             @Param("fechaDesde") LocalDate fechaDesde, 
             @Param("fechaHasta") LocalDate fechaHasta);

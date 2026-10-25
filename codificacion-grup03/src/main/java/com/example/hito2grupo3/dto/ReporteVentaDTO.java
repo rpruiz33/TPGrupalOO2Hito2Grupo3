@@ -16,6 +16,13 @@ public class ReporteVentaDTO {
         this.cantidadPedidos = cantidadPedidos;
     }
 
+    public ReporteVentaDTO(Long festivalId, String nombreFestival, Number recaudacionTotal, Number cantidadPedidos) {
+        this.festivalId = festivalId;
+        this.nombreFestival = nombreFestival;
+        this.recaudacionTotal = recaudacionTotal != null ? BigDecimal.valueOf(recaudacionTotal.doubleValue()) : BigDecimal.ZERO;
+        this.cantidadPedidos = cantidadPedidos != null ? cantidadPedidos.longValue() : 0L;
+    }
+
     public Long getFestivalId() {
         return festivalId;
     }
@@ -48,7 +55,7 @@ public class ReporteVentaDTO {
         this.cantidadPedidos = cantidadPedidos;
     }
 
-    public Object getTotalRecaudado() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public BigDecimal getTotalRecaudado() {
+        return this.recaudacionTotal;
     }
 }
