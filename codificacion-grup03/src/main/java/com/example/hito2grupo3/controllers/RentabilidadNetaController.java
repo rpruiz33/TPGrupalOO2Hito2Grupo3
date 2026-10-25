@@ -40,6 +40,15 @@ public class RentabilidadNetaController {
         try {
             model.addAttribute("reporte", r.obtenerReporteVenta(festivalId));
             model.addAttribute("ranking", r.obtenerRankingUnidades(festivalId));
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> reporteData = (Map<String, Object>) r.obtenerReporteVentaEntreFechas(festivalId, null, null);
+            if (reporteData != null) {
+                model.addAttribute("totalIngresos", reporteData.get("totalIngresos"));
+                model.addAttribute("totalCostos", reporteData.get("totalCostos"));
+                model.addAttribute("rentabilidadNeta", reporteData.get("rentabilidadNeta"));
+                model.addAttribute("detalles", reporteData.get("detalles"));
+            }
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage() != null ? ex.getMessage()
                     : "No se pudo obtener el reporte.");
@@ -71,8 +80,17 @@ public class RentabilidadNetaController {
         }
 
         try {
-            model.addAttribute("reporte", r.obtenerReporteVentaEntreFechas(festivalId, fechaDesde, fechaHasta));
+            model.addAttribute("reporte", r.obtenerReporteVenta(festivalId));
             model.addAttribute("ranking", r.obtenerRankingUnidades(festivalId));
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> reporteData = (Map<String, Object>) r.obtenerReporteVentaEntreFechas(festivalId, fechaDesde, fechaHasta);
+            if (reporteData != null) {
+                model.addAttribute("totalIngresos", reporteData.get("totalIngresos"));
+                model.addAttribute("totalCostos", reporteData.get("totalCostos"));
+                model.addAttribute("rentabilidadNeta", reporteData.get("rentabilidadNeta"));
+                model.addAttribute("detalles", reporteData.get("detalles"));
+            }
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage() != null ? ex.getMessage()
                     : "No se pudo obtener el reporte entre fechas.");
@@ -81,11 +99,11 @@ public class RentabilidadNetaController {
         return "reportes/rentabilidadNeta";
     }
 
-   @GetMapping("/reportes/rentabilidad")
+    @GetMapping("/reportes/rentabilidad")
     public String calcularRentabilidad(
             @RequestParam(required = false, defaultValue = "1") Long festivalId,
-            @RequestParam("fechaDesde") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
-            @RequestParam("fechaHasta") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(value = "fechaDesde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(value = "fechaHasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
             Model model) {
 
         model.addAttribute("festivalId", festivalId);
@@ -94,21 +112,29 @@ public class RentabilidadNetaController {
         model.addAttribute("esAdministrador", true);
 
         try {
-            // Llamamos al servicio que nos devuelve el Map con los cálculos
-            Map<String, Object> reporteData = (Map<String, Object>) r.obtenerReporteVentaEntreFechas(festivalId, fechaDesde, fechaHasta);
-
-            // Inyectamos las variables exactas que espera tu HTML
-            model.addAttribute("totalIngresos", reporteData.get("totalIngresos"));
-            model.addAttribute("totalCostos", reporteData.get("totalCostos"));
-            model.addAttribute("rentabilidadNeta", reporteData.get("rentabilidadNeta"));
-            model.addAttribute("detalles", reporteData.get("detalles"));
-
-        } catch (Exception ex) {
-            model.addAttribute("error", "No se pudo obtener el reporte: " + ex.getMessage());
-            model.addAttribute("detalles", Collections.emptyList()); // Evita que sea null
+            model.addAttribute("festivales", r.listarFestivales());
+        } catch (Exception ignored) {
+            model.addAttribute("festivales", Collections.emptyList());
         }
 
-        return "reportes/rentabilidadNeta"; // Asegúrate de que coincida con la ruta de tu HTML
+        try {
+            model.addAttribute("reporte", r.obtenerReporteVenta(festivalId));
+            model.addAttribute("ranking", r.obtenerRankingUnidades(festivalId));
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> reporteData = (Map<String, Object>) r.obtenerReporteVentaEntreFechas(festivalId, fechaDesde, fechaHasta);
+            if (reporteData != null) {
+                model.addAttribute("totalIngresos", reporteData.get("totalIngresos"));
+                model.addAttribute("totalCostos", reporteData.get("totalCostos"));
+                model.addAttribute("rentabilidadNeta", reporteData.get("rentabilidadNeta"));
+                model.addAttribute("detalles", reporteData.get("detalles"));
+            }
+        } catch (Exception ex) {
+            model.addAttribute("error", "No se pudo obtener el reporte: " + ex.getMessage());
+            model.addAttribute("detalles", Collections.emptyList());
+        }
+
+        return "reportes/rentabilidadNeta";
     }
 
     @GetMapping("/cierreCaja")

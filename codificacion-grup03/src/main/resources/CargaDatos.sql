@@ -15,6 +15,7 @@ TRUNCATE TABLE cocineros;
 TRUNCATE TABLE staff;
 TRUNCATE TABLE categorias_cocina;
 TRUNCATE TABLE platos;
+TRUNCATE TABLE costos;
 TRUNCATE TABLE festivales;
 TRUNCATE TABLE usuarios;
 TRUNCATE TABLE roles;
@@ -51,7 +52,23 @@ INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES
 
 -- Asignamos el ID del festival activo
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Actual)' LIMIT 1);
+SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (EdiciOn Anterior)' LIMIT 1);
+SET @festival_anual_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Anual)' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
+
+-- 2.1.1 COSTOS OPERATIVOS DE LOS FESTIVALES
+INSERT INTO costos (tipo_costo, monto, tipo_unidad_de_medida, festival_id) VALUES
+('Alquiler de Predio y Espacios',               450000.00, 'Global',   @festival_id),
+('Seguridad y Control de Accesos',              280000.00, 'Servicio', @festival_id),
+('Escenario, Sonido e Iluminación',            250000.00, 'Global',   @festival_id),
+('Limpieza y Gestión de Residuos',             150000.00, 'Jornada',  @festival_id),
+('Generadores Eléctricos y Combustible',        120000.00, 'Litros',   @festival_id),
+('Alquiler de Predio y Espacios',               380000.00, 'Global',   @festival_anterior_id),
+('Seguridad y Control de Accesos',              220000.00, 'Servicio', @festival_anterior_id),
+('Escenario, Sonido e Iluminación',            200000.00, 'Global',   @festival_anterior_id),
+('Limpieza y Gestión de Residuos',             150000.00, 'Jornada',  @festival_anterior_id),
+('Alquiler Predio Anual',                      600000.00, 'Global',   @festival_anual_id),
+('Infraestructura y Sonido Anual',             500000.00, 'Global',   @festival_anual_id);
 
 -- 2.2 TABLAS TEMPORALES DE CARGA
 DROP TEMPORARY TABLE IF EXISTS tmp_categorias;

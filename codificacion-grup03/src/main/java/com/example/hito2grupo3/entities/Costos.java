@@ -19,7 +19,7 @@ import jakarta.persistence.Entity;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "Costos")
+@Table(name = "costos")
 public class Costos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

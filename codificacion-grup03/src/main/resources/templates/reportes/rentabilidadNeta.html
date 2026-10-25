@@ -65,6 +65,7 @@
   <!-- Filtro de Selección por Rango de Fechas -->
   <section class="mb-4">
     <form class="filtros" th:action="@{/reportes/rentabilidad}" method="get">
+      <input type="hidden" name="festivalId" th:value="${festivalId != null ? festivalId : 1}">
       <div class="filtros-fechas w-100">
         <div class="campo">
           <label for="fechaDesde" class="text-white fw-medium mb-1">Fecha Desde</label>
