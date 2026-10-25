@@ -9,5 +9,5 @@ public interface IPedidoService {
 
     List<Plato> obtenerPlatosPorUnidad(Long unidadVentaId);
 
-    Pedido registrarPedido(PedidoAltaDTO datos);
+    Pedido registrarPedido(PedidoAltaDTO datos, Long staffId);
 }
