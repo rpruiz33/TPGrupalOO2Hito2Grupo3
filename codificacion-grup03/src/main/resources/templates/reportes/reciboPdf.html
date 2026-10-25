@@ -25,23 +25,7 @@
 </head>
 <body>
 
-<!-- Variables mockeadas directamente en Thymeleaf -->
-<main class="contenedor" th:with="recibo=${ {
-  'nombre': 'Martín',
-  'apellido': 'González',
-  'dni': '38.452.910',
-  'rol': 'Cajero Senior',
-  'festival': 'Epicentro Gourmet 2026',
-  'unidad': 'Puesto 1 - Hamburguesas & Bebidas',
-  'diasFestival': 3,
-  'sueldoBase': 60000.00,
-  'plusCategoria': 15000.00,
-  'montoAntiguedad': 10000.00,
-  'aniosAntiguedad': 3,
-  'coeficiente': 1.2,
-  'total': 102000.00,
-  'fechaEmision': #temporals.createNow()
-} }">
+<main class="contenedor" th:with="recibo=${recibo}">
 
   <header>
     <h1>Epicentro Gourmet</h1>
@@ -49,7 +33,8 @@
   </header>
 
   <p class="unidad">
-    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span> ·
+    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span>
+    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}" th:text="' · ' + ${recibo.email}"> · empleado@epicentro.com</span> ·
     <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> ·
     <span th:text="${recibo.rol}">Cajero Senior</span>
   </p>
@@ -78,7 +63,7 @@
         <tbody>
           <tr>
             <td>Unidad de venta</td>
-            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas & Bebidas</td>
+            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas &amp; Bebidas</td>
           </tr>
           <tr>
             <td>Duración del festival</td>
@@ -107,7 +92,7 @@
 
   <div class="acciones-doble">
     <button type="button" class="boton" onclick="window.print()">Imprimir PDF</button>
-    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
+    <a class="boton" th:href="@{/liquidacion}">Volver</a>
   </div>
 
   <div class="logo">

@@ -1,18 +1,34 @@
+
 package com.example.hito2grupo3.repositories;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.hito2grupo3.dto.RankingUnidadVentaDTO;
+import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    // Req. 2: Agregación en DB para evitar carga masiva en la JVM.
+    @Query("SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) FROM ItemPedido ip")
+    BigDecimal calcularRecaudacionTotal();
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM ItemPedido ip
+            WHERE ip.pedido.fechaTransaccion >= :desde
+              AND ip.pedido.fechaTransaccion <= :hasta
+            """)
+    BigDecimal calcularRecaudacionEntreFechas(
+            @Param("desde") LocalDate desde,
+            @Param("hasta") LocalDate hasta);
+
+
     @Query("""
             SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
                 f.id,
@@ -26,9 +42,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             WHERE f.id = :festivalId
             GROUP BY f.id, f.nombre
             """)
-    ReporteVentaDTO obtenerReporteVentaPorFestival(@Param("festivalId") Long festivalId);
+    ReporteVentaDTO obtenerReporteVentaPorFestival(
+            @Param("festivalId") Long festivalId);
 
-    // Req. 2: Ranking por unidad con LEFT JOIN + GROUP BY + ORDER BY descendente.
     @Query("""
             SELECT new com.example.hito2grupo3.dto.RankingUnidadDTO(
                 uv.id,
@@ -42,11 +58,27 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
                 COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
             )
             FROM UnidadVenta uv
-            LEFT JOIN Pedido p ON p.unidadVenta.id = uv.id AND p.festival.id = :festivalId
+            JOIN uv.festivales f
+            LEFT JOIN Pedido p ON p.unidadVenta.id = uv.id
+                AND p.festival.id = :festivalId
             LEFT JOIN ItemPedido ip ON ip.pedido.id = p.id
-            WHERE uv.festival.id = :festivalId
+            WHERE f.id = :festivalId
             GROUP BY uv.id, uv.nombreComercial, uv.codigo, TYPE(uv)
             ORDER BY COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) DESC
             """)
-    List<RankingUnidadVentaDTO> obtenerRankingPorFestival(@Param("festivalId") Long festivalId);
+    List<RankingUnidadDTO> obtenerRankingPorFestival(
+            @Param("festivalId") Long festivalId);
+
+    @Query("""
+            SELECT SUM(ip.cantidad * ip.precioUnitario) 
+            FROM Pedido p 
+            JOIN p.items ip 
+            WHERE p.festival.id = :festivalId 
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde) 
+              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
+            """)
+    Double sumarIngresosPorFestivalYFechas(
+            @Param("festivalId") Long festivalId, 
+            @Param("fechaDesde") LocalDate fechaDesde, 
+            @Param("fechaHasta") LocalDate fechaHasta);
 }

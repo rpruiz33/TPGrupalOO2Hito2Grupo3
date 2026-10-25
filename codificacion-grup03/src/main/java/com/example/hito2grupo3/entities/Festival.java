@@ -1,51 +1,77 @@
 package com.example.hito2grupo3.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+
+import java.util.HashSet;
+
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Data
+@Setter
+@Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "festivales")
 public class Festival {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nombre;
+    @ManyToMany
+    @JoinTable(
+        name = "festival_staff",
+        joinColumns = @JoinColumn(name = "festival_id"),
+        inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+        private Set<Usuario> staffGeneral = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+        name = "festival_unidad_venta", 
+        joinColumns = @JoinColumn(name = "festival_id"), 
+        inverseJoinColumns = @JoinColumn(name = "unidad_venta_id")) 
+    private Set<UnidadVenta> unidadesVentaHabilitadas = new HashSet<>();
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
 
-    @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
-    private List<UnidadVenta> unidadesVenta = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "festival_id") // Crea la columna 'festival_id' en la tabla 'costos'
+    private Set<Costos> costos = new HashSet<>();
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public Festival(Long id, String nombre, Set<Usuario> staffGeneral,
+            Set<UnidadVenta> unidadesVentaHabilitadas, LocalDate fechaInicio,
+            LocalDate fechaFin, Set<Costos> costos) {
         this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
         this.nombre = nombre;
+        this.staffGeneral = staffGeneral;
+        this.unidadesVentaHabilitadas = unidadesVentaHabilitadas;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.costos = costos;
     }
 
-    public List<UnidadVenta> getUnidadesVenta() {
-        return unidadesVenta;
-    }
-
-    public void setUnidadesVenta(List<UnidadVenta> unidadesVenta) {
-        this.unidadesVenta = unidadesVenta;
-    }
+public Long getId() {
+    return id;
+}
+public String getNombre() {
+    return nombre;
+}
+public Set<Costos> getCostos() {
+    return costos;
+}
 }

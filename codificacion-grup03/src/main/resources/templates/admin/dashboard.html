@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Epicentro Gourmet</title>
+
+    <!-- Archivo Bootstrap -->
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+
+    <!-- CSS Externo Unificado -->
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+</head>
+<body>
+
+    <!-- Header / Navbar Superior -->
+    <nav class="navbar navbar-dark admin-header px-4 py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="/admin/dashboard">
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;" onerror="this.style.display='none'">
+                <span>Epicentro Gourmet - Admin</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <span class="small d-none d-md-inline text-white-50">Administrador</span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Layout principal -->
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Menú Lateral Sidebar -->
+            <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
+                <nav class="nav flex-column mt-2">
+                    <a class="nav-link nav-link-admin active" href="/admin/dashboard">Inicio</a>
+                    <a class="nav-link nav-link-admin" href="/admin/usuarios">Usuarios</a>
+
+                    <!-- Enlaces a reportes y liquidación -->
+                    <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/recaudacion/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Reporte Recaudación</a>
+                    
+                    <!-- Enlace añadido para Reporte de Rentabilidad Neta -->
+                    <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Rentabilidad Neta</a>
+
+                    <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
+
+                    <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
+                </nav>
+            </div>
+
+            <!-- Contenido del Dashboard -->
+            <div class="col-12 col-md-10 p-4 p-md-5">
+                <h2 class="fw-bold mb-1">Panel de Control</h2>
+                <p class="mb-4" style="color: #e0e0e0;">Resumen del sistema y gestión de Epicentro Gourmet.</p>
+
+                <!-- Tarjetas en grilla adaptativa -->
+                <div class="row">
+
+                    <!-- Usuarios Registrados -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Usuarios Registrados</h5>
+                                <p class="text-muted small mb-2">Cuentas habilitadas en el sistema.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${usuariosCount != null ? usuariosCount : 0}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recaudación Total -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Recaudación Total</h5>
+                                <p class="text-muted small mb-2">Acumulado de ventas registradas.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="'$' + ${#numbers.formatDecimal(recaudacionMensual != null ? recaudacionMensual : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: Rentabilidad Neta -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Rentabilidad Neta</h5>
+                                <p class="text-muted small mb-2">Balance neto de ingresos menos costos.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="'$' + ${#numbers.formatDecimal(rentabilidadNetaTotal != null ? rentabilidadNetaTotal : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unidades de Venta Habilitadas -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Unidades de Venta Habilitadas</h5>
+                                <p class="text-muted small mb-2">Food Trucks y Puestos Desarmables registrados.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${unidadesCount != null ? unidadesCount : 0}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Especializado (Staff) -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Personal Especializado (Staff)</h5>
+                                <p class="text-muted small mb-2">Cajeros y Cocineros registrados en unidades.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${staffCount != null ? staffCount : 0}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

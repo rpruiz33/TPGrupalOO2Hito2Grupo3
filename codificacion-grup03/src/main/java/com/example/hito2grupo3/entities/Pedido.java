@@ -1,7 +1,8 @@
 package com.example.hito2grupo3.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -13,7 +14,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+
+
+@Data
+@Getter 
+@Setter 
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
@@ -30,38 +40,38 @@ public class Pedido {
     @JoinColumn(name = "unidad_venta_id", nullable = false)
     private UnidadVenta unidadVenta;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ItemPedido> items = new ArrayList<>();
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ItemPedido> items;
 
-    public Long getId() {
-        return id;
+    private LocalDate fechaTransaccion;
+
+    public Pedido() {
+        this.items = new HashSet<>();
     }
 
-    public void setId(Long id) {
+    public Pedido(Long id, Festival festival, UnidadVenta unidadVenta,
+                  Set<ItemPedido> items, LocalDate fechaTransaccion) {
         this.id = id;
-    }
-
-    public Festival getFestival() {
-        return festival;
-    }
-
-    public void setFestival(Festival festival) {
         this.festival = festival;
-    }
-
-    public UnidadVenta getUnidadVenta() {
-        return unidadVenta;
-    }
-
-    public void setUnidadVenta(UnidadVenta unidadVenta) {
         this.unidadVenta = unidadVenta;
+        this.items = items != null ? items : new HashSet<>();
+        this.fechaTransaccion = fechaTransaccion;
     }
 
-    public List<ItemPedido> getItems() {
-        return items;
-    }
+    public double calcularTotal() {
+    return items.stream()
+            .mapToDouble(item -> item.calcularSubtotal().doubleValue())
+            .sum();
+}
 
-    public void setItems(List<ItemPedido> items) {
-        this.items = items;
-    }
+public void agregarItem(ItemPedido item) {
+    items.add(item);
+    
+}
+
+public void removerItem(ItemPedido item) {
+    items.remove(item);
+    
+}
+
 }

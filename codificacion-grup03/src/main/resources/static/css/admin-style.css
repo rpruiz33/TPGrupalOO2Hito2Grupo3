@@ -1,0 +1,75 @@
+body {
+    background-color: #800020; /* Color bordó corporativo */
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-header {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-sidebar {
+    background-color: rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 65px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-admin {
+    color: #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+}
+
+.nav-link-admin:hover, .nav-link-admin.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.card-custom {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #000000;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-custom h5 {
+    color: #555555;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-outline-custom {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-outline-custom:hover {
+    background-color: #ffffff;
+    color: #800020;
+}
+
+/* Estilos de tablas y tarjetas internas para vistas oscuras */
+.table-custom {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #000000;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table-custom thead {
+    background-color: #4a0013;
+    color: #ffffff;
+}
