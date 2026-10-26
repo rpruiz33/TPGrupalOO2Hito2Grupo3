@@ -6,14 +6,19 @@ import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.ItemPedido;
 import com.example.hito2grupo3.entities.Pedido;
 import com.example.hito2grupo3.entities.Plato;
+import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.repositories.PlatoRepository;
+import com.example.hito2grupo3.repositories.StaffRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IPedidoService;
+
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +29,20 @@ public class PedidoServiceImpl implements IPedidoService {
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
     private final PlatoRepository platoRepository;
+    private final StaffRepository staffRepository;
 
     public PedidoServiceImpl(
             PedidoRepository pedidoRepository,
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository,
-            PlatoRepository platoRepository) {
+            PlatoRepository platoRepository,
+            StaffRepository staffRepository) {
 
         this.pedidoRepository = pedidoRepository;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.platoRepository = platoRepository;
+        this.staffRepository = staffRepository;
     }
 
     @Override
@@ -49,9 +57,9 @@ public class PedidoServiceImpl implements IPedidoService {
         return unidad.getPlatosOfrecidos();
     }
 
-    @Override
     @Transactional
-    public Pedido registrarPedido(PedidoAltaDTO datos) {
+    public Pedido registrarPedido(PedidoAltaDTO datos, Long staffId) {
+
         if (datos == null
                 || datos.getFecha() == null
                 || datos.getFestivalId() == null
@@ -66,7 +74,13 @@ public class PedidoServiceImpl implements IPedidoService {
                     "El pedido debe contener al menos un plato.");
         }
 
-        LocalDate hoy = LocalDate.now();
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró el empleado autenticado."));
+
+        LocalDate hoy = LocalDate.now(
+                ZoneId.of("America/Argentina/Buenos_Aires"));
 
         if (!datos.getFecha().equals(hoy)) {
             throw new IllegalArgumentException(
@@ -87,11 +101,21 @@ public class PedidoServiceImpl implements IPedidoService {
 
         if (festival.getFechaInicio() == null
                 || festival.getFechaFin() == null
-                || datos.getFecha().isBefore(festival.getFechaInicio())
-                || datos.getFecha().isAfter(festival.getFechaFin())) {
+                || hoy.isBefore(festival.getFechaInicio())
+                || hoy.isAfter(festival.getFechaFin())) {
 
             throw new IllegalArgumentException(
-                    "La fecha de venta esta fuera del periodo del festival.");
+                    "El festival no está activo en la fecha actual.");
+        }
+
+        boolean unidadAsignada = unidad.getStaffAsignado()
+                .stream()
+                .anyMatch(asignado ->
+                        asignado.getId() == staff.getId());
+
+        if (!unidadAsignada) {
+            throw new IllegalArgumentException(
+                    "No tenés asignada esta unidad de venta.");
         }
 
         boolean unidadHabilitada = festival.getUnidadesVentaHabilitadas()
@@ -100,7 +124,7 @@ public class PedidoServiceImpl implements IPedidoService {
 
         if (!unidadHabilitada) {
             throw new IllegalArgumentException(
-                    "La unidad de venta no esta habilitada para ese festival.");
+                    "La unidad de venta no está habilitada para ese festival.");
         }
 
         Pedido pedido = new Pedido();
@@ -109,13 +133,14 @@ public class PedidoServiceImpl implements IPedidoService {
         pedido.setFechaTransaccion(datos.getFecha());
 
         for (ItemPedidoDTO itemDTO : datos.getItems()) {
+
             if (itemDTO == null
                     || itemDTO.getPlatoId() == null
                     || itemDTO.getCantidad() == null
                     || itemDTO.getCantidad() < 1) {
 
                 throw new IllegalArgumentException(
-                        "Cada plato debe tener un identificador y una cantidad valida.");
+                        "Cada plato debe tener un identificador y una cantidad válida.");
             }
 
             Plato plato = platoRepository
@@ -131,7 +156,7 @@ public class PedidoServiceImpl implements IPedidoService {
             if (!platoHabilitado) {
                 throw new IllegalArgumentException(
                         "El plato " + plato.getNombre()
-                                + " no esta asociado a la unidad de venta.");
+                                + " no está asociado a la unidad de venta.");
             }
 
             ItemPedido item = new ItemPedido();
@@ -139,6 +164,7 @@ public class PedidoServiceImpl implements IPedidoService {
             item.setPlato(plato);
             item.setCantidad(itemDTO.getCantidad());
             item.setPrecioUnitario(plato.getPrecio());
+
             pedido.agregarItem(item);
         }
 

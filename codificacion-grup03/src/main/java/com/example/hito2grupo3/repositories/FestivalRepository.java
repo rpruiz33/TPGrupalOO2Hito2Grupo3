@@ -1,5 +1,6 @@
 package com.example.hito2grupo3.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,21 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
     List<UnidadVenta> obtenerUnidadesPorFestival(
             @Param("festivalId") Long festivalId);
 
+
    
 Optional<Festival> findFirstByOrderByIdAsc();
     
+
+    @Query("""
+    SELECT DISTINCT f
+    FROM Festival f
+    JOIN f.unidadesVentaHabilitadas u
+    JOIN u.staffAsignado s
+    WHERE s.id = :staffId
+      AND f.fechaInicio <= :fecha
+      AND f.fechaFin >= :fecha
+    """)
+List<Festival> buscarActivosPorStaff(
+        @Param("staffId") Long staffId,
+        @Param("fecha") LocalDate fecha);        
 }

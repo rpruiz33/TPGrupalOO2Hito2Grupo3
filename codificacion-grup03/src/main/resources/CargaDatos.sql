@@ -31,7 +31,7 @@ START TRANSACTION;
 -- #############################################################################
 INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
  --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
-SET @hash_pw = '$2a$10$ua6UHW4aUoZqmFL9fpwp6OYpU9gBMHaBtCOvRkwy2uTilT4jzIznW';
+SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
