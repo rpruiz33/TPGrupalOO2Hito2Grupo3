@@ -25,8 +25,8 @@ import lombok.Setter;
 @Data
 @Setter
 @Getter
-@NoArgsConstructor
 @Entity
+@NoArgsConstructor
 @Table(name = "festivales")
 public class Festival {
 
@@ -65,5 +65,13 @@ public class Festival {
         this.costos = costos;
     }
 
-
+public Long getId() {
+    return id;
+}
+public String getNombre() {
+    return nombre;
+}
+public Set<Costos> getCostos() {
+    return costos;
+}
 }

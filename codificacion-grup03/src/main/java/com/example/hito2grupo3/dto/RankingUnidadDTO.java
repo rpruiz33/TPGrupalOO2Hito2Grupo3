@@ -18,6 +18,14 @@ public class RankingUnidadDTO {
         this.recaudacion = recaudacion;
     }
 
+    public RankingUnidadDTO(Long unidadVentaId, String nombreComercial, String codigo, String tipoUnidad, Number recaudacion) {
+        this.unidadVentaId = unidadVentaId;
+        this.nombreComercial = nombreComercial;
+        this.codigo = codigo;
+        this.tipoUnidad = tipoUnidad;
+        this.recaudacion = recaudacion != null ? BigDecimal.valueOf(recaudacion.doubleValue()) : BigDecimal.ZERO;
+    }
+
     public Long getUnidadVentaId() {
         return unidadVentaId;
     }

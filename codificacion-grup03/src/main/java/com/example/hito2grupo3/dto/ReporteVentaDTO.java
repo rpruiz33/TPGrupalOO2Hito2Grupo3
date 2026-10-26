@@ -16,6 +16,13 @@ public class ReporteVentaDTO {
         this.cantidadPedidos = cantidadPedidos;
     }
 
+    public ReporteVentaDTO(Long festivalId, String nombreFestival, Number recaudacionTotal, Number cantidadPedidos) {
+        this.festivalId = festivalId;
+        this.nombreFestival = nombreFestival;
+        this.recaudacionTotal = recaudacionTotal != null ? BigDecimal.valueOf(recaudacionTotal.doubleValue()) : BigDecimal.ZERO;
+        this.cantidadPedidos = cantidadPedidos != null ? cantidadPedidos.longValue() : 0L;
+    }
+
     public Long getFestivalId() {
         return festivalId;
     }
@@ -46,5 +53,9 @@ public class ReporteVentaDTO {
 
     public void setCantidadPedidos(Long cantidadPedidos) {
         this.cantidadPedidos = cantidadPedidos;
+    }
+
+    public BigDecimal getTotalRecaudado() {
+        return this.recaudacionTotal;
     }
 }
