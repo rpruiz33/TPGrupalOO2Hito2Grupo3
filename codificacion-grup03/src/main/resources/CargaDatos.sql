@@ -1,4 +1,3 @@
---Resteo la base cada vez que se ejecuta el script de carga de datos (FEDE)
 use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -44,16 +43,16 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
 INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES 
 -- Active: Empezó hace 10 días y termina en 15 días
-('Epicentro Gourmet UNLa (Edición Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
+('Epicentro Gourmet UNLa (Edicion Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
 
 -- Finalizados: Pasados respecto al día de ejecución
-('Epicentro Gourmet UNLa (EdiciOn Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
-('Epicentro Gourmet UNLa (Edición Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
+('Epicentro Gourmet UNLa (Edicion Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
+('Epicentro Gourmet UNLa (Edicion Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
 
 -- Asignamos los IDs de los festivales
-SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Actual)' LIMIT 1);
-SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (EdiciOn Anterior)' LIMIT 1);
-SET @festival_anual_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Anual)' LIMIT 1);
+SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
+SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);
+SET @festival_anual_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anual)' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
 
 -- 2.1.1 COSTOS DEL FESTIVAL ANUAL (HACE 1 AÑO - INICIALES: TOTAL $550.000)
@@ -401,7 +400,56 @@ WHERE p.festival_id = @festival_id
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_plato;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
+-- #############################################################################
+-- 3.6 AJUSTE: ASEGURAR QUE EL FESTIVAL ACTUAL NO TENGA PÉRDIDA
+-- @incluir_sueldos = 1 -> el punto de equilibrio incluye sueldos + plus del staff
+-- @incluir_sueldos = 0 -> solo se consideran los costos de la tabla `costos`
+-- #############################################################################
+SET @incluir_sueldos = 1;
+SET @margen = 1.20;   -- 20% de ganancia sobre los costos
 
+SET @costos_fest = (
+    SELECT COALESCE(SUM(monto), 0) FROM costos WHERE festival_id = @festival_id
+);
+
+SET @costo_staff = (
+    SELECT COALESCE(SUM(
+             s.sueldo
+           + COALESCE(ca.plus_oadicional, 0)
+           + COALESCE(co.bono_peligrosidad, 0)
+           + COALESCE(cc.plus_fijo, 0)
+           ), 0)
+    FROM staff s
+    LEFT JOIN cajero ca ON ca.id = s.id
+    LEFT JOIN cocineros co ON co.id = s.id
+    LEFT JOIN categorias_cocina cc ON cc.id = co.categoria_cocina_id
+);
+
+SET @recaudado = (
+    SELECT COALESCE(SUM(ip.cantidad * ip.precio_unitario), 0)
+    FROM items_pedido ip
+    JOIN pedidos p ON p.id = ip.pedido_id
+    WHERE p.festival_id = @festival_id
+);
+
+SET @objetivo = (@costos_fest + IF(@incluir_sueldos = 1, @costo_staff, 0)) * @margen;
+
+SET @factor = IF(@recaudado = 0 OR @recaudado >= @objetivo, 1, CEIL(@objetivo / @recaudado));
+
+UPDATE items_pedido ip
+JOIN pedidos p ON p.id = ip.pedido_id
+SET ip.cantidad = ip.cantidad * @factor
+WHERE p.festival_id = @festival_id
+  AND @factor > 1;
+
+-- Control rápido (podés borrarlo)
+SELECT @costos_fest AS costos_festival,
+       @costo_staff AS costo_staff,
+       @recaudado   AS recaudado_antes,
+       @factor      AS factor_aplicado,
+       (SELECT SUM(ip.cantidad * ip.precio_unitario)
+          FROM items_pedido ip JOIN pedidos p ON p.id = ip.pedido_id
+         WHERE p.festival_id = @festival_id) AS recaudado_despues;
 -- #############################################################################
 -- PARTE 4: PEDIDOS E ITEMS PARA LOS FESTIVALES PASADOS
 -- Anual (hace ~1 año): recaudacion media-baja (15 dias, cantidad 1-2)
