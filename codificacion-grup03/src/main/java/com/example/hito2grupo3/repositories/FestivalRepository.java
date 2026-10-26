@@ -28,6 +28,7 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
 
    
 Optional<Festival> findFirstByOrderByIdAsc();
+    
 
     @Query("""
     SELECT DISTINCT f

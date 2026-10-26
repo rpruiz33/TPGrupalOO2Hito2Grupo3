@@ -19,7 +19,7 @@ import jakarta.persistence.Entity;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "Costos")
+@Table(name = "costos")
 public class Costos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,11 @@ public class Costos {
         this.tipoUnidadDeMedida = tipoUnidadDeMedida;
     }
 
-    public Object getMonto() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
     }
 }

@@ -2,6 +2,7 @@ package com.example.hito2grupo3.services.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,13 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         if (!festivalRepository.existsById(festivalId)) {
             throw new IllegalArgumentException("Festival con ID " + festivalId + " no encontrado.");
         }
-        return pedidoRepository.obtenerReporteVentaPorFestival(festivalId);
+        ReporteVentaDTO reporte = pedidoRepository.obtenerReporteVentaPorFestival(festivalId);
+        if (reporte == null) {
+            Festival festival = festivalRepository.findById(festivalId).orElse(null);
+            String nombre = festival != null ? festival.getNombre() : "Festival " + festivalId;
+            reporte = new ReporteVentaDTO(festivalId, nombre, java.math.BigDecimal.ZERO, 0L);
+        }
+        return reporte;
     }
 
     @Override
@@ -47,7 +54,8 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         if (!festivalRepository.existsById(festivalId)) {
             throw new IllegalArgumentException("Festival con ID " + festivalId + " no encontrado.");
         }
-        return pedidoRepository.obtenerRankingPorFestival(festivalId);
+        List<RankingUnidadDTO> ranking = pedidoRepository.obtenerRankingPorFestival(festivalId);
+        return ranking != null ? ranking : Collections.emptyList();
     }
 
     @Override
@@ -69,10 +77,8 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         }
 
         // 3. Obtener ingresos reales filtrados por fecha (si se proporcionan) o totales del festival
-        Double totalIngresos = pedidoRepository.sumarIngresosPorFestivalYFechas(festivalId, fechaDesde, fechaHasta);
-        if (totalIngresos == null) {
-            totalIngresos = 0.0;
-        }
+        java.math.BigDecimal totalIngresosBD = pedidoRepository.sumarIngresosPorFestivalYFechas(festivalId, fechaDesde, fechaHasta);
+        double totalIngresos = totalIngresosBD != null ? totalIngresosBD.doubleValue() : 0.0;
 
         // 4. Calcular costos operativos desde la entidad Festival (relación @OneToMany de Costos)
         double totalCostos = 0.0;
@@ -80,7 +86,7 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
             for (Costos c : festival.getCostos()) {
                 // Asegúrate de usar el método correcto de tu entidad Costos (ej. getMonto() o getValor())
                 if (c.getMonto() != null) {
-                    totalCostos += ((Long) c.getMonto()).doubleValue();;
+                    totalCostos += c.getMonto().doubleValue();
                 }
             }
         }

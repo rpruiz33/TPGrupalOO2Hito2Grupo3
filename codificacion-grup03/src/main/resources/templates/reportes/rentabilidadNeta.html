@@ -7,75 +7,87 @@
   <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
   <link rel="stylesheet" th:href="@{/css/vistas.css}">
   <style>
-    /* Estilos específicos para la sección de rentabilidad */
-    .filtros-fechas {
-      display: flex;
+    .filtros-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
       gap: 15px;
       align-items: flex-end;
-      flex-wrap: wrap;
     }
-    .filtros-fechas .campo {
-      flex: 1;
-      min-width: 180px;
+    @media (max-width: 992px) {
+      .filtros-grid {
+        grid-template-columns: 1fr;
+      }
     }
-    .filtros-fechas input[type="date"] {
+    .filtros-fechas input[type="date"],
+    .filtros-fechas select {
       width: 100%;
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
       background-color: #fff;
+      color: #333;
     }
     .resumen-rentabilidad {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
     }
-    .dato.positivo strong {
-      color: #2e7d32 !important;
-    }
-    .dato.negativo strong {
-      color: #c62828 !important;
-    }
+    .dato.positivo strong { color: #2e7d32 !important; }
+    .dato.negativo strong { color: #c62828 !important; }
 
     @media print {
       .filtros, .acciones-doble, .logo, button, .no-print {
         display: none !important;
       }
-      body {
-        background-color: #fff !important;
-        color: #000 !important;
-      }
-      .contenedor {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-shadow: none !important;
-      }
+      body { background-color: #fff !important; color: #000 !important; }
+      .contenedor { width: 100% !important; max-width: 100% !important; box-shadow: none !important; }
     }
   </style>
 </head>
 <body class="login-body">
 <main class="contenedor">
 
-  <!-- Encabezado Centrado -->
+  <!-- Encabezado -->
   <header class="text-center mb-4">
     <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
     <p class="mb-0 text-white-50">Reporte de Rentabilidad Neta</p>
   </header>
 
-  <!-- Filtro de Selección por Rango de Fechas -->
+  <!-- Filtro por Festival y Rango de Fechas -->
   <section class="mb-4">
     <form class="filtros" th:action="@{/reportes/rentabilidad}" method="get">
-      <div class="filtros-fechas w-100">
+      <div class="filtros-grid w-100">
+        <!-- Selección de Festival -->
+        <div class="campo" th:if="${festivales != null and !festivales.isEmpty()}">
+          <label for="festivalId" class="text-white fw-medium mb-1">Festival</label>
+          <select id="festivalId" name="festivalId">
+            <option value="">-- Seleccione un Festival --</option>
+            <!-- Muestra el nombre y las fechas en el texto, y guarda los atributos data para el script -->
+            <option th:each="f : ${festivales}"
+                    th:value="${f.id}"
+                    th:text="${f.nombre + ' (' + f.fechaInicio + ' al ' + f.fechaFin + ')'}"
+                    th:selected="${festivalId != null and festivalId == f.id}"
+                    th:data-inicio="${f.fechaInicio}"
+                    th:data-fin="${f.fechaFin}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Fecha Desde -->
         <div class="campo">
           <label for="fechaDesde" class="text-white fw-medium mb-1">Fecha Desde</label>
-          <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}" required>
+          <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}">
         </div>
+
+        <!-- Fecha Hasta -->
         <div class="campo">
           <label for="fechaHasta" class="text-white fw-medium mb-1">Fecha Hasta</label>
-          <input type="date" id="fechaHasta" name="fechaHasta" th:value="${fechaHasta}" required>
+          <input type="date" id="fechaHasta" name="fechaHasta" th:value="${fechaHasta}">
         </div>
+
+        <!-- Botón -->
         <div>
-          <button type="submit" class="boton">Consultar</button>
+          <button type="submit" class="boton w-100">Consultar</button>
         </div>
       </div>
     </form>
@@ -85,7 +97,7 @@
     <div class="aviso mt-3" th:if="${mensaje}" th:text="${mensaje}"></div>
   </section>
 
-  <!-- Tarjetas KPI Resumen de Rentabilidad -->
+  <!-- Tarjetas KPI Resumen -->
   <section class="resumen resumen-rentabilidad mb-4">
     <div class="dato">
       <span>Total Ingresos</span>
@@ -101,44 +113,7 @@
     </div>
   </section>
 
-  <!-- Tabla Detalle de la Rentabilidad -->
-  <section class="mb-4">
-    <h2 class="h5 fw-bold text-white mb-3">Detalle por Periodo / Concepto</h2>
-    <div class="tabla-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th style="text-align: left;">Concepto / Evento</th>
-            <th style="text-align: left;">Periodo</th>
-            <th>Ingresos</th>
-            <th>Costos Operativos</th>
-            <th>Ganancia Neta</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Caso sin consultar fechas -->
-          <tr th:if="${detalles == null}">
-            <td colspan="5" class="vacio">Seleccione un rango de fechas y presione "Consultar" para ver el reporte.</td>
-          </tr>
-          <!-- Caso sin registros en ese rango -->
-          <tr th:if="${detalles != null and #lists.isEmpty(detalles)}">
-            <td colspan="5" class="vacio">No se registraron movimientos en el rango de fechas seleccionado.</td>
-          </tr>
-          <!-- Filas de Detalle -->
-          <tr th:if="${detalles != null}" th:each="d : ${detalles}">
-            <td th:text="${d.concepto}">Festival de Música 2026</td>
-            <td th:text="${d.periodo}">01/10/2026 - 10/10/2026</td>
-            <td th:text="'$ ' + ${#numbers.formatDecimal(d.ingresos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-            <td th:text="'$ ' + ${#numbers.formatDecimal(d.costos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-            <td th:classappend="${d.gananciaNeta < 0 ? 'text-danger fw-bold' : 'text-success fw-bold'}"
-                th:text="'$ ' + ${#numbers.formatDecimal(d.gananciaNeta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Acciones / Botones -->
+  <!-- Acciones -->
   <div class="acciones-doble">
     <a class="boton" href="javascript:window.print();">Imprimir PDF</a>
     <a class="boton" th:href="@{/}">Volver</a>
@@ -152,5 +127,36 @@
 </main>
 
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script>
+  function actualizarFechasFestival() {
+    const select = document.getElementById('festivalId');
+    const fechaDesde = document.getElementById('fechaDesde');
+    const fechaHasta = document.getElementById('fechaHasta');
+    if (!select) return;
+    
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption && selectedOption.value) {
+      const fechaInicio = selectedOption.getAttribute('data-inicio');
+      const fechaFin = selectedOption.getAttribute('data-fin');
+      
+      if (fechaInicio) {
+        fechaDesde.value = fechaInicio.split('T')[0];
+      }
+      if (fechaFin) {
+        fechaHasta.value = fechaFin.split('T')[0];
+      }
+    } else {
+      fechaDesde.value = '';
+      fechaHasta.value = '';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('festivalId');
+    if (select) {
+      select.addEventListener('change', actualizarFechasFestival);
+    }
+  });
+</script>
 </body>
 </html>
