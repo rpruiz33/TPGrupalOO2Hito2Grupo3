@@ -42,6 +42,10 @@
 
                     <!-- Enlaces a reportes y liquidación -->
                     <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/recaudacion/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Reporte Recaudación</a>
+                    
+                    <!-- Enlace añadido para Reporte de Rentabilidad Neta -->
+                    <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Rentabilidad Neta</a>
+
                     <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
 
                     <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
@@ -53,10 +57,11 @@
                 <h2 class="fw-bold mb-1">Panel de Control</h2>
                 <p class="mb-4" style="color: #e0e0e0;">Resumen del sistema y gestión de Epicentro Gourmet.</p>
 
-                <!-- Las 4 tarjetas en una sola grilla 2x2: mismo ancho, mismo alto, misma separación -->
+                <!-- Tarjetas en grilla adaptativa -->
                 <div class="row">
 
-                    <div class="col-md-6 mb-4">
+                    <!-- Usuarios Registrados -->
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card card-custom h-100">
                             <div class="card-body p-4">
                                 <h5 class="fw-bold mb-2">Usuarios Registrados</h5>
@@ -66,7 +71,8 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-4">
+                    <!-- Recaudación Total -->
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card card-custom h-100">
                             <div class="card-body p-4">
                                 <h5 class="fw-bold mb-2">Recaudación Total</h5>
@@ -76,7 +82,19 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-4">
+                    <!-- NUEVO: Rentabilidad Neta -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card card-custom h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-2">Rentabilidad Neta</h5>
+                                <p class="text-muted small mb-2">Balance neto de ingresos menos costos.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="'$' + ${#numbers.formatDecimal(rentabilidadNetaTotal != null ? rentabilidadNetaTotal : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unidades de Venta Habilitadas -->
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card card-custom h-100">
                             <div class="card-body p-4">
                                 <h5 class="fw-bold mb-2">Unidades de Venta Habilitadas</h5>
@@ -86,7 +104,8 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-4">
+                    <!-- Personal Especializado (Staff) -->
+                    <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card card-custom h-100">
                             <div class="card-body p-4">
                                 <h5 class="fw-bold mb-2">Personal Especializado (Staff)</h5>

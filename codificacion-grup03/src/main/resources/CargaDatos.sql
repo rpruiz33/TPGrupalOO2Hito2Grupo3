@@ -1,4 +1,3 @@
---Resteo la base cada vez que se ejecuta el script de carga de datos (FEDE)
 use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -15,6 +14,7 @@ TRUNCATE TABLE cocineros;
 TRUNCATE TABLE staff;
 TRUNCATE TABLE categorias_cocina;
 TRUNCATE TABLE platos;
+TRUNCATE TABLE costos;
 TRUNCATE TABLE festivales;
 TRUNCATE TABLE usuarios;
 TRUNCATE TABLE roles;
@@ -44,15 +44,42 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
 INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES 
 -- Active: Empezó hace 10 días y termina en 15 días
-('Epicentro Gourmet UNLa (Edición Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
+('Epicentro Gourmet UNLa (Edicion Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
 
 -- Finalizados: Pasados respecto al día de ejecución
-('Epicentro Gourmet UNLa (EdiciOn Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
-('Epicentro Gourmet UNLa (Edición Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
+('Epicentro Gourmet UNLa (Edicion Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
+('Epicentro Gourmet UNLa (Edicion Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
 
--- Asignamos el ID del festival activo
-SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edición Actual)' LIMIT 1);
+-- Asignamos los IDs de los festivales
+SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
+SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);
+SET @festival_anual_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anual)' LIMIT 1);
 SET @user_empleado_id = (SELECT id FROM usuarios WHERE email = 'empleado@epicentro.com' LIMIT 1);
+
+-- 2.1.1 COSTOS DEL FESTIVAL ANUAL (HACE 1 AÑO - INICIALES: TOTAL $550.000)
+INSERT INTO costos (tipo_costo, monto, tipo_unidad_de_medida, festival_id) VALUES
+('Alquiler de Espacio Ferial Básico',           200000.00, 'Global',   @festival_anual_id),
+('Vigilancia y Seguridad Inicial',              120000.00, 'Servicio', @festival_anual_id),
+('Sonido y Luces Edición Inicial',             100000.00, 'Global',   @festival_anual_id),
+('Servicio Básico de Limpieza',                  70000.00, 'Jornada',  @festival_anual_id),
+('Generador Eléctrico Portátil',                 60000.00, 'Litros',   @festival_anual_id);
+
+-- 2.1.2 COSTOS DEL FESTIVAL ANTERIOR (HACE 2 MESES - INTERMEDIOS: TOTAL $980.000)
+INSERT INTO costos (tipo_costo, monto, tipo_unidad_de_medida, festival_id) VALUES
+('Alquiler de Espacio Ferial Intermedio',       320000.00, 'Global',   @festival_anterior_id),
+('Vigilancia y Seguridad Nocturna',             210000.00, 'Servicio', @festival_anterior_id),
+('Equipamiento de Audio y Escenario',           170000.00, 'Global',   @festival_anterior_id),
+('Mantenimiento y Sanitización',                110000.00, 'Jornada',  @festival_anterior_id),
+('Alquiler de Baños Químicos',                   90000.00, 'Unidad',   @festival_anterior_id),
+('Grupo Electrógeno de Respaldo',                80000.00, 'Servicio', @festival_anterior_id);
+
+-- 2.1.3 COSTOS DEL FESTIVAL ACTUAL (EN CURSO - MÁS ALTOS: TOTAL $1.650.000)
+INSERT INTO costos (tipo_costo, monto, tipo_unidad_de_medida, festival_id) VALUES
+('Alquiler de Predio Mayor y Espacios',         550000.00, 'Global',   @festival_id),
+('Seguridad Privada y Control de Accesos',      380000.00, 'Servicio', @festival_id),
+('Escenario Principal, Sonido Pro e Iluminación', 350000.00, 'Global', @festival_id),
+('Gestión Integral de Residuos y Limpieza',     200000.00, 'Jornada',  @festival_id),
+('Red de Generadores Eléctricos y Combustible', 170000.00, 'Litros',   @festival_id);
 
 -- 2.2 TABLAS TEMPORALES DE CARGA
 DROP TEMPORARY TABLE IF EXISTS tmp_categorias;
@@ -434,6 +461,225 @@ WHERE p.festival_id = @festival_id
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_plato;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
+-- #############################################################################
+-- 3.6 AJUSTE: ASEGURAR QUE EL FESTIVAL ACTUAL NO TENGA PÉRDIDA
+-- @incluir_sueldos = 1 -> el punto de equilibrio incluye sueldos + plus del staff
+-- @incluir_sueldos = 0 -> solo se consideran los costos de la tabla `costos`
+-- #############################################################################
+SET @incluir_sueldos = 1;
+SET @margen = 1.20;   -- 20% de ganancia sobre los costos
+
+SET @costos_fest = (
+    SELECT COALESCE(SUM(monto), 0) FROM costos WHERE festival_id = @festival_id
+);
+
+SET @costo_staff = (
+    SELECT COALESCE(SUM(
+             s.sueldo
+           + COALESCE(ca.plus_oadicional, 0)
+           + COALESCE(co.bono_peligrosidad, 0)
+           + COALESCE(cc.plus_fijo, 0)
+           ), 0)
+    FROM staff s
+    LEFT JOIN cajero ca ON ca.id = s.id
+    LEFT JOIN cocineros co ON co.id = s.id
+    LEFT JOIN categorias_cocina cc ON cc.id = co.categoria_cocina_id
+);
+
+SET @recaudado = (
+    SELECT COALESCE(SUM(ip.cantidad * ip.precio_unitario), 0)
+    FROM items_pedido ip
+    JOIN pedidos p ON p.id = ip.pedido_id
+    WHERE p.festival_id = @festival_id
+);
+
+SET @objetivo = (@costos_fest + IF(@incluir_sueldos = 1, @costo_staff, 0)) * @margen;
+
+SET @factor = IF(@recaudado = 0 OR @recaudado >= @objetivo, 1, CEIL(@objetivo / @recaudado));
+
+UPDATE items_pedido ip
+JOIN pedidos p ON p.id = ip.pedido_id
+SET ip.cantidad = ip.cantidad * @factor
+WHERE p.festival_id = @festival_id
+  AND @factor > 1;
+
+-- Control rápido (podés borrarlo)
+SELECT @costos_fest AS costos_festival,
+       @costo_staff AS costo_staff,
+       @recaudado   AS recaudado_antes,
+       @factor      AS factor_aplicado,
+       (SELECT SUM(ip.cantidad * ip.precio_unitario)
+          FROM items_pedido ip JOIN pedidos p ON p.id = ip.pedido_id
+         WHERE p.festival_id = @festival_id) AS recaudado_despues;
+-- #############################################################################
+-- PARTE 4: PEDIDOS E ITEMS PARA LOS FESTIVALES PASADOS
+-- Anual (hace ~1 año): recaudacion media-baja (15 dias, cantidad 1-2)
+-- Anterior (hace ~2 meses): recaudacion media (20 dias, cantidad 1-3)
+-- Ambos usan las mismas 10 unidades de venta del festival actual
+-- #############################################################################
+
+-- 4.1 Vincular unidades de venta a los festivales pasados
+INSERT INTO festival_unidad_venta (festival_id, unidad_venta_id)
+SELECT @festival_anterior_id, uv.id
+FROM festival_unidad_venta fuv
+JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
+WHERE fuv.festival_id = @festival_id
+  AND @festival_anterior_id IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM festival_unidad_venta fuv2
+      WHERE fuv2.festival_id = @festival_anterior_id AND fuv2.unidad_venta_id = uv.id
+  );
+
+INSERT INTO festival_unidad_venta (festival_id, unidad_venta_id)
+SELECT @festival_anual_id, uv.id
+FROM festival_unidad_venta fuv
+JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
+WHERE fuv.festival_id = @festival_id
+  AND @festival_anual_id IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM festival_unidad_venta fuv2
+      WHERE fuv2.festival_id = @festival_anual_id AND fuv2.unidad_venta_id = uv.id
+  );
+
+-- 4.2 Pedidos festival anterior (20 dias desde hace 60 dias)
+DROP TEMPORARY TABLE IF EXISTS tmp_dias_ant;
+CREATE TEMPORARY TABLE tmp_dias_ant (d INT);
+INSERT INTO tmp_dias_ant VALUES
+(0),(1),(2),(3),(4),(5),(6),(7),(8),(9),
+(10),(11),(12),(13),(14),(15),(16),(17),(18),(19);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_mu_ant;
+CREATE TEMPORARY TABLE tmp_mu_ant (codigo VARCHAR(10), menu CHAR(1));
+INSERT INTO tmp_mu_ant VALUES
+('FT-0000101','A'), ('PD-0000101','E'),
+('FT-0000102','T'), ('PD-0000102','E'),
+('FT-0000103','A'), ('PD-0000103','A'),
+('FT-0000104','T'), ('PD-0000104','E'),
+('FT-0000105','A'), ('PD-0000105','E');
+
+DROP TEMPORARY TABLE IF EXISTS tmp_mp_ant;
+CREATE TEMPORARY TABLE tmp_mp_ant (menu CHAR(1), idx INT, cnt INT, plato VARCHAR(100));
+INSERT INTO tmp_mp_ant VALUES
+('A',1,7,'Vacío al Libro con Papas Rústicas'),
+('A',2,7,'Choripán Clásico con Chimichurri'),
+('A',3,7,'Sándwich de Bondiola a la Mostaza'),
+('A',4,7,'Matambre a la Pizza al Plato'),
+('A',5,7,'Gaseosa Línea Cola 500ml'),
+('A',6,7,'Cerveza Artesanal Tirada 500ml'),
+('A',7,7,'Agua Mineral 500ml'),
+('E',1,8,'Empanada de Carne Cortada a Cuchillo'),
+('E',2,8,'Empanada de Jamón y Queso'),
+('E',3,8,'Empanada Salteña Picante'),
+('E',4,8,'Docena de Empanadas Variadas'),
+('E',5,8,'Tamal Criollo Tradicional'),
+('E',6,8,'Gaseosa Línea Cola 500ml'),
+('E',7,8,'Cerveza Artesanal Tirada 500ml'),
+('E',8,8,'Agua Mineral 500ml'),
+('T',1,7,'Tacos al Pastor (3 unidades)'),
+('T',2,7,'Tacos de Ternera Mechada (3 unidades)'),
+('T',3,7,'Quesadillas con Guacamole'),
+('T',4,7,'Nachos con Cheddar y Jalapeños'),
+('T',5,7,'Gaseosa Línea Cola 500ml'),
+('T',6,7,'Cerveza Artesanal Tirada 500ml'),
+('T',7,7,'Agua Mineral 500ml');
+
+INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
+SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
+       @festival_anterior_id,
+       uv.id
+FROM festival_unidad_venta fuv
+JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
+CROSS JOIN tmp_dias_ant d
+WHERE fuv.festival_id = @festival_anterior_id
+  AND @festival_anterior_id IS NOT NULL;
+
+INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
+SELECT p.id,
+       pl.id,
+       1 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) + mp.idx) % 3),
+       pl.precio
+FROM pedidos p
+JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
+JOIN tmp_mu_ant mu ON mu.codigo = uv.codigo
+JOIN tmp_mp_ant mp ON mp.menu = mu.menu
+JOIN platos pl ON pl.nombre = mp.plato
+WHERE p.festival_id = @festival_anterior_id
+  AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) % mp.cnt) + 1
+       OR mp.idx = ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) + 3) % mp.cnt) + 1);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_dias_ant;
+DROP TEMPORARY TABLE IF EXISTS tmp_mu_ant;
+DROP TEMPORARY TABLE IF EXISTS tmp_mp_ant;
+
+-- 4.3 Pedidos festival anual (15 dias desde hace 365 dias, cantidades menores)
+DROP TEMPORARY TABLE IF EXISTS tmp_dias_anu;
+CREATE TEMPORARY TABLE tmp_dias_anu (d INT);
+INSERT INTO tmp_dias_anu VALUES
+(0),(1),(2),(3),(4),(5),(6),(7),(8),(9),
+(10),(11),(12),(13),(14);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_mu_anu;
+CREATE TEMPORARY TABLE tmp_mu_anu (codigo VARCHAR(10), menu CHAR(1));
+INSERT INTO tmp_mu_anu VALUES
+('FT-0000101','A'), ('PD-0000101','E'),
+('FT-0000102','T'), ('PD-0000102','E'),
+('FT-0000103','A'), ('PD-0000103','A'),
+('FT-0000104','T'), ('PD-0000104','E'),
+('FT-0000105','A'), ('PD-0000105','E');
+
+DROP TEMPORARY TABLE IF EXISTS tmp_mp_anu;
+CREATE TEMPORARY TABLE tmp_mp_anu (menu CHAR(1), idx INT, cnt INT, plato VARCHAR(100));
+INSERT INTO tmp_mp_anu VALUES
+('A',1,7,'Vacío al Libro con Papas Rústicas'),
+('A',2,7,'Choripán Clásico con Chimichurri'),
+('A',3,7,'Sándwich de Bondiola a la Mostaza'),
+('A',4,7,'Matambre a la Pizza al Plato'),
+('A',5,7,'Gaseosa Línea Cola 500ml'),
+('A',6,7,'Cerveza Artesanal Tirada 500ml'),
+('A',7,7,'Agua Mineral 500ml'),
+('E',1,8,'Empanada de Carne Cortada a Cuchillo'),
+('E',2,8,'Empanada de Jamón y Queso'),
+('E',3,8,'Empanada Salteña Picante'),
+('E',4,8,'Docena de Empanadas Variadas'),
+('E',5,8,'Tamal Criollo Tradicional'),
+('E',6,8,'Gaseosa Línea Cola 500ml'),
+('E',7,8,'Cerveza Artesanal Tirada 500ml'),
+('E',8,8,'Agua Mineral 500ml'),
+('T',1,7,'Tacos al Pastor (3 unidades)'),
+('T',2,7,'Tacos de Ternera Mechada (3 unidades)'),
+('T',3,7,'Quesadillas con Guacamole'),
+('T',4,7,'Nachos con Cheddar y Jalapeños'),
+('T',5,7,'Gaseosa Línea Cola 500ml'),
+('T',6,7,'Cerveza Artesanal Tirada 500ml'),
+('T',7,7,'Agua Mineral 500ml');
+
+INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
+SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
+       @festival_anual_id,
+       uv.id
+FROM festival_unidad_venta fuv
+JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
+CROSS JOIN tmp_dias_anu d
+WHERE fuv.festival_id = @festival_anual_id
+  AND @festival_anual_id IS NOT NULL;
+
+INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
+SELECT p.id,
+       pl.id,
+       1 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) + mp.idx) % 2),
+       pl.precio
+FROM pedidos p
+JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
+JOIN tmp_mu_anu mu ON mu.codigo = uv.codigo
+JOIN tmp_mp_anu mp ON mp.menu = mu.menu
+JOIN platos pl ON pl.nombre = mp.plato
+WHERE p.festival_id = @festival_anual_id
+  AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) % mp.cnt) + 1
+       OR mp.idx = ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) + 3) % mp.cnt) + 1);
+
+DROP TEMPORARY TABLE IF EXISTS tmp_dias_anu;
+DROP TEMPORARY TABLE IF EXISTS tmp_mu_anu;
+DROP TEMPORARY TABLE IF EXISTS tmp_mp_anu;
 
 -- #############################################################################
 -- VERIFICACIÓN FINAL

@@ -19,7 +19,7 @@ import jakarta.persistence.Entity;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "Costos")
+@Table(name = "costos")
 public class Costos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +33,13 @@ public class Costos {
         this.tipoCosto = tipoCosto;
         this.monto = monto;
         this.tipoUnidadDeMedida = tipoUnidadDeMedida;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
     }
 }

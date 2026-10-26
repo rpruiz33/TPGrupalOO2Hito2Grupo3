@@ -6,9 +6,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.stream.StreamSupport;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.stream.StreamSupport;
 
 @Controller
 @RequestMapping("/admin")
@@ -58,12 +60,9 @@ public class AdminController {
         // 5. Personal / Staff real
         long staffCount = staffRepository.count();
 
-        // 6. Primer festival para enlace dinámico al reporte
-        Long primerFestivalId = festivalRepository.findAll().stream()
-                .map(Festival::getId)
-                .findFirst()
-                .orElse(1L);
-
+Long primerFestivalId = festivalRepository.findFirstByOrderByIdAsc()
+    .map(Festival::getId)
+    .orElse(1L);
         model.addAttribute("festivalesCount", festivalesCount);
         model.addAttribute("usuariosCount", usuariosCount);
         model.addAttribute("recaudacionMensual", recaudacionMostrar);

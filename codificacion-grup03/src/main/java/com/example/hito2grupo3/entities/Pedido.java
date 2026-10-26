@@ -66,12 +66,12 @@ public class Pedido {
 
 public void agregarItem(ItemPedido item) {
     items.add(item);
-    item.setPedido(this);
+    
 }
 
 public void removerItem(ItemPedido item) {
     items.remove(item);
-    item.setPedido(null);
+    
 }
 
 }
