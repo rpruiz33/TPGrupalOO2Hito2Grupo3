@@ -46,6 +46,8 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/admin/**").hasRole("ADMIN");
                     auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
                             .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "USER");
+                    auth.requestMatchers("/cajero/**")
+                            .hasAnyRole("ADMIN", "EMPLEADO", "USER");
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(login -> {

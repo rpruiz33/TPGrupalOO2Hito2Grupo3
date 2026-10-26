@@ -91,6 +91,8 @@
       <h2 class="h5 text-white-50 mb-0">Mi Información</h2>
     </header>
 
+    <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
+
     <!-- Datos del Empleado -->
     <section class="card-info" th:if="${empleado != null}">
       <h4 class="fw-bold mb-3" style="color: #800020;">Datos del Empleado</h4>
@@ -109,6 +111,15 @@
       <div class="dato-linea">
         <span class="dato-label">Antigüedad:</span>
         <span class="dato-valor" th:text="${empleado.antiguedad} + ' años'">0 años</span>
+      </div>
+      <!-- Datos extra solo para cajeros -->
+      <div class="dato-linea" th:if="${empleado.cajero}">
+        <span class="dato-label">Turno:</span>
+        <span class="dato-valor" th:text="${empleado.turno} ?: 'N/D'">Mañana</span>
+      </div>
+      <div class="dato-linea" th:if="${empleado.cajero}">
+        <span class="dato-label">N° de Caja:</span>
+        <span class="dato-valor" th:text="${empleado.numeroCaja} ?: 'N/D'">1</span>
       </div>
     </section>
 
@@ -136,7 +147,7 @@
         <a class="btn-epicentro" th:href="@{/liquidacion}">
           📄 Ver mis Haberes
         </a>
-        <a class="btn-secundario" th:href="@{/cierreCaja}" th:if="${empleado != null and empleado.cajero}">
+        <a class="btn-secundario" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
           🔒 Cerrar Caja
         </a>
         <a class="btn-secundario" th:href="@{/empleado/index}">

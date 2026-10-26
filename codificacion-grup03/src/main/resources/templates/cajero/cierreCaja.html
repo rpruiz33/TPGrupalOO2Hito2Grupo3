@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cierre de Caja - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
+
+    <style>
+        body {
+            background-color: #800020;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        /* ---- Tarjetas generales ---- */
+        .cc-card {
+            background-color: #ffffff;
+            border: 3px solid #000000;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            margin-bottom: 24px;
+        }
+
+        .cc-card .card-header {
+            background-color: #800020;
+            color: #ffffff;
+            border-radius: 7px 7px 0 0;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        .cc-card .card-body {
+            padding: 20px 24px;
+        }
+
+        /* ---- Resumen cajero ---- */
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 24px;
+        }
+
+        .resumen-item label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+
+        .resumen-item p {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+        }
+
+        .total-badge {
+            display: inline-block;
+            background-color: #800020;
+            color: #fff;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        /* ---- Formulario de registro ---- */
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #800020;
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12);
+        }
+
+        .btn-registrar {
+            background-color: #800020;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 9px 28px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+        }
+
+        .btn-registrar:hover {
+            background-color: #5c0016;
+            transform: translateY(-1px);
+        }
+
+        /* ---- Tabla de historial ---- */
+        .hist-table {
+            font-size: 0.85rem;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hist-table thead th {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.05em;
+            padding: 10px 14px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .hist-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.15s ease;
+        }
+
+        .hist-table tbody tr:hover {
+            background-color: #fdf2f4;
+        }
+
+        .hist-table tbody td {
+            padding: 10px 14px;
+            color: #374151;
+        }
+
+        .monto-col {
+            font-weight: 700;
+            color: #065f46;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* ---- Filtro fechas ---- */
+        .btn-filtrar {
+            background-color: transparent;
+            border: 1.5px solid #800020;
+            color: #800020;
+            border-radius: 6px;
+            padding: 7px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filtrar:hover {
+            background-color: #800020;
+            color: #fff;
+        }
+
+        .btn-limpiar {
+            background-color: transparent;
+            border: 1.5px solid #6b7280;
+            color: #6b7280;
+            border-radius: 6px;
+            padding: 7px 16px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .btn-limpiar:hover {
+            background-color: #6b7280;
+            color: #fff;
+        }
+
+        /* ---- Volver / logout ---- */
+        .btn-volver {
+            border: 1.5px solid #ffffff;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 7px 20px;
+            font-size: 0.88rem;
+            background: transparent;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .logo {
+            text-align: center;
+            margin-top: 28px;
+        }
+
+        .logo .unla-logo-img {
+            width: 90px;
+            height: auto;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="container page-container">
+
+    <!-- Encabezado -->
+    <header class="text-center text-white mb-4">
+        <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
+        <h2 class="h5 text-white-50 mb-0">Cierre de Caja</h2>
+    </header>
+
+    <!-- Alertas -->
+    <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
+
+    <!-- Resumen del cajero -->
+    <div class="cc-card">
+        <div class="card-header">👤 Información del Cajero</div>
+        <div class="card-body">
+            <div class="resumen-grid">
+                <div class="resumen-item">
+                    <label>Nombre</label>
+                    <p th:text="${cajeroNombre} ?: 'N/D'">Cajero Nombre</p>
+                </div>
+                <div class="resumen-item">
+                    <label>DNI</label>
+                    <p th:text="${cajeroDni} ?: 'N/D'">00000000</p>
+                </div>
+                <div class="resumen-item">
+                    <label>Turno</label>
+                    <p th:text="${cajeroTurno} ?: 'N/D'">Mañana</p>
+                </div>
+                <div class="resumen-item">
+                    <label>N° de Caja</label>
+                    <p th:text="${cajeroNumeroCaja} ?: 'N/D'">1</p>
+                </div>
+                <div class="resumen-item">
+                    <label>Unidad de Venta</label>
+                    <p th:text="${unidadVentaNombre} ?: 'Sin asignar'">Food Truck</p>
+                </div>
+                <div class="resumen-item">
+                    <label>Fecha de hoy</label>
+                    <p th:text="${#temporals.format(fechaHoy, 'dd/MM/yyyy')}">01/01/2026</p>
+                </div>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="text-center">
+                <small class="text-muted d-block mb-1">Total acumulado recaudado</small>
+                <span class="total-badge"
+                      th:text="'$ ' + ${#numbers.formatDecimal(totalAcumulado ?: 0, 1, 'POINT', 2, 'COMMA')}">
+                    $ 0,00
+                </span>
+                <div th:if="${totalFiltrado != null}" class="mt-2">
+                    <small class="text-muted">Total en período filtrado: </small>
+                    <strong class="text-success"
+                            th:text="'$ ' + ${#numbers.formatDecimal(totalFiltrado, 1, 'POINT', 2, 'COMMA')}"></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario: Registrar nuevo cierre -->
+    <div class="cc-card">
+        <div class="card-header">🔒 Registrar Cierre de Caja</div>
+        <div class="card-body">
+            <form th:action="@{/cajero/cierre-caja}" method="post" id="formCierreCaja">
+                <div class="row g-3">
+
+                    <!-- Campo oculto: cajeroId -->
+                    <input type="hidden" name="cajeroId" th:value="${cajeroId}">
+
+                    <!-- Unidad de Venta -->
+                    <div class="col-md-6">
+                        <label for="unidadVentaId" class="form-label">Unidad de Venta</label>
+                        <select id="unidadVentaId" name="unidadVentaId" class="form-select" required>
+                            <option value="" disabled selected>Seleccionar unidad...</option>
+                            <option th:each="uv : ${unidades}"
+                                    th:value="${uv.id}"
+                                    th:text="${uv.nombreComercial}"
+                                    th:selected="${uv.id == unidadVentaId}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="col-md-3">
+                        <label for="fecha" class="form-label">Fecha del cierre</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control"
+                               th:value="${#temporals.format(fechaHoy, 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <!-- Monto -->
+                    <div class="col-md-3">
+                        <label for="montoRecaudado" class="form-label">Monto recaudado ($)</label>
+                        <input type="number" id="montoRecaudado" name="montoRecaudado"
+                               class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="col-12 text-end mt-1">
+                        <button type="submit" class="btn-registrar" id="btnRegistrarCierre">
+                            ✔ Registrar Cierre
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Historial de cierres -->
+    <div class="cc-card">
+        <div class="card-header">📋 Historial de Cierres</div>
+        <div class="card-body p-0">
+
+            <!-- Filtro por fechas -->
+            <div class="p-3 border-bottom">
+                <form th:action="@{/cajero/cierre-caja}" method="get" class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label mb-0 small fw-semibold">Desde</label>
+                        <input type="date" name="desde" class="form-control form-control-sm"
+                               th:value="${desde != null ? #temporals.format(desde, 'yyyy-MM-dd') : ''}">
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-0 small fw-semibold">Hasta</label>
+                        <input type="date" name="hasta" class="form-control form-control-sm"
+                               th:value="${hasta != null ? #temporals.format(hasta, 'yyyy-MM-dd') : ''}">
+                    </div>
+                    <div class="col-auto d-flex gap-2">
+                        <button type="submit" class="btn-filtrar">Filtrar</button>
+                        <a th:href="@{/cajero/cierre-caja}" class="btn-limpiar">Limpiar</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla -->
+            <div class="p-0">
+                <table class="hist-table" th:if="${historial != null and !#lists.isEmpty(historial)}">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Unidad de Venta</th>
+                            <th>Monto Recaudado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cierre : ${historial}">
+                            <td th:text="${#temporals.format(cierre.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
+                            <td th:text="${cierre.unidadVenta != null ? cierre.unidadVenta.nombreComercial : 'N/D'}">Unidad</td>
+                            <td class="monto-col"
+                                th:text="'$ ' + ${#numbers.formatDecimal(cierre.montoRecaudado, 1, 'POINT', 2, 'COMMA')}">
+                                $ 0,00
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="empty-state"
+                     th:if="${historial == null or #lists.isEmpty(historial)}">
+                    📭 No hay cierres de caja registrados aún.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="text-center mt-3 d-flex justify-content-center gap-3">
+        <a th:href="@{/empleado/index}" class="btn-volver">← Volver al Panel</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn-volver">Cerrar sesión</button>
+        </form>
+    </div>
+
+    <div class="logo">
+        <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+    // Validación simple del formulario antes de enviar
+    document.getElementById('formCierreCaja').addEventListener('submit', function (e) {
+        const monto = parseFloat(document.getElementById('montoRecaudado').value);
+        if (isNaN(monto) || monto < 0) {
+            e.preventDefault();
+            alert('El monto recaudado debe ser un número positivo.');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -38,63 +38,81 @@ public class EmpleadoController {
 
     @GetMapping("/dashboard")
     public String mostrarDashboard(Principal principal, Model model) {
-        // Obtener festival activo
+
+        // Obtener festival activo (el primero que no haya terminado, o el primero disponible)
         Festival festival = festivalRepository.findAll().stream()
-                .filter(f -> f.getNombre() != null && "Epicentro Gourmet 2026".equalsIgnoreCase(f.getNombre()))
+                .filter(f -> f.getFechaFin() != null && !f.getFechaFin().isBefore(LocalDate.now()))
                 .findFirst()
                 .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
 
         model.addAttribute("festival", festival);
 
-        // Obtener datos del empleado logueado
-        String email = principal != null ? principal.getName() : "empleado@epicentro.com";
+        String email = principal != null ? principal.getName() : null;
 
-        // Buscar staff por email del usuario logueado o tomar el primero disponible
-        Staff staff = staffRepository.findByUsuario_Email(email)
-                .orElseGet(() -> staffRepository.findAll().stream().findFirst().orElse(null));
-
-        Map<String, Object> empleadoMap = new HashMap<>();
-        if (staff != null) {
-            long antiguedad = staff.getFechaIngreso() != null ?
-                    ChronoUnit.YEARS.between(staff.getFechaIngreso(), LocalDate.now()) : 0;
-            boolean esCajero = staff instanceof Cajero;
-            String rol = esCajero ? "Cajero" : (staff instanceof Cocinero c && c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Staff General");
-
-            empleadoMap.put("id", staff.getId());
-            empleadoMap.put("nombre", staff.getNombre() + " " + staff.getApellido());
-            empleadoMap.put("dni", staff.getDni());
-            empleadoMap.put("rol", rol);
-            empleadoMap.put("antiguedad", antiguedad);
-            empleadoMap.put("cajero", esCajero);
-            empleadoMap.put("email", email);
-        } else {
-            // Datos ficticios de muestra para el panel del usuario
-            empleadoMap.put("id", 1L);
-            empleadoMap.put("nombre", "Martín González");
-            empleadoMap.put("dni", "38452910");
-            empleadoMap.put("rol", "Cajero");
-            empleadoMap.put("antiguedad", 3L);
-            empleadoMap.put("cajero", true);
-            empleadoMap.put("email", email);
+        if (email == null) {
+            model.addAttribute("error", "No se pudo identificar al usuario logueado.");
+            return "reportes/empleadoDashboard";
         }
+
+        // Buscar staff vinculado al usuario logueado por email
+        Staff staff = staffRepository.findByUsuario_Email(email).orElse(null);
+
+        if (staff == null) {
+            model.addAttribute("error",
+                    "No se encontró un empleado asociado al usuario \"" + email + "\". "
+                    + "Contactá con el administrador.");
+            return "reportes/empleadoDashboard";
+        }
+
+        // Calcular antigüedad real
+        long antiguedad = staff.getFechaIngreso() != null
+                ? ChronoUnit.YEARS.between(staff.getFechaIngreso(), LocalDate.now())
+                : 0;
+
+        // Determinar rol real
+        boolean esCajero = staff instanceof Cajero;
+        String rol;
+        if (esCajero) {
+            rol = "Cajero";
+        } else if (staff instanceof Cocinero c && c.getCategoriaCocina() != null) {
+            rol = c.getCategoriaCocina().getNombre();
+        } else {
+            rol = "Staff General";
+        }
+
+        // Armar el mapa de datos del empleado (sin nada hardcodeado)
+        Map<String, Object> empleadoMap = new HashMap<>();
+        empleadoMap.put("id", staff.getId());
+        empleadoMap.put("nombre", staff.getNombre() + " " + staff.getApellido());
+        empleadoMap.put("dni", staff.getDni());
+        empleadoMap.put("rol", rol);
+        empleadoMap.put("antiguedad", antiguedad);
+        empleadoMap.put("cajero", esCajero);
+        empleadoMap.put("email", email);
+
+        if (esCajero) {
+            Cajero cajero = (Cajero) staff;
+            empleadoMap.put("turno", cajero.getTurno() != null ? cajero.getTurno() : "N/D");
+            empleadoMap.put("numeroCaja", cajero.getNumeroCaja() != null ? cajero.getNumeroCaja() : "N/D");
+        }
+
         model.addAttribute("empleado", empleadoMap);
 
-        // Asignación actual: buscar asignación real o proveer ficticia representativa
-        UnidadVenta unidad = null;
-        if (staff != null) {
-            unidad = unidadVentaRepository.findAll().stream()
-                    .filter(u -> (u.getResponsable() != null && u.getResponsable().getId() == staff.getId())
-                            || (u.getStaffAsignado() != null && u.getStaffAsignado().stream().anyMatch(s -> s.getId() == staff.getId())))
-                    .findFirst()
-                    .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst().orElse(null));
-        } else {
-            unidad = unidadVentaRepository.findAll().stream().findFirst().orElse(null);
-        }
+        // Buscar unidad de venta real asignada al empleado
+        UnidadVenta unidad = unidadVentaRepository.findAll().stream()
+                .filter(u -> (u.getResponsable() != null && u.getResponsable().getId() == staff.getId())
+                        || (u.getStaffAsignado() != null && u.getStaffAsignado().stream()
+                                .anyMatch(s -> s.getId() == staff.getId())))
+                .findFirst()
+                .orElse(null);
 
-        Map<String, Object> asignacion = new HashMap<>();
-        asignacion.put("unidad", unidad != null ? unidad.getNombreComercial() : "Food Truck 1 - El Asador Viajero");
-        asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
-        model.addAttribute("asignacionActual", asignacion);
+        if (unidad != null) {
+            Map<String, Object> asignacion = new HashMap<>();
+            asignacion.put("unidad", unidad.getNombreComercial());
+            asignacion.put("festival", festival != null ? festival.getNombre() : "Sin festival activo");
+            model.addAttribute("asignacionActual", asignacion);
+        }
+        // Si unidad == null, asignacionActual no se pone en el model → la vista ya maneja ese caso
 
         return "reportes/empleadoDashboard";
     }
