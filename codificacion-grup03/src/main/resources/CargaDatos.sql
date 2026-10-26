@@ -35,7 +35,8 @@ SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
 (2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
-(3, 0, 'admin@epicentro.com',  @hash_pw, 1);
+(3, 0, 'admin@epicentro.com',  @hash_pw, 1),
+(4, 0, 'cajero@epicentro.com',  @hash_pw, 4);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
@@ -237,6 +238,38 @@ SELECT t.nombre, t.apellido, t.dni, t.fecha_nac, t.fecha_ingreso, t.sueldo,
 FROM tmp_empleados t
 WHERE NOT EXISTS (SELECT 1 FROM staff s WHERE s.dni = t.dni);
 
+
+-- Asociar cajero@epicentro.com a un empleado
+SET @user_cajero_id = (
+    SELECT id
+    FROM usuarios
+    WHERE email = 'cajero@epicentro.com'
+    LIMIT 1
+);
+
+INSERT INTO staff (
+    nombre,
+    apellido,
+    dni,
+    fecha_nacimiento,
+    fecha_ingreso,
+    sueldo,
+    usuario_id
+)
+SELECT
+    'Alejandro',
+    'Ramirez',
+    '43987651',
+    '1998-05-12',
+    '2026-01-15',
+    150000.00,
+    @user_cajero_id
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM staff
+    WHERE dni = '43987651'
+);
+
 -- 2.5 CAJEROS Y COCINEROS
 INSERT INTO cajero (id, turno, numero_caja, plus_oadicional)
 SELECT s.id, t.turno, t.num_caja, t.plus_adicional
@@ -244,6 +277,19 @@ FROM tmp_empleados t
 JOIN staff s ON s.dni = t.dni
 WHERE t.tipo = 'C'
   AND NOT EXISTS (SELECT 1 FROM cajero c WHERE c.id = s.id);
+
+-- Registrar a Alejandro como cajero, vinculado a cajero@epicentro.com
+INSERT INTO cajero (id, turno, numero_caja, plus_oadicional)
+SELECT s.id, 'Tarde', 31, 0.00
+FROM staff s
+JOIN usuarios u ON u.id = s.usuario_id
+WHERE s.dni = '43987651'
+  AND u.email = 'cajero@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM cajero c
+      WHERE c.id = s.id
+  );
 
 INSERT INTO cocineros (id, especialidad, libreta_sanitaria, bono_peligrosidad, categoria_cocina_id)
 SELECT s.id, t.especialidad, t.libreta, t.bono_pelig, c.id
@@ -285,6 +331,21 @@ WHERE NOT EXISTS (
     SELECT 1 FROM unidad_venta_staff uvs
     WHERE uvs.unidad_venta_id = uv.id AND uvs.staff_id = s.id
 );
+
+-- Asignar a Alejandro Ramirez a la unidad La Trinchera Gourmet
+INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
+SELECT uv.id, s.id
+FROM unidades_venta uv
+JOIN staff s ON s.dni = '43987651'
+JOIN usuarios u ON u.id = s.usuario_id
+WHERE uv.codigo = 'FT-0000101'
+  AND u.email = 'cajero@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM unidad_venta_staff uvs
+      WHERE uvs.unidad_venta_id = uv.id
+        AND uvs.staff_id = s.id
+  );
 
 INSERT INTO festival_unidad_venta (festival_id, unidad_venta_id)
 SELECT @festival_id, uv.id

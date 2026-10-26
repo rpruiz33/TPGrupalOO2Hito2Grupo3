@@ -13,19 +13,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
 
-    final StaffRepository staffRepository;
-    final UnidadVentaRepository unidadVentaRepository;
-    final FestivalRepository festivalRepository;
+    private final StaffRepository staffRepository;
+    private final UnidadVentaRepository unidadVentaRepository;
+    private final FestivalRepository festivalRepository;
 
-    public EmpleadoController(StaffRepository staffRepository,
-                              UnidadVentaRepository unidadVentaRepository,
-                              FestivalRepository festivalRepository) {
+    public EmpleadoController(
+            StaffRepository staffRepository,
+            UnidadVentaRepository unidadVentaRepository,
+            FestivalRepository festivalRepository) {
+
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.festivalRepository = festivalRepository;
@@ -38,64 +41,142 @@ public class EmpleadoController {
 
     @GetMapping("/dashboard")
     public String mostrarDashboard(Principal principal, Model model) {
-        // Obtener festival activo
-        Festival festival = festivalRepository.findAll().stream()
-                .filter(f -> f.getNombre() != null && "Epicentro Gourmet 2026".equalsIgnoreCase(f.getNombre()))
-                .findFirst()
-                .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
 
-        model.addAttribute("festival", festival);
+        // Obtener el usuario autenticado.
+        String email = principal != null ? principal.getName() : null;
 
-        // Obtener datos del empleado logueado
-        String email = principal != null ? principal.getName() : "empleado@epicentro.com";
+        // Buscar exclusivamente al empleado asociado al usuario autenticado.
+        Staff staff = email != null
+                ? staffRepository.findByUsuario_Email(email).orElse(null)
+                : null;
 
-        // Buscar staff por email del usuario logueado o tomar el primero disponible
-        Staff staff = staffRepository.findByUsuario_Email(email)
-                .orElseGet(() -> staffRepository.findAll().stream().findFirst().orElse(null));
-
-        Map<String, Object> empleadoMap = new HashMap<>();
+        // Cargar los datos del empleado.
         if (staff != null) {
-            long antiguedad = staff.getFechaIngreso() != null ?
-                    ChronoUnit.YEARS.between(staff.getFechaIngreso(), LocalDate.now()) : 0;
+
+            long antiguedad = staff.getFechaIngreso() != null
+                    ? ChronoUnit.YEARS.between(
+                            staff.getFechaIngreso(),
+                            LocalDate.now())
+                    : 0;
+
             boolean esCajero = staff instanceof Cajero;
-            String rol = esCajero ? "Cajero" : (staff instanceof Cocinero c && c.getCategoriaCocina() != null ? c.getCategoriaCocina().getNombre() : "Staff General");
 
-            empleadoMap.put("id", staff.getId());
-            empleadoMap.put("nombre", staff.getNombre() + " " + staff.getApellido());
-            empleadoMap.put("dni", staff.getDni());
-            empleadoMap.put("rol", rol);
-            empleadoMap.put("antiguedad", antiguedad);
-            empleadoMap.put("cajero", esCajero);
-            empleadoMap.put("email", email);
+            String rol = esCajero
+                    ? "Cajero"
+                    : (staff instanceof Cocinero cocinero
+                            && cocinero.getCategoriaCocina() != null
+                            ? cocinero.getCategoriaCocina().getNombre()
+                            : "Staff General");
+
+            Map<String, Object> empleado = new HashMap<>();
+
+            empleado.put("id", staff.getId());
+            empleado.put("nombre",
+                    staff.getNombre() + " " + staff.getApellido());
+            empleado.put("dni", staff.getDni());
+            empleado.put("rol", rol);
+            empleado.put("antiguedad", antiguedad);
+            empleado.put("cajero", esCajero);
+            empleado.put("email", email);
+
+            model.addAttribute("empleado", empleado);
+
         } else {
-            // Datos ficticios de muestra para el panel del usuario
-            empleadoMap.put("id", 1L);
-            empleadoMap.put("nombre", "Martín González");
-            empleadoMap.put("dni", "38452910");
-            empleadoMap.put("rol", "Cajero");
-            empleadoMap.put("antiguedad", 3L);
-            empleadoMap.put("cajero", true);
-            empleadoMap.put("email", email);
+            model.addAttribute("empleado", null);
         }
-        model.addAttribute("empleado", empleadoMap);
 
-        // Asignación actual: buscar asignación real o proveer ficticia representativa
-        UnidadVenta unidad = null;
-        if (staff != null) {
-            unidad = unidadVentaRepository.findAll().stream()
-                    .filter(u -> (u.getResponsable() != null && u.getResponsable().getId() == staff.getId())
-                            || (u.getStaffAsignado() != null && u.getStaffAsignado().stream().anyMatch(s -> s.getId() == staff.getId())))
+        // Buscar el festival activo para la fecha actual.
+        LocalDate hoy = LocalDate.now();
+
+        Festival festivalActivo = festivalRepository.findAll().stream()
+                .filter(festival ->
+                        festival.getFechaInicio() != null
+                        && festival.getFechaFin() != null
+                        && !hoy.isBefore(festival.getFechaInicio())
+                        && !hoy.isAfter(festival.getFechaFin()))
+                .findFirst()
+                .orElse(null);
+
+        // No asignar una unidad ni un festival ficticios.
+        Map<String, Object> asignacionActual = null;
+
+        if (staff != null && festivalActivo != null) {
+
+            long staffId = staff.getId();
+            long festivalId = festivalActivo.getId();
+
+            UnidadVenta unidadAsignada = unidadVentaRepository.findAll()
+                    .stream()
+                    .filter(unidad -> {
+
+                        boolean esResponsable =
+                                unidad.getResponsable() != null
+                                && unidad.getResponsable().getId() == staffId;
+
+                        boolean estaEnStaffAsignado =
+                                unidad.getStaffAsignado() != null
+                                && unidad.getStaffAsignado().stream()
+                                        .anyMatch(persona ->
+                                                persona.getId() == staffId);
+
+                        return esResponsable || estaEnStaffAsignado;
+                    })
+                    .filter(unidad ->
+                            unidad.getFestivales() != null
+                            && unidad.getFestivales().stream()
+                                    .anyMatch(festival ->
+                                            festival.getId() == festivalId))
                     .findFirst()
-                    .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst().orElse(null));
-        } else {
-            unidad = unidadVentaRepository.findAll().stream().findFirst().orElse(null);
+                    .orElse(null);
+
+            if (unidadAsignada != null) {
+
+                asignacionActual = new HashMap<>();
+
+                asignacionActual.put(
+                        "unidad",
+                        unidadAsignada.getNombreComercial());
+
+                asignacionActual.put(
+                        "festival",
+                        festivalActivo.getNombre());
+            }
         }
 
-        Map<String, Object> asignacion = new HashMap<>();
-        asignacion.put("unidad", unidad != null ? unidad.getNombreComercial() : "Food Truck 1 - El Asador Viajero");
-        asignacion.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
-        model.addAttribute("asignacionActual", asignacion);
+        model.addAttribute("asignacionActual", asignacionActual);
 
         return "reportes/empleadoDashboard";
     }
+
+    /**
+     * Redirige al usuario autenticado al menú que le corresponde.
+     */
+   @GetMapping("/volver-al-menu")
+public String volverAlMenu(
+        Principal principal,
+        org.springframework.security.core.Authentication authentication) {
+
+    if (principal == null || authentication == null) {
+        return "redirect:/login";
+    }
+
+    // Redirigir según los permisos reales del usuario.
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_CAJERO"))) {
+        return "redirect:/cajero/index";
+    }
+
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"))) {
+        return "redirect:/responsable/index";
+    }
+
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"))) {
+        return "redirect:/empleado/index";
+    }
+
+    // Si no tiene ninguno de los roles esperados, denegar el acceso.
+    return "redirect:/access-denied";
+}
 }

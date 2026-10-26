@@ -174,7 +174,8 @@
                     Registrar pedido
                 </button>
 
-                <a class="boton" th:href="@{/empleado/index}">Volver</a>
+                
+                <a class="boton" th:href="@{/cajero/index}">Volver</a>
             </div>
 
         </form>
@@ -551,47 +552,41 @@ document.addEventListener("DOMContentLoaded", function () {
     btnLimpiar.addEventListener("click", function () {
         solicitudUnidades++;
         solicitudPlatos++;
-btnLimpiar.addEventListener("click", function () {
-    solicitudUnidades++;
-    solicitudPlatos++;
 
-    // Limpiar los platos agregados y el total.
-    items.clear();
-    dibujarTabla();
+        // Limpiar los platos agregados y el total.
+        items.clear();
+        dibujarTabla();
 
-    // Restaurar la fecha actual.
-    campoFecha.value = fechaActual;
-    validarFecha();
+        // Restaurar la fecha actual.
+        campoFecha.value = fechaActual;
+        validarFecha();
 
-    // Mantener el festival seleccionado.
-    // Si hay un único festival, el select permanece seleccionado.
-    // Si hay varios, se conserva la selección actual.
-    if (festivalSelect.value) {
-        cargarUnidadesPorFestival();
-    } else {
-        unidadSelect.innerHTML =
-            '<option value="">Selecciona primero un festival...</option>';
-        unidadSelect.disabled = true;
+        // Mantener el festival seleccionado y volver a cargar sus unidades.
+        if (festivalSelect.value) {
+            cargarUnidadesPorFestival();
+        } else {
+            unidadSelect.innerHTML =
+                '<option value="">Selecciona primero un festival...</option>';
+            unidadSelect.disabled = true;
 
-        platoSelect.innerHTML =
-            '<option value="">Selecciona primero una unidad...</option>';
-        platoSelect.disabled = true;
+            platoSelect.innerHTML =
+                '<option value="">Selecciona primero una unidad...</option>';
+            platoSelect.disabled = true;
 
-        btnAgregar.disabled = true;
-    }
+            btnAgregar.disabled = true;
+        }
 
-    // Restaurar la cantidad.
-    cantidadInput.value = "1";
+        // Restaurar la cantidad.
+        cantidadInput.value = "1";
 
-    // Limpiar los avisos.
-    avisoUnidades.textContent = "";
-    avisoUnidades.classList.add("d-none");
+        // Limpiar los avisos.
+        avisoUnidades.textContent = "";
+        avisoUnidades.classList.add("d-none");
 
-    avisoPlatos.textContent = "";
-    avisoPlatos.classList.add("d-none");
+        avisoPlatos.textContent = "";
+        avisoPlatos.classList.add("d-none");
 
-    avisoFecha.classList.add("d-none");
-});
+        avisoFecha.classList.add("d-none");
     });
 
     formulario.addEventListener("submit", function (evento) {
