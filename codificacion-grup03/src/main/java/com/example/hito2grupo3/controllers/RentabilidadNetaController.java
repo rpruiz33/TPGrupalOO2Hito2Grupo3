@@ -105,64 +105,6 @@ public class RentabilidadNetaController {
         return "reportes/rentabilidadNeta";
     }
 
-   /* @GetMapping("/reportes/rentabilidad")
-    public String calcularRentabilidad(
-            @RequestParam(required = false) Long festivalId,
-            @RequestParam(value = "fechaDesde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
-            @RequestParam(value = "fechaHasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
-            Model model) {
-
-        model.addAttribute("fechaDesde", fechaDesde);
-        model.addAttribute("fechaHasta", fechaHasta);
-        model.addAttribute("esAdministrador", true);
-
-        List<Festival> festivales = Collections.emptyList();
-        try {
-            festivales = r.listarFestivales();
-            model.addAttribute("festivales", festivales);
-        } catch (Exception ignored) {
-            model.addAttribute("festivales", Collections.emptyList());
-        }
-
-        // Si se ingresaron fechas, detectar automáticamente el festival correspondiente al rango
-        if (fechaDesde != null && fechaHasta != null) {
-            for (Festival f : festivales) {
-                if (f.getFechaInicio() != null && f.getFechaFin() != null) {
-                    if ((!fechaDesde.isBefore(f.getFechaInicio()) && !fechaHasta.isAfter(f.getFechaFin()))
-                            || fechaDesde.equals(f.getFechaInicio()) || fechaHasta.equals(f.getFechaFin())) {
-                        festivalId = f.getId();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (festivalId == null) {
-            festivalId = 1L;
-        }
-
-        model.addAttribute("festivalId", festivalId);
-
-        try {
-            model.addAttribute("reporte", r.obtenerReporteVenta(festivalId));
-            model.addAttribute("ranking", r.obtenerRankingUnidades(festivalId));
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> reporteData = (Map<String, Object>) r.obtenerReporteVentaEntreFechas(festivalId, fechaDesde, fechaHasta);
-            if (reporteData != null) {
-                model.addAttribute("totalIngresos", reporteData.get("totalIngresos"));
-                model.addAttribute("totalCostos", reporteData.get("totalCostos"));
-                model.addAttribute("rentabilidadNeta", reporteData.get("rentabilidadNeta"));
-                model.addAttribute("detalles", reporteData.get("detalles"));
-            }
-        } catch (Exception ex) {
-            model.addAttribute("error", "No se pudo obtener el reporte: " + ex.getMessage());
-            model.addAttribute("detalles", Collections.emptyList());
-        }
-
-        return "reportes/rentabilidadNeta";
-    }/* */
-
    @GetMapping("/reportes/rentabilidad")
     public String calcularRentabilidad(
             @RequestParam(required = false, defaultValue = "1") Long festivalId,
