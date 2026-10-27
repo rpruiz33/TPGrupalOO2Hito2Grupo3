@@ -27,20 +27,31 @@ public abstract class UnidadVenta {
     private Long id;
 
     @jakarta.validation.constraints.NotNull(message = "El código de la unidad de venta es obligatorio")
-    @jakarta.validation.constraints.Size(min = LONGITUD_CODIGO, max = LONGITUD_CODIGO, message = "El código debe tener exactamente 10 caracteres")
-    @jakarta.validation.constraints.Pattern(regexp = REGEX_CODIGO_GENERICO, message = "El código debe tener exactamente 10 caracteres en formato XX-NNNNNNN (ej: FT-0000001 o PD-0000001)")
+    @jakarta.validation.constraints.Size(
+        min = LONGITUD_CODIGO,
+        max = LONGITUD_CODIGO,
+        message = "El código debe tener exactamente 10 caracteres"
+    )
+    @jakarta.validation.constraints.Pattern(
+        regexp = REGEX_CODIGO_GENERICO,
+        message = "El código debe tener exactamente 10 caracteres en formato XX-NNNNNNN (ej: FT-0000001 o PD-0000001)"
+    )
     @Column(name = "codigo", nullable = false, unique = true, length = LONGITUD_CODIGO)
     private String codigo;
 
     private String nombreComercial;
+
     private BigDecimal superficieM2;
 
     public static boolean esCodigoValido(String codigo) {
         if (codigo == null) {
             return false;
         }
+
         String limpio = codigo.trim();
-        return limpio.length() == LONGITUD_CODIGO && limpio.matches(REGEX_CODIGO_GENERICO);
+
+        return limpio.length() == LONGITUD_CODIGO
+                && limpio.matches(REGEX_CODIGO_GENERICO);
     }
 
     public boolean validarCodigo(String codigoAValidar) {
@@ -54,23 +65,20 @@ public abstract class UnidadVenta {
     public void setCodigo(String codigo) {
         if (!validarCodigo(codigo)) {
             throw new IllegalArgumentException(
-                    "Código de unidad de venta inválido: '" + codigo
-                    + "'. Debe tener exactamente " + LONGITUD_CODIGO
-                    + " caracteres y cumplir el formato correspondiente (ej: FT-0000001 o PD-0000001).");
+                "Código de unidad de venta inválido: '" + codigo
+                + "'. Debe tener exactamente " + LONGITUD_CODIGO
+                + " caracteres y cumplir el formato correspondiente (ej: FT-0000001 o PD-0000001)."
+            );
         }
+
         this.codigo = codigo != null ? codigo.trim() : null;
     }
 
-    // Relación ManyToMany con Plato
-    @ManyToMany
-    @JoinTable(
-        name = "unidad_venta_plato",
-        joinColumns = @JoinColumn(name = "unidad_venta_id"),
-        inverseJoinColumns = @JoinColumn(name = "plato_id")
-    )
+    // Relación OneToMany con Plato
+    @OneToMany(mappedBy = "unidadVenta")
     private List<Plato> platosOfrecidos = new ArrayList<>();
 
-    // 1. Staff Asignado: Muchos a Muchos (1..* asigna 0..*)
+    // Staff asignado: Muchos a Muchos
     @ManyToMany
     @JoinTable(
         name = "unidad_venta_staff",
@@ -79,7 +87,7 @@ public abstract class UnidadVenta {
     )
     private Set<Staff> staffAsignado = new HashSet<>();
 
-    // 2. Responsable: Muchos a Uno (Un staff puede ser responsable de varias unidades, pero la unidad tiene 1)
+    // Responsable: Muchos a Uno
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsable_id", nullable = false)
     private Staff responsable;
@@ -87,8 +95,7 @@ public abstract class UnidadVenta {
     @ManyToMany(mappedBy = "unidadesVentaHabilitadas")
     private Set<Festival> festivales = new HashSet<>();
 
-  
     @OneToMany(mappedBy = "unidadVenta")
     private List<Pedido> pedidos = new ArrayList<>();
-    
+
 }

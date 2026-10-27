@@ -105,7 +105,7 @@ public class RentabilidadNetaController {
         return "reportes/rentabilidadNeta";
     }
 
-    @GetMapping("/reportes/rentabilidad")
+   /* @GetMapping("/reportes/rentabilidad")
     public String calcularRentabilidad(
             @RequestParam(required = false) Long festivalId,
             @RequestParam(value = "fechaDesde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
@@ -161,7 +161,7 @@ public class RentabilidadNetaController {
         }
 
         return "reportes/rentabilidadNeta";
-    }
+    }/* */
 
    @GetMapping("/reportes/rentabilidad")
     public String calcularRentabilidad(
