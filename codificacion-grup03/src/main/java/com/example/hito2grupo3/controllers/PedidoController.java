@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.mapping.Set;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
+import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.Plato;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
@@ -98,22 +101,25 @@ public class PedidoController {
                     "No tenés acceso a este festival.");
         }
 
-        List<UnidadRespuesta> unidades = festivalRepository
-                .obtenerUnidadesPorFestival(id)
-                .stream()
-                .filter(unidad -> unidad.getStaffAsignado() != null)
-                .filter(unidad -> unidad.getStaffAsignado()
-                        .stream()
-                        .anyMatch(asignado ->
-                                asignado.getId() == staff.getId()))
-                .map(unidad -> new UnidadRespuesta(
-                        unidad.getId(),
-                        unidad.getNombreComercial()))
-                .toList();
+       List<UnidadRespuesta> unidades = festivalRepository
+        .obtenerUnidadesPorFestival(id)
+        .stream()
+        .filter(unidad -> tieneStaffAsignado(unidad, staff))
+        .map(this::toRespuesta)
+        .toList();
 
-        return ResponseEntity.ok(unidades);
-    }
+return ResponseEntity.ok(unidades);
+}
 
+private boolean tieneStaffAsignado(UnidadVenta unidad, Staff staff) {
+    Set asignados = (Set) unidad.getStaffAsignado();
+    return asignados != null
+            && ((Collection<Festival>) asignados).stream().anyMatch(s -> s.getId() == staff.getId());
+}
+
+private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
+    return new UnidadRespuesta(unidad.getId(), unidad.getNombreComercial());
+}
     @GetMapping("/unidades/{id}/platos")
     @ResponseBody
     public ResponseEntity<List<PlatoRespuesta>> obtenerPlatos(

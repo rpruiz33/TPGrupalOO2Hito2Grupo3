@@ -445,15 +445,14 @@ JOIN tmp_catalogo_platos cp ON cp.nombre = mp.plato;
 
 DROP TEMPORARY TABLE IF EXISTS tmp_catalogo_platos;
 
--- 3.4 Pedidos: 1 por unidad y por día (01/10/2026 al 20/10/2026)
+-- 3.4 Pedidos: 1 por unidad y por día (desde hace 10 días hasta hoy CURRENT_DATE())
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 CREATE TEMPORARY TABLE tmp_dias (d INT);
 INSERT INTO tmp_dias VALUES
-(0),(1),(2),(3),(4),(5),(6),(7),(8),(9),
-(10),(11),(12),(13),(14),(15),(16),(17),(18),(19);
+(0),(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
 
 INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_ADD('2026-10-01', INTERVAL d.d DAY), @festival_id, uv.id
+SELECT DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY), @festival_id, uv.id
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
@@ -464,7 +463,7 @@ WHERE fuv.festival_id = @festival_id;
 INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
 SELECT p.id,
        pl.id,
-       1 + ((DATEDIFF(p.fecha_transaccion, '2026-10-01') + mp.idx) % 4),
+       1 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + mp.idx) % 4),
        pl.precio
 FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
@@ -474,8 +473,8 @@ JOIN platos pl
     ON pl.nombre = mp.plato
    AND pl.unidad_venta_id = uv.id
 WHERE p.festival_id = @festival_id
-  AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, '2026-10-01') % mp.cnt) + 1
-       OR mp.idx = ((DATEDIFF(p.fecha_transaccion, '2026-10-01') + 3) % mp.cnt) + 1);
+  AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) % mp.cnt) + 1
+       OR mp.idx = ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + 3) % mp.cnt) + 1);
 
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_plato;

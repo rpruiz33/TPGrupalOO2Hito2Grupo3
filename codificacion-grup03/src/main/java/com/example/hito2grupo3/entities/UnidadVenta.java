@@ -2,7 +2,6 @@ package com.example.hito2grupo3.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -10,10 +9,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "unidades_venta")
 @Inheritance(strategy = InheritanceType.JOINED)

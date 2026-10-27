@@ -14,16 +14,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
-@Data
-@Getter 
-@Setter 
+@Setter
+@Getter
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
@@ -50,7 +45,7 @@ public class Pedido {
     }
 
     public Pedido(Long id, Festival festival, UnidadVenta unidadVenta,
-                  Set<ItemPedido> items, LocalDate fechaTransaccion) {
+            Set<ItemPedido> items, LocalDate fechaTransaccion) {
         this.id = id;
         this.festival = festival;
         this.unidadVenta = unidadVenta;
@@ -59,19 +54,18 @@ public class Pedido {
     }
 
     public double calcularTotal() {
-    return items.stream()
-            .mapToDouble(item -> item.calcularSubtotal().doubleValue())
-            .sum();
-}
+        return items.stream()
+                .mapToDouble(item -> item.calcularSubtotal().doubleValue())
+                .sum();
+    }
 
-public void agregarItem(ItemPedido item) {
-    items.add(item);
-    
-}
+    public void agregarItem(ItemPedido item) {
+        items.add(item);
+    }
 
-public void removerItem(ItemPedido item) {
-    items.remove(item);
-    
-}
+    public void removerItem(ItemPedido item) {
+        items.remove(item);
+    }
+
 
 }

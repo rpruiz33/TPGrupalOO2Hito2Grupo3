@@ -1,3 +1,4 @@
+
 package com.example.hito2grupo3.services.impl;
 
 import java.math.BigDecimal;
@@ -76,7 +77,7 @@ public class RegistroUnidadVentaServiceImpl
             }
         }
 
-        if (numeroMayor == 9_999_999) {
+        if (numeroMayor >= 9_999_999) {
             throw new IllegalArgumentException(
                     "Se alcanzó el máximo de códigos disponibles para este tipo de unidad.");
         }
@@ -103,7 +104,8 @@ public class RegistroUnidadVentaServiceImpl
             String password) {
 
         // Normalizar datos de texto
-        nombreComercial = nombreComercial == null ? "" : nombreComercial.trim();
+        nombreComercial = nombreComercial == null
+                ? "" : nombreComercial.trim();
         nombre = nombre == null ? "" : nombre.trim();
         apellido = apellido == null ? "" : apellido.trim();
         dni = dni == null ? "" : dni.trim();
@@ -125,39 +127,72 @@ public class RegistroUnidadVentaServiceImpl
                     "Completá todos los campos obligatorios.");
         }
 
+        // Validar DNI: exactamente 8 dígitos numéricos
+        if (!dni.matches("[0-9]{8}")) {
+            throw new IllegalArgumentException(
+                    "El DNI debe contener exactamente 8 dígitos numéricos, sin puntos ni espacios.");
+        }
+
+        // Validar formato básico del email
+        if (!email.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException(
+                    "Ingresá un email con un formato válido.");
+        }
+
+        // Validar contraseña
         if (password.length() < 8) {
             throw new IllegalArgumentException(
                     "La contraseña debe tener al menos 8 caracteres.");
         }
 
+        // Validar superficie
         if (superficieM2.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
                     "La superficie debe ser mayor que cero.");
         }
 
-        if (fechaNacimiento.isAfter(LocalDate.now())) {
+        LocalDate hoy = LocalDate.now();
+
+        // Validar fecha de nacimiento
+        if (fechaNacimiento.isAfter(hoy)) {
             throw new IllegalArgumentException(
                     "La fecha de nacimiento no puede ser futura.");
         }
 
-        if (fechaIngreso.isAfter(LocalDate.now())) {
+        // Validar mayoría de edad
+        if (fechaNacimiento.plusYears(18).isAfter(hoy)) {
+            throw new IllegalArgumentException(
+                    "El responsable debe ser mayor de edad.");
+        }
+
+        // Validar fecha de ingreso
+        if (fechaIngreso.isAfter(hoy)) {
             throw new IllegalArgumentException(
                     "La fecha de ingreso no puede ser futura.");
         }
 
+        if (fechaIngreso.isBefore(fechaNacimiento)) {
+            throw new IllegalArgumentException(
+                    "La fecha de ingreso no puede ser anterior a la fecha de nacimiento.");
+        }
+
+        // Validar email único
         if (usuarioRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException(
                     "Ya existe un usuario registrado con ese email.");
         }
 
+        // Validar DNI único
         if (staffRepository.findByDni(dni).isPresent()) {
             throw new IllegalArgumentException(
                     "Ya existe una persona registrada con ese DNI.");
         }
 
+        // Generar código de unidad
         String codigo = generarCodigo(tipoUnidad);
 
-        // Validar el tipo y los datos específicos de la unidad
+        // Validar tipo y datos específicos de la unidad
         UnidadVenta unidad;
 
         if ("FOOD_TRUCK".equals(tipoUnidad)) {
