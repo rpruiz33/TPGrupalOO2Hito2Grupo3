@@ -94,14 +94,14 @@ public class CajeroController {
     public String registrarCierreCaja(
             @RequestParam Long cajeroId,
             @RequestParam Long unidadVentaId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
-            @RequestParam BigDecimal montoRecaudado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false) BigDecimal montoRecaudado,
             RedirectAttributes redirectAttributes) {
 
         try {
             cierreCajaService.registrarCierre(cajeroId, unidadVentaId, fecha, montoRecaudado);
             redirectAttributes.addFlashAttribute("mensaje",
-                    "Cierre de caja registrado exitosamente para el " + fecha + ".");
+                    "Cierre de caja registrado exitosamente.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {

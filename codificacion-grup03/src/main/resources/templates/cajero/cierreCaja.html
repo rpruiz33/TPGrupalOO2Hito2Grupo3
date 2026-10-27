@@ -220,6 +220,67 @@
             height: auto;
             border: 2px solid black;
         }
+
+        /* ---- Ventas del día ---- */
+        .ventas-dia-table {
+            font-size: 0.83rem;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ventas-dia-table thead th {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            padding: 8px 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .ventas-dia-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ventas-dia-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .ventas-dia-table tbody td {
+            padding: 8px 12px;
+            color: #374151;
+        }
+
+        .ventas-total-row td {
+            font-weight: 700;
+            color: #065f46;
+            border-top: 2px solid #e5e7eb;
+            background-color: #f0fdf4;
+        }
+
+        .btn-usar-total {
+            background-color: #065f46;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-usar-total:hover {
+            background-color: #047857;
+        }
+
+        .ventas-empty {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 0.88rem;
+        }
     </style>
 </head>
 
@@ -285,6 +346,54 @@
         </div>
     </div>
 
+    <!-- Ventas del día en la unidad -->
+    <div class="cc-card">
+        <div class="card-header">🛒 Ventas del Día en tu Unidad</div>
+        <div class="card-body p-0">
+
+            <!-- Si hay ventas -->
+            <div th:if="${ventasHoy != null and !#lists.isEmpty(ventasHoy)}">
+                <table class="ventas-dia-table">
+                    <thead>
+                        <tr>
+                            <th>Plato</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-end">Precio Unit.</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="v : ${ventasHoy}">
+                            <td th:text="${v.nombrePlato}">Plato</td>
+                            <td class="text-center" th:text="${v.cantidadVendida}">0</td>
+                            <td class="text-end"
+                                th:text="'$ ' + ${#numbers.formatDecimal(v.precioUnitario, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="text-end monto-col"
+                                th:text="'$ ' + ${#numbers.formatDecimal(v.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                        <tr class="ventas-total-row">
+                            <td colspan="3">Total vendido hoy</td>
+                            <td class="text-end"
+                                th:text="'$ ' + ${#numbers.formatDecimal(totalVentasHoy ?: 0, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="p-3 text-end">
+                    <button type="button" class="btn-usar-total" id="btnUsarTotal"
+                            th:attr="data-total=${totalVentasHoy}">
+                        ↓ Usar este monto en el cierre
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sin ventas registradas hoy -->
+            <div class="ventas-empty"
+                 th:if="${ventasHoy == null or #lists.isEmpty(ventasHoy)}">
+                📭 No se registraron ventas hoy en esta unidad.
+            </div>
+        </div>
+    </div>
+
     <!-- Formulario: Registrar nuevo cierre -->
     <div class="cc-card">
         <div class="card-header">🔒 Registrar Cierre de Caja</div>
@@ -312,20 +421,23 @@
                     <div class="col-md-3">
                         <label for="fecha" class="form-label">Fecha del cierre</label>
                         <input type="date" id="fecha" name="fecha" class="form-control"
-                               th:value="${#temporals.format(fechaHoy, 'yyyy-MM-dd')}" required>
+                               th:value="${#temporals.format(fechaHoy, 'yyyy-MM-dd')}" readonly required>
+                        <small class="text-muted">Día de hoy</small>
                     </div>
 
                     <!-- Monto -->
                     <div class="col-md-3">
                         <label for="montoRecaudado" class="form-label">Monto recaudado ($)</label>
                         <input type="number" id="montoRecaudado" name="montoRecaudado"
-                               class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                               class="form-control" step="0.01" min="0"
+                               th:value="${totalVentasHoy != null ? totalVentasHoy : 0}" required>
+                        <small class="text-muted">Total vendido según BD</small>
                     </div>
 
                     <!-- Botón -->
                     <div class="col-12 text-end mt-1">
                         <button type="submit" class="btn-registrar" id="btnRegistrarCierre">
-                            ✔ Registrar Cierre
+                            ✔ Confirmar Cierre de Caja
                         </button>
                     </div>
                 </div>
@@ -414,6 +526,19 @@
             alert('El monto recaudado debe ser un número positivo.');
         }
     });
+
+    // Botón "Usar este monto en el cierre": pre-carga el total de ventas del día
+    const btnUsarTotal = document.getElementById('btnUsarTotal');
+    if (btnUsarTotal) {
+        btnUsarTotal.addEventListener('click', function () {
+            const total = parseFloat(this.getAttribute('data-total')) || 0;
+            const montoInput = document.getElementById('montoRecaudado');
+            montoInput.value = total.toFixed(2);
+            montoInput.focus();
+            // Scroll suave al formulario
+            document.getElementById('formCierreCaja').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
 </script>
 
 </body>

@@ -3,8 +3,10 @@ package com.example.hito2grupo3.services.impl;
 import com.example.hito2grupo3.entities.Cajero;
 import com.example.hito2grupo3.entities.CierreCaja;
 import com.example.hito2grupo3.entities.UnidadVenta;
+import com.example.hito2grupo3.dto.VentaUnidadDiaDTO;
 import com.example.hito2grupo3.repositories.CajeroRepository;
 import com.example.hito2grupo3.repositories.CierreCajaRepository;
+import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.ICierreCajaService;
 
@@ -21,13 +23,16 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
     private final CierreCajaRepository cierreCajaRepository;
     private final CajeroRepository cajeroRepository;
     private final UnidadVentaRepository unidadVentaRepository;
+    private final PedidoRepository pedidoRepository;
 
     public CierreCajaServiceImpl(CierreCajaRepository cierreCajaRepository,
                                  CajeroRepository cajeroRepository,
-                                 UnidadVentaRepository unidadVentaRepository) {
+                                 UnidadVentaRepository unidadVentaRepository,
+                                 PedidoRepository pedidoRepository) {
         this.cierreCajaRepository = cierreCajaRepository;
         this.cajeroRepository = cajeroRepository;
         this.unidadVentaRepository = unidadVentaRepository;
+        this.pedidoRepository = pedidoRepository;
     }
 
     @Override
@@ -39,17 +44,23 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
         UnidadVenta unidadVenta = unidadVentaRepository.findById(unidadVentaId)
                 .orElseThrow(() -> new IllegalArgumentException("Unidad de venta no encontrada con id: " + unidadVentaId));
 
-        if (montoRecaudado == null || montoRecaudado.compareTo(BigDecimal.ZERO) < 0) {
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
+
+        // Si el monto recaudado no se envió o es nulo, se obtiene directamente de lo vendido en la BD
+        if (montoRecaudado == null || montoRecaudado.compareTo(BigDecimal.ZERO) <= 0) {
+            BigDecimal totalDB = pedidoRepository.calcularTotalVentasPorUnidadYFecha(unidadVentaId, fecha);
+            montoRecaudado = (totalDB != null) ? totalDB : BigDecimal.ZERO;
+        }
+
+        if (montoRecaudado.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("El monto recaudado no puede ser negativo.");
         }
 
-        // Verificar si ya existe un cierre para ese cajero en esa fecha
+        // Si ya existe un cierre para ese cajero en esa fecha, se actualiza con el monto recaudado
         Optional<CierreCaja> existente = cierreCajaRepository.findByCajeroIdAndFecha(cajeroId, fecha);
-        if (existente.isPresent()) {
-            throw new IllegalArgumentException("Ya existe un cierre de caja registrado para este cajero en la fecha " + fecha + ".");
-        }
-
-        CierreCaja cierre = new CierreCaja();
+        CierreCaja cierre = existente.orElseGet(CierreCaja::new);
         cierre.setFecha(fecha);
         cierre.setMontoRecaudado(montoRecaudado);
         cierre.setCajero(cajero);
@@ -128,6 +139,25 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
         resumen.put("historial", historial);
         resumen.put("totalAcumulado", totalAcumulado != null ? totalAcumulado : BigDecimal.ZERO);
         resumen.put("fechaHoy", LocalDate.now());
+
+        // Ventas de hoy para la unidad asignada al cajero
+        if (unidad != null) {
+            LocalDate hoy = LocalDate.now();
+            try {
+                List<VentaUnidadDiaDTO> ventasHoy =
+                        pedidoRepository.obtenerDetalleVentasPorUnidadYFecha(unidad.getId(), hoy);
+                BigDecimal totalVentasHoy =
+                        pedidoRepository.calcularTotalVentasPorUnidadYFecha(unidad.getId(), hoy);
+                resumen.put("ventasHoy", ventasHoy != null ? ventasHoy : Collections.emptyList());
+                resumen.put("totalVentasHoy", totalVentasHoy != null ? totalVentasHoy : BigDecimal.ZERO);
+            } catch (Exception e) {
+                resumen.put("ventasHoy", Collections.emptyList());
+                resumen.put("totalVentasHoy", BigDecimal.ZERO);
+            }
+        } else {
+            resumen.put("ventasHoy", Collections.emptyList());
+            resumen.put("totalVentasHoy", BigDecimal.ZERO);
+        }
 
         return resumen;
     }
