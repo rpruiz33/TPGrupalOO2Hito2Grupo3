@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gestión de Usuarios - Epicentro Gourmet</title>
+
+    <link rel="stylesheet"
+          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+
+    <style>
+        :root {
+            --bordo: #800020;
+            --bordo-oscuro: #600018;
+            --blanco: #ffffff;
+            --negro: #000000;
+            --gris-fondo: #f5f5f5;
+        }
+
+        body {
+            background-color: var(--bordo);
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: var(--bordo-oscuro);
+            border-bottom: 2px solid var(--negro);
+            padding: 12px 24px;
+        }
+
+        .brand {
+            color: var(--blanco);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .brand img {
+            height: 44px;
+            width: auto;
+            border: 1px solid var(--negro);
+            background: var(--blanco);
+        }
+
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 24px 40px;
+        }
+
+        .page-title {
+            color: var(--blanco);
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: #f0dfe4;
+            margin-bottom: 0;
+        }
+
+        .panel-card {
+            background: var(--blanco);
+            border: 3px solid var(--negro);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.22);
+            overflow: hidden;
+        }
+
+        .panel-card-header {
+            padding: 18px 20px;
+            border-bottom: 2px solid var(--negro);
+            background: var(--gris-fondo);
+        }
+
+        .panel-card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--bordo);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f0e6e9;
+            color: var(--bordo-oscuro);
+            white-space: nowrap;
+            font-size: 0.88rem;
+            padding: 14px 12px;
+        }
+
+        .table tbody td {
+            padding: 13px 12px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #fff6f8;
+        }
+
+        .email-cell {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: #f0e6e9;
+            color: var(--bordo);
+            border: 1px solid var(--bordo);
+            border-radius: 5px;
+            padding: 4px 9px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 5px;
+            padding: 5px 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .status-temporal {
+            background: #fff0c2;
+            color: #684d00;
+        }
+
+        .status-definitiva {
+            background: #d9f2e3;
+            color: #155d36;
+        }
+
+        .btn-custom {
+            display: inline-block;
+            border: 1px solid var(--bordo);
+            border-radius: 6px;
+            color: var(--bordo);
+            background: var(--blanco);
+            text-decoration: none;
+            padding: 7px 13px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .btn-custom:hover {
+            background: var(--bordo);
+            color: var(--blanco);
+        }
+
+        .btn-primary-custom {
+            background: var(--bordo);
+            color: var(--blanco);
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--bordo-oscuro);
+            color: var(--blanco);
+        }
+
+        .btn-edit {
+            background: #e8efff;
+            border: 1px solid #234c9b;
+            color: #234c9b;
+        }
+
+        .btn-edit:hover {
+            background: #234c9b;
+            color: var(--blanco);
+        }
+
+        .btn-delete {
+            border-color: #b02a37;
+            color: #b02a37;
+        }
+
+        .btn-delete:hover {
+            background: #b02a37;
+            color: var(--blanco);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            min-width: 250px;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .empty-state {
+            padding: 35px 15px !important;
+            color: #666;
+        }
+
+        .footer-logo {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer-logo img {
+            width: 100px;
+            height: auto;
+            border: 2px solid var(--negro);
+            background: var(--blanco);
+        }
+
+        @media (max-width: 767px) {
+            .topbar {
+                padding: 12px;
+            }
+
+            .page-container {
+                padding: 24px 12px;
+            }
+
+            .header-content {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .brand {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="container-fluid d-flex justify-content-between
+                align-items-center flex-wrap gap-3">
+
+        <a class="brand d-flex align-items-center gap-3"
+           th:href="@{/responsable/index}">
+
+            <img th:src="@{/images/unla-logo.png}"
+                 alt="Logo UNLa"
+                 onerror="this.style.display='none'">
+
+            <span>Epicentro Gourmet - Responsable</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white small d-none d-sm-inline">
+                Panel de gestión
+            </span>
+
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit"
+                        class="btn btn-outline-light btn-sm">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+
+    </div>
+</header>
+
+<main class="page-container">
+
+    <!-- Mensajes -->
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center shadow-sm"
+         role="status"
+         th:text="${mensaje}">
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger text-center shadow-sm"
+         role="alert"
+         th:text="${error}">
+    </div>
+
+    <!-- Título y acciones principales -->
+    <section class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-4 header-content">
+
+        <div>
+            <h1 class="page-title h3 mb-2">
+                Gestión de usuarios
+            </h1>
+
+            <p class="page-subtitle">
+                Administrá las cuentas y credenciales del personal.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a th:href="@{/responsable/index}"
+               class="btn-custom">
+                ← Volver al panel
+            </a>
+
+            <a th:href="@{/responsable/usuarios/nuevo}"
+               class="btn-custom btn-primary-custom">
+                + Nuevo usuario
+            </a>
+        </div>
+
+    </section>
+
+    <!-- Tabla de usuarios -->
+    <section class="panel-card">
+
+        <div class="panel-card-header d-flex
+                    justify-content-between align-items-center flex-wrap gap-2">
+
+            <h3>Usuarios registrados</h3>
+
+            <span class="text-secondary small"
+                  th:text="${usuarios != null ? #lists.size(usuarios) + ' usuario(s)' : 'Usuarios'}">
+                Usuarios
+            </span>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Correo electrónico</th>
+                    <th>Rol</th>
+                    <th>Estado de contraseña</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="u : ${usuarios}">
+
+                    <td th:text="${u.id}"></td>
+
+                    <td class="email-cell"
+                        th:text="${u.email}">
+                    </td>
+
+                    <td>
+                        <span class="role-badge"
+                              th:text="${u.rol != null ? u.rol.nombre : '-'}">
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:if="${u.debeCambiarPassword}"
+                              class="status-badge status-temporal">
+                            Contraseña temporal
+                        </span>
+
+                        <span th:unless="${u.debeCambiarPassword}"
+                              class="status-badge status-definitiva">
+                            ✓ Clave definitiva
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a th:href="@{/responsable/usuarios/editar/{id}(id=${u.id})}"
+                               class="btn-custom btn-edit">
+                                Editar
+                            </a>
+
+                            <a th:href="@{/responsable/usuarios/reenviar/{id}(id=${u.id})}"
+                               class="btn-custom"
+                               title="Regenerar y reenviar credenciales"
+                               onclick="return confirm('¿Deseás regenerar la contraseña y reenviar las credenciales por correo?');">
+                                Reenviar mail
+                            </a>
+
+                            <a th:href="@{/responsable/usuarios/eliminar/{id}(id=${u.id})}"
+                               class="btn-custom btn-delete"
+                               onclick="return confirm('¿Estás seguro de eliminar este usuario?');">
+                                Eliminar
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
+                    <td colspan="5" class="text-center empty-state">
+                        <div class="fs-2 mb-2" aria-hidden="true">👥</div>
+                        <strong>No hay usuarios registrados.</strong>
+                        <p class="mb-0 mt-1">
+                            Podés registrar un nuevo usuario con el botón superior.
+                        </p>
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </section>
+
+    <div class="footer-logo">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo UNLa"
+             onerror="this.style.display='none'">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

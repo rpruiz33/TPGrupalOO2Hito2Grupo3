@@ -111,7 +111,7 @@ public class SecurityConfiguration {
                                 break;
 
                             case "ROLE_RESPONSABLE":
-                                response.sendRedirect("/empleado/index");
+                                response.sendRedirect("/responsable/index");
                                 break;
 
                             case "ROLE_EMPLEADO":

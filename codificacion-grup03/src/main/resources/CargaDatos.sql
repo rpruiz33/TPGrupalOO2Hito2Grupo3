@@ -35,7 +35,8 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
 (2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
-(4, 0, 'cajero@epicentro.com',  @hash_pw, 4);
+(4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
+(5, 0, 'responsable@epicentro.com',  @hash_pw, 2);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
