@@ -54,7 +54,9 @@ public class SecurityConfiguration {
                     // Rutas exclusivas para administradores
                     auth.requestMatchers("/admin/**")
                             .hasRole("ADMIN");
-
+                            //rutas exclusivas responsables 
+                    auth.requestMatchers("/responsable/**")
+                    .hasRole("RESPONSABLE");
                     // Liquidaciones y recibos
                     auth.requestMatchers(
                             "/liquidacion",

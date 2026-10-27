@@ -246,7 +246,13 @@ SET @user_cajero_id = (
     WHERE email = 'cajero@epicentro.com'
     LIMIT 1
 );
-
+-- Asociar el usuario Responsable con Javier Martinez
+UPDATE staff s
+JOIN usuarios u
+    ON u.email = 'responsable@epicentro.com'
+SET s.usuario_id = u.id
+WHERE s.dni = '33412876'
+  AND (s.usuario_id IS NULL OR s.usuario_id = u.id);
 INSERT INTO staff (
     nombre,
     apellido,
