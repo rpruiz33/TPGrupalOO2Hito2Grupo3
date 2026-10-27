@@ -2,15 +2,15 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.repositories.*;
+import com.example.hito2grupo3.services.IRentabilidadNetaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import java.util.stream.StreamSupport;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.stream.StreamSupport;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -21,17 +21,20 @@ public class AdminController {
     private final UnidadVentaRepository unidadVentaRepository;
     private final StaffRepository staffRepository;
     private final PedidoRepository pedidoRepository;
+    private final IRentabilidadNetaService rentabilidadNetaService;
 
     public AdminController(FestivalRepository festivalRepository,
                            UsuarioRepository usuarioRepository,
                            UnidadVentaRepository unidadVentaRepository,
                            StaffRepository staffRepository,
-                           PedidoRepository pedidoRepository) {
+                           PedidoRepository pedidoRepository,
+                           IRentabilidadNetaService rentabilidadNetaService) {
         this.festivalRepository = festivalRepository;
         this.usuarioRepository = usuarioRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.staffRepository = staffRepository;
         this.pedidoRepository = pedidoRepository;
+        this.rentabilidadNetaService = rentabilidadNetaService;
     }
 
     @GetMapping("/dashboard")
@@ -60,12 +63,25 @@ public class AdminController {
         // 5. Personal / Staff real
         long staffCount = staffRepository.count();
 
-Long primerFestivalId = festivalRepository.findFirstByOrderByIdAsc()
-    .map(Festival::getId)
-    .orElse(1L);
+        Long primerFestivalId = festivalRepository.findFirstByOrderByIdAsc()
+            .map(Festival::getId)
+            .orElse(1L);
+
+        // 6. Rentabilidad Neta del festival actual
+        Double rentabilidadNetaTotal = 0.0;
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> reporteData = (Map<String, Object>) rentabilidadNetaService.obtenerReporteVentaEntreFechas(primerFestivalId, null, null);
+            if (reporteData != null && reporteData.get("rentabilidadNeta") != null) {
+                rentabilidadNetaTotal = (Double) reporteData.get("rentabilidadNeta");
+            }
+        } catch (Exception ignored) {
+        }
+
         model.addAttribute("festivalesCount", festivalesCount);
         model.addAttribute("usuariosCount", usuariosCount);
         model.addAttribute("recaudacionMensual", recaudacionMostrar);
+        model.addAttribute("rentabilidadNetaTotal", rentabilidadNetaTotal);
         model.addAttribute("unidadesCount", unidadesCount);
         model.addAttribute("staffCount", staffCount);
         model.addAttribute("primerFestivalId", primerFestivalId);

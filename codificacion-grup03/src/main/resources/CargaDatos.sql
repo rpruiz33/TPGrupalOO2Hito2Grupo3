@@ -30,7 +30,7 @@ START TRANSACTION;
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
 INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
- --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
+-- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo)
 SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
@@ -401,30 +401,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_dias;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_plato;
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
 -- #############################################################################
--- 3.6 AJUSTE: ASEGURAR QUE EL FESTIVAL ACTUAL NO TENGA PÉRDIDA
--- @incluir_sueldos = 1 -> el punto de equilibrio incluye sueldos + plus del staff
--- @incluir_sueldos = 0 -> solo se consideran los costos de la tabla `costos`
--- #############################################################################
-SET @incluir_sueldos = 1;
-SET @margen = 1.20;   -- 20% de ganancia sobre los costos
-
-SET @costos_fest = (
-    SELECT COALESCE(SUM(monto), 0) FROM costos WHERE festival_id = @festival_id
-);
-
-SET @costo_staff = (
-    SELECT COALESCE(SUM(
-             s.sueldo
-           + COALESCE(ca.plus_oadicional, 0)
-           + COALESCE(co.bono_peligrosidad, 0)
-           + COALESCE(cc.plus_fijo, 0)
-           ), 0)
-    FROM staff s
-    LEFT JOIN cajero ca ON ca.id = s.id
-    LEFT JOIN cocineros co ON co.id = s.id
-    LEFT JOIN categorias_cocina cc ON cc.id = co.categoria_cocina_id
-);
-
+-- 3.6 AJUSTE: ASEGURAR QUE EL MONTO DE INGRESOS DEL FESTIVAL ACTUAL SEA EXACTAMENTE $5.000.000
+SET @objetivo = 5000000.00;
 SET @recaudado = (
     SELECT COALESCE(SUM(ip.cantidad * ip.precio_unitario), 0)
     FROM items_pedido ip
@@ -432,24 +410,44 @@ SET @recaudado = (
     WHERE p.festival_id = @festival_id
 );
 
-SET @objetivo = (@costos_fest + IF(@incluir_sueldos = 1, @costo_staff, 0)) * @margen;
+-- Completamos la diferencia exacta para alcanzar exactamente los $5.000.000
+SET @pedido_ajuste_id = (SELECT MIN(p.id) FROM pedidos p WHERE p.festival_id = @festival_id);
 
-SET @factor = IF(@recaudado = 0 OR @recaudado >= @objetivo, 1, CEIL(@objetivo / @recaudado));
+INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
+SELECT @pedido_ajuste_id, pl.id, 20, pl.precio
+FROM platos pl WHERE pl.precio = 24000.00 LIMIT 1;
+
+INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
+SELECT @pedido_ajuste_id, pl.id, 74, pl.precio
+FROM platos pl WHERE pl.precio = 2000.00 LIMIT 1;
+
+INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
+SELECT @pedido_ajuste_id, pl.id, 2, pl.precio
+FROM platos pl WHERE pl.precio = 1500.00 LIMIT 1;
+
+-- Ajuste final dinámico por si hubiera alguna diferencia residual
+SET @diff_final = 5000000.00 - (
+    SELECT COALESCE(SUM(ip.cantidad * ip.precio_unitario), 0)
+    FROM items_pedido ip
+    JOIN pedidos p ON p.id = ip.pedido_id
+    WHERE p.festival_id = @festival_id
+);
 
 UPDATE items_pedido ip
-JOIN pedidos p ON p.id = ip.pedido_id
-SET ip.cantidad = ip.cantidad * @factor
-WHERE p.festival_id = @festival_id
-  AND @factor > 1;
+SET ip.precio_unitario = ip.precio_unitario + (@diff_final / ip.cantidad)
+WHERE ip.id = (
+    SELECT max_id FROM (
+        SELECT MAX(ip2.id) AS max_id 
+        FROM items_pedido ip2 
+        JOIN pedidos p2 ON p2.id = ip2.pedido_id 
+        WHERE p2.festival_id = @festival_id
+    ) t
+) AND @diff_final <> 0;
 
--- Control rápido (podés borrarlo)
-SELECT @costos_fest AS costos_festival,
-       @costo_staff AS costo_staff,
-       @recaudado   AS recaudado_antes,
-       @factor      AS factor_aplicado,
-       (SELECT SUM(ip.cantidad * ip.precio_unitario)
+-- Control rápido de verificación
+SELECT (SELECT SUM(ip.cantidad * ip.precio_unitario)
           FROM items_pedido ip JOIN pedidos p ON p.id = ip.pedido_id
-         WHERE p.festival_id = @festival_id) AS recaudado_despues;
+         WHERE p.festival_id = @festival_id) AS recaudado_festival_actual;
 -- #############################################################################
 -- PARTE 4: PEDIDOS E ITEMS PARA LOS FESTIVALES PASADOS
 -- Anual (hace ~1 año): recaudacion media-baja (15 dias, cantidad 1-2)
