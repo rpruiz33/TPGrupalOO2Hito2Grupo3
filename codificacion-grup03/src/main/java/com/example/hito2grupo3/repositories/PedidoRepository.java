@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
+import com.example.hito2grupo3.dto.VentaUnidadDiaDTO;
 import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
@@ -81,4 +82,39 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             @Param("festivalId") Long festivalId, 
             @Param("fechaDesde") LocalDate fechaDesde, 
             @Param("fechaHasta") LocalDate fechaHasta);
+
+    /**
+     * Calcula el total recaudado por una unidad de venta en una fecha específica.
+     */
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.unidadVenta.id = :unidadVentaId
+              AND p.fechaTransaccion = :fecha
+            """)
+    BigDecimal calcularTotalVentasPorUnidadYFecha(
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("fecha") LocalDate fecha);
+
+    /**
+     * Obtiene el detalle de ventas por plato de una unidad de venta en una fecha específica.
+     */
+    @Query("""
+            SELECT new com.example.hito2grupo3.dto.VentaUnidadDiaDTO(
+                ip.plato.nombre,
+                SUM(ip.cantidad),
+                ip.precioUnitario,
+                SUM(ip.cantidad * ip.precioUnitario)
+            )
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.unidadVenta.id = :unidadVentaId
+              AND p.fechaTransaccion = :fecha
+            GROUP BY ip.plato.nombre, ip.precioUnitario
+            ORDER BY ip.plato.nombre
+            """)
+    List<VentaUnidadDiaDTO> obtenerDetalleVentasPorUnidadYFecha(
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("fecha") LocalDate fecha);
 }

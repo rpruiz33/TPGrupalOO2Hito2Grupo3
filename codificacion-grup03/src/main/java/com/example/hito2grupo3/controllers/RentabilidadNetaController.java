@@ -135,6 +135,8 @@ public class RentabilidadNetaController {
         return "reportes/rentabilidadNeta"; // Asegúrate de que coincida con la ruta de tu HTML
     }
 
+
+
     @GetMapping("/cierreCaja")
     public String cierreCaja() {
         return "reportes/cierreCaja";
