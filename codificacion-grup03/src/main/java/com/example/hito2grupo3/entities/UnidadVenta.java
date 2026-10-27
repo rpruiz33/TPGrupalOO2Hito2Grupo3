@@ -2,7 +2,6 @@ package com.example.hito2grupo3.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -10,10 +9,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "unidades_venta")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -34,32 +31,6 @@ public abstract class UnidadVenta {
 
     private String nombreComercial;
     private BigDecimal superficieM2;
-
-    public static boolean esCodigoValido(String codigo) {
-        if (codigo == null) {
-            return false;
-        }
-        String limpio = codigo.trim();
-        return limpio.length() == LONGITUD_CODIGO && limpio.matches(REGEX_CODIGO_GENERICO);
-    }
-
-    public boolean validarCodigo(String codigoAValidar) {
-        return esCodigoValido(codigoAValidar);
-    }
-
-    public boolean validarCodigo() {
-        return validarCodigo(this.codigo);
-    }
-
-    public void setCodigo(String codigo) {
-        if (!validarCodigo(codigo)) {
-            throw new IllegalArgumentException(
-                    "Código de unidad de venta inválido: '" + codigo
-                    + "'. Debe tener exactamente " + LONGITUD_CODIGO
-                    + " caracteres y cumplir el formato correspondiente (ej: FT-0000001 o PD-0000001).");
-        }
-        this.codigo = codigo != null ? codigo.trim() : null;
-    }
 
     // Relación ManyToMany con Plato
     @ManyToMany
@@ -87,8 +58,39 @@ public abstract class UnidadVenta {
     @ManyToMany(mappedBy = "unidadesVentaHabilitadas")
     private Set<Festival> festivales = new HashSet<>();
 
-  
     @OneToMany(mappedBy = "unidadVenta")
     private List<Pedido> pedidos = new ArrayList<>();
-    
+
+    public UnidadVenta() {
+    }
+
+    public static boolean esCodigoValido(String codigo) {
+        if (codigo == null) {
+            return false;
+        }
+        String limpio = codigo.trim();
+        return limpio.length() == LONGITUD_CODIGO && limpio.matches(REGEX_CODIGO_GENERICO);
+    }
+
+    public boolean validarCodigo(String codigoAValidar) {
+        return esCodigoValido(codigoAValidar);
+    }
+
+    public boolean validarCodigo() {
+        return validarCodigo(this.codigo);
+    }
+
+
+
+    public void setCodigo(String codigo) {
+        if (!validarCodigo(codigo)) {
+            throw new IllegalArgumentException(
+                "Código de unidad de venta inválido: '" + codigo
+                + "'. Debe tener exactamente " + LONGITUD_CODIGO
+                + " caracteres y cumplir el formato correspondiente (ej: FT-0000001 o PD-0000001).");
+        }
+        this.codigo = codigo != null ? codigo.trim() : null;
+    }
+
+
 }

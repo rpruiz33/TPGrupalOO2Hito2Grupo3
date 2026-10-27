@@ -160,6 +160,8 @@ public class RentabilidadNetaController {
         return "reportes/rentabilidadNeta";
     }
 
+
+
     @GetMapping("/cierreCaja")
     public String cierreCaja() {
         return "reportes/cierreCaja";

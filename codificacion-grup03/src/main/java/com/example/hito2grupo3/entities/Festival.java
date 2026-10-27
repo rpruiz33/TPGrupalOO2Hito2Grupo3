@@ -65,13 +65,4 @@ public class Festival {
         this.costos = costos;
     }
 
-public Long getId() {
-    return id;
-}
-public String getNombre() {
-    return nombre;
-}
-public Set<Costos> getCostos() {
-    return costos;
-}
 }
