@@ -42,4 +42,5 @@ Optional<Festival> findFirstByOrderByIdAsc();
 List<Festival> buscarActivosPorStaff(
         @Param("staffId") Long staffId,
         @Param("fecha") LocalDate fecha);        
+
 }
