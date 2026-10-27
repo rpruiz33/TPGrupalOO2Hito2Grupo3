@@ -3,7 +3,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE items_pedido;
 TRUNCATE TABLE pedidos;
-TRUNCATE TABLE unidad_venta_plato;
 TRUNCATE TABLE festival_unidad_venta;
 TRUNCATE TABLE unidad_venta_staff;
 TRUNCATE TABLE food_trucks;
@@ -365,24 +364,32 @@ DROP TEMPORARY TABLE IF EXISTS tmp_categorias;
 -- PARTE 3: PLATOS + MENÚS + PEDIDOS (REPORTE DE RECAUDACIÓN)
 -- #############################################################################
 
--- 3.1 Platos
-INSERT INTO platos (nombre, precio) VALUES
-('Vacío al Libro con Papas Rústicas', 8500.00),
-('Choripán Clásico con Chimichurri', 4500.00),
-('Sándwich de Bondiola a la Mostaza', 7200.00),
-('Matambre a la Pizza al Plato', 9000.00),
-('Empanada de Carne Cortada a Cuchillo', 2200.00),
-('Empanada de Jamón y Queso', 1800.00),
-('Empanada Salteña Picante', 2200.00),
-('Docena de Empanadas Variadas', 24000.00),
-('Tamal Criollo Tradicional', 3500.00),
-('Tacos al Pastor (3 unidades)', 6500.00),
-('Tacos de Ternera Mechada (3 unidades)', 7000.00),
-('Quesadillas con Guacamole', 5800.00),
-('Nachos con Cheddar y Jalapeños', 4800.00),
-('Gaseosa Línea Cola 500ml', 2000.00),
-('Cerveza Artesanal Tirada 500ml', 4000.00),
-('Agua Mineral 500ml', 1500.00);
+-- 3.1 Catálogo base de platos (temporal).
+-- Cada unidad recibirá su propio registro de cada plato de su menú.
+DROP TEMPORARY TABLE IF EXISTS tmp_catalogo_platos;
+CREATE TEMPORARY TABLE tmp_catalogo_platos (
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    costo_produccion DECIMAL(10,2) NOT NULL
+);
+
+INSERT INTO tmp_catalogo_platos (nombre, precio, costo_produccion) VALUES
+('Vacío al Libro con Papas Rústicas', 8500.00, 4500.00),
+('Choripán Clásico con Chimichurri', 4500.00, 2200.00),
+('Sándwich de Bondiola a la Mostaza', 7200.00, 3800.00),
+('Matambre a la Pizza al Plato', 9000.00, 5000.00),
+('Empanada de Carne Cortada a Cuchillo', 2200.00, 1100.00),
+('Empanada de Jamón y Queso', 1800.00, 900.00),
+('Empanada Salteña Picante', 2200.00, 1100.00),
+('Docena de Empanadas Variadas', 24000.00, 12000.00),
+('Tamal Criollo Tradicional', 3500.00, 1800.00),
+('Tacos al Pastor (3 unidades)', 6500.00, 3200.00),
+('Tacos de Ternera Mechada (3 unidades)', 7000.00, 3500.00),
+('Quesadillas con Guacamole', 5800.00, 2800.00),
+('Nachos con Cheddar y Jalapeños', 4800.00, 2300.00),
+('Gaseosa Línea Cola 500ml', 2000.00, 1000.00),
+('Cerveza Artesanal Tirada 500ml', 4000.00, 2000.00),
+('Agua Mineral 500ml', 1500.00, 700.00);
 
 -- 3.2 Menús: A = asador, E = empanadas/criollo, T = tacos/mexicano
 DROP TEMPORARY TABLE IF EXISTS tmp_menu_unidad;
@@ -420,13 +427,16 @@ INSERT INTO tmp_menu_plato VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
--- 3.3 Platos por unidad
-INSERT INTO unidad_venta_plato (unidad_venta_id, plato_id)
-SELECT uv.id, pl.id
+-- 3.3 Crear platos independientes por unidad de venta.
+-- Los nombres pueden repetirse entre unidades, pero cada registro tiene su propio id.
+INSERT INTO platos (nombre, precio, costo_produccion, unidad_venta_id)
+SELECT cp.nombre, cp.precio, cp.costo_produccion, uv.id
 FROM tmp_menu_unidad mu
 JOIN unidades_venta uv ON uv.codigo = mu.codigo
 JOIN tmp_menu_plato mp ON mp.menu = mu.menu
-JOIN platos pl ON pl.nombre = mp.plato;
+JOIN tmp_catalogo_platos cp ON cp.nombre = mp.plato;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_catalogo_platos;
 
 -- 3.4 Pedidos: 1 por unidad y por día (01/10/2026 al 20/10/2026)
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;
@@ -453,7 +463,9 @@ FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
 JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
 JOIN tmp_menu_plato mp ON mp.menu = mu.menu
-JOIN platos pl ON pl.nombre = mp.plato
+JOIN platos pl
+    ON pl.nombre = mp.plato
+   AND pl.unidad_venta_id = uv.id
 WHERE p.festival_id = @festival_id
   AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, '2026-10-01') % mp.cnt) + 1
        OR mp.idx = ((DATEDIFF(p.fecha_transaccion, '2026-10-01') + 3) % mp.cnt) + 1);
@@ -602,7 +614,9 @@ FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
 JOIN tmp_mu_ant mu ON mu.codigo = uv.codigo
 JOIN tmp_mp_ant mp ON mp.menu = mu.menu
-JOIN platos pl ON pl.nombre = mp.plato
+JOIN platos pl
+    ON pl.nombre = mp.plato
+   AND pl.unidad_venta_id = uv.id
 WHERE p.festival_id = @festival_anterior_id
   AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) % mp.cnt) + 1
        OR mp.idx = ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) + 3) % mp.cnt) + 1);
@@ -672,7 +686,9 @@ FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
 JOIN tmp_mu_anu mu ON mu.codigo = uv.codigo
 JOIN tmp_mp_anu mp ON mp.menu = mu.menu
-JOIN platos pl ON pl.nombre = mp.plato
+JOIN platos pl
+    ON pl.nombre = mp.plato
+   AND pl.unidad_venta_id = uv.id
 WHERE p.festival_id = @festival_anual_id
   AND (   mp.idx = (DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) % mp.cnt) + 1
        OR mp.idx = ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) + 3) % mp.cnt) + 1);
