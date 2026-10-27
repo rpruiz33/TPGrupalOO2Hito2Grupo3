@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Panel del Responsable - Epicentro Gourmet</title>
+
+    <link rel="stylesheet"
+          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/modern-business.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/custom-login.css}">
+
+    <style>
+        body {
+            background-color: #800020;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .panel-container {
+            max-width: 580px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .menu-card {
+            background-color: #ffffff;
+            border: 3px solid #000000;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        .menu-card .card-body {
+            padding: 14px 18px;
+        }
+
+        .menu-icon {
+            font-size: 1.35rem;
+            margin-bottom: 4px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        .menu-card p {
+            font-size: 0.82rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .menu-button {
+            border: 1px solid #800020;
+            color: #800020;
+            border-radius: 6px;
+            padding: 5px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background-color: #800020;
+            color: #ffffff;
+        }
+
+        .logout-button {
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            background: transparent;
+            text-decoration: none;
+        }
+
+        .logout-button:hover {
+            background-color: #ffffff;
+            color: #800020;
+        }
+
+        .logo {
+            text-align: center;
+            margin-top: 32px;
+        }
+
+        .logo .unla-logo-img {
+            width: 110px;
+            height: auto;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="container panel-container">
+
+    <header class="text-center text-white mb-4">
+        <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
+        <h2 class="h5 text-white-50 mb-0">Panel del Responsable</h2>
+    </header>
+
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center py-2 shadow-sm mb-3"
+         th:text="${mensaje}">
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger text-center py-2 shadow-sm mb-3"
+         th:text="${error}">
+    </div>
+
+    <section>
+        <div class="row g-4 justify-content-center">
+
+         
+<div class="col-12 d-flex justify-content-center">
+    <article class="card menu-card">
+        <div class="card-body text-center">
+
+            <div class="menu-icon" aria-hidden="true">
+                👥
+            </div>
+
+            <h3 class="fw-bold">
+                Alta de Usuarios
+            </h3>
+
+            <p class="text-secondary">
+                Registrá nuevos empleados para Epicentro Gourmet 
+            </p>
+
+            <a th:href="@{/responsable/usuarios}"
+               class="menu-button">
+                Administrar usuarios
+            </a>
+
+        </div>
+    </article>
+</div>
+
+            <!-- Sección 2: Alta de platos -->
+            <div class="col-12 d-flex justify-content-center">
+                <article class="card menu-card">
+                    <div class="card-body text-center">
+
+                        <div class="menu-icon" aria-hidden="true">
+                            🍽️
+                        </div>
+
+                        <h3 class="fw-bold">
+                            Alta de platos
+                        </h3>
+
+                        <p class="text-secondary">
+                            Incorporá nuevos platos al catálogo de productos.
+                        </p>
+
+                        <a th:href="@{/responsable/platos/nuevo}"
+                           class="menu-button">
+                            Registrar plato
+                        </a>
+
+                    </div>
+                </article>
+            </div>
+
+            <!-- Sección 3: Mi información -->
+            <div class="col-12 d-flex justify-content-center">
+                <article class="card menu-card">
+                    <div class="card-body text-center">
+
+                        <div class="menu-icon" aria-hidden="true">
+                            👤
+                        </div>
+
+                        <h3 class="fw-bold">
+                            Mi información
+                        </h3>
+
+                        <p class="text-secondary">
+                            Consultá tu información personal y actividad.
+                        </p>
+
+                        <a th:href="@{/empleado/dashboard}"
+                           class="menu-button">
+                            Mi información
+                        </a>
+
+                    </div>
+                </article>
+            </div>
+
+            <!-- Sección 4: Seguridad / Cambiar contraseña -->
+            <div class="col-12 d-flex justify-content-center">
+                <article class="card menu-card">
+                    <div class="card-body text-center">
+
+                        <div class="menu-icon" aria-hidden="true">
+                            🔒
+                        </div>
+
+                        <h3 class="fw-bold">
+                            Seguridad
+                        </h3>
+
+                        <p class="text-secondary">
+                            Cambiá tu contraseña de acceso.
+                        </p>
+
+                        <a th:href="@{/cambiar-password}"
+                           class="menu-button">
+                            Cambiar contraseña
+                        </a>
+
+                    </div>
+                </article>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Cerrar sesión -->
+    <div class="text-center mt-4">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-button">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
+
+    <!-- Logo UNLa -->
+    <div class="logo">
+        <img class="unla-logo-img"
+             alt="Logo UNLa"
+             th:src="@{/images/unla-logo.png}">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

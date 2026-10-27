@@ -50,11 +50,31 @@ public class SecurityConfiguration {
                             "/vendor/bootstrap/js/**",
                             "/api/v1/**"
                     ).permitAll();
-                    auth.requestMatchers("/admin/**").hasRole("ADMIN");
-                    auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
-                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "USER");
-                    auth.requestMatchers("/cajero/**")
-                            .hasAnyRole("ADMIN", "EMPLEADO", "USER");
+
+                    // Rutas exclusivas para administradores
+                    auth.requestMatchers("/admin/**")
+                            .hasRole("ADMIN");
+                            //rutas exclusivas responsables 
+                    auth.requestMatchers("/responsable/**")
+                    .hasRole("RESPONSABLE");
+                    // Liquidaciones y recibos
+                    auth.requestMatchers(
+                            "/liquidacion",
+                            "/liquidacion/**",
+                            "/reciboPdf/**",
+                            "/recibo-pdf/**"
+                    ).hasAnyRole(
+                            "ADMIN",
+                            "RESPONSABLE",
+                            "EMPLEADO",
+                            "USER"
+                    );
+
+                    // Cierre de caja exclusivo para cajeros
+                    auth.requestMatchers("/cierreCaja")
+                            .hasRole("CAJERO");
+
+                    // Cualquier otra ruta requiere autenticación
                     auth.anyRequest().authenticated();
                 })
 
@@ -93,7 +113,7 @@ public class SecurityConfiguration {
                                 break;
 
                             case "ROLE_RESPONSABLE":
-                                response.sendRedirect("/empleado/index");
+                                response.sendRedirect("/responsable/index");
                                 break;
 
                             case "ROLE_EMPLEADO":

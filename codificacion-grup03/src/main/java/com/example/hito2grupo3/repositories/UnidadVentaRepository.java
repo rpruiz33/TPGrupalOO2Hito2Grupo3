@@ -30,4 +30,6 @@ List<UnidadVenta> buscarPorStaffAsignado(@Param("staffId") Long staffId);
     Optional<UnidadVenta> findByCodigo(String codigo);
     Optional<UnidadVenta> findByCodigoIgnoreCase(String codigo);
     List<UnidadVenta> findByCodigoStartingWith(String prefijo);
+
+    Optional<UnidadVenta> findByResponsable_Id(long responsableId);
 }

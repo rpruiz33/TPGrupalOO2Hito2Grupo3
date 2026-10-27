@@ -35,7 +35,8 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
 (2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
-(4, 0, 'cajero@epicentro.com',  @hash_pw, 4);
+(4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
+(5, 0, 'responsable@epicentro.com',  @hash_pw, 2);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
@@ -245,7 +246,13 @@ SET @user_cajero_id = (
     WHERE email = 'cajero@epicentro.com'
     LIMIT 1
 );
-
+-- Asociar el usuario Responsable con Javier Martinez
+UPDATE staff s
+JOIN usuarios u
+    ON u.email = 'responsable@epicentro.com'
+SET s.usuario_id = u.id
+WHERE s.dni = '33412876'
+  AND (s.usuario_id IS NULL OR s.usuario_id = u.id);
 INSERT INTO staff (
     nombre,
     apellido,
