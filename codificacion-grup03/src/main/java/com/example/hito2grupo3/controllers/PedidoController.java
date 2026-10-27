@@ -112,9 +112,9 @@ return ResponseEntity.ok(unidades);
 }
 
 private boolean tieneStaffAsignado(UnidadVenta unidad, Staff staff) {
-    Set asignados = (Set) unidad.getStaffAsignado();
-    return asignados != null
-            && ((Collection<Festival>) asignados).stream().anyMatch(s -> s.getId() == staff.getId());
+    return unidad.getStaffAsignado() != null
+            && unidad.getStaffAsignado().stream()
+                    .anyMatch(s -> s.getId() == staff.getId());
 }
 
 private UnidadRespuesta toRespuesta(UnidadVenta unidad) {

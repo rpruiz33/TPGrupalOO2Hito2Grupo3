@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/cajero")
-@PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO', 'USER')")
+@PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO', 'CAJERO')")
 public class CajeroController {
 
     private final ICierreCajaService cierreCajaService;
@@ -35,6 +35,12 @@ public class CajeroController {
         this.cierreCajaService = cierreCajaService;
         this.unidadVentaRepository = unidadVentaRepository;
     }
+
+@GetMapping("/index")
+public String mostrarIndex(Model model, Principal principal) {
+    model.addAttribute("esCajero", true);
+    return "cajero/Cajero-index";
+}
 
     /**
      * GET /cajero/cierre-caja
