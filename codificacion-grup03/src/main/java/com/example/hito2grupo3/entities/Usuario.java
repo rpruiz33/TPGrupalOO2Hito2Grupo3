@@ -10,12 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -31,10 +28,16 @@ public class Usuario {
     private String passwordHash;
 
     // Cambiamos a EAGER para que Spring Security pueda leer el rol al loguear
-    @ManyToOne(fetch = FetchType.EAGER) 
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id", referencedColumnName = "id", nullable = false)
     private Rol rol; // Le sacamos la "s" final
 
     @Column(name = "debe_cambiar_password", nullable = false)
     private boolean debeCambiarPassword = true;
+
+    public Usuario() {
+    }
+
+   
+
 }
