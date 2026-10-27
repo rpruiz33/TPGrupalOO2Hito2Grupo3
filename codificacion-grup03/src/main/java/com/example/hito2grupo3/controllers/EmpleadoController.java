@@ -13,19 +13,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
 
-    final StaffRepository staffRepository;
-    final UnidadVentaRepository unidadVentaRepository;
-    final FestivalRepository festivalRepository;
+    private final StaffRepository staffRepository;
+    private final UnidadVentaRepository unidadVentaRepository;
+    private final FestivalRepository festivalRepository;
 
-    public EmpleadoController(StaffRepository staffRepository,
-                              UnidadVentaRepository unidadVentaRepository,
-                              FestivalRepository festivalRepository) {
+    public EmpleadoController(
+            StaffRepository staffRepository,
+            UnidadVentaRepository unidadVentaRepository,
+            FestivalRepository festivalRepository) {
+
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.festivalRepository = festivalRepository;
@@ -116,4 +119,36 @@ public class EmpleadoController {
 
         return "reportes/empleadoDashboard";
     }
+
+    /**
+     * Redirige al usuario autenticado al menú que le corresponde.
+     */
+   @GetMapping("/volver-al-menu")
+public String volverAlMenu(
+        Principal principal,
+        org.springframework.security.core.Authentication authentication) {
+
+    if (principal == null || authentication == null) {
+        return "redirect:/login";
+    }
+
+    // Redirigir según los permisos reales del usuario.
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_CAJERO"))) {
+        return "redirect:/cajero/index";
+    }
+
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"))) {
+        return "redirect:/responsable/index";
+    }
+
+    if (authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"))) {
+        return "redirect:/empleado/index";
+    }
+
+    // Si no tiene ninguno de los roles esperados, denegar el acceso.
+    return "redirect:/access-denied";
+}
 }

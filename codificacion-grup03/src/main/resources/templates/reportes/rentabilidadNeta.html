@@ -113,10 +113,50 @@
     </div>
   </section>
 
+  
+  <!-- Ranking de Unidades por Festival -->
+  <section class="mb-4" th:if="${ranking != null}">
+    <h2 class="text-white fw-bold mb-3">Ranking de Unidades por Recaudación</h2>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Posición</th>
+            <th scope="col">Unidad de venta</th>
+            <th scope="col">Código</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="text-end">Recaudación</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr th:each="unidad, estado : ${ranking}">
+            <td th:text="${estado.count}">1</td>
+            <td th:text="${unidad.nombreComercial}">Nombre de unidad</td>
+            <td th:text="${unidad.codigo}">FT-001</td>
+            <td th:text="${unidad.tipoUnidad}">FoodTruck</td>
+            <td class="text-end"
+                th:text="${'$ ' + #numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">
+              $ 0,00
+            </td>
+          </tr>
+
+          <tr th:if="${ranking.isEmpty()}">
+            <td colspan="5" class="text-center">
+              No hay unidades para mostrar en este festival.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
   <!-- Acciones -->
   <div class="acciones-doble">
     <a class="boton" href="javascript:window.print();">Imprimir PDF</a>
-    <a class="boton" th:href="@{/}">Volver</a>
+    <a class="boton" th:href="@{/admin/dashboard}">Volver al panel</a>
   </div>
 
   <!-- Logo Institucional UNLa -->
