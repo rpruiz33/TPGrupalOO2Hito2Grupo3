@@ -1,7 +1,7 @@
 package com.example.hito2grupo3.entities;
 
 import java.math.BigDecimal;
-
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
