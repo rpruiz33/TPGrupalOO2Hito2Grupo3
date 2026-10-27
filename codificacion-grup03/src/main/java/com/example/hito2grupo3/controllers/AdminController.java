@@ -7,10 +7,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.stream.StreamSupport;
-
+import org.springframework.web.bind.annotation.PathVariable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.StreamSupport;
+import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 @RequestMapping("/admin")
@@ -72,4 +73,29 @@ Long primerFestivalId = festivalRepository.findFirstByOrderByIdAsc()
 
         return "admin/dashboard"; 
     }
+
+@GetMapping("/festivales")
+public String listarFestivales(Model model) {
+    model.addAttribute("festivales", festivalRepository.findAll());
+    return "admin/festivales";
+}
+
+@GetMapping("/festivales/{id}")
+@Transactional(readOnly = true)
+public String verUnidadesFestival(@PathVariable Long id, Model model) {
+    Festival festival = festivalRepository.findById(id)
+            .orElse(null);
+
+    if (festival == null) {
+        return "redirect:/admin/festivales";
+    }
+
+    model.addAttribute("festival", festival);
+    model.addAttribute(
+            "unidades",
+            festival.getUnidadesVentaHabilitadas()
+    );
+
+    return "admin/unidades-festivales";
+}
 }

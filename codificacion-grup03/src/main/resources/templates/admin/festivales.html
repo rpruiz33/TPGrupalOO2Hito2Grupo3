@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festivales - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+</head>
+<body>
+
+<nav class="navbar navbar-dark admin-header px-4 py-2">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">
+            Epicentro Gourmet - Admin
+        </a>
+        <form th:action="@{/logout}" method="post" class="m-0">
+            <button type="submit" class="btn btn-outline-custom btn-sm">
+                Cerrar Sesión
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <a th:href="@{/admin/dashboard}" class="btn btn-secondary mb-4">
+        Volver al panel
+    </a>
+
+    <h2 class="fw-bold mb-2">Festivales registrados</h2>
+    <p>Seleccioná un festival para consultar sus unidades de venta.</p>
+
+    <div th:if="${#lists.isEmpty(festivales)}" class="alert alert-info">
+        No hay festivales registrados.
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-lg-4 mb-4"
+             th:each="festival : ${festivales}">
+            <div class="card card-custom h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold"
+                        th:text="${festival.nombre}">
+                        Nombre del festival
+                    </h5>
+
+                    <p class="text-muted mb-3">
+                        Consultá las unidades de venta asociadas a esta edición.
+                    </p>
+
+                    <a class="btn btn-primary"
+                       th:href="@{/admin/festivales/{id}(id=${festival.id})}">
+                        Ver unidades de venta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
