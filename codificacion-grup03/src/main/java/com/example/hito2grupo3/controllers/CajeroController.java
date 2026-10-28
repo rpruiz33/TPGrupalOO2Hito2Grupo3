@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/cajero")
-@PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO', 'USER')")
+@PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO', 'CAJERO')")
 public class CajeroController {
 
     private final ICierreCajaService cierreCajaService;

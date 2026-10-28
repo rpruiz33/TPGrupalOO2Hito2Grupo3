@@ -52,9 +52,9 @@ public class SecurityConfiguration {
                     ).permitAll();
                     auth.requestMatchers("/admin/**").hasRole("ADMIN");
                     auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
-                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "USER");
+                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "CAJERO", "COCINERO");
                     auth.requestMatchers("/cajero/**")
-                            .hasAnyRole("ADMIN", "EMPLEADO", "USER");
+                            .hasAnyRole("ADMIN", "EMPLEADO", "CAJERO");
                     auth.anyRequest().authenticated();
                 })
 
