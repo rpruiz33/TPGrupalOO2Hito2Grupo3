@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mis platos | Epicentro Gourmet</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            color: #333;
+        }
+
+        .contenedor {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #800020;
+        }
+
+        .unidad {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #800020;
+            color: white;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f2f4;
+        }
+
+        .mensaje {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: #842029;
+            background-color: #f8d7da;
+        }
+
+        .vacio {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            background-color: #f7f7f7;
+            border-radius: 5px;
+        }
+
+        .botones {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .principal {
+            color: white;
+            background-color: #800020;
+        }
+
+        .secundario {
+            color: #333;
+            background-color: #e5e5e5;
+        }
+
+        .boton:hover {
+            opacity: 0.85;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .contenedor {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="contenedor">
+
+        <h1>Mis platos</h1>
+
+        <p class="unidad" th:if="${unidadVenta != null}">
+            <strong>Unidad de venta:</strong>
+            <span th:text="${unidadVenta.nombreComercial}"></span>
+        </p>
+
+        <div class="mensaje error"
+             th:if="${error != null}"
+             th:text="${error}">
+        </div>
+
+        <div th:if="${error == null}">
+
+            <div class="tabla-contenedor"
+                 th:if="${platos != null and !platos.isEmpty()}">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre del plato</th>
+                            <th>Precio de venta</th>
+                            <th>Costo de producción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="plato : ${platos}">
+                            <td th:text="${plato.nombre}"></td>
+
+                            <td th:text="${'$ ' + #numbers.formatDecimal(plato.precio, 1, 2)}"></td>
+
+                            <td th:text="${'$ ' + #numbers.formatDecimal(plato.costoProduccion, 1, 2)}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="vacio"
+                 th:if="${platos != null and platos.isEmpty()}">
+                Todavía no registraste platos para tu unidad de venta.
+            </div>
+
+        </div>
+
+        <div class="botones">
+            <a class="boton principal"
+               th:href="@{/responsable/platos/nuevo}">
+                Registrar plato
+            </a>
+
+            <a class="boton secundario"
+               th:href="@{/responsable/index}">
+                Volver al panel
+            </a>
+        </div>
+
+    </main>
+</body>
+</html>

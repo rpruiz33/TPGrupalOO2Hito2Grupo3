@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -57,6 +56,38 @@
             font-size: 16px;
         }
 
+        .info {
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f8f5f5;
+        }
+
+        .info p {
+            margin: 8px 0;
+        }
+
+        .info strong {
+            color: #800020;
+        }
+
+        .mensaje {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .exito {
+            background: #e1f4e5;
+            color: #185c2a;
+        }
+
+        .error {
+            background: #fbe4e4;
+            color: #8a1111;
+        }
+
         .botones {
             display: flex;
             gap: 12px;
@@ -82,22 +113,6 @@
             background: white;
             color: #222;
         }
-
-        .mensaje {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .exito {
-            background: #e1f4e5;
-            color: #185c2a;
-        }
-
-        .error {
-            background: #fbe4e4;
-            color: #8a1111;
-        }
     </style>
 </head>
 
@@ -110,6 +125,7 @@
     <h2>Alta de platos</h2>
     <p>Completá los datos del nuevo plato.</p>
 
+    <!-- Mensajes generales -->
     <div class="mensaje exito"
          th:if="${mensaje}"
          th:text="${mensaje}">
@@ -120,9 +136,47 @@
          th:text="${error}">
     </div>
 
+    <!-- Información de la unidad de venta y el festival -->
+    <div class="info">
+        <p>
+            <strong>Unidad de venta:</strong>
+            <span th:if="${unidadVenta != null}"
+                  th:text="${unidadVenta.nombreComercial}">
+            </span>
+            <span th:if="${unidadVenta == null}">
+                No se encontró una unidad de venta asignada.
+            </span>
+        </p>
+
+        <p>
+            <strong>Festival vigente:</strong>
+            <span th:if="${festival != null}"
+                  th:text="${festival.nombre}">
+            </span>
+            <span th:if="${festival == null and avisoFestival == null}">
+                No hay información del festival disponible.
+            </span>
+        </p>
+
+        <div class="mensaje error"
+             th:if="${avisoFestival}"
+             th:text="${avisoFestival}">
+        </div>
+    </div>
+
     <form th:action="@{/responsable/platos/guardar}"
           th:object="${plato}"
           method="post">
+
+        <!-- Errores de validación del formulario -->
+        <div class="mensaje error"
+             th:if="${#fields.hasAnyErrors()}">
+            <ul>
+                <li th:each="err : ${#fields.allErrors()}"
+                    th:text="${err}">
+                </li>
+            </ul>
+        </div>
 
         <label for="nombre">Nombre del plato</label>
         <input type="text"
@@ -152,6 +206,7 @@
 
         <div class="botones">
             <button type="submit">Guardar plato</button>
+
             <a class="volver" th:href="@{/responsable/index}">
                 Volver al panel
             </a>
