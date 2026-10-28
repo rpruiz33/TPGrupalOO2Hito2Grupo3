@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Empleados - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+</head>
+<body>
+
+    <!-- Header / Navbar Superior -->
+    <nav class="navbar navbar-dark admin-header px-4 py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="/admin/dashboard">
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;" onerror="this.style.display='none'">
+                <span>Epicentro Gourmet - Admin</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <span class="small d-none d-md-inline text-white-50">Administrador</span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Layout principal -->
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Menú Lateral Sidebar -->
+            <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
+                <nav class="nav flex-column mt-2">
+                    <a class="nav-link nav-link-admin" href="/admin/dashboard">Inicio</a>
+                    <a class="nav-link nav-link-admin" href="/admin/usuarios">Usuarios</a>
+                    <a class="nav-link nav-link-admin active" href="/admin/empleados">Empleados</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/recaudacion/festival/1}">Reporte Recaudación</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/rentabilidad-neta/festival/1}">Rentabilidad Neta</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
+                    <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
+                </nav>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="col-12 col-md-10 p-4 p-md-5">
+
+                <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm mb-3" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-3" th:text="${error}"></div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h2 class="fw-bold mb-1">Gestión de Empleados</h2>
+                        <p class="mb-0" style="color: #e0e0e0;">Administración de personal: altas, edición, baja lógica, reactivación y control de accesos.</p>
+                    </div>
+                    <a th:href="@{/admin/empleados/nuevo}" class="btn btn-outline-custom fw-bold px-4 py-2">
+                        + Nuevo Empleado
+                    </a>
+                </div>
+
+                <!-- Tabla de Empleados -->
+                <div class="card card-custom p-3 shadow-lg">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Empleado / DNI</th>
+                                    <th>Puesto</th>
+                                    <th>Sueldo</th>
+                                    <th>Usuario / Email</th>
+                                    <th>Estado</th>
+                                    <th>Contraseña</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="emp : ${empleados}">
+                                    <td th:text="${emp.id}"></td>
+                                    <td>
+                                        <div class="fw-bold" th:text="${emp.nombre + ' ' + emp.apellido}"></div>
+                                        <small class="text-muted" th:text="'DNI: ' + ${emp.dni}"></small>
+                                    </td>
+                                    <td>
+                                        <!-- Cajero -->
+                                        <span th:if="${emp instanceof T(com.example.hito2grupo3.entities.Cajero)}" class="badge bg-primary">
+                                            Cajero (Caja <span th:text="${emp.numeroCaja != null ? emp.numeroCaja : 'N/D'}"></span>)
+                                        </span>
+                                        <!-- Cocinero -->
+                                        <span th:if="${emp instanceof T(com.example.hito2grupo3.entities.Cocinero)}" class="badge bg-warning text-dark">
+                                            Cocinero <span th:if="${emp.categoriaCocina != null}" th:text="'(' + ${emp.categoriaCocina.nombre} + ')'"></span>
+                                        </span>
+                                        <!-- General / Staff -->
+                                        <span th:if="${!(emp instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(emp instanceof T(com.example.hito2grupo3.entities.Cocinero))}" class="badge bg-secondary">
+                                            Staff General
+                                        </span>
+                                    </td>
+                                    <td class="fw-semibold" th:text="'$' + ${#numbers.formatDecimal(emp.sueldo != null ? emp.sueldo : 0, 1, 'POINT', 0, 'COMMA')}">
+                                        $0
+                                    </td>
+                                    <td>
+                                        <span th:if="${emp.usuario != null}" class="fw-bold" th:text="${emp.usuario.email}"></span>
+                                        <span th:unless="${emp.usuario != null}" class="text-muted fst-italic">Sin cuenta</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${emp.activo}" class="badge bg-success">
+                                            ✓ Activo
+                                        </span>
+                                        <span th:unless="${emp.activo}" class="badge bg-danger">
+                                            ✕ Inactivo / Baja
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <th:block th:if="${emp.usuario != null}">
+                                            <span th:if="${emp.usuario.debeCambiarPassword}" class="badge bg-warning text-dark" title="Debe cambiar la clave al loguearse">
+                                                ✉️ Temporal
+                                            </span>
+                                            <span th:unless="${emp.usuario.debeCambiarPassword}" class="badge bg-info text-dark" title="Contraseña definitiva activa">
+                                                ✓ Definitiva
+                                            </span>
+                                        </th:block>
+                                        <span th:if="${emp.usuario == null}" class="badge bg-light text-muted">-</span>
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                        <!-- Editar -->
+                                        <a th:href="@{/admin/empleados/editar/{id}(id=${emp.id})}" class="btn btn-sm btn-primary">
+                                            Editar
+                                        </a>
+
+                                        <!-- Acciones para empleado ACTIVO -->
+                                        <th:block th:if="${emp.activo}">
+                                            <a th:if="${emp.usuario != null}"
+                                               th:href="@{/admin/empleados/reenviar/{id}(id=${emp.id})}" 
+                                               class="btn btn-sm btn-outline-dark ms-1"
+                                               title="Regenerar contraseña y reenviar por correo electrónico"
+                                               onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
+                                                Reenviar Mail
+                                            </a>
+
+                                            <a th:href="@{/admin/empleados/baja/{id}(id=${emp.id})}" 
+                                               class="btn btn-sm btn-danger ms-1"
+                                               title="Dar de baja lógica al empleado y deshabilitar su usuario"
+                                               onclick="return confirm('¿Está seguro de dar de BAJA LÓGICA a este empleado? Su usuario quedará inhabilitado para operar en el sistema.');">
+                                                Dar de Baja
+                                            </a>
+                                        </th:block>
+
+                                        <!-- Acciones para empleado DADO DE BAJA -->
+                                        <th:block th:unless="${emp.activo}">
+                                            <a th:href="@{/admin/empleados/reactivar/{id}(id=${emp.id})}" 
+                                               class="btn btn-sm btn-success ms-1 fw-bold"
+                                               title="Reactivar empleado, enviar nuevas credenciales por mail y requerir cambio de clave"
+                                               onclick="return confirm('¿Desea REACTIVAR a este empleado? Se habilitará su acceso, se le enviará un correo con credenciales temporales y se le requerirá cambiar la contraseña al iniciar sesión.');">
+                                                ↺ Reactivar
+                                            </a>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(empleados)}">
+                                    <td colspan="8" class="text-center py-4 text-muted">No hay empleados registrados en el sistema.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

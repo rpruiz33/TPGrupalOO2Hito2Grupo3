@@ -3,6 +3,7 @@ package com.example.hito2grupo3.entities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +32,9 @@ public class Staff {
     private LocalDate fechaNacimiento;
     private LocalDate fechaIngreso;
     private BigDecimal sueldo;
+
+    @Column(name = "activo", nullable = false, columnDefinition = "boolean default true")
+    private boolean activo = true;
 
     @OneToOne
     @JoinColumn(name = "usuario_id", referencedColumnName = "id", unique = true)

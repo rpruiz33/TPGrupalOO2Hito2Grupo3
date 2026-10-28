@@ -160,6 +160,7 @@ public class SecurityConfiguration {
                         .username(u.getEmail())
                         .password(u.getPasswordHash())
                         .roles(u.getRol().getNombre().replace("ROLE_", ""))
+                        .disabled(!u.isActivo())
                         .build())
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Email no encontrado"));
