@@ -398,6 +398,7 @@
     <div class="cc-card">
         <div class="card-header">🔒 Registrar Cierre de Caja</div>
         <div class="card-body">
+            <!-- CORREGIDO: Se eliminaron las comillas extra y se asegura el envío correcto -->
             <form th:action="@{/cajero/cierre-caja}" method="post" id="formCierreCaja">
                 <div class="row g-3">
 
@@ -408,7 +409,7 @@
                     <div class="col-md-6">
                         <label for="unidadVentaId" class="form-label">Unidad de Venta</label>
                         <select id="unidadVentaId" name="unidadVentaId" class="form-select" required>
-                            <option value="" disabled selected>Seleccionar unidad...</option>
+                            <option value="" disabled th:selected="${unidadVentaId == null}">Seleccionar unidad...</option>
                             <option th:each="uv : ${unidades}"
                                     th:value="${uv.id}"
                                     th:text="${uv.nombreComercial}"

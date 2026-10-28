@@ -69,16 +69,17 @@
     </div>
   </section>
 
-  <div class="acciones-doble">
+<div class="acciones-doble">
     <form method="post" th:action="@{/cajero/cierre-caja}" th:unless="${caja.cerrada}"
           onsubmit="return confirm('¿Cerrar la caja del día? No se puede deshacer.');">
+      
+      <!-- Inputs ocultos para los IDs esperados por el controlador -->
+      <input type="hidden" name="cajeroId" th:value="${cajeroId}" />
+      <input type="hidden" name="unidadVentaId" th:value="${unidadVentaId}" />
+
       <button type="submit">Cerrar caja</button>
     </form>
-    <a class="boton" th:href="@{/empleado/dashboard}">Volver</a>
-  </div>
-
-  <div class="logo">
-    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+    <a class="boton" th:href="@{/empleado/index}">Volver</a>
   </div>
 
 </main>
