@@ -20,7 +20,7 @@
         }
 
         .contenedor {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 30px;
             background-color: white;
@@ -73,6 +73,11 @@
             background-color: #f8d7da;
         }
 
+        .exito {
+            color: #0f5132;
+            background-color: #d1e7dd;
+        }
+
         .vacio {
             padding: 20px;
             text-align: center;
@@ -81,19 +86,33 @@
             border-radius: 5px;
         }
 
-        .botones {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-            flex-wrap: wrap;
+        .estado {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .activo {
+            color: #0f5132;
+            background-color: #d1e7dd;
+        }
+
+        .inactivo {
+            color: #842029;
+            background-color: #f8d7da;
         }
 
         .boton {
             display: inline-block;
-            padding: 11px 18px;
+            padding: 9px 13px;
+            border: none;
             border-radius: 5px;
             text-decoration: none;
             font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .principal {
@@ -108,6 +127,13 @@
 
         .boton:hover {
             opacity: 0.85;
+        }
+
+        .botones {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
         }
 
         @media (max-width: 600px) {
@@ -137,6 +163,11 @@
              th:text="${error}">
         </div>
 
+        <div class="mensaje exito"
+             th:if="${mensaje != null}"
+             th:text="${mensaje}">
+        </div>
+
         <div th:if="${error == null}">
 
             <div class="tabla-contenedor"
@@ -148,16 +179,39 @@
                             <th>Nombre del plato</th>
                             <th>Precio de venta</th>
                             <th>Costo de producción</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         <tr th:each="plato : ${platos}">
+
                             <td th:text="${plato.nombre}"></td>
 
                             <td th:text="${'$ ' + #numbers.formatDecimal(plato.precio, 1, 2)}"></td>
 
                             <td th:text="${'$ ' + #numbers.formatDecimal(plato.costoProduccion, 1, 2)}"></td>
+
+                            <td>
+                                <span th:if="${plato.activo}"
+                                      class="estado activo">
+                                    Activo
+                                </span>
+
+                                <span th:unless="${plato.activo}"
+                                      class="estado inactivo">
+                                    Inactivo
+                                </span>
+                            </td>
+
+                            <td>
+                                <a class="boton principal"
+                                   th:href="@{/responsable/platos/modificar/{id}(id=${plato.id})}">
+                                    Modificar
+                                </a>
+                            </td>
+
                         </tr>
                     </tbody>
                 </table>
@@ -171,6 +225,7 @@
         </div>
 
         <div class="botones">
+
             <a class="boton principal"
                th:href="@{/responsable/platos/nuevo}">
                 Registrar plato
@@ -180,6 +235,7 @@
                th:href="@{/responsable/index}">
                 Volver al panel
             </a>
+
         </div>
 
     </main>

@@ -436,14 +436,30 @@ INSERT INTO tmp_menu_plato VALUES
 
 -- 3.3 Crear platos independientes por unidad de venta.
 -- Los nombres pueden repetirse entre unidades, pero cada registro tiene su propio id.
-INSERT INTO platos (nombre, precio, costo_produccion, unidad_venta_id)
-SELECT cp.nombre, cp.precio, cp.costo_produccion, uv.id
-FROM tmp_menu_unidad mu
-JOIN unidades_venta uv ON uv.codigo = mu.codigo
-JOIN tmp_menu_plato mp ON mp.menu = mu.menu
-JOIN tmp_catalogo_platos cp ON cp.nombre = mp.plato;
+-- Todos los platos se crean activos inicialmente.
 
-DROP TEMPORARY TABLE IF EXISTS tmp_catalogo_platos;
+INSERT INTO platos (
+    nombre,
+    precio,
+    costo_produccion,
+    unidad_venta_id,
+    activo
+)
+SELECT
+    cp.nombre,
+    cp.precio,
+    cp.costo_produccion,
+    uv.id,
+    TRUE
+FROM tmp_menu_unidad mu
+JOIN unidades_venta uv
+    ON uv.codigo = mu.codigo
+JOIN tmp_menu_plato mp
+    ON mp.menu = mu.menu
+JOIN tmp_catalogo_platos cp
+    ON cp.nombre = mp.plato;
+
+
 
 -- 3.4 Pedidos: 1 por unidad y por día (desde hace 10 días hasta hoy CURRENT_DATE())
 DROP TEMPORARY TABLE IF EXISTS tmp_dias;

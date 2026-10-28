@@ -1,7 +1,7 @@
 package com.example.hito2grupo3.entities;
 
 import java.math.BigDecimal;
-import lombok.NoArgsConstructor;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -18,8 +19,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
@@ -38,14 +39,17 @@ public class Plato {
     private String nombre;
 
     @NotNull(message = "El precio de venta es obligatorio")
-    @DecimalMin(value = "0.01", message = "El precio debe ser mayor que cero")
+    @DecimalMin(value = "1", message = "El precio debe ser mayor que cero")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
 
     @NotNull(message = "El costo de producción es obligatorio")
-    @DecimalMin(value = "0.00", message = "El costo no puede ser negativo")
+    @DecimalMin(value = "1", message = "El costo no puede ser negativo")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal costoProduccion;
+
+    @Column(nullable = false)
+    private boolean activo = true;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "unidad_venta_id", nullable = false)
@@ -64,12 +68,13 @@ public class Plato {
         this.precio = precio;
         this.costoProduccion = costoProduccion;
     }
-    @AssertTrue(message = "El precio de venta debe ser mayor que el costo de producción")
-public boolean isPrecioMayorAlCosto() {
-    if (precio == null || costoProduccion == null) {
-        return true;
-    }
 
-    return precio.compareTo(costoProduccion) > 0;
-}
+    @AssertTrue(message = "El precio de venta debe ser mayor que el costo de producción")
+    public boolean isPrecioMayorAlCosto() {
+        if (precio == null || costoProduccion == null) {
+            return true;
+        }
+
+        return precio.compareTo(costoProduccion) > 0;
+    }
 }

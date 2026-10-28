@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar plato | Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
+
+    <style>
+        :root {
+            --bordo: #800020;
+            --bordo-hover: #600018;
+            --blanco: #ffffff;
+            --texto: #292929;
+            --texto-secundario: #666666;
+            --borde: #dddddd;
+            --error: #b42318;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 0;
+            background-color: var(--bordo);
+            font-family: "Segoe UI", sans-serif;
+            color: var(--texto);
+        }
+
+        .pagina {
+            width: 100%;
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 30px 20px 35px;
+        }
+
+        .encabezado {
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--blanco);
+        }
+
+        .marca {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+        .encabezado h1 {
+            margin: 0 0 10px;
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        .subtitulo {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tarjeta {
+            width: 100%;
+            overflow: hidden;
+            background: var(--blanco);
+            border: 2px solid #222222;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .unidad {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 18px 24px;
+            background: #faf5f7;
+            border-bottom: 1px solid #e8dce0;
+        }
+
+        .unidad-icono {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            border-radius: 9px;
+            background: #f0dfe5;
+            font-size: 21px;
+        }
+
+        .unidad-etiqueta {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--texto-secundario);
+            font-size: 12px;
+        }
+
+        .unidad-nombre {
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .contenido {
+            padding: 25px;
+        }
+
+        .seccion-titulo {
+            margin: 0 0 22px;
+            padding-bottom: 13px;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .requerido {
+            color: var(--bordo);
+        }
+
+        .campo input[type="text"],
+        .campo input[type="number"] {
+            display: block;
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 12px;
+            border: 1px solid #cfcfcf;
+            border-radius: 7px;
+            background-color: #ffffff;
+            color: var(--texto);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .campo input:focus {
+            outline: none;
+            border-color: var(--bordo);
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12);
+        }
+
+        .ayuda {
+            display: block;
+            margin-top: 6px;
+            color: var(--texto-secundario);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .error {
+            margin-top: 6px;
+            color: var(--error);
+            font-size: 13px;
+        }
+
+        .mensaje-error {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #efc2be;
+            border-radius: 7px;
+            background: #fff0ef;
+            color: var(--error);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .estado {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .estado input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin: 2px 0 0;
+            accent-color: var(--bordo);
+            cursor: pointer;
+        }
+
+        .estado label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .estado-descripcion {
+            display: block;
+            margin-top: 5px;
+            color: var(--texto-secundario);
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .botones {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .menu-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 7px 15px;
+            border: 1px solid var(--bordo);
+            border-radius: 7px;
+            background: #ffffff;
+            color: var(--bordo);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .menu-button:hover {
+            background: var(--bordo);
+            color: #ffffff;
+        }
+
+        .menu-button-primary {
+            border-color: var(--bordo);
+            background: var(--bordo);
+            color: #ffffff;
+        }
+
+        .menu-button-primary:hover {
+            border-color: var(--bordo-hover);
+            background: var(--bordo-hover);
+            color: #ffffff;
+        }
+
+        .pie {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 520px) {
+            .pagina {
+                padding: 22px 13px 25px;
+            }
+
+            .marca {
+                font-size: 24px;
+            }
+
+            .encabezado h1 {
+                font-size: 22px;
+            }
+
+            .contenido {
+                padding: 20px 17px;
+            }
+
+            .unidad {
+                padding: 15px 17px;
+            }
+
+            .botones {
+                flex-direction: column-reverse;
+            }
+
+            .menu-button {
+                width: 100%;
+                min-height: 42px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="pagina">
+
+    <header class="encabezado">
+        <span class="marca">Epicentro Gourmet</span>
+        <h1>Modificar plato</h1>
+        <p class="subtitulo">
+            Actualizá la información del plato y guardá los cambios.
+        </p>
+    </header>
+
+    <main class="tarjeta">
+
+        <div class="unidad" th:if="${unidadVenta != null}">
+            <div class="unidad-icono" aria-hidden="true">🍽️</div>
+
+            <div>
+                <span class="unidad-etiqueta">Unidad de venta</span>
+                <span class="unidad-nombre"
+                      th:text="${unidadVenta.nombreComercial}">
+                    Nombre de la unidad
+                </span>
+            </div>
+        </div>
+
+        <div class="contenido">
+
+            <h2 class="seccion-titulo">Información del plato</h2>
+
+            <div th:if="${error != null}"
+                 class="mensaje-error"
+                 th:text="${error}">
+            </div>
+
+            <form th:action="@{/responsable/platos/modificar/{id}(id=${plato.id})}"
+                  th:object="${plato}"
+                  method="post">
+
+                <div class="campo">
+                    <label for="nombre">
+                        Nombre del plato <span class="requerido">*</span>
+                    </label>
+
+                    <input type="text"
+                           id="nombre"
+                           th:field="*{nombre}"
+                           maxlength="100"
+                           placeholder="Ej.: Hamburguesa completa"
+                           required>
+
+                    <div class="error"
+                         th:if="${#fields.hasErrors('nombre')}"
+                         th:errors="*{nombre}">
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="precio">
+                        Precio de venta <span class="requerido">*</span>
+                    </label>
+
+                    <input type="number"
+                           id="precio"
+                           th:field="*{precio}"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="0,00"
+                           required>
+
+                    <span class="ayuda">
+                        Importe que se cobrará al cliente.
+                    </span>
+
+                    <div class="error"
+                         th:if="${#fields.hasErrors('precio')}"
+                         th:errors="*{precio}">
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="costoProduccion">
+                        Costo de producción <span class="requerido">*</span>
+                    </label>
+
+                    <input type="number"
+                           id="costoProduccion"
+                           th:field="*{costoProduccion}"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="0,00"
+                           required>
+
+                    <span class="ayuda">
+                        Costo estimado de elaboración del plato.
+                    </span>
+
+                    <div class="error"
+                         th:if="${#fields.hasErrors('costoProduccion')}"
+                         th:errors="*{costoProduccion}">
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <div class="estado">
+                        <input type="checkbox"
+                               id="activo"
+                               th:field="*{activo}">
+
+                        <div>
+                            <label for="activo">Plato activo</label>
+
+                            <span class="estado-descripcion">
+                                Si desactiva esta opción, el plato quedará
+                                inactivo y no estará disponible para la venta.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="botones">
+                    <a th:href="@{/responsable/platos}"
+                       class="menu-button">
+                        Cancelar
+                    </a>
+
+                    <button type="submit"
+                            class="menu-button menu-button-primary">
+                        Guardar cambios
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <footer class="pie">
+        Epicentro Gourmet · Gestión de platos
+    </footer>
+
+</div>
+</body>
+</html>

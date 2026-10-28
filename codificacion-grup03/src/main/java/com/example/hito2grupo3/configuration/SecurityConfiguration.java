@@ -50,11 +50,37 @@ public class SecurityConfiguration {
                             "/vendor/bootstrap/js/**",
                             "/api/v1/**"
                     ).permitAll();
-                    auth.requestMatchers("/admin/**").hasRole("ADMIN");
-                    auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
-                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "CAJERO");
+
+                    // Acceso exclusivo para administradores
+                    auth.requestMatchers("/admin/**")
+                            .hasRole("ADMIN");
+
+                    // Acceso exclusivo para responsables
+                    auth.requestMatchers("/responsable/**")
+                            .hasRole("RESPONSABLE");
+
+                    // Liquidaciones y recibos
+                    auth.requestMatchers(
+                            "/liquidacion",
+                            "/liquidacion/**",
+                            "/reciboPdf/**",
+                            "/recibo-pdf/**"
+                    ).hasAnyRole(
+                            "ADMIN",
+                            "RESPONSABLE",
+                            "EMPLEADO",
+                            "CAJERO"
+                    );
+
+                    // Acceso al módulo de cajeros
                     auth.requestMatchers("/cajero/**")
-                            .hasAnyRole("ADMIN", "EMPLEADO", "CAJERO");
+                            .hasAnyRole(
+                                    "ADMIN",
+                                    "EMPLEADO",
+                                    "CAJERO"
+                            );
+
+                    // El resto de las rutas requiere autenticación
                     auth.anyRequest().authenticated();
                 })
 
