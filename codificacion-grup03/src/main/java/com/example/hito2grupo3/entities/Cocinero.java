@@ -2,7 +2,7 @@ package com.example.hito2grupo3.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +20,8 @@ public class Cocinero extends Staff {
     private boolean libretaSanitaria;
     private BigDecimal bonoPeligrosidad;
 
-    @OneToOne
-    @JoinColumn(name = "categoria_cocina_id", referencedColumnName = "id", unique = true, nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "categoria_cocina_id", referencedColumnName = "id", nullable = true)
     private CategoriaCocina categoriaCocina;
 
     public Cocinero() {

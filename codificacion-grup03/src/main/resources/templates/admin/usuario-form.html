@@ -34,9 +34,11 @@
             <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
                 <nav class="nav flex-column mt-2">
                     <a class="nav-link nav-link-admin" href="/admin/dashboard">Inicio</a>
-                    <a class="nav-link nav-link-admin" href="#">Festivales</a>
                     <a class="nav-link nav-link-admin active" href="/admin/usuarios">Usuarios</a>
+                    <a class="nav-link nav-link-admin" href="/admin/empleados">Empleados</a>
                     <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/recaudacion/festival/1}">Reporte Recaudación</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/rentabilidad-neta/festival/1}">Rentabilidad Neta</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
                     <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
                 </nav>
             </div>
@@ -46,10 +48,10 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h2 class="fw-bold mb-1">
-                            <span th:if="${usuario.id == null}">Nuevo Usuario</span>
-                            <span th:unless="${usuario.id == null}">Editar Usuario</span>
+                            <span th:if="${usuario.id == null}">Nuevo Administrador</span>
+                            <span th:unless="${usuario.id == null}">Editar Administrador</span>
                         </h2>
-                        <p class="mb-0" style="color: #e0e0e0;">Gestión de credenciales y acceso al sistema.</p>
+                        <p class="mb-0" style="color: #e0e0e0;">Gestión de credenciales y acceso de administrador al sistema.</p>
                     </div>
                     <a th:href="@{/admin/usuarios}" class="btn btn-outline-custom btn-sm">Volver a la Lista</a>
                 </div>
@@ -101,8 +103,8 @@
 
                         <div class="d-flex gap-2">
                             <button type="submit" id="btnSubmit" class="btn btn-success w-100 fw-bold">
-                                <span th:if="${usuario.id == null}">Crear Usuario y Enviar Mail</span>
-                                <span th:unless="${usuario.id == null}">Actualizar Usuario</span>
+                                <span th:if="${usuario.id == null}">Crear Administrador y Enviar Mail</span>
+                                <span th:unless="${usuario.id == null}">Actualizar Administrador</span>
                             </button>
                             <a th:href="@{/admin/usuarios}" class="btn btn-secondary w-100">Cancelar</a>
                         </div>

@@ -33,18 +33,21 @@ public class AdminUsuarioController {
     
     @GetMapping
     public String listarUsuarios(Model model) {
-        model.addAttribute("usuarios", usuarioRepository.findAll());
+        model.addAttribute("usuarios", usuarioRepository.findAllAdmins());
         return "admin/VistaUsuarios"; 
     }
 
     
-  @GetMapping("/nuevo")
+    @GetMapping("/nuevo")
     public String mostrarFormularioAlta(Model model) {
         Usuario nuevoUsuario = new Usuario();
-        nuevoUsuario.setRol(new Rol()); 
+        Rol rolAdmin = rolRepository.findByNombre("ADMIN")
+                .or(() -> rolRepository.findByNombre("ROLE_ADMIN"))
+                .orElseGet(() -> rolRepository.save(new Rol(0, "ADMIN")));
+        nuevoUsuario.setRol(rolAdmin);
 
         model.addAttribute("usuario", nuevoUsuario);
-        model.addAttribute("roles", rolRepository.findAll()); 
+        model.addAttribute("roles", java.util.List.of(rolAdmin)); 
         return "admin/usuario-form"; 
     }
 
@@ -52,12 +55,16 @@ public class AdminUsuarioController {
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttrs) {
         try {
+            Rol rolAdmin = rolRepository.findByNombre("ADMIN")
+                    .or(() -> rolRepository.findByNombre("ROLE_ADMIN"))
+                    .orElseGet(() -> rolRepository.save(new Rol(0, "ADMIN")));
+            usuario.setRol(rolAdmin);
             usuarioService.crearUsuario(usuario);
-            redirectAttrs.addFlashAttribute("mensaje", "Usuario creado exitosamente. Se ha enviado un correo con sus credenciales de acceso.");
+            redirectAttrs.addFlashAttribute("mensaje", "Administrador creado exitosamente. Se ha enviado un correo con sus credenciales de acceso.");
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             redirectAttrs.addFlashAttribute("error", "Error: El correo electrónico ya está registrado.");
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("error", "Ocurrió un error inesperado al guardar el usuario.");
+            redirectAttrs.addFlashAttribute("error", "Ocurrió un error inesperado al guardar el administrador: " + e.getMessage());
         }
         
         return "redirect:/admin/usuarios";
@@ -73,9 +80,13 @@ public class AdminUsuarioController {
         
         usuario.setPasswordHash(""); 
         
+        Rol rolAdmin = rolRepository.findByNombre("ADMIN")
+                .or(() -> rolRepository.findByNombre("ROLE_ADMIN"))
+                .orElse(usuario.getRol());
+
         model.addAttribute("usuario", usuario);
-        model.addAttribute("roles", rolRepository.findAll());
-        return "admin/Usuario-form";
+        model.addAttribute("roles", java.util.List.of(rolAdmin));
+        return "admin/usuario-form";
     }
 
     @PostMapping("/actualizar/{id}")
@@ -83,14 +94,16 @@ public class AdminUsuarioController {
         Usuario usuarioExistente = usuarioRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
 
         usuarioExistente.setEmail(usuarioActualizado.getEmail());
-        usuarioExistente.setRol(usuarioActualizado.getRol());
+        if (usuarioActualizado.getRol() != null) {
+            usuarioExistente.setRol(usuarioActualizado.getRol());
+        }
 
         if (usuarioActualizado.getPasswordHash() != null && !usuarioActualizado.getPasswordHash().isEmpty()) {
             usuarioExistente.setPasswordHash(passwordEncoder.encode(usuarioActualizado.getPasswordHash()));
         }
 
         usuarioRepository.save(usuarioExistente);
-        redirectAttrs.addFlashAttribute("mensaje", "Usuario actualizado exitosamente");
+        redirectAttrs.addFlashAttribute("mensaje", "Administrador actualizado exitosamente");
         return "redirect:/admin/usuarios";
     }
 
