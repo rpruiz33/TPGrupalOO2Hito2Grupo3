@@ -50,31 +50,11 @@ public class SecurityConfiguration {
                             "/vendor/bootstrap/js/**",
                             "/api/v1/**"
                     ).permitAll();
-
-                    // Rutas exclusivas para administradores
-                    auth.requestMatchers("/admin/**")
-                            .hasRole("ADMIN");
-                            //rutas exclusivas responsables 
-                    auth.requestMatchers("/responsable/**")
-                    .hasRole("RESPONSABLE");
-                    // Liquidaciones y recibos
-                    auth.requestMatchers(
-                            "/liquidacion",
-                            "/liquidacion/**",
-                            "/reciboPdf/**",
-                            "/recibo-pdf/**"
-                    ).hasAnyRole(
-                            "ADMIN",
-                            "RESPONSABLE",
-                            "EMPLEADO",
-                            "USER"
-                    );
-
-                    // Cierre de caja exclusivo para cajeros
-                    auth.requestMatchers("/cierreCaja")
-                            .hasRole("CAJERO");
-
-                    // Cualquier otra ruta requiere autenticación
+                    auth.requestMatchers("/admin/**").hasRole("ADMIN");
+                    auth.requestMatchers("/liquidacion", "/liquidacion/**", "/reciboPdf/**", "/recibo-pdf/**")
+                            .hasAnyRole("ADMIN", "RESPONSABLE", "EMPLEADO", "USER");
+                    auth.requestMatchers("/cajero/**")
+                            .hasAnyRole("ADMIN", "EMPLEADO", "USER");
                     auth.anyRequest().authenticated();
                 })
 
@@ -160,6 +140,7 @@ public class SecurityConfiguration {
                         .username(u.getEmail())
                         .password(u.getPasswordHash())
                         .roles(u.getRol().getNombre().replace("ROLE_", ""))
+                        .disabled(!u.isActivo())
                         .build())
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Email no encontrado"));
