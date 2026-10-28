@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE','EMPLEADO','USER')")
+@PreAuthorize("hasAnyRole('ADMIN','RESPONSABLE','EMPLEADO','CAJERO','COCINERO')")
+
 public class LiquidacionController {
 
     private final LiquidacionServiceImpl liquidacionService;
