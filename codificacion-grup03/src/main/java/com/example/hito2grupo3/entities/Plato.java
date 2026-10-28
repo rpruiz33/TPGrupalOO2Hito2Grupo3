@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -62,4 +63,12 @@ public class Plato {
         this.precio = precio;
         this.costoProduccion = costoProduccion;
     }
+    @AssertTrue(message = "El precio de venta debe ser mayor que el costo de producción")
+public boolean isPrecioMayorAlCosto() {
+    if (precio == null || costoProduccion == null) {
+        return true;
+    }
+
+    return precio.compareTo(costoProduccion) > 0;
+}
 }

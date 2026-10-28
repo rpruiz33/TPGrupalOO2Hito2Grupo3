@@ -25,22 +25,30 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
     List<UnidadVenta> obtenerUnidadesPorFestival(
             @Param("festivalId") Long festivalId);
 
-
-   
-Optional<Festival> findFirstByOrderByIdAsc();
-    
+    Optional<Festival> findFirstByOrderByIdAsc();
 
     @Query("""
-    SELECT DISTINCT f
-    FROM Festival f
-    JOIN f.unidadesVentaHabilitadas u
-    JOIN u.staffAsignado s
-    WHERE s.id = :staffId
-      AND f.fechaInicio <= :fecha
-      AND f.fechaFin >= :fecha
-    """)
-List<Festival> buscarActivosPorStaff(
-        @Param("staffId") Long staffId,
-        @Param("fecha") LocalDate fecha);        
+        SELECT DISTINCT f
+        FROM Festival f
+        JOIN f.unidadesVentaHabilitadas u
+        JOIN u.staffAsignado s
+        WHERE s.id = :staffId
+          AND f.fechaInicio <= :fecha
+          AND f.fechaFin >= :fecha
+        """)
+    List<Festival> buscarActivosPorStaff(
+            @Param("staffId") Long staffId,
+            @Param("fecha") LocalDate fecha);
 
+    @Query("""
+        SELECT f
+        FROM Festival f
+        JOIN f.unidadesVentaHabilitadas u
+        WHERE u.id = :unidadVentaId
+          AND f.fechaInicio <= :fecha
+          AND f.fechaFin >= :fecha
+        """)
+    List<Festival> buscarFestivalActivoPorUnidadVenta(
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("fecha") LocalDate fecha);
 }
