@@ -68,6 +68,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 
         if (staff.getUsuario() != null) {
             dto.setEmail(staff.getUsuario().getEmail());
+            dto.setUsuarioId(staff.getUsuario().getId());
         }
 
         if (staff instanceof Cajero c) {
@@ -177,17 +178,20 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
         Staff staff = buscarPorId(id);
 
         // Validar DNI si cambió
-        if (dto.getDni() != null && !dto.getDni().trim().equalsIgnoreCase(staff.getDni())) {
-            staffRepository.findByDni(dto.getDni().trim()).ifPresent(s -> {
-                if (s.getId() != id) {
-                    throw new IllegalArgumentException("Ya existe otro empleado registrado con el DNI: " + dto.getDni());
-                }
-            });
-            staff.setDni(dto.getDni().trim());
+        if (dto.getDni() != null && !dto.getDni().trim().isEmpty()) {
+            String nuevoDni = dto.getDni().trim();
+            if (staff.getDni() == null || !nuevoDni.equalsIgnoreCase(staff.getDni().trim())) {
+                staffRepository.findByDni(nuevoDni).ifPresent(s -> {
+                    if (s.getId() != id.longValue()) {
+                        throw new IllegalArgumentException("Ya existe otro empleado registrado con el DNI: " + nuevoDni);
+                    }
+                });
+                staff.setDni(nuevoDni);
+            }
         }
 
         // Validar y actualizar email en el usuario vinculado
-        if (staff.getUsuario() != null && dto.getEmail() != null) {
+        if (staff.getUsuario() != null && dto.getEmail() != null && !dto.getEmail().isBlank()) {
             String nuevoEmail = dto.getEmail().trim().toLowerCase();
             if (!staff.getUsuario().getEmail().equalsIgnoreCase(nuevoEmail)) {
                 usuarioRepository.findByEmail(nuevoEmail).ifPresent(u -> {
@@ -198,10 +202,16 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
                 staff.getUsuario().setEmail(nuevoEmail);
                 usuarioRepository.save(staff.getUsuario());
             }
+        } else if (staff.getUsuario() == null && dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            usuarioRepository.findByEmail(dto.getEmail().trim().toLowerCase()).ifPresent(staff::setUsuario);
         }
 
-        staff.setNombre(dto.getNombre().trim());
-        staff.setApellido(dto.getApellido().trim());
+        if (dto.getNombre() != null) {
+            staff.setNombre(dto.getNombre().trim());
+        }
+        if (dto.getApellido() != null) {
+            staff.setApellido(dto.getApellido().trim());
+        }
         staff.setFechaNacimiento(dto.getFechaNacimiento());
         if (dto.getFechaIngreso() != null) {
             staff.setFechaIngreso(dto.getFechaIngreso());

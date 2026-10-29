@@ -16,6 +16,11 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
 
     Optional<Staff> findByUsuario_Email(String email);
 
+    Optional<Staff> findByUsuario_Id(Long usuarioId);
+
+    @Query("SELECT s FROM Staff s WHERE s.usuario.id = :usuarioId")
+    Optional<Staff> findByUsuarioId(@Param("usuarioId") Long usuarioId);
+
     @Query("""
         SELECT s
         FROM UnidadVenta uv

@@ -34,8 +34,7 @@
             <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
                 <nav class="nav flex-column mt-2">
                     <a class="nav-link nav-link-admin" href="/admin/dashboard">Inicio</a>
-                    <a class="nav-link nav-link-admin" href="/admin/usuarios">Usuarios</a>
-                    <a class="nav-link nav-link-admin active" href="/admin/empleados">Empleados</a>
+                    <a class="nav-link nav-link-admin active" href="/responsable/usuarios">Usuarios</a>
                     <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/recaudacion/festival/1}">Reporte Recaudación</a>
                     <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/rentabilidad-neta/festival/1}">Rentabilidad Neta</a>
                     <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
@@ -57,12 +56,13 @@
                             <span th:unless="${empleado.id == null}">Actualización de datos personales y laborales del empleado.</span>
                         </p>
                     </div>
-                    <a th:href="@{/admin/empleados}" class="btn btn-outline-custom btn-sm">Volver al Listado</a>
+                    <a th:href="@{/responsable/usuarios}" class="btn btn-outline-custom btn-sm">Volver a la Lista</a>
                 </div>
 
                 <!-- Tarjeta del Formulario -->
                 <div class="card card-custom p-4 shadow-lg mx-auto ms-0" style="max-width: 800px;">
 
+                    <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm mb-3" th:text="${mensaje}"></div>
                     <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-3" th:text="${error}"></div>
 
                     <!-- Panel informativo de generación y envío automático de credenciales -->
@@ -79,7 +79,7 @@
                     </div>
 
                     <form id="empleadoForm" 
-                          th:action="${empleado.id == null} ? @{/admin/empleados/guardar} : @{/admin/empleados/actualizar/{id}(id=${empleado.id})}" 
+                          th:action="${empleado.id == null} ? @{/responsable/usuarios/guardar} : @{/responsable/usuarios/actualizar/{id}(id=${empleado.usuarioId != null ? empleado.usuarioId : empleado.id})}" 
                           th:object="${empleado}" method="post">
 
                         <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary">1. Datos Personales</h5>
@@ -125,13 +125,25 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tipo de Empleado</label>
-                            <!-- Si es edición, el tipo está fijo para no alterar la subclase JPA -->
-                            <select id="selectTipo" class="form-select" th:field="*{tipo}" th:disabled="${empleado.id != null}">
-                                <option value="GENERAL">Staff General</option>
-                                <option value="CAJERO">Cajero</option>
-                                <option value="COCINERO">Cocinero</option>
-                            </select>
-                            <input type="hidden" th:if="${empleado.id != null}" th:field="*{tipo}"/>
+                            <!-- En ALTA: select editable. En EDICIÓN: select de solo lectura + hidden para enviar el valor -->
+                            <th:block th:if="${empleado.id == null}">
+                                <select id="selectTipo" class="form-select" th:field="*{tipo}">
+                                    <option value="GENERAL">Staff General</option>
+                                    <option value="CAJERO">Cajero</option>
+                                    <option value="COCINERO">Cocinero</option>
+                                </select>
+                            </th:block>
+                            <th:block th:unless="${empleado.id == null}">
+                                <!-- Select visual deshabilitado (solo muestra el tipo) -->
+                                <select id="selectTipo" class="form-select bg-light" disabled>
+                                    <option th:value="'GENERAL'" th:selected="${empleado.tipo == 'GENERAL'}">Staff General</option>
+                                    <option th:value="'CAJERO'" th:selected="${empleado.tipo == 'CAJERO'}">Cajero</option>
+                                    <option th:value="'COCINERO'" th:selected="${empleado.tipo == 'COCINERO'}">Cocinero</option>
+                                </select>
+                                <!-- Hidden que SÍ se envía en el POST -->
+                                <input type="hidden" id="tipoHidden" name="tipo" th:value="${empleado.tipo}"/>
+                                <small class="text-muted">El tipo de empleado no puede modificarse una vez creado.</small>
+                            </th:block>
                         </div>
 
                         <!-- Sección Dinámica: CAJERO -->
@@ -190,12 +202,44 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" id="btnSubmit" class="btn btn-success w-100 fw-bold py-2">
+                        <div class="d-flex gap-2 mt-4 flex-wrap">
+                            <button type="submit" id="btnSubmit" class="btn btn-success fw-bold py-2" style="flex: 2; min-width: 200px;">
                                 <span th:if="${empleado.id == null}">Guardar Empleado y Enviar Credenciales</span>
                                 <span th:unless="${empleado.id == null}">Actualizar Datos del Empleado</span>
                             </button>
-                            <a th:href="@{/admin/empleados}" class="btn btn-secondary w-50 py-2">Cancelar</a>
+                            <a th:href="@{/responsable/usuarios}" class="btn btn-secondary py-2" style="flex: 1; min-width: 120px;">Cancelar</a>
+                        </div>
+
+                        <!-- Acciones adicionales en modo edición -->
+                        <div th:unless="${empleado.id == null}" class="mt-3 pt-3 border-top">
+                            <h6 class="fw-bold text-secondary mb-3">Acciones Adicionales</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <!-- Reenviar credenciales por mail -->
+                                <a th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuarioId != null ? empleado.usuarioId : empleado.id})}"
+                                   class="btn btn-outline-dark py-2 px-3"
+                                   title="Regenerar contraseña temporal y reenviar por correo electrónico"
+                                   onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
+                                    ✉️ Reenviar Mail con Nueva Contraseña
+                                </a>
+                                <!-- Dar de baja -->
+                                <a th:if="${empleado.activo}"
+                                   th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.usuarioId != null ? empleado.usuarioId : empleado.id})}"
+                                   class="btn btn-danger py-2 px-3"
+                                   title="Dar de baja lógica al empleado"
+                                   onclick="return confirm('¿Está seguro de dar de BAJA LÓGICA a este empleado? Su usuario quedará inhabilitado.');"
+                                >
+                                    🗑 Dar de Baja
+                                </a>
+                                <!-- Reactivar -->
+                                <a th:unless="${empleado.activo}"
+                                   th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.usuarioId != null ? empleado.usuarioId : empleado.id})}"
+                                   class="btn btn-success py-2 px-3"
+                                   title="Reactivar empleado y enviar nuevas credenciales"
+                                   onclick="return confirm('¿Desea REACTIVAR a este empleado? Se habilitará su acceso y se enviará un correo con credenciales temporales.');"
+                                >
+                                    ↺ Reactivar Empleado
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -206,8 +250,16 @@
 
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script>
+        function getTipo() {
+            // En edición, el select está disabled; leer el hidden o el select dependiendo del modo
+            const hidden = document.getElementById('tipoHidden');
+            if (hidden) return hidden.value;
+            const sel = document.getElementById('selectTipo');
+            return sel ? sel.value : '';
+        }
+
         function actualizarCamposSegunTipo() {
-            const tipo = document.getElementById('selectTipo').value;
+            const tipo = getTipo();
             const seccionCajero = document.getElementById('seccionCajero');
             const seccionCocinero = document.getElementById('seccionCocinero');
 
@@ -223,13 +275,16 @@
             }
         }
 
-        document.getElementById('selectTipo').addEventListener('change', actualizarCamposSegunTipo);
+        const selectEl = document.getElementById('selectTipo');
+        if (selectEl && !selectEl.disabled) {
+            selectEl.addEventListener('change', actualizarCamposSegunTipo);
+        }
         window.addEventListener('DOMContentLoaded', actualizarCamposSegunTipo);
 
         document.getElementById('empleadoForm').addEventListener('submit', function() {
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando y enviando correo...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
             this.submit();
         });
     </script>

@@ -51,13 +51,19 @@ public class SecurityConfiguration {
                             "/api/v1/**"
                     ).permitAll();
 
+                    // Acceso a usuarios tanto para administradores como responsables
+                    auth.requestMatchers(
+                            "/admin/usuarios/**",
+                            "/responsable/usuarios/**"
+                    ).hasAnyRole("ADMIN", "RESPONSABLE");
+
                     // Acceso exclusivo para administradores
                     auth.requestMatchers("/admin/**")
                             .hasRole("ADMIN");
 
-                    // Acceso exclusivo para responsables
+                    // Acceso para responsables y administradores
                     auth.requestMatchers("/responsable/**")
-                            .hasRole("RESPONSABLE");
+                            .hasAnyRole("RESPONSABLE", "ADMIN");
 
                     // Liquidaciones y recibos
                     auth.requestMatchers(
