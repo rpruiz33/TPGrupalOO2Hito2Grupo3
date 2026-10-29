@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
@@ -8,14 +7,11 @@
 
     <title>Panel del Responsable - Epicentro Gourmet</title>
 
-    <link rel="stylesheet"
-          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
 
-    <link rel="stylesheet"
-          th:href="@{/css/modern-business.css}">
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
 
-    <link rel="stylesheet"
-          th:href="@{/css/custom-login.css}">
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
 
     <style>
         body {
@@ -76,7 +72,7 @@
             margin: 0 auto;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
             transition: transform 0.2s ease,
-                        box-shadow 0.2s ease;
+                box-shadow 0.2s ease;
         }
 
         .menu-card:hover {
@@ -116,7 +112,7 @@
             text-decoration: none;
             display: inline-block;
             transition: background-color 0.2s ease,
-                        color 0.2s ease;
+                color 0.2s ease;
         }
 
         .menu-button:hover {
@@ -147,7 +143,7 @@
             background: transparent;
             cursor: pointer;
             transition: background-color 0.2s ease,
-                        color 0.2s ease;
+                color 0.2s ease;
         }
 
         .logout-button:hover {
@@ -193,6 +189,7 @@
 
         /* Respeta la preferencia de movimiento reducido */
         @media (prefers-reduced-motion: reduce) {
+
             .menu-card,
             .menu-button,
             .logout-button {
@@ -208,186 +205,185 @@
 
 <body>
 
-<!-- Barra superior -->
-<div class="top-bar">
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-button">
-            Cerrar sesión ↗
-        </button>
-    </form>
-</div>
-
-<main class="container panel-container">
-
-    <!-- Encabezado y datos del Responsable -->
-    <header class="panel-header text-center text-white">
-
-        <h1 class="fw-bold mb-1">
-            Epicentro Gourmet
-        </h1>
-
-        <h2 class="text-white-50 mb-0">
-            Panel del Responsable
-        </h2>
-
-        <p class="welcome-info mb-1">
-            ¡Bienvenido/a,
-            <strong th:text="${nombreResponsable}">Responsable</strong>!
-        </p>
-
-        <p class="unit-info mb-0">
-            Unidad de venta:
-            <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
-                Sin asignar
-            </strong>
-        </p>
-
-    </header>
-
-    <!-- Mensaje de éxito -->
-    <div th:if="${mensaje}"
-         class="alert alert-success text-center py-2 shadow-sm mb-3"
-         th:text="${mensaje}">
+    <!-- Barra superior -->
+    <div class="top-bar">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-button">
+                Cerrar sesión ↗
+            </button>
+        </form>
     </div>
 
-    <!-- Mensaje de error -->
-    <div th:if="${error}"
-         class="alert alert-danger text-center py-2 shadow-sm mb-3"
-         th:text="${error}">
-    </div>
+    <main class="container panel-container">
 
-    <!-- Opciones del Responsable -->
-    <section>
-        <div class="row g-3 justify-content-center">
+        <!-- Encabezado y datos del Responsable -->
+        <header class="panel-header text-center text-white">
 
-            <!-- Gestión de usuarios -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
+            <h1 class="fw-bold mb-1">
+                Epicentro Gourmet
+            </h1>
 
-                        <div class="menu-icon" aria-hidden="true">
-                            👥
-                        </div>
+            <h2 class="text-white-50 mb-0">
+                Panel del Responsable
+            </h2>
 
-                        <h3 class="fw-bold">
-                            Alta de Usuarios
-                        </h3>
+            <p class="welcome-info mb-1">
+                ¡Bienvenido/a,
+                <strong th:text="${nombreResponsable}">Responsable</strong>!
+            </p>
 
-                        <p class="text-secondary">
-                            Registrá nuevos empleados para Epicentro Gourmet.
-                        </p>
+            <p class="unit-info mb-0">
+                Unidad de venta:
+                <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
+                    Sin asignar
+                </strong>
+            </p>
 
-                        <a th:href="@{/responsable/usuarios}"
-                           class="menu-button">
-                            Administrar usuarios
-                        </a>
+        </header>
 
-                    </div>
-                </article>
-            </div>
-
-            <!-- Gestión de platos -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-
-                        <div class="menu-icon" aria-hidden="true">
-                            🍽️
-                        </div>
-
-                        <h3 class="fw-bold">
-                            Gestión de platos
-                        </h3>
-
-                        <p class="text-secondary">
-                            Registrá nuevos platos y consultá los platos
-                            de tu unidad de venta.
-                        </p>
-
-                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                            <a th:href="@{/responsable/platos/nuevo}"
-                               class="menu-button menu-button-primary">
-                                + Alta de plato
-                            </a>
-
-                            <a th:href="@{/responsable/platos}"
-                               class="menu-button">
-                                Mis platos
-                            </a>
-
-                        </div>
-
-                    </div>
-                </article>
-            </div>
-
-            <!-- Información personal -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-
-                        <div class="menu-icon" aria-hidden="true">
-                            👤
-                        </div>
-
-                        <h3 class="fw-bold">
-                            Mi información
-                        </h3>
-
-                        <p class="text-secondary">
-                            Consultá tu información personal y actividad.
-                        </p>
-
-                        <a th:href="@{/empleado/dashboard}"
-                           class="menu-button">
-                            Mi información
-                        </a>
-
-                    </div>
-                </article>
-            </div>
-
-            <!-- Seguridad -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-
-                        <div class="menu-icon" aria-hidden="true">
-                            🔒
-                        </div>
-
-                        <h3 class="fw-bold">
-                            Seguridad
-                        </h3>
-
-                        <p class="text-secondary">
-                            Cambiá tu contraseña de acceso.
-                        </p>
-
-                        <a th:href="@{/cambiar-password}"
-                           class="menu-button">
-                            Cambiar contraseña
-                        </a>
-
-                    </div>
-                </article>
-            </div>
-
+        <!-- Mensaje de éxito -->
+        <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}">
         </div>
-    </section>
 
-    <!-- Logo UNLa -->
-    <div class="logo">
-        <img class="unla-logo-img"
-             alt="Logo UNLa"
-             th:src="@{/images/unla-logo.png}">
-    </div>
+        <!-- Mensaje de error -->
+        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}">
+        </div>
 
-</main>
+        <!-- Opciones del Responsable -->
+        <section>
+            <div class="row g-3 justify-content-center">
 
-<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
-<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+                <!-- Gestión de usuarios y empleados -->
+                <div class="col-12 d-flex justify-content-center">
+                    <article class="card menu-card">
+                        <div class="card-body text-center">
+
+                            <div class="menu-icon" aria-hidden="true">
+                                👥
+                            </div>
+
+                            <h3 class="fw-bold">
+                                Usuarios
+                            </h3>
+
+                            <p class="text-secondary">
+                                Administrá las cuentas de usuario y consultá los empleados de tu unidad.
+                            </p>
+
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                <a th:href="@{/responsable/usuarios}" class="menu-button menu-button-primary">
+                                    Administrar usuarios
+                                </a>
+
+                                <a th:href="@{/responsable/empleados}" class="menu-button">
+                                    Listar empleados
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+
+
+                <!-- Gestión de platos -->
+                <div class="col-12 d-flex justify-content-center">
+                    <article class="card menu-card">
+                        <div class="card-body text-center">
+
+                            <div class="menu-icon" aria-hidden="true">
+                                🍽️
+                            </div>
+
+                            <h3 class="fw-bold">
+                                Gestión de platos
+                            </h3>
+
+                            <p class="text-secondary">
+                                Registrá nuevos platos y consultá los platos
+                                de tu unidad de venta.
+                            </p>
+
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary">
+                                    + Alta de plato
+                                </a>
+
+                                <a th:href="@{/responsable/platos}" class="menu-button">
+                                    Mis platos
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Información personal -->
+                <div class="col-12 d-flex justify-content-center">
+                    <article class="card menu-card">
+                        <div class="card-body text-center">
+
+                            <div class="menu-icon" aria-hidden="true">
+                                👤
+                            </div>
+
+                            <h3 class="fw-bold">
+                                Mi información
+                            </h3>
+
+                            <p class="text-secondary">
+                                Consultá tu información personal y actividad.
+                            </p>
+
+                            <a th:href="@{/empleado/dashboard}" class="menu-button">
+                                Mi información
+                            </a>
+
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="col-12 d-flex justify-content-center">
+                    <article class="card menu-card">
+                        <div class="card-body text-center">
+
+                            <div class="menu-icon" aria-hidden="true">
+                                🔒
+                            </div>
+
+                            <h3 class="fw-bold">
+                                Seguridad
+                            </h3>
+
+                            <p class="text-secondary">
+                                Cambiá tu contraseña de acceso.
+                            </p>
+
+                            <a th:href="@{/cambiar-password}" class="menu-button">
+                                Cambiar contraseña
+                            </a>
+
+                        </div>
+                    </article>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Logo UNLa -->
+        <div class="logo">
+            <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+        </div>
+
+    </main>
+
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
+
 </html>
