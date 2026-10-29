@@ -35,12 +35,37 @@
     .dato.positivo strong { color: #2e7d32 !important; }
     .dato.negativo strong { color: #c62828 !important; }
 
+    /* Ranking: letra blanca (vive en la vista para que no dependa de la caché del CSS) */
+    main table.table {
+      --bs-table-bg: transparent;
+      --bs-table-color: #ffffff;
+      --bs-table-striped-bg: rgba(0, 0, 0, 0.2);
+      --bs-table-striped-color: #ffffff;
+      --bs-table-hover-bg: rgba(255, 255, 255, 0.15);
+      --bs-table-hover-color: #ffffff;
+      --bs-table-border-color: rgba(255, 255, 255, 0.3);
+    }
+    main table.table > thead > tr > th,
+    main table.table > tbody > tr > td,
+    main table.table > tbody > tr > td * {
+      color: #ffffff !important;
+    }
+    main table.table > thead > tr > th {
+      background-color: #5E0016 !important;
+      border-bottom: 2px solid #ffffff !important;
+    }
+
     @media print {
       .filtros, .acciones-doble, .logo, button, .no-print {
         display: none !important;
       }
       body { background-color: #fff !important; color: #000 !important; }
       .contenedor { width: 100% !important; max-width: 100% !important; box-shadow: none !important; }
+      main table.table > thead > tr > th,
+      main table.table > tbody > tr > td,
+      main table.table > tbody > tr > td * {
+        color: #000 !important;
+      }
     }
   </style>
 </head>
@@ -62,7 +87,6 @@
           <label for="festivalId" class="text-white fw-medium mb-1">Festival</label>
           <select id="festivalId" name="festivalId">
             <option value="">-- Seleccione un Festival --</option>
-            <!-- Muestra el nombre y las fechas en el texto, y guarda los atributos data para el script -->
             <option th:each="f : ${festivales}"
                     th:value="${f.id}"
                     th:text="${f.nombre + ' (' + f.fechaInicio + ' al ' + f.fechaFin + ')'}"
@@ -107,16 +131,16 @@
       <span>Costos / Gastos</span>
       <strong th:text="${totalCostos != null ? '$ ' + #numbers.formatDecimal(totalCostos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
     </div>
-    <div class="dato principal" th:classappend="${rentabilidadNeta != null and rentabilidadNeta < 0 ? 'negativo' : 'positivo'}">
+    <div class="dato principal"
+         th:classappend="${rentabilidadNeta == null} ? '' : (${rentabilidadNeta < 0} ? 'negativo' : 'positivo')">
       <span>Rentabilidad Neta</span>
       <strong th:text="${rentabilidadNeta != null ? '$ ' + #numbers.formatDecimal(rentabilidadNeta, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
     </div>
   </section>
 
-  
   <!-- Ranking de Unidades por Festival -->
   <section class="mb-4" th:if="${ranking != null}">
-    <h2 class="text-white fw-bold mb-3">Ranking de Unidades por Recaudación</h2>
+    <h2 class="fw-bold mb-3" style="color: #ffffff !important;">Ranking de Unidades por Recaudación</h2>
 
     <div class="table-responsive">
       <table class="table table-striped table-hover align-middle">
@@ -137,21 +161,20 @@
             <td th:text="${unidad.codigo}">FT-001</td>
             <td th:text="${unidad.tipoUnidad}">FoodTruck</td>
             <td class="text-end"
-                th:text="${'$ ' + #numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">
+                th:text="${unidad.recaudacion != null ? '$ ' + #numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
               $ 0,00
             </td>
           </tr>
 
           <tr th:if="${ranking.isEmpty()}">
-            <td colspan="5" class="text-center">
-              No hay unidades para mostrar en este festival.
+            <td colspan="5" class="text-center py-3">
+              No hay unidades para mostrar en este festival o rango de fechas.
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
-
 
   <!-- Acciones -->
   <div class="acciones-doble">
@@ -168,34 +191,39 @@
 
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script>
-  function actualizarFechasFestival() {
+  document.addEventListener('DOMContentLoaded', function () {
     const select = document.getElementById('festivalId');
     const fechaDesde = document.getElementById('fechaDesde');
     const fechaHasta = document.getElementById('fechaHasta');
-    if (!select) return;
-    
-    const selectedOption = select.options[select.selectedIndex];
-    if (selectedOption && selectedOption.value) {
-      const fechaInicio = selectedOption.getAttribute('data-inicio');
-      const fechaFin = selectedOption.getAttribute('data-fin');
-      
-      if (fechaInicio) {
-        fechaDesde.value = fechaInicio.split('T')[0];
-      }
-      if (fechaFin) {
-        fechaHasta.value = fechaFin.split('T')[0];
-      }
-    } else {
-      fechaDesde.value = '';
-      fechaHasta.value = '';
-    }
-  }
+    if (!select || !fechaDesde || !fechaHasta) return;
 
-  document.addEventListener('DOMContentLoaded', function() {
-    const select = document.getElementById('festivalId');
-    if (select) {
-      select.addEventListener('change', actualizarFechasFestival);
+    function fechasDeOpcion(opcion) {
+      return {
+        inicio: (opcion.getAttribute('data-inicio') || '').split('T')[0],
+        fin: (opcion.getAttribute('data-fin') || '').split('T')[0]
+      };
     }
+
+    // Al cargar: solo completa las fechas que estén vacías
+    const opcionActual = select.options[select.selectedIndex];
+    if (opcionActual && opcionActual.value) {
+      const f = fechasDeOpcion(opcionActual);
+      if (!fechaDesde.value) fechaDesde.value = f.inicio;
+      if (!fechaHasta.value) fechaHasta.value = f.fin;
+    }
+
+    // Al cambiar de festival: reemplaza las fechas por las del festival elegido
+    select.addEventListener('change', function () {
+      const opcion = select.options[select.selectedIndex];
+      if (opcion && opcion.value) {
+        const f = fechasDeOpcion(opcion);
+        fechaDesde.value = f.inicio;
+        fechaHasta.value = f.fin;
+      } else {
+        fechaDesde.value = '';
+        fechaHasta.value = '';
+      }
+    });
   });
 </script>
 </body>
