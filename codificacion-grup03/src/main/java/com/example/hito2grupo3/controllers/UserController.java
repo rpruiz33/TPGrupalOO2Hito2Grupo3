@@ -42,8 +42,7 @@ public class UserController {
     public String inicio(Model model) {
         model.addAttribute(
                 "festivales",
-                festivalRepository.findAllByOrderByFechaInicioAsc()
-        );
+                festivalRepository.findAllByOrderByFechaInicioAsc());
         return "user/inicio";
     }
 
@@ -69,8 +68,7 @@ public class UserController {
         model.addAttribute("email", email);
         model.addAttribute(
                 "esPrimerIngreso",
-                usuario != null && usuario.isDebeCambiarPassword()
-        );
+                usuario != null && usuario.isDebeCambiarPassword());
         return "user/cambiar-password";
     }
 
@@ -88,25 +86,32 @@ public class UserController {
         String email = authentication.getName();
         try {
             usuarioService.cambiarPassword(
-                    email, passwordActual, nuevaPassword, confirmarPassword
-            );
+                    email, passwordActual, nuevaPassword, confirmarPassword);
             redirectAttrs.addFlashAttribute(
-                    "mensaje", "¡Contraseña actualizada exitosamente!"
-            );
+                    "mensaje", "¡Contraseña actualizada exitosamente!");
 
             boolean esAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-            return esAdmin
-                    ? "redirect:/admin/dashboard"
-                    : "redirect:/empleado/index";
+
+            boolean esResponsable = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"));
+
+            if (esAdmin) {
+                return "redirect:/admin/dashboard";
+            }
+
+            if (esResponsable) {
+                return "redirect:/responsable/index";
+            }
+
+            return "redirect:/empleado/index";
         } catch (IllegalArgumentException e) {
             redirectAttrs.addFlashAttribute("error", e.getMessage());
             return "redirect:/cambiar-password";
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute(
                     "error",
-                    "Ocurrió un error inesperado al cambiar la contraseña."
-            );
+                    "Ocurrió un error inesperado al cambiar la contraseña.");
             return "redirect:/cambiar-password";
         }
     }
@@ -128,12 +133,8 @@ public class UserController {
             @RequestParam String nombre,
             @RequestParam String apellido,
             @RequestParam String dni,
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fechaNacimiento,
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fechaIngreso,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaNacimiento,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaIngreso,
             @RequestParam String email,
             @RequestParam String password,
             RedirectAttributes redirectAttributes) {
@@ -153,13 +154,11 @@ public class UserController {
                     fechaNacimiento,
                     fechaIngreso,
                     email,
-                    password
-            );
+                    password);
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
-                    "¡Registro exitoso! Ya podés iniciar sesión."
-            );
+                    "¡Registro exitoso! Ya podés iniciar sesión.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/registro";
