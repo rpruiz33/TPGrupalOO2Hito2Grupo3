@@ -3,13 +3,16 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.dto.EmpleadoDTO;
 import com.example.hito2grupo3.entities.Staff;
+import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.entities.Usuario;
 import com.example.hito2grupo3.repositories.CategoriaCocinaRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
+import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
 import com.example.hito2grupo3.services.IEmpleadoService;
 import com.example.hito2grupo3.services.IUsuarioService;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -29,26 +33,75 @@ public class AdminUsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final StaffRepository staffRepository;
     private final CategoriaCocinaRepository categoriaCocinaRepository;
+    private final UnidadVentaRepository unidadVentaRepository;
 
     public AdminUsuarioController(
             IUsuarioService usuarioService,
             IEmpleadoService empleadoService,
             UsuarioRepository usuarioRepository,
             StaffRepository staffRepository,
-            CategoriaCocinaRepository categoriaCocinaRepository) {
+            CategoriaCocinaRepository categoriaCocinaRepository,
+            UnidadVentaRepository unidadVentaRepository) {
 
         this.usuarioService = usuarioService;
         this.empleadoService = empleadoService;
         this.usuarioRepository = usuarioRepository;
         this.staffRepository = staffRepository;
         this.categoriaCocinaRepository = categoriaCocinaRepository;
+        this.unidadVentaRepository = unidadVentaRepository;
     }
 
-    // Listar usuarios
+    // Listar empleados asignados a la unidad del responsable
     @GetMapping
-    public String listarUsuarios(Model model) {
-        model.addAttribute("usuarios", usuarioRepository.findAll());
-        return "responsable/vistausuarios";
+    public String listarUsuarios(
+            Authentication authentication,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String dni,
+            Model model) {
+
+        nombre = limpiarFiltro(nombre);
+        apellido = limpiarFiltro(apellido);
+        dni = limpiarFiltro(dni);
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            Staff responsable = staffRepository
+                    .findByUsuario_Email(authentication.getName())
+                    .orElse(null);
+
+            if (responsable != null) {
+                UnidadVenta unidad = unidadVentaRepository
+                        .findByResponsable_Id(responsable.getId())
+                        .orElse(null);
+
+                if (unidad != null) {
+                    List<Staff> empleados = staffRepository.filtrarPorUnidad(
+                            unidad.getId(),
+                            nombre,
+                            apellido,
+                            dni
+                    );
+                    model.addAttribute("empleados", empleados);
+                    model.addAttribute("unidadVenta", unidad);
+                    model.addAttribute("nombre", nombre);
+                    model.addAttribute("apellido", apellido);
+                    model.addAttribute("dni", dni);
+                    return "responsable/vistaempleados";
+                }
+            }
+        }
+
+        // Fallback para administradores o usuarios sin unidad de venta asociada
+        List<Staff> empleados = staffRepository.findAll();
+        model.addAttribute("empleados", empleados);
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("apellido", apellido);
+        model.addAttribute("dni", dni);
+        return "responsable/vistaempleados";
+    }
+
+    private String limpiarFiltro(String valor) {
+        return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
     // Alta: muestra el formulario completo de empleado con envío automático de credenciales
@@ -65,11 +118,25 @@ public class AdminUsuarioController {
     // Guardar nuevo empleado/usuario
     @PostMapping("/guardar")
     public String guardarEmpleado(
+            Authentication authentication,
             @ModelAttribute("empleado") EmpleadoDTO dto,
             RedirectAttributes redirectAttrs) {
 
         try {
-            empleadoService.crearEmpleado(dto);
+            Staff nuevoStaff = empleadoService.crearEmpleado(dto);
+
+            // Si el creador es responsable, asociar automáticamente el empleado a su unidad de venta
+            if (authentication != null && authentication.isAuthenticated() && nuevoStaff != null) {
+                Staff resp = staffRepository.findByUsuario_Email(authentication.getName()).orElse(null);
+                if (resp != null) {
+                    UnidadVenta uv = unidadVentaRepository.findByResponsable_Id(resp.getId()).orElse(null);
+                    if (uv != null) {
+                        uv.getStaffAsignado().add(nuevoStaff);
+                        unidadVentaRepository.save(uv);
+                    }
+                }
+            }
+
             redirectAttrs.addFlashAttribute(
                     "mensaje",
                     "Empleado registrado con éxito. Se ha enviado un correo con sus credenciales de acceso iniciales."

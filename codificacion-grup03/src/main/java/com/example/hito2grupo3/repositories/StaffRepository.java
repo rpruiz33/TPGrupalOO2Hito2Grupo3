@@ -25,6 +25,7 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
         SELECT s
         FROM UnidadVenta uv
         JOIN uv.staffAsignado s
+        LEFT JOIN FETCH s.usuario
         WHERE uv.id = :unidadId
           AND s.activo = true
           AND (:nombre IS NULL OR LOWER(s.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
@@ -33,6 +34,24 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
         ORDER BY s.apellido, s.nombre
         """)
     List<Staff> filtrarActivosPorUnidad(
+            @Param("unidadId") Long unidadId,
+            @Param("nombre") String nombre,
+            @Param("apellido") String apellido,
+            @Param("dni") String dni
+    );
+
+    @Query("""
+        SELECT s
+        FROM UnidadVenta uv
+        JOIN uv.staffAsignado s
+        LEFT JOIN FETCH s.usuario
+        WHERE uv.id = :unidadId
+          AND (:nombre IS NULL OR LOWER(s.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+          AND (:apellido IS NULL OR LOWER(s.apellido) LIKE LOWER(CONCAT('%', :apellido, '%')))
+          AND (:dni IS NULL OR s.dni LIKE CONCAT('%', :dni, '%'))
+        ORDER BY s.apellido, s.nombre
+        """)
+    List<Staff> filtrarPorUnidad(
             @Param("unidadId") Long unidadId,
             @Param("nombre") String nombre,
             @Param("apellido") String apellido,
