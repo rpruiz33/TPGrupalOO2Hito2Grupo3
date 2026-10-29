@@ -11,17 +11,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.FoodTruck;
 import com.example.hito2grupo3.entities.PuestoDesarmable;
 import com.example.hito2grupo3.entities.Rol;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.entities.Usuario;
+import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.repositories.RolRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.repositories.UsuarioRepository;
 import com.example.hito2grupo3.services.IRegistroUnidadVentaService;
+import com.example.hito2grupo3.repositories.FestivalRepository;
 
 @Service
 public class RegistroUnidadVentaServiceImpl
@@ -32,17 +35,20 @@ public class RegistroUnidadVentaServiceImpl
     private final UnidadVentaRepository unidadVentaRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FestivalRepository festivalRepository;
 
     public RegistroUnidadVentaServiceImpl(
             UsuarioRepository usuarioRepository,
             StaffRepository staffRepository,
             UnidadVentaRepository unidadVentaRepository,
             RolRepository rolRepository,
+            FestivalRepository festivalRepository,
             PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.rolRepository = rolRepository;
+        this.festivalRepository = festivalRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -59,8 +65,7 @@ public class RegistroUnidadVentaServiceImpl
                     "Seleccioná un tipo de unidad de venta válido.");
         }
 
-        List<UnidadVenta> unidades =
-                unidadVentaRepository.findByCodigoStartingWith(prefijo);
+        List<UnidadVenta> unidades = unidadVentaRepository.findByCodigoStartingWith(prefijo);
 
         int numeroMayor = 0;
         Pattern patron = Pattern.compile("^" + prefijo + "([0-9]+)$");
@@ -105,7 +110,8 @@ public class RegistroUnidadVentaServiceImpl
 
         // Normalizar datos de texto
         nombreComercial = nombreComercial == null
-                ? "" : nombreComercial.trim();
+                ? ""
+                : nombreComercial.trim();
         nombre = nombre == null ? "" : nombre.trim();
         apellido = apellido == null ? "" : apellido.trim();
         dni = dni == null ? "" : dni.trim();
@@ -260,5 +266,22 @@ public class RegistroUnidadVentaServiceImpl
 
         // Guardar la unidad de venta
         unidadVentaRepository.save(unidad);
+
+        // Buscar el único festival activo por sus fechas
+        LocalDate diaHoy = LocalDate.now();
+
+        Festival festivalActivo = festivalRepository.findAll()
+                .stream()
+                .filter(f -> f.getFechaInicio() != null
+                        && f.getFechaFin() != null
+                        && !f.getFechaInicio().isAfter(hoy)
+                        && !f.getFechaFin().isBefore(hoy))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No hay un festival activo para asociar la unidad de venta."));
+
+        // Asociar la unidad al festival activo
+        festivalActivo.getUnidadesVentaHabilitadas().add(unidad);
+        festivalRepository.save(festivalActivo);
     }
 }

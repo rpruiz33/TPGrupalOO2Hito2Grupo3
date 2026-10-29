@@ -79,6 +79,9 @@ public class EmpleadoController {
             rol = "Cajero";
         } else if (staff instanceof Cocinero c && c.getCategoriaCocina() != null) {
             rol = c.getCategoriaCocina().getNombre();
+        } else if (staff.getUsuario() != null
+                && staff.getUsuario().getRol() != null) {
+            rol = staff.getUsuario().getRol().getNombre();
         } else {
             rol = "Staff General";
         }
