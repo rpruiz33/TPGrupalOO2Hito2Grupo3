@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de Cánones - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+
+    <style>
+        .filtros-canon {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filtros-canon input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .filtros-canon label {
+            display: block;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        main table.table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #ffffff;
+            --bs-table-striped-bg: rgba(0, 0, 0, 0.2);
+            --bs-table-striped-color: #ffffff;
+            --bs-table-hover-bg: rgba(255, 255, 255, 0.15);
+            --bs-table-hover-color: #ffffff;
+            --bs-table-border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        main table.table > thead > tr > th,
+        main table.table > tbody > tr > td,
+        main table.table > tbody > tr > td * {
+            color: #ffffff !important;
+        }
+
+        main table.table > thead > tr > th {
+            background-color: #5E0016 !important;
+            border-bottom: 2px solid #ffffff !important;
+        }
+
+        .mensaje-vacio {
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .filtros-canon {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            .filtros,
+            .acciones-doble,
+            .logo,
+            button,
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+            }
+
+            .contenedor {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+            }
+
+            main table.table > thead > tr > th,
+            main table.table > tbody > tr > td,
+            main table.table > tbody > tr > td * {
+                color: #000 !important;
+            }
+
+            main table.table > thead > tr > th {
+                background-color: #eee !important;
+                border-bottom: 1px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-body">
+
+<main class="contenedor">
+
+    <!-- Encabezado -->
+    <header class="text-center mb-4">
+        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+        <p class="mb-0 text-white-50">Reporte de Cánones</p>
+    </header>
+
+    <!-- Selector de cantidad -->
+    <section class="mb-4">
+        <form class="filtros"
+              th:action="@{/admin/reportes/mayores-canon}"
+              method="get">
+
+            <div class="filtros-canon w-100">
+                <div class="campo">
+                    <label for="cantidad">Cantidad de unidades a mostrar</label>
+                    <input type="number"
+                           id="cantidad"
+                           name="cantidad"
+                           min="1"
+                           max="100"
+                           th:value="${cantidad}"
+                           required>
+                </div>
+
+                <div>
+                    <button type="submit" class="boton w-100">
+                        Consultar
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Mensajes de error -->
+        <div class="error mt-3"
+             th:if="${mensajeError != null}"
+             th:text="${mensajeError}">
+        </div>
+    </section>
+
+    <!-- Ranking de unidades -->
+    <section class="mb-4" th:if="${mensajeError == null}">
+        <h2 class="fw-bold mb-3" style="color: #ffffff !important;">
+            Unidades con Mayor Canon
+        </h2>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                <tr>
+                    <th scope="col">Posición</th>
+                    <th scope="col">Unidad de venta</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col" class="text-end">Canon</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="unidad, estado : ${reporte}">
+                    <td th:text="${estado.count}">1</td>
+                    <td th:text="${unidad.nombreComercial}">Nombre comercial</td>
+                    <td th:text="${unidad.codigo}">FT-001</td>
+                    <td th:text="${unidad.tipoUnidad}">Food Truck</td>
+
+                    <td class="text-end"
+                        th:text="${unidad.canon != null ? '$ ' + #numbers.formatDecimal(unidad.canon, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                        $ 0,00
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(reporte)}">
+                    <td colspan="5" class="mensaje-vacio">
+                        No hay unidades habilitadas para mostrar en el festival activo.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Acciones -->
+    <div class="acciones-doble">
+        <a class="boton" href="javascript:window.print();">
+            Imprimir PDF
+        </a>
+
+        <a class="boton" th:href="@{/admin/dashboard}">
+            Volver al panel
+        </a>
+    </div>
+
+    <!-- Logo institucional -->
+    <div class="logo">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo UNLa"
+             class="unla-logo-img">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>

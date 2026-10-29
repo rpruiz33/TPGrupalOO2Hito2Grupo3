@@ -46,6 +46,11 @@
                     <!-- Enlace añadido para Reporte de Rentabilidad Neta -->
                     <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Rentabilidad Neta</a>
 
+                    <!-- Nuevo reporte de unidades con mayor canon -->
+                    <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/mayores-canon}">
+                        Reporte de Cánones
+                    </a>
+
                     <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
 
                     <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
