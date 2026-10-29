@@ -66,4 +66,49 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
             @Param("apellido") String apellido,
             @Param("dni") String dni
     );
+
+    @Query("""
+    SELECT s
+    FROM UnidadVenta uv
+    JOIN uv.staffAsignado s
+    LEFT JOIN FETCH s.usuario
+    WHERE uv.id = :unidadId
+      AND (
+          :estado = 'TODOS'
+          OR (:estado = 'ACTIVOS' AND s.activo = true)
+          OR (:estado = 'INACTIVOS' AND s.activo = false)
+      )
+      AND (:nombre IS NULL OR LOWER(s.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+      AND (:apellido IS NULL OR LOWER(s.apellido) LIKE LOWER(CONCAT('%', :apellido, '%')))
+      AND (:dni IS NULL OR s.dni LIKE CONCAT('%', :dni, '%'))
+    ORDER BY s.apellido, s.nombre
+    """)
+List<Staff> filtrarPorUnidadYEstado(
+        @Param("unidadId") Long unidadId,
+        @Param("nombre") String nombre,
+        @Param("apellido") String apellido,
+        @Param("dni") String dni,
+        @Param("estado") String estado
+);
+
+@Query("""
+    SELECT s
+    FROM Staff s
+    LEFT JOIN FETCH s.usuario
+    WHERE (
+        :estado = 'TODOS'
+        OR (:estado = 'ACTIVOS' AND s.activo = true)
+        OR (:estado = 'INACTIVOS' AND s.activo = false)
+    )
+      AND (:nombre IS NULL OR LOWER(s.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+      AND (:apellido IS NULL OR LOWER(s.apellido) LIKE LOWER(CONCAT('%', :apellido, '%')))
+      AND (:dni IS NULL OR s.dni LIKE CONCAT('%', :dni, '%'))
+    ORDER BY s.apellido, s.nombre
+    """)
+List<Staff> filtrarTodosPorEstado(
+        @Param("nombre") String nombre,
+        @Param("apellido") String apellido,
+        @Param("dni") String dni,
+        @Param("estado") String estado
+);
 }
