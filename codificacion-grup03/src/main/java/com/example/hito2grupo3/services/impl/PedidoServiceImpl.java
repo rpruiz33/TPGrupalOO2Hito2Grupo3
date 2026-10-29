@@ -2,6 +2,7 @@ package com.example.hito2grupo3.services.impl;
 
 import com.example.hito2grupo3.dto.ItemPedidoDTO;
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
+import com.example.hito2grupo3.dto.PlatoDTO;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.ItemPedido;
 import com.example.hito2grupo3.entities.Pedido;
@@ -57,6 +58,7 @@ public class PedidoServiceImpl implements IPedidoService {
         return unidad.getPlatosOfrecidos();
     }
 
+    @Override
     @Transactional
     public Pedido registrarPedido(PedidoAltaDTO datos, Long staffId) {
 
@@ -169,5 +171,19 @@ public class PedidoServiceImpl implements IPedidoService {
         }
 
         return pedidoRepository.save(pedido);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PlatoDTO obtenerPlatoEstrella(Long unidadVentaId, Long festivalId) {
+
+        List<PlatoDTO> platos = pedidoRepository.obtenerPlatosEstrella(
+                unidadVentaId, festivalId);
+
+        if (platos.isEmpty()) {
+            return null;
+        }
+
+        return platos.get(0);
     }
 }

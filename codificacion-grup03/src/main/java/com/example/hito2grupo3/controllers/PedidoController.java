@@ -4,10 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collection;
 import java.util.List;
 
-import org.hibernate.mapping.Set;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
-import com.example.hito2grupo3.entities.Festival;
+import com.example.hito2grupo3.dto.PlatoDTO;
 import com.example.hito2grupo3.entities.Plato;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
@@ -101,25 +99,28 @@ public class PedidoController {
                     "No tenés acceso a este festival.");
         }
 
-       List<UnidadRespuesta> unidades = festivalRepository
-        .obtenerUnidadesPorFestival(id)
-        .stream()
-        .filter(unidad -> tieneStaffAsignado(unidad, staff))
-        .map(this::toRespuesta)
-        .toList();
+        List<UnidadRespuesta> unidades = festivalRepository
+                .obtenerUnidadesPorFestival(id)
+                .stream()
+                .filter(unidad -> tieneStaffAsignado(unidad, staff))
+                .map(this::toRespuesta)
+                .toList();
 
-return ResponseEntity.ok(unidades);
-}
+        return ResponseEntity.ok(unidades);
+    }
 
-private boolean tieneStaffAsignado(UnidadVenta unidad, Staff staff) {
-    return unidad.getStaffAsignado() != null
-            && unidad.getStaffAsignado().stream()
-                    .anyMatch(s -> s.getId() == staff.getId());
-}
 
-private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
-    return new UnidadRespuesta(unidad.getId(), unidad.getNombreComercial());
-}
+        private boolean tieneStaffAsignado(UnidadVenta unidad, Staff staff) {
+                return unidad.getStaffAsignado() != null
+                && unidad.getStaffAsignado().stream()
+                .anyMatch(s -> s.getId() == staff.getId());
+        }
+    private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
+        return new UnidadRespuesta(
+                unidad.getId(),
+                unidad.getNombreComercial());
+    }
+
     @GetMapping("/unidades/{id}/platos")
     @ResponseBody
     public ResponseEntity<List<PlatoRespuesta>> obtenerPlatos(
@@ -156,6 +157,69 @@ private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
                 .toList();
 
         return ResponseEntity.ok(platos);
+    }
+
+    /**
+     * Obtiene el plato estrella de una unidad de venta en un festival.
+     */
+    @GetMapping("/unidades/{unidadVentaId}/festivales/{festivalId}/plato-estrella")
+    @ResponseBody
+    public ResponseEntity<PlatoDTO> obtenerPlatoEstrella(
+            @PathVariable Long unidadVentaId,
+            @PathVariable Long festivalId,
+            Principal principal) {
+
+        Staff staff = obtenerStaffAutenticado(principal);
+
+        LocalDate fechaActual = LocalDate.now(
+                ZoneId.of("America/Argentina/Buenos_Aires"));
+
+        // Verificar que el festival esté disponible para el empleado.
+        boolean festivalDisponible = festivalRepository
+                .buscarActivosPorStaff(staff.getId(), fechaActual)
+                .stream()
+                .anyMatch(festival -> festival.getId().equals(festivalId));
+
+        if (!festivalDisponible) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés acceso a este festival.");
+        }
+
+        // Verificar que la unidad esté habilitada para ese festival.
+        boolean unidadDelFestival = festivalRepository
+                .obtenerUnidadesPorFestival(festivalId)
+                .stream()
+                .anyMatch(unidad -> unidad.getId().equals(unidadVentaId));
+
+        if (!unidadDelFestival) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La unidad de venta no pertenece a este festival.");
+        }
+
+        // Verificar que el empleado esté asignado a la unidad.
+        boolean unidadAsignada = unidadVentaRepository
+                .buscarPorStaffAsignado(staff.getId())
+                .stream()
+                .anyMatch(unidad -> unidad.getId().equals(unidadVentaId));
+
+        if (!unidadAsignada) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés acceso a esta unidad de venta.");
+        }
+
+        // Consultar el plato estrella mediante el servicio.
+        PlatoDTO platoEstrella = invocarServicio(
+                "obtenerPlatoEstrella",
+                new Object[]{unidadVentaId, festivalId});
+
+        if (platoEstrella == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(platoEstrella);
     }
 
     @PostMapping("/alta")
