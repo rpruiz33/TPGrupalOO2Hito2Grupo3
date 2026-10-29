@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteVentaDTO;
 import com.example.hito2grupo3.dto.VentaUnidadDiaDTO;
+import com.example.hito2grupo3.dto.PlatoDTO;
 import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
@@ -117,4 +118,25 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<VentaUnidadDiaDTO> obtenerDetalleVentasPorUnidadYFecha(
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("fecha") LocalDate fecha);
+
+    /**
+     * Obtiene el plato más vendido de una unidad de venta en un festival.
+     */
+    @Query("""
+            SELECT new com.example.hito2grupo3.dto.PlatoDTO(
+                ip.plato.id,
+                ip.plato.nombre,
+                SUM(ip.cantidad),
+                SUM(ip.cantidad * ip.precioUnitario)
+            )
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.unidadVenta.id = :unidadVentaId
+              AND p.festival.id = :festivalId
+            GROUP BY ip.plato.id, ip.plato.nombre
+            ORDER BY SUM(ip.cantidad) DESC
+            """)
+    List<PlatoDTO> obtenerPlatosEstrella(
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("festivalId") Long festivalId);
 }

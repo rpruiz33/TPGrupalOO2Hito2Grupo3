@@ -8,9 +8,7 @@
     <title>Panel del Responsable - Epicentro Gourmet</title>
 
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-
     <link rel="stylesheet" th:href="@{/css/modern-business.css}">
-
     <link rel="stylesheet" th:href="@{/css/custom-login.css}">
 
     <style>
@@ -71,8 +69,7 @@
             max-width: 380px;
             margin: 0 auto;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-            transition: transform 0.2s ease,
-                box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .menu-card:hover {
@@ -111,8 +108,7 @@
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
-            transition: background-color 0.2s ease,
-                color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .menu-button:hover {
@@ -142,8 +138,7 @@
             font-weight: 500;
             background: transparent;
             cursor: pointer;
-            transition: background-color 0.2s ease,
-                color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .logout-button:hover {
@@ -189,7 +184,6 @@
 
         /* Respeta la preferencia de movimiento reducido */
         @media (prefers-reduced-motion: reduce) {
-
             .menu-card,
             .menu-button,
             .logout-button {
@@ -242,11 +236,15 @@
         </header>
 
         <!-- Mensaje de éxito -->
-        <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}">
+        <div th:if="${mensaje}"
+             class="alert alert-success text-center py-2 shadow-sm mb-3"
+             th:text="${mensaje}">
         </div>
 
         <!-- Mensaje de error -->
-        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}">
+        <div th:if="${error}"
+             class="alert alert-danger text-center py-2 shadow-sm mb-3"
+             th:text="${error}">
         </div>
 
         <!-- Opciones del Responsable -->
@@ -272,11 +270,13 @@
 
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
 
-                                <a th:href="@{/responsable/usuarios}" class="menu-button menu-button-primary">
+                                <a th:href="@{/responsable/usuarios}"
+                                   class="menu-button menu-button-primary">
                                     Administrar usuarios
                                 </a>
 
-                                <a th:href="@{/responsable/empleados}" class="menu-button">
+                                <a th:href="@{/responsable/empleados}"
+                                   class="menu-button">
                                     Listar empleados
                                 </a>
 
@@ -285,7 +285,6 @@
                         </div>
                     </article>
                 </div>
-
 
                 <!-- Gestión de platos -->
                 <div class="col-12 d-flex justify-content-center">
@@ -307,12 +306,18 @@
 
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
 
-                                <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary">
-                                    + Alta de plato
+                                <a th:href="@{/responsable/platos/nuevo}"
+                                   class="menu-button menu-button-primary">
+                                     Alta de plato
                                 </a>
 
-                                <a th:href="@{/responsable/platos}" class="menu-button">
+                                <a th:href="@{/responsable/platos}"
+                                   class="menu-button">
                                     Mis platos
+                                </a>
+
+                                <a th:href="@{/plato-estrella}" class="menu-button">
+                              Plato Estrella
                                 </a>
 
                             </div>
@@ -338,7 +343,8 @@
                                 Consultá tu información personal y actividad.
                             </p>
 
-                            <a th:href="@{/empleado/dashboard}" class="menu-button">
+                            <a th:href="@{/empleado/dashboard}"
+                               class="menu-button">
                                 Mi información
                             </a>
 
@@ -363,7 +369,8 @@
                                 Cambiá tu contraseña de acceso.
                             </p>
 
-                            <a th:href="@{/cambiar-password}" class="menu-button">
+                            <a th:href="@{/cambiar-password}"
+                               class="menu-button">
                                 Cambiar contraseña
                             </a>
 
@@ -376,7 +383,9 @@
 
         <!-- Logo UNLa -->
         <div class="logo">
-            <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+            <img class="unla-logo-img"
+                 alt="Logo UNLa"
+                 th:src="@{/images/unla-logo.png}">
         </div>
 
     </main>

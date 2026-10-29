@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Plato Estrella - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
+    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
+
+    <style>
+        body {
+            background-color: #800020;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .main-container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .page-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: bold;
+        }
+
+        .content-card {
+            background: white;
+            border: 2px solid #222;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .content-card h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #800020;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-weight: 600;
+        }
+
+        .btn-primary-custom {
+            background-color: #800020;
+            border: 1px solid #800020;
+            color: white;
+            border-radius: 7px;
+            padding: 9px 18px;
+            font-weight: 600;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: #600018;
+            border-color: #600018;
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            display: inline-block;
+            background: white;
+            color: #800020;
+            border: 1px solid #800020;
+            border-radius: 7px;
+            padding: 9px 18px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: #800020;
+            color: white;
+        }
+
+        .result-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .result-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .dish-name {
+            font-size: 1.5rem;
+            color: #800020;
+            font-weight: bold;
+        }
+
+        .footer-actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 25px 15px;
+            }
+
+            .content-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container main-container">
+
+        <!-- Encabezado -->
+        <header class="page-header">
+            <h1>⭐ Plato Estrella</h1>
+            <p class="mb-0">Epicentro Gourmet</p>
+        </header>
+
+        <!-- Mensaje de error -->
+        <div th:if="${error}"
+             class="alert alert-danger text-center"
+             role="alert"
+             th:text="${error}">
+        </div>
+
+        <!-- Unidad de venta -->
+        <section class="content-card" th:if="${unidadVenta != null}">
+            <h2>Unidad de venta</h2>
+
+            <p class="mb-0">
+                <strong>Nombre comercial:</strong>
+                <span th:text="${unidadVenta.nombreComercial}"></span>
+            </p>
+        </section>
+
+        <!-- Selección del festival -->
+        <section class="content-card">
+            <h2>Consultar plato más vendido</h2>
+
+            <p class="text-secondary">
+                Seleccioná un festival para conocer el plato con mayor cantidad
+                de unidades vendidas en tu unidad de venta.
+            </p>
+
+            <form th:action="@{/plato-estrella}" method="post">
+
+                <div class="mb-3">
+                    <label for="festivalId" class="form-label">
+                        Festival
+                    </label>
+
+                    <select id="festivalId"
+                            name="festivalId"
+                            class="form-select"
+                            required
+                            th:disabled="${festivales == null or #lists.isEmpty(festivales)}">
+
+                        <option value="">Seleccioná un festival</option>
+
+                        <option th:each="festival : ${festivales}"
+                                th:value="${festival.id}"
+                                th:text="${festival.nombre}"
+                                th:selected="${festivalSeleccionado != null and festivalSeleccionado == festival.id}">
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit"
+                            class="btn btn-primary-custom"
+                            th:disabled="${festivales == null or #lists.isEmpty(festivales)}">
+                        Consultar Plato Estrella
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- Aviso informativo -->
+            <div th:if="${aviso}"
+                 class="alert alert-info text-center mt-3 mb-0"
+                 role="alert"
+                 th:text="${aviso}">
+            </div>
+        </section>
+
+        <!-- Resultado -->
+        <section class="content-card" th:if="${platoEstrella != null}">
+            <h2 class="text-center"> Resultado</h2>
+
+            <div class="text-center mb-3">
+                <div class="dish-name"
+                     th:text="${platoEstrella.nombre}">
+                    Nombre del plato
+                </div>
+            </div>
+
+            <div class="result-row">
+                <div class="text-secondary">Unidad de venta</div>
+                <div class="result-value"
+                     th:text="${unidadVenta.nombreComercial}">
+                </div>
+            </div>
+
+            <div class="result-row">
+                <div class="text-secondary">Festival</div>
+                <div class="result-value"
+                     th:text="${festivalSeleccionadoNombre}">
+                </div>
+            </div>
+
+            <div class="result-row">
+                <div class="text-secondary">Cantidad vendida</div>
+                <div class="result-value"
+                     th:text="${platoEstrella.cantidadVendida}">
+                </div>
+            </div>
+
+            <div class="result-row">
+                <div class="text-secondary">Recaudación total</div>
+                <div class="result-value"
+                     th:text="${'$ ' + #numbers.formatDecimal(platoEstrella.recaudacionTotal, 1, 'POINT', 2, 'COMMA')}">
+                </div>
+            </div>
+        </section>
+
+        <!-- Navegación -->
+        <div class="footer-actions">
+            <a th:href="@{/responsable/index}"
+               class="btn-secondary-custom">
+                Volver al panel
+            </a>
+        </div>
+
+    </main>
+
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
