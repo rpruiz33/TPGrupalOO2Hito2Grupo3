@@ -53,8 +53,49 @@ public class ResponsableController {
         UnidadVenta unidad = unidadVentaRepository
                 .findByResponsable_Id(responsable.getId())
                 .orElse(null);
+           model.addAttribute("unidadVenta", unidad);
+
+return "responsable/index";
+
+    }
+
+        @GetMapping("/canon")
+    public String calcularCanon(
+            Authentication authentication,
+            Model model) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        Staff responsable = staffRepository
+                .findByUsuario_Email(authentication.getName())
+                .orElse(null);
+
+        if (responsable == null) {
+            model.addAttribute(
+                    "error",
+                    "No se encontró el Responsable asociado a tu usuario.");
+            return "responsable/index";
+        }
+
+        model.addAttribute(
+                "nombreResponsable",
+                responsable.getNombre() + " " + responsable.getApellido());
+
+        UnidadVenta unidad = unidadVentaRepository
+                .findByResponsable_Id(responsable.getId())
+                .orElse(null);
 
         model.addAttribute("unidadVenta", unidad);
+
+        if (unidad == null) {
+            model.addAttribute(
+                    "error",
+                    "No tenés una unidad de venta asignada.");
+        } else {
+            model.addAttribute("canon", unidad.calcularCanon());
+        }
 
         return "responsable/index";
     }

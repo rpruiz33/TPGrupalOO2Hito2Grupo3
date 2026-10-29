@@ -67,4 +67,12 @@ public class PuestoDesarmable extends UnidadVenta {
         this.cantidadCarpas = cantidadCarpas;
         this.tiempoMontajeMin = tiempoMontajeMin;
     }
+
+@Override
+public BigDecimal calcularCanon() {
+    return getSuperficieM2()
+            .multiply(BigDecimal.valueOf(500))
+            .subtract(BigDecimal.valueOf(getTiempoMontajeMin())
+                    .multiply(BigDecimal.valueOf(10)));
+}
 }

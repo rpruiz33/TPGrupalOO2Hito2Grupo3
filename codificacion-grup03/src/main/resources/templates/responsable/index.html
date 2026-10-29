@@ -246,6 +246,38 @@
              class="alert alert-danger text-center py-2 shadow-sm mb-3"
              th:text="${error}">
         </div>
+                        
+     <section class="mb-3 text-center">
+                    <a th:href="@{/responsable/canon}"
+               style="display: inline-block;
+                      background-color: #800020;
+                      color: #ffffff;
+                      border: 2px solid #000000;
+                      border-radius: 10px;
+                      padding: 12px 24px;
+                      font-size: 1rem;
+                      font-weight: 600;
+                      text-decoration: none;">
+                💰 Calcular canon
+            </a>
+
+            <!-- Resultado del cálculo -->
+            <div th:if="${canon != null}"
+                 class="alert alert-light text-center mt-3 shadow-sm"
+                 style="max-width: 380px; margin-left: auto; margin-right: auto;">
+
+                <p class="mb-1 text-secondary">
+                    Canon de <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
+                </p>
+
+                <p class="fs-3 fw-bold mb-0" style="color: #800020;">
+                    $ <span th:text="${#numbers.formatDecimal(canon, 1, 2)}">0,00</span>
+                </p>
+
+            </div>
+        </section>
+
+      
 
         <!-- Opciones del Responsable -->
         <section>
