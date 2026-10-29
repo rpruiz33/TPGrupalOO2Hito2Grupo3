@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Listado de empleados - Epicentro Gourmet</title>
+    <title>Administración de empleados - Epicentro Gourmet</title>
 
     <link rel="stylesheet"
           th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
@@ -132,6 +132,38 @@
             color: var(--blanco);
         }
 
+        .btn-edit {
+            background: #e8efff;
+            border: 1px solid #234c9b;
+            color: #234c9b;
+        }
+
+        .btn-edit:hover {
+            background: #234c9b;
+            color: var(--blanco);
+        }
+
+        .btn-delete {
+            border-color: #b02a37;
+            color: #b02a37;
+        }
+
+        .btn-delete:hover {
+            background: #b02a37;
+            color: var(--blanco);
+        }
+
+        .btn-alta {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+
+        .btn-alta:hover {
+            background: #2e7d32;
+            color: var(--blanco);
+        }
+
         .alert {
             border-radius: 8px;
         }
@@ -249,11 +281,11 @@
 
         <div>
             <h1 class="page-title h3 mb-2">
-                Listado de empleados
+                Administración de empleados
             </h1>
 
             <p class="page-subtitle">
-                Consultá los empleados activos de tu unidad de venta.
+                Administrá los empleados asignados a tu unidad de venta, cuentas y credenciales.
             </p>
         </div>
 
@@ -264,7 +296,7 @@
                 ← Volver al panel
             </a>
 
-            <a th:href="@{/responsable/usuarios}"
+            <a th:href="@{/responsable/usuarios/nuevo}"
                class="btn-custom btn-primary-custom">
                 + Nuevo empleado
             </a>
@@ -296,7 +328,7 @@
             Buscar empleados
         </h3>
 
-        <form th:action="@{/responsable/empleados}" method="get">
+        <form th:action="@{/responsable/usuarios}" method="get">
 
             <div class="row g-3">
 
@@ -348,7 +380,7 @@
                     Buscar
                 </button>
 
-                <a th:href="@{/responsable/empleados}"
+                <a th:href="@{/responsable/usuarios}"
                    class="btn-custom">
                     Limpiar filtros
                 </a>
@@ -383,11 +415,13 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>DNI</th>
+                    <th>Empleado / DNI</th>
+                    <th>Puesto</th>
+                    <th>Usuario / Email</th>
                     <th>Fecha de ingreso</th>
                     <th>Sueldo</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
                 </thead>
 
@@ -397,27 +431,85 @@
 
                     <td th:text="${empleado.id}"></td>
 
-                    <td th:text="${empleado.nombre}"></td>
+                    <td>
+                        <div class="fw-bold" th:text="${empleado.nombre + ' ' + empleado.apellido}"></div>
+                        <small class="text-muted" th:text="'DNI: ' + ${empleado.dni}"></small>
+                    </td>
 
-                    <td th:text="${empleado.apellido}"></td>
+                    <td>
+                        <!-- Cajero -->
+                        <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cajero)}" class="badge bg-primary">
+                            Cajero (Caja <span th:text="${empleado.numeroCaja != null ? empleado.numeroCaja : 'N/D'}"></span>)
+                        </span>
+                        <!-- Cocinero -->
+                        <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cocinero)}" class="badge bg-warning text-dark">
+                            Cocinero <span th:if="${empleado.categoriaCocina != null}" th:text="'(' + ${empleado.categoriaCocina.nombre} + ')'"></span>
+                        </span>
+                        <!-- Staff General -->
+                        <span th:if="${!(empleado instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(empleado instanceof T(com.example.hito2grupo3.entities.Cocinero))}" class="badge bg-secondary">
+                            Staff General
+                        </span>
+                    </td>
 
-                    <td th:text="${empleado.dni}"></td>
+                    <td>
+                        <th:block th:if="${empleado.usuario != null}">
+                            <div class="fw-bold" th:text="${empleado.usuario.email}"></div>
+                            <span th:if="${empleado.usuario.rol != null}" class="badge bg-light text-dark border" th:text="${empleado.usuario.rol.nombre}"></span>
+                        </th:block>
+                        <span th:unless="${empleado.usuario != null}" class="text-muted fst-italic">Sin cuenta</span>
+                    </td>
 
                     <td th:text="${empleado.fechaIngreso != null
                         ? #temporals.format(empleado.fechaIngreso, 'dd/MM/yyyy')
                         : '-'}">
                     </td>
 
-                    <td th:text="${empleado.sueldo != null
+                    <td class="fw-semibold" th:text="${empleado.sueldo != null
                         ? '$ ' + #numbers.formatDecimal(empleado.sueldo, 1, 'POINT', 2, 'COMMA')
                         : '-'}">
+                    </td>
+
+                    <td>
+                        <span th:if="${empleado.activo}" class="badge bg-success">✓ Activo</span>
+                        <span th:unless="${empleado.activo}" class="badge bg-danger">✕ Baja</span>
+                    </td>
+
+                    <td class="text-center text-nowrap">
+                        <a th:href="@{/responsable/usuarios/editar/{id}(id=${empleado.usuario != null ? empleado.usuario.id : empleado.id})}"
+                           class="btn-custom btn-edit btn-sm py-1 px-2"
+                           title="Editar empleado y usuario">
+                            Editar
+                        </a>
+
+                        <a th:if="${empleado.usuario != null}"
+                           th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuario.id})}"
+                           class="btn-custom btn-sm py-1 px-2 ms-1"
+                           title="Reenviar credenciales por mail"
+                           onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
+                            Reenviar mail
+                        </a>
+
+                        <a th:if="${empleado.activo}"
+                           th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
+                           class="btn-custom btn-delete btn-sm py-1 px-2 ms-1"
+                           title="Dar de baja lógica"
+                           onclick="return confirm('¿Está seguro de dar de baja a este empleado?');">
+                            Dar de baja
+                        </a>
+                        <a th:unless="${empleado.activo}"
+                           th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
+                           class="btn-custom btn-alta btn-sm py-1 px-2 ms-1"
+                           title="Dar de alta al empleado"
+                           onclick="return confirm('¿Desea dar de alta a este empleado? Se enviará una nueva contraseña por mail.');">
+                            ↑ Dar de alta
+                        </a>
                     </td>
 
                 </tr>
 
                 <tr th:if="${empleados == null or #lists.isEmpty(empleados)}">
 
-                    <td colspan="6" class="text-center empty-state">
+                    <td colspan="8" class="text-center empty-state">
 
                         <div class="fs-2 mb-2" aria-hidden="true">
                             👥

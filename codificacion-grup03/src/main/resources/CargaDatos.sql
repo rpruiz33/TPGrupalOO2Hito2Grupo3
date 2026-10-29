@@ -231,13 +231,47 @@ SELECT t.nombre, t.plus_fijo
 FROM tmp_categorias t
 WHERE NOT EXISTS (SELECT 1 FROM categorias_cocina c WHERE c.nombre = t.nombre);
 
--- 2.4 STAFF (Carlos Benitez queda vinculado a empleado@epicentro.com)
-INSERT INTO staff (nombre, apellido, dni, fecha_nacimiento, fecha_ingreso, sueldo, usuario_id)
-SELECT t.nombre, t.apellido, t.dni, t.fecha_nac, t.fecha_ingreso, t.sueldo,
-       CASE WHEN t.dni = '34125890' THEN @user_empleado_id ELSE NULL END
+-- 2.3.1 CREACIÓN DE USUARIOS PARA CADA EMPLEADO DEL STAFF
+INSERT INTO usuarios (email, password_hash, rol_id, debe_cambiar_password, activo)
+SELECT 
+    LOWER(CONCAT(t.nombre, '.', t.apellido, '@epicentro.com')),
+    @hash_pw,
+    CASE 
+        WHEN t.dni = '33412876' THEN 2 -- Responsable
+        WHEN t.tipo = 'C' THEN 4       -- Cajero
+        WHEN t.tipo = 'K' THEN 5       -- Cocinero
+        ELSE 3                         -- Empleado
+    END,
+    0,
+    1
 FROM tmp_empleados t
+WHERE t.dni NOT IN ('34125890', '33412876')
+  AND NOT EXISTS (
+      SELECT 1 FROM usuarios u 
+      WHERE u.email = LOWER(CONCAT(t.nombre, '.', t.apellido, '@epicentro.com'))
+  );
+
+-- 2.4 STAFF (vinculado a sus respectivos usuarios)
+INSERT INTO staff (nombre, apellido, dni, fecha_nacimiento, fecha_ingreso, sueldo, usuario_id)
+SELECT t.nombre, t.apellido, t.dni, t.fecha_nac, t.fecha_ingreso, t.sueldo, u.id
+FROM tmp_empleados t
+LEFT JOIN usuarios u ON u.email = CASE 
+    WHEN t.dni = '34125890' THEN 'empleado@epicentro.com'
+    WHEN t.dni = '33412876' THEN 'responsable@epicentro.com'
+    ELSE LOWER(CONCAT(t.nombre, '.', t.apellido, '@epicentro.com'))
+END
 WHERE NOT EXISTS (SELECT 1 FROM staff s WHERE s.dni = t.dni);
 
+-- Asegurar vinculación de usuario_id para todos los empleados de staff
+UPDATE staff s
+JOIN tmp_empleados t ON s.dni = t.dni
+JOIN usuarios u ON u.email = CASE 
+    WHEN t.dni = '34125890' THEN 'empleado@epicentro.com'
+    WHEN t.dni = '33412876' THEN 'responsable@epicentro.com'
+    ELSE LOWER(CONCAT(t.nombre, '.', t.apellido, '@epicentro.com'))
+END
+SET s.usuario_id = u.id
+WHERE s.usuario_id IS NULL;
 
 -- Asociar cajero@epicentro.com a un empleado
 SET @user_cajero_id = (
