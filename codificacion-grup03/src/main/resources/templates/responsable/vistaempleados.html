@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Listado de empleados - Epicentro Gourmet</title>
+
+    <link rel="stylesheet"
+          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+
+    <style>
+        :root {
+            --bordo: #800020;
+            --bordo-oscuro: #600018;
+            --blanco: #ffffff;
+            --negro: #000000;
+            --gris-fondo: #f5f5f5;
+        }
+
+        body {
+            background-color: var(--bordo);
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: var(--bordo-oscuro);
+            border-bottom: 2px solid var(--negro);
+            padding: 12px 24px;
+        }
+
+        .brand {
+            color: var(--blanco);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .brand img {
+            height: 44px;
+            width: auto;
+            border: 1px solid var(--negro);
+            background: var(--blanco);
+        }
+
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 24px 40px;
+        }
+
+        .page-title {
+            color: var(--blanco);
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: #f0dfe4;
+            margin-bottom: 0;
+        }
+
+        .panel-card {
+            background: var(--blanco);
+            border: 3px solid var(--negro);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.22);
+            overflow: hidden;
+        }
+
+        .panel-card-header {
+            padding: 18px 20px;
+            border-bottom: 2px solid var(--negro);
+            background: var(--gris-fondo);
+        }
+
+        .panel-card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--bordo);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f0e6e9;
+            color: var(--bordo-oscuro);
+            white-space: nowrap;
+            font-size: 0.88rem;
+            padding: 14px 12px;
+        }
+
+        .table tbody td {
+            padding: 13px 12px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #fff6f8;
+        }
+
+        .btn-custom {
+            display: inline-block;
+            border: 1px solid var(--bordo);
+            border-radius: 6px;
+            color: var(--bordo);
+            background: var(--blanco);
+            text-decoration: none;
+            padding: 7px 13px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .btn-custom:hover {
+            background: var(--bordo);
+            color: var(--blanco);
+        }
+
+        .btn-primary-custom {
+            background: var(--bordo);
+            color: var(--blanco);
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--bordo-oscuro);
+            color: var(--blanco);
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .empty-state {
+            padding: 35px 15px !important;
+            color: #666;
+        }
+
+        .filter-card {
+            background: var(--blanco);
+            border: 3px solid var(--negro);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.22);
+        }
+
+        .filter-title {
+            color: var(--bordo);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .footer-logo {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer-logo img {
+            width: 100px;
+            height: auto;
+            border: 2px solid var(--negro);
+            background: var(--blanco);
+        }
+
+        @media (max-width: 767px) {
+            .topbar {
+                padding: 12px;
+            }
+
+            .page-container {
+                padding: 24px 12px;
+            }
+
+            .header-content {
+                align-items: flex-start !important;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .brand {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Barra superior -->
+<header class="topbar">
+    <div class="container-fluid d-flex justify-content-between
+                align-items-center flex-wrap gap-3">
+
+        <a class="brand d-flex align-items-center gap-3"
+           th:href="@{/responsable/index}">
+
+            <img th:src="@{/images/unla-logo.png}"
+                 alt="Logo UNLa"
+                 onerror="this.style.display='none'">
+
+            <span>Epicentro Gourmet - Responsable</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white small d-none d-sm-inline">
+                Panel de gestión
+            </span>
+
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit"
+                        class="btn btn-outline-light btn-sm">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+
+    </div>
+</header>
+
+<main class="page-container">
+
+    <!-- Mensajes -->
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center shadow-sm"
+         role="status"
+         th:text="${mensaje}">
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger text-center shadow-sm"
+         role="alert"
+         th:text="${error}">
+    </div>
+
+    <!-- Título y acciones principales -->
+    <section class="d-flex justify-content-between
+                    align-items-center flex-wrap gap-3 mb-4 header-content">
+
+        <div>
+            <h1 class="page-title h3 mb-2">
+                Listado de empleados
+            </h1>
+
+            <p class="page-subtitle">
+                Consultá los empleados activos de tu unidad de venta.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a th:href="@{/responsable/index}"
+               class="btn-custom">
+                ← Volver al panel
+            </a>
+
+            <a th:href="@{/responsable/empleados/nuevo}"
+               class="btn-custom btn-primary-custom">
+                + Nuevo empleado
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- Unidad de venta -->
+    <div th:if="${unidadVenta != null}"
+         class="alert alert-light border shadow-sm">
+
+        <strong>Unidad de venta:</strong>
+
+        <span th:text="${unidadVenta.nombreComercial}">
+            Nombre de la unidad
+        </span>
+
+        <span th:text="'(' + ${unidadVenta.codigo} + ')'">
+            (Código)
+        </span>
+
+    </div>
+
+    <!-- Filtros de búsqueda -->
+    <section class="filter-card">
+
+        <h3 class="filter-title">
+            Buscar empleados
+        </h3>
+
+        <form th:action="@{/responsable/empleados}" method="get">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">
+                        Nombre
+                    </label>
+
+                    <input type="text"
+                           id="nombre"
+                           name="nombre"
+                           class="form-control"
+                           placeholder="Ingresá un nombre"
+                           th:value="${nombre}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="apellido" class="form-label">
+                        Apellido
+                    </label>
+
+                    <input type="text"
+                           id="apellido"
+                           name="apellido"
+                           class="form-control"
+                           placeholder="Ingresá un apellido"
+                           th:value="${apellido}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="dni" class="form-label">
+                        DNI
+                    </label>
+
+                    <input type="text"
+                           id="dni"
+                           name="dni"
+                           class="form-control"
+                           placeholder="Ingresá un DNI"
+                           th:value="${dni}">
+                </div>
+
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+
+                <button type="submit"
+                        class="btn-custom btn-primary-custom">
+                    Buscar
+                </button>
+
+                <a th:href="@{/responsable/empleados}"
+                   class="btn-custom">
+                    Limpiar filtros
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    <!-- Tabla de empleados -->
+    <section class="panel-card">
+
+        <div class="panel-card-header d-flex
+                    justify-content-between align-items-center flex-wrap gap-2">
+
+            <h3>Empleados registrados</h3>
+
+            <span class="text-secondary small"
+                  th:text="${empleados != null
+                    ? #lists.size(empleados) + ' empleado(s)'
+                    : 'Empleados'}">
+                Empleados
+            </span>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>DNI</th>
+                    <th>Fecha de ingreso</th>
+                    <th>Sueldo</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="empleado : ${empleados}">
+
+                    <td th:text="${empleado.id}"></td>
+
+                    <td th:text="${empleado.nombre}"></td>
+
+                    <td th:text="${empleado.apellido}"></td>
+
+                    <td th:text="${empleado.dni}"></td>
+
+                    <td th:text="${empleado.fechaIngreso != null
+                        ? #temporals.format(empleado.fechaIngreso, 'dd/MM/yyyy')
+                        : '-'}">
+                    </td>
+
+                    <td th:text="${empleado.sueldo != null
+                        ? '$ ' + #numbers.formatDecimal(empleado.sueldo, 1, 'POINT', 2, 'COMMA')
+                        : '-'}">
+                    </td>
+
+                </tr>
+
+                <tr th:if="${empleados == null or #lists.isEmpty(empleados)}">
+
+                    <td colspan="6" class="text-center empty-state">
+
+                        <div class="fs-2 mb-2" aria-hidden="true">
+                            👥
+                        </div>
+
+                        <strong>No se encontraron empleados.</strong>
+
+                        <p class="mb-0 mt-1">
+                            Probá modificar los filtros o registrar un nuevo empleado.
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- Logo institucional -->
+    <div class="footer-logo">
+        <img th:src="@{/images/unla-logo.png}"
+             alt="Logo UNLa"
+             onerror="this.style.display='none'">
+    </div>
+
+</main>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
