@@ -270,12 +270,10 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
             throw new IllegalArgumentException("No se encontró empleado con ID: " + id);
         }
 
-        // Reactivar y regenerar contraseña del usuario vinculado
+        // Reactivar el usuario vinculado sin cambiar la contraseña ni enviar mail
         staffRepository.findById(id).ifPresent(staff -> {
             if (staff.getUsuario() != null) {
                 usuarioRepository.actualizarActivo(staff.getUsuario().getId(), true);
-                // Se regenera la contraseña temporal y se envía por mail
-                usuarioService.reenviarCredenciales(staff.getUsuario().getId());
             }
         });
     }

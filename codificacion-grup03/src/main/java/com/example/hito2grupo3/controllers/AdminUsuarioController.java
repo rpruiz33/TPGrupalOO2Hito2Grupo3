@@ -91,13 +91,11 @@ public class AdminUsuarioController {
             }
         }
 
-        // Fallback para administradores o usuarios sin unidad de venta asociada
-        List<Staff> empleados = staffRepository.findAll();
-        model.addAttribute("empleados", empleados);
-        model.addAttribute("nombre", nombre);
-        model.addAttribute("apellido", apellido);
-        model.addAttribute("dni", dni);
-        return "responsable/vistaempleados";
+        // Fallback para administradores o usuarios sin unidad de venta asociada:
+        // se muestran todos los usuarios registrados en el sistema
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        model.addAttribute("usuarios", usuarios);
+        return "responsable/vistausuarios";
     }
 
     private String limpiarFiltro(String valor) {
@@ -295,7 +293,7 @@ public class AdminUsuarioController {
         try {
             empleadoService.reactivar(id);
             redirectAttrs.addFlashAttribute("mensaje",
-                    "Empleado dado de alta exitosamente. Se regeneró la contraseña y se envió por correo.");
+                    "Empleado dado de alta exitosamente.");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("error", "Error al dar de alta el empleado: " + e.getMessage());
         }
