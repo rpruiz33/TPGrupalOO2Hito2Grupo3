@@ -59,7 +59,7 @@ public class AdminUsuarioController {
 
         model.addAttribute("empleado", nuevoEmpleado);
         model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
-        return "admin/empleado-form";
+        return "responsable/usuario-form";
     }
 
     // Guardar nuevo empleado/usuario
@@ -127,7 +127,7 @@ public class AdminUsuarioController {
             EmpleadoDTO dto = empleadoService.obtenerDtoPorId(staff.getId());
             model.addAttribute("empleado", dto);
             model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
-            return "admin/empleado-form";
+            return "responsable/usuario-form";
 
         } catch (Exception e) {
             e.printStackTrace();
