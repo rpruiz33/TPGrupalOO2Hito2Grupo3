@@ -2,6 +2,7 @@ package com.example.hito2grupo3.repositories;
 
 import com.example.hito2grupo3.entities.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,14 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
 
     @Query("SELECT s FROM Staff s WHERE s.usuario.id = :usuarioId")
     Optional<Staff> findByUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    /**
+     * Actualización directa del campo activo en la tabla staff.
+     * Evita problemas con InheritanceType.JOINED al no pasar por save().
+     */
+    @Modifying
+    @Query("UPDATE Staff s SET s.activo = :activo WHERE s.id = :id")
+    int actualizarActivo(@Param("id") Long id, @Param("activo") boolean activo);
 
     @Query("""
         SELECT s

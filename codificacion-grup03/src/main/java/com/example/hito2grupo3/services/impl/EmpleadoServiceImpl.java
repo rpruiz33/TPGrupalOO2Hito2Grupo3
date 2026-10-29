@@ -247,34 +247,37 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
     @Override
     @Transactional
     public void darDeBaja(Long id) {
-        Staff staff = buscarPorId(id);
-        staff.setActivo(false);
-
-        if (staff.getUsuario() != null) {
-            staff.getUsuario().setActivo(false);
-            usuarioRepository.save(staff.getUsuario());
+        // Usar UPDATE directo para evitar problemas con InheritanceType.JOINED
+        int rows = staffRepository.actualizarActivo(id, false);
+        if (rows == 0) {
+            throw new IllegalArgumentException("No se encontró empleado con ID: " + id);
         }
 
-        staffRepository.save(staff);
+        // Desactivar también el usuario vinculado
+        staffRepository.findById(id).ifPresent(staff -> {
+            if (staff.getUsuario() != null) {
+                usuarioRepository.actualizarActivo(staff.getUsuario().getId(), false);
+            }
+        });
     }
 
     @Override
     @Transactional
     public void reactivar(Long id) {
-        Staff staff = buscarPorId(id);
-        staff.setActivo(true);
-
-        if (staff.getUsuario() != null) {
-            Usuario usuario = staff.getUsuario();
-            usuario.setActivo(true);
-            usuarioRepository.save(usuario);
-
-            // Se regenera la contraseña temporal, se fuerza debeCambiarPassword = true,
-            // y se envía el mail con las credenciales de acceso al correo del empleado.
-            usuarioService.reenviarCredenciales(usuario.getId());
+        // Usar UPDATE directo para evitar problemas con InheritanceType.JOINED
+        int rows = staffRepository.actualizarActivo(id, true);
+        if (rows == 0) {
+            throw new IllegalArgumentException("No se encontró empleado con ID: " + id);
         }
 
-        staffRepository.save(staff);
+        // Reactivar y regenerar contraseña del usuario vinculado
+        staffRepository.findById(id).ifPresent(staff -> {
+            if (staff.getUsuario() != null) {
+                usuarioRepository.actualizarActivo(staff.getUsuario().getId(), true);
+                // Se regenera la contraseña temporal y se envía por mail
+                usuarioService.reenviarCredenciales(staff.getUsuario().getId());
+            }
+        });
     }
 
     @Override

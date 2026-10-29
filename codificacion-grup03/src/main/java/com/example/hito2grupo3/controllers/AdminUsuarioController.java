@@ -270,27 +270,15 @@ public class AdminUsuarioController {
         return "redirect:/responsable/usuarios";
     }
 
-    // Dar de baja lógica
+    // Dar de baja lógica — el {id} es el staff.id (viene del template)
     @GetMapping("/baja/{id}")
-    @Transactional
     public String darDeBaja(
             @PathVariable("id") Long id,
             RedirectAttributes redirectAttrs) {
 
         try {
-            Staff staff = staffRepository.findByUsuario_Id(id)
-                    .or(() -> staffRepository.findById(id))
-                    .orElse(null);
-
-            if (staff != null) {
-                empleadoService.darDeBaja(staff.getId());
-            } else {
-                usuarioRepository.findById(id).ifPresent(u -> {
-                    u.setActivo(false);
-                    usuarioRepository.save(u);
-                });
-            }
-            redirectAttrs.addFlashAttribute("mensaje", "Empleado dado de baja lógicamente con éxito. Su usuario ha sido deshabilitado.");
+            empleadoService.darDeBaja(id);
+            redirectAttrs.addFlashAttribute("mensaje", "Empleado dado de baja. Su cuenta de acceso fue deshabilitada.");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("error", "Error al procesar la baja: " + e.getMessage());
         }
@@ -298,31 +286,18 @@ public class AdminUsuarioController {
         return "redirect:/responsable/usuarios";
     }
 
-    // Reactivar empleado
+    // Dar de alta (reactivar) empleado — el {id} es el staff.id (viene del template)
     @GetMapping("/reactivar/{id}")
-    @Transactional
     public String reactivar(
             @PathVariable("id") Long id,
             RedirectAttributes redirectAttrs) {
 
         try {
-            Staff staff = staffRepository.findByUsuario_Id(id)
-                    .or(() -> staffRepository.findById(id))
-                    .orElse(null);
-
-            if (staff != null) {
-                empleadoService.reactivar(staff.getId());
-            } else {
-                usuarioRepository.findById(id).ifPresent(u -> {
-                    u.setActivo(true);
-                    usuarioRepository.save(u);
-                    usuarioService.reenviarCredenciales(u.getId());
-                });
-            }
+            empleadoService.reactivar(id);
             redirectAttrs.addFlashAttribute("mensaje",
-                    "Empleado reactivado exitosamente. Se ha regenerado su contraseña y enviado por correo electrónico.");
+                    "Empleado dado de alta exitosamente. Se regeneró la contraseña y se envió por correo.");
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("error", "Error al reactivar el empleado: " + e.getMessage());
+            redirectAttrs.addFlashAttribute("error", "Error al dar de alta el empleado: " + e.getMessage());
         }
 
         return "redirect:/responsable/usuarios";
