@@ -16,6 +16,7 @@ import java.time.LocalDate;
 public class EmpleadoDTO {
 
     private Long id;
+    private Long usuarioId;
     private String nombre;
     private String apellido;
     private String dni;

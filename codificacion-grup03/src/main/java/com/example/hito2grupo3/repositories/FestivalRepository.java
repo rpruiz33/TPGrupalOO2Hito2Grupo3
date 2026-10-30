@@ -51,4 +51,11 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
     List<Festival> buscarFestivalActivoPorUnidadVenta(
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("fecha") LocalDate fecha);
+
+    Optional<Festival> findFirstByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
+            LocalDate fechaInicio,
+            LocalDate fechaFin);
+
+
+
 }

@@ -18,7 +18,6 @@ import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.services.IRentabilidadNetaService;
 
-import lombok.Getter;
 
 
 @Service

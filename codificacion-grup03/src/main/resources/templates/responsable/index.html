@@ -4,421 +4,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Panel del Responsable - Epicentro Gourmet</title>
-
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
-    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
-
-    <style>
-        body {
-            background-color: #800020;
-            font-family: "Segoe UI", sans-serif;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        /* Barra superior */
-        .top-bar {
-            display: flex;
-            justify-content: flex-end;
-            padding: 18px 25px 0;
-        }
-
-        .top-bar form {
-            margin: 0;
-        }
-
-        /* Contenedor principal */
-        .panel-container {
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 15px 20px 35px;
-        }
-
-        /* Encabezado */
-        .panel-header {
-            margin-bottom: 28px;
-        }
-
-        .panel-header h1 {
-            font-size: 1.9rem;
-        }
-
-        .panel-header h2 {
-            font-size: 1.05rem;
-        }
-
-        .welcome-info {
-            margin-top: 14px;
-            font-size: 0.92rem;
-        }
-
-        .unit-info {
-            font-size: 0.82rem;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        /* Tarjetas del menú */
-        .menu-card {
-            background-color: #ffffff;
-            border: 2px solid #222222;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 380px;
-            margin: 0 auto;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
-        }
-
-        .menu-card .card-body {
-            padding: 18px;
-        }
-
-        .menu-icon {
-            font-size: 1.45rem;
-            margin-bottom: 6px;
-        }
-
-        .menu-card h3 {
-            font-size: 1.08rem;
-            margin-bottom: 7px;
-        }
-
-        .menu-card p {
-            font-size: 0.85rem;
-            margin-bottom: 13px;
-            line-height: 1.4;
-        }
-
-        /* Botones */
-        .menu-button {
-            border: 1px solid #800020;
-            color: #800020;
-            background-color: #ffffff;
-            border-radius: 7px;
-            padding: 7px 15px;
-            font-size: 0.84rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .menu-button:hover {
-            background-color: #800020;
-            color: #ffffff;
-        }
-
-        /* Acción principal: alta de plato */
-        .menu-button-primary {
-            background-color: #800020;
-            color: #ffffff;
-        }
-
-        .menu-button-primary:hover {
-            background-color: #600018;
-            border-color: #600018;
-            color: #ffffff;
-        }
-
-        /* Cerrar sesión */
-        .logout-button {
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            color: #ffffff;
-            border-radius: 7px;
-            padding: 7px 13px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            background: transparent;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .logout-button:hover {
-            background-color: #ffffff;
-            color: #800020;
-        }
-
-        /* Logo institucional */
-        .logo {
-            text-align: center;
-            margin-top: 28px;
-        }
-
-        .logo .unla-logo-img {
-            width: 100px;
-            height: auto;
-            border: 1px solid #222222;
-            border-radius: 4px;
-        }
-
-        /* Adaptación para celulares */
-        @media (max-width: 576px) {
-            .top-bar {
-                padding: 12px 15px 0;
-            }
-
-            .panel-container {
-                padding: 15px 16px 28px;
-            }
-
-            .panel-header h1 {
-                font-size: 1.65rem;
-            }
-
-            .menu-card .card-body {
-                padding: 16px;
-            }
-
-            .menu-card p {
-                font-size: 0.82rem;
-            }
-        }
-
-        /* Respeta la preferencia de movimiento reducido */
-        @media (prefers-reduced-motion: reduce) {
-            .menu-card,
-            .menu-button,
-            .logout-button {
-                transition: none;
-            }
-
-            .menu-card:hover {
-                transform: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
 <body>
-
-    <!-- Barra superior -->
-    <div class="top-bar">
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-button">
-                Cerrar sesión ↗
-            </button>
-        </form>
-    </div>
-
-    <main class="container panel-container">
-
-        <!-- Encabezado y datos del Responsable -->
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+    <!-- Contenido Principal -->
+    <main class="container panel-container mt-4">
         <header class="panel-header text-center text-white">
-
-            <h1 class="fw-bold mb-1">
-                Epicentro Gourmet
-            </h1>
-
-            <h2 class="text-white-50 mb-0">
-                Panel del Responsable
-            </h2>
-
-            <p class="welcome-info mb-1">
-                ¡Bienvenido/a,
-                <strong th:text="${nombreResponsable}">Responsable</strong>!
-            </p>
-
+            <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+            <h2 class="text-white-50 mb-2">Panel del Responsable</h2>
             <p class="unit-info mb-0">
                 Unidad de venta:
                 <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
                     Sin asignar
                 </strong>
             </p>
-
         </header>
-
-        <!-- Mensaje de éxito -->
-        <div th:if="${mensaje}"
-             class="alert alert-success text-center py-2 shadow-sm mb-3"
-             th:text="${mensaje}">
-        </div>
-
-        <!-- Mensaje de error -->
-        <div th:if="${error}"
-             class="alert alert-danger text-center py-2 shadow-sm mb-3"
-             th:text="${error}">
-        </div>
+        <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
                         
-     <section class="mb-3 text-center">
-                    <a th:href="@{/responsable/canon}"
-               style="display: inline-block;
-                      background-color: #800020;
-                      color: #ffffff;
-                      border: 2px solid #000000;
-                      border-radius: 10px;
-                      padding: 12px 24px;
-                      font-size: 1rem;
-                      font-weight: 600;
-                      text-decoration: none;">
+        <!-- Sección Canon -->
+        <section class="mb-4 text-center">
+            <a th:href="@{/responsable/canon}" class="btn-canon">
                 💰 Calcular canon
             </a>
 
-            <!-- Resultado del cálculo -->
-            <div th:if="${canon != null}"
-                 class="alert alert-light text-center mt-3 shadow-sm"
-                 style="max-width: 380px; margin-left: auto; margin-right: auto;">
-
+            <div th:if="${canon != null}" class="alert alert-light text-center mt-3 shadow-sm mx-auto canon-result-box">
                 <p class="mb-1 text-secondary">
                     Canon de <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
                 </p>
-
-                <p class="fs-3 fw-bold mb-0" style="color: #800020;">
+                <p class="fs-3 fw-bold mb-0 canon-amount">
                     $ <span th:text="${#numbers.formatDecimal(canon, 1, 2)}">0,00</span>
                 </p>
-
             </div>
         </section>
-
-      
-
-        <!-- Opciones del Responsable -->
         <section>
             <div class="row g-3 justify-content-center">
 
-                <!-- Gestión de usuarios y empleados -->
-                <div class="col-12 d-flex justify-content-center">
-                    <article class="card menu-card">
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon" aria-hidden="true">
-                                👥
+                <!-- Empleados -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <article class="card menu-card h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="menu-icon" aria-hidden="true">👥</div>
+                                <h3 class="fw-bold">Empleados</h3>
+                                <p class="text-secondary">
+                                    Administrá los empleados asignados a tu unidad, cuentas y credenciales.
+                                </p>
                             </div>
-
-                            <h3 class="fw-bold">
-                                Usuarios
-                            </h3>
-
-                            <p class="text-secondary">
-                                Administrá las cuentas de usuario y consultá los empleados de tu unidad.
-                            </p>
-
-                            <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                <a th:href="@{/responsable/usuarios}"
-                                   class="menu-button menu-button-primary">
-                                    Administrar usuarios
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a th:href="@{/responsable/usuarios}" class="menu-button menu-button-primary w-100">
+                                    Administrar empleados
                                 </a>
-
-                                <a th:href="@{/responsable/empleados}"
-                                   class="menu-button">
-                                    Listar empleados
-                                </a>
-
                             </div>
-
                         </div>
                     </article>
                 </div>
 
-                <!-- Gestión de platos -->
-                <div class="col-12 d-flex justify-content-center">
-                    <article class="card menu-card">
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon" aria-hidden="true">
-                                🍽️
+                <!-- Platos -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <article class="card menu-card h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="menu-icon" aria-hidden="true">🍽️</div>
+                                <h3 class="fw-bold">Gestión de platos</h3>
+                                <p class="text-secondary">
+                                    Registrá nuevos platos y consultá los platos de tu unidad.
+                                </p>
                             </div>
-
-                            <h3 class="fw-bold">
-                                Gestión de platos
-                            </h3>
-
-                            <p class="text-secondary">
-                                Registrá nuevos platos y consultá los platos
-                                de tu unidad de venta.
-                            </p>
-
-                            <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                <a th:href="@{/responsable/platos/nuevo}"
-                                   class="menu-button menu-button-primary">
-                                     Alta de plato
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary w-100">
+                                    Alta de plato
                                 </a>
-
-                                <a th:href="@{/responsable/platos}"
-                                   class="menu-button">
-                                    Mis platos
-                                </a>
-
-                                <a th:href="@{/plato-estrella}" class="menu-button">
-                              Plato Estrella
-                                </a>
-
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a th:href="@{/responsable/platos}" class="menu-button w-50">
+                                        Mis platos
+                                    </a>
+                                    <a th:href="@{/plato-estrella}" class="menu-button w-50">
+                                        Estrella
+                                    </a>
+                                </div>
                             </div>
-
                         </div>
                     </article>
                 </div>
 
-                <!-- Información personal -->
-                <div class="col-12 d-flex justify-content-center">
-                    <article class="card menu-card">
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon" aria-hidden="true">
-                                👤
+                <!--  Información Personal -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <article class="card menu-card h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="menu-icon" aria-hidden="true">👤</div>
+                                <h3 class="fw-bold">Mi información</h3>
+                                <p class="text-secondary">
+                                    Consultá tu información personal y actividad reciente.
+                                </p>
                             </div>
-
-                            <h3 class="fw-bold">
-                                Mi información
-                            </h3>
-
-                            <p class="text-secondary">
-                                Consultá tu información personal y actividad.
-                            </p>
-
-                            <a th:href="@{/empleado/dashboard}"
-                               class="menu-button">
-                                Mi información
-                            </a>
-
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a th:href="@{/empleado/dashboard}" class="menu-button w-100">
+                                    Mi información
+                                </a>
+                            </div>
                         </div>
                     </article>
                 </div>
 
-                <!-- Seguridad -->
-                <div class="col-12 d-flex justify-content-center">
-                    <article class="card menu-card">
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon" aria-hidden="true">
-                                🔒
+                <!--  Seguridad -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <article class="card menu-card h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="menu-icon" aria-hidden="true">🔒</div>
+                                <h3 class="fw-bold">Seguridad</h3>
+                                <p class="text-secondary">
+                                    Cambiá tu contraseña de acceso periódicamente.
+                                </p>
                             </div>
-
-                            <h3 class="fw-bold">
-                                Seguridad
-                            </h3>
-
-                            <p class="text-secondary">
-                                Cambiá tu contraseña de acceso.
-                            </p>
-
-                            <a th:href="@{/cambiar-password}"
-                               class="menu-button">
-                                Cambiar contraseña
-                            </a>
-
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a th:href="@{/cambiar-password}" class="menu-button w-100">
+                                    Cambiar contraseña
+                                </a>
+                            </div>
                         </div>
                     </article>
                 </div>
 
             </div>
         </section>
-
-        <!-- Logo UNLa -->
-        <div class="logo">
-            <img class="unla-logo-img"
-                 alt="Logo UNLa"
-                 th:src="@{/images/unla-logo.png}">
-        </div>
 
     </main>
 
@@ -426,5 +141,4 @@
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
-
 </html>

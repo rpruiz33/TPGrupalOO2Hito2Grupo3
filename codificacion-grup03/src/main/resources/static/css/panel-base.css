@@ -1,0 +1,222 @@
+/* =========================================================
+   Estilos Base para Paneles y Dashboards
+   ========================================================= */
+
+/* Elimina márgenes y paddings externos del body para que el header pegue al borde superior */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+}
+
+body {
+    background-color: #800020;
+    font-family: "Segoe UI", sans-serif;
+    min-height: 100vh;
+}
+
+/* =========================================================
+   Header Superior Reutilizable (Estilo Admin / UNLa)
+   ========================================================= */
+.admin-header {
+    background-color: #550015; /* Bordó más oscuro para contrastar con el fondo */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    width: 100%;
+    margin-top: 0 !important;
+}
+
+.admin-header .navbar-brand {
+    font-size: 1.15rem;
+}
+
+.admin-header .navbar-brand img {
+    height: 42px;
+    width: auto;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+/* Botón cerrar sesión / acción de cabecera */
+.btn-outline-custom {
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background-color: transparent;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: #ffffff;
+    color: #800020;
+    border-color: #ffffff;
+}
+
+/* =========================================================
+   Contenedor Principal y Encabezado de Vista
+   ========================================================= */
+.panel-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 15px 20px 35px;
+}
+
+.panel-header {
+    margin-bottom: 28px;
+}
+
+.panel-header h1 {
+    font-size: 2.1rem;
+}
+
+.panel-header h2 {
+    font-size: 1.15rem;
+}
+
+.welcome-info {
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+
+.unit-info {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* =========================================================
+   Botón y Bloque de Canon / Destacado
+   ========================================================= */
+.btn-canon {
+    display: inline-block;
+    background-color: #800020;
+    color: #ffffff !important;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-canon:hover {
+    background-color: #600018;
+    color: #ffffff !important;
+}
+
+.canon-result-box {
+    max-width: 380px;
+}
+
+.canon-amount {
+    color: #800020;
+}
+
+/* =========================================================
+   Tarjetas del Menú (Grilla Horizontal)
+   ========================================================= */
+.menu-card {
+    background-color: #ffffff;
+    border: 2px solid #222222;
+    border-radius: 12px;
+    width: 100%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+.menu-card .card-body {
+    padding: 20px 14px;
+}
+
+.menu-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+.menu-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.menu-card p {
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   Botones de Acción dentro de Tarjetas (Restaurados)
+   ========================================================= */
+a.menu-button,
+.menu-button {
+    border: 1px solid #800020 !important;
+    color: #800020 !important;
+    background-color: #ffffff !important;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    display: inline-block;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a.menu-button:hover,
+.menu-button:hover {
+    background-color: #800020 !important;
+    color: #ffffff !important;
+}
+
+/* Botón con fondo bordó para acciones principales */
+a.menu-button-primary,
+.menu-button-primary {
+    background-color: #800020 !important;
+    border-color: #800020 !important;
+    color: #ffffff !important;
+}
+
+a.menu-button-primary:hover,
+.menu-button-primary:hover {
+    background-color: #600018 !important;
+    border-color: #600018 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   Adaptación Móvil y Accesibilidad
+   ========================================================= */
+@media (max-width: 576px) {
+    .panel-container {
+        padding: 15px 16px 28px;
+    }
+
+    .panel-header h1 {
+        font-size: 1.65rem;
+    }
+
+    .admin-header .navbar-brand span {
+        font-size: 0.95rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-card,
+    .menu-button,
+    .btn-outline-custom,
+    .btn-canon {
+        transition: none;
+    }
+
+    .menu-card:hover {
+        transform: none;
+    }
+    
+}
