@@ -33,10 +33,56 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     }
 
     @Override
+    public void validarSueldoBase(BigDecimal sueldoBase) {
+        if (sueldoBase == null) {
+            throw new IllegalArgumentException("El sueldo base es obligatorio y no puede ser nulo.");
+        }
+        if (sueldoBase.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("El sueldo base debe ser mayor a 0.");
+        }
+    }
+
+    @Override
+    public void validarDuracionFestival(LocalDate inicio, LocalDate fin) {
+        if (inicio == null) {
+            throw new IllegalArgumentException("La duración del festival es incoherente: la fecha de inicio es obligatoria.");
+        }
+        if (fin == null) {
+            throw new IllegalArgumentException("La duración del festival es incoherente: la fecha de finalización es obligatoria.");
+        }
+        if (fin.isBefore(inicio)) {
+            throw new IllegalArgumentException("La duración del festival es incoherente: la fecha de fin no puede ser anterior a la fecha de inicio.");
+        }
+        long dias = ChronoUnit.DAYS.between(inicio, fin) + 1;
+        if (dias <= 0) {
+            throw new IllegalArgumentException("La duración del festival es incoherente: debe durar al menos 1 día.");
+        }
+        if (dias > 365) {
+            throw new IllegalArgumentException("La duración del festival es incoherente: no puede superar los 365 días.");
+        }
+    }
+
+    private void validarParametrosFestivalYSueldo(Festival festival, BigDecimal sueldoBase) {
+        if (festival == null) {
+            throw new IllegalArgumentException("El festival seleccionado no existe.");
+        }
+        validarDuracionFestival(festival.getFechaInicio(), festival.getFechaFin());
+        validarSueldoBase(sueldoBase);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId) {
+        return liquidar(emailResponsable, festivalId, sueldoProperties.baseOrDefault());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId, BigDecimal sueldoBase) {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+
+        validarParametrosFestivalYSueldo(festival, sueldoBase);
 
         UnidadVenta unidad = unidadVentaRepository.findAll().stream()
                 .filter(u -> u.getResponsable() != null
@@ -47,26 +93,42 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("No hay unidades de venta registradas.")));
 
-        return calcularLiquidacion(unidad, festival);
+        return calcularLiquidacion(unidad, festival, sueldoBase);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId) {
+        return liquidarPorUnidad(unidadId, festivalId, sueldoProperties.baseOrDefault());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId, BigDecimal sueldoBase) {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+
+        validarParametrosFestivalYSueldo(festival, sueldoBase);
 
         UnidadVenta unidad = unidadVentaRepository.findById(unidadId)
                 .orElseThrow(() -> new IllegalArgumentException("La unidad de venta seleccionada no existe."));
 
-        return calcularLiquidacion(unidad, festival);
+        return calcularLiquidacion(unidad, festival, sueldoBase);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidarTodos(Long festivalId) {
+        return liquidarTodos(festivalId, sueldoProperties.baseOrDefault());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarTodos(Long festivalId, BigDecimal sueldoBase) {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+
+        validarParametrosFestivalYSueldo(festival, sueldoBase);
 
         long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
         BigDecimal factorProporcional = calcularFactorProporcional(dias);
@@ -94,7 +156,6 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
         Set<LiquidacionDTO> conjuntoLiquidaciones = new LinkedHashSet<>();
         BigDecimal totalGeneral = BigDecimal.ZERO;
-        BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
 
         for (Staff s : personalMap.values()) {
             LiquidacionDTO dto = armarLiquidacionEmpleado(s, festival, sueldoBase, factorProporcional, periodos, null);
@@ -110,8 +171,16 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidarEmpleado(String emailEmpleado, Long festivalId) {
+        return liquidarEmpleado(emailEmpleado, festivalId, sueldoProperties.baseOrDefault());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarEmpleado(String emailEmpleado, Long festivalId, BigDecimal sueldoBase) {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+
+        validarParametrosFestivalYSueldo(festival, sueldoBase);
 
         Staff empleado = staffRepository.findByUsuario_Email(emailEmpleado)
                 .orElse(null);
@@ -162,7 +231,6 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
         BigDecimal factorProporcional = calcularFactorProporcional(dias);
         int periodos = calcularPeriodos(dias);
-        BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
 
         LiquidacionDTO dto = armarLiquidacionEmpleado(empleado, festival, sueldoBase, factorProporcional, periodos, emailEmpleado);
         if (dto == null) {
@@ -175,7 +243,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         return new ResultadoLiquidacion(nombreUnidad, dias, conjunto, dto.total());
     }
 
-    private ResultadoLiquidacion calcularLiquidacion(UnidadVenta unidad, Festival festival) {
+    private ResultadoLiquidacion calcularLiquidacion(UnidadVenta unidad, Festival festival, BigDecimal sueldoBase) {
+        validarParametrosFestivalYSueldo(festival, sueldoBase);
+
         long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
         BigDecimal factorProporcional = calcularFactorProporcional(dias);
         int periodos = calcularPeriodos(dias);
@@ -195,8 +265,6 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             }
         }
 
-        BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
-
         for (Staff s : personalMap.values()) {
             LiquidacionDTO dto = armarLiquidacionEmpleado(s, festival, sueldoBase, factorProporcional, periodos, null);
             if (dto != null) {
@@ -209,15 +277,12 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     }
 
     private int calcularPeriodos(long dias) {
-        
         int diasPorPeriodo = 30; // o usa sueldoProperties.diasPorPeriodoOrDefault() si lo tienes configurado
         if (dias <= 0) {
             return 1;
         }
         return (int) Math.ceil((double) dias / diasPorPeriodo);
     }
-
-  
 
     private BigDecimal calcularFactorProporcional(long dias) {
         int periodos = calcularPeriodos(dias);
@@ -226,6 +291,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     private LiquidacionDTO armarLiquidacionEmpleado(Staff s, Festival festival, BigDecimal sueldoBase,
                                                    BigDecimal factorProporcional, int periodos, String emailOverride) {
+        validarSueldoBase(sueldoBase);
         long anios = aniosAntiguedad(s.getFechaIngreso(), festival.getFechaInicio());
         BigDecimal adicional;
         String rol;
@@ -290,9 +356,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     @Override
     public long diasDelFestival(LocalDate inicio, LocalDate fin) {
-        if (inicio == null || fin == null || fin.isBefore(inicio)) {
-            throw new IllegalArgumentException("El período del festival no es válido.");
-        }
+        validarDuracionFestival(inicio, fin);
         return ChronoUnit.DAYS.between(inicio, fin) + 1;
     }
 
