@@ -10,54 +10,63 @@
 </head>
 
 <body>
-<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+
     <!-- Contenido Principal -->
     <main class="container panel-container mt-4">
         <header class="panel-header text-center text-white">
-            <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
-            <h2 class="text-white-50 mb-2">Panel del Responsable</h2>
-            <p class="unit-info mb-0">
-                Unidad de venta:
-                <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
-                    Sin asignar
-                </strong>
-            </p>
+            <h1 class="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
+                <span>🎪</span> Epicentro Gourmet
+            </h1>
+            <h2 class="text-white-50 mb-2">Panel de Gestión del Responsable</h2>
+            <div class="d-inline-flex align-items-center gap-2 bg-dark bg-opacity-25 px-3 py-1 rounded-pill mt-2">
+                <span>🏢</span>
+                <span class="unit-info">
+                    Unidad de venta:
+                    <strong class="text-white" th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
+                        Sin asignar
+                    </strong>
+                </span>
+            </div>
         </header>
+
         <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
         <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
                         
         <!-- Sección Canon -->
         <section class="mb-4 text-center">
             <a th:href="@{/responsable/canon}" class="btn-canon">
-                💰 Calcular canon
+                <span>💰</span> Calcular Canon
             </a>
 
-            <div th:if="${canon != null}" class="alert alert-light text-center mt-3 shadow-sm mx-auto canon-result-box">
-                <p class="mb-1 text-secondary">
+            <div th:if="${canon != null}" class="alert alert-light text-center mt-3 shadow-sm mx-auto canon-result-box p-3">
+                <p class="mb-1 text-secondary fw-semibold">
                     Canon de <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
                 </p>
-                <p class="fs-3 fw-bold mb-0 canon-amount">
+                <p class="fs-2 fw-bold mb-0 canon-amount">
                     $ <span th:text="${#numbers.formatDecimal(canon, 1, 2)}">0,00</span>
                 </p>
             </div>
         </section>
+
+        <!-- Tarjetas de Acciones -->
         <section>
-            <div class="row g-3 justify-content-center">
+            <div class="row g-4 justify-content-center">
 
                 <!-- Empleados -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-2-4">
+                    <article class="card menu-card h-100 p-2" style="border-top: 4px solid #800020;">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-3">
                             <div>
                                 <div class="menu-icon" aria-hidden="true">👥</div>
                                 <h3 class="fw-bold">Empleados</h3>
-                                <p class="text-secondary">
+                                <p class="text-secondary small">
                                     Administrá los empleados asignados a tu unidad, cuentas y credenciales.
                                 </p>
                             </div>
                             <div class="d-flex flex-column gap-2 mt-2">
                                 <a th:href="@{/responsable/usuarios}" class="menu-button menu-button-primary w-100">
-                                    Administrar empleados
+                                    <span>👥</span> Administrar
                                 </a>
                             </div>
                         </div>
@@ -65,26 +74,26 @@
                 </div>
 
                 <!-- Platos -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-2-4">
+                    <article class="card menu-card h-100 p-2" style="border-top: 4px solid #fd7e14;">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-3">
                             <div>
                                 <div class="menu-icon" aria-hidden="true">🍽️</div>
-                                <h3 class="fw-bold">Gestión de platos</h3>
-                                <p class="text-secondary">
+                                <h3 class="fw-bold">Platos</h3>
+                                <p class="text-secondary small">
                                     Registrá nuevos platos y consultá los platos de tu unidad.
                                 </p>
                             </div>
                             <div class="d-flex flex-column gap-2 mt-2">
                                 <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary w-100">
-                                    Alta de plato
+                                    <span>➕</span> Alta de Plato
                                 </a>
                                 <div class="d-flex gap-1 justify-content-center">
                                     <a th:href="@{/responsable/platos}" class="menu-button w-50">
-                                        Mis platos
+                                        <span>📋</span> Lista
                                     </a>
                                     <a th:href="@{/plato-estrella}" class="menu-button w-50">
-                                        Estrella
+                                        <span>⭐</span> Estrella
                                     </a>
                                 </div>
                             </div>
@@ -92,40 +101,60 @@
                     </article>
                 </div>
 
-                <!--  Información Personal -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                <!-- Liquidación -->
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-2-4">
+                    <article class="card menu-card h-100 p-2" style="border-top: 4px solid #28a745;">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-3">
                             <div>
-                                <div class="menu-icon" aria-hidden="true">👤</div>
-                                <h3 class="fw-bold">Mi información</h3>
-                                <p class="text-secondary">
-                                    Consultá tu información personal y actividad reciente.
+                                <div class="menu-icon" aria-hidden="true">💵</div>
+                                <h3 class="fw-bold">Liquidación</h3>
+                                <p class="text-secondary small">
+                                    Consultá la liquidación de sueldos del personal de tu unidad.
                                 </p>
                             </div>
                             <div class="d-flex flex-column gap-2 mt-2">
-                                <a th:href="@{/empleado/dashboard}" class="menu-button w-100">
-                                    Mi información
+                                <a th:href="@{/liquidacion}" class="menu-button menu-button-primary w-100">
+                                    <span>💵</span> Ver Haberes
                                 </a>
                             </div>
                         </div>
                     </article>
                 </div>
 
-                <!--  Seguridad -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
+                <!-- Información Personal -->
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-2-4">
+                    <article class="card menu-card h-100 p-2" style="border-top: 4px solid #17a2b8;">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-3">
+                            <div>
+                                <div class="menu-icon" aria-hidden="true">👤</div>
+                                <h3 class="fw-bold">Mi Perfil</h3>
+                                <p class="text-secondary small">
+                                    Consultá tu información personal, rol y actividad reciente.
+                                </p>
+                            </div>
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a th:href="@{/empleado/dashboard}" class="menu-button w-100">
+                                    <span>👤</span> Mis Datos
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-2-4">
+                    <article class="card menu-card h-100 p-2" style="border-top: 4px solid #6c757d;">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-3">
                             <div>
                                 <div class="menu-icon" aria-hidden="true">🔒</div>
                                 <h3 class="fw-bold">Seguridad</h3>
-                                <p class="text-secondary">
-                                    Cambiá tu contraseña de acceso periódicamente.
+                                <p class="text-secondary small">
+                                    Cambiá tu contraseña de acceso periódicamente por seguridad.
                                 </p>
                             </div>
                             <div class="d-flex flex-column gap-2 mt-2">
                                 <a th:href="@{/cambiar-password}" class="menu-button w-100">
-                                    Cambiar contraseña
+                                    <span>🔑</span> Contraseña
                                 </a>
                             </div>
                         </div>

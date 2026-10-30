@@ -17,14 +17,22 @@
     <nav class="navbar navbar-dark admin-header px-4 py-2">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="/admin/dashboard">
-                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;" onerror="this.style.display='none'">
-                <span>Epicentro Gourmet - Admin</span>
+                <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa"
+                     style="height: 45px; border-radius: 4px;" onerror="this.style.display='none'">
+                <div class="d-flex flex-column lh-sm">
+                    <span class="fw-bold" style="font-size: 1rem;">Epicentro Gourmet</span>
+                    <span style="font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 400;">Universidad Nacional de Lanús</span>
+                </div>
             </a>
 
             <div class="d-flex align-items-center gap-3">
-                <span class="small d-none d-md-inline text-white-50">Administrador</span>
+                <span class="small d-none d-md-inline text-white-50 d-flex align-items-center gap-1">
+                    <span>👤</span> Administrador
+                </span>
                 <form th:action="@{/logout}" method="post" class="m-0">
-                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1 d-inline-flex align-items-center gap-1">
+                        <span>🚪</span> Cerrar Sesión
+                    </button>
                 </form>
             </div>
         </div>
@@ -37,85 +45,128 @@
             <!-- Menú Lateral Sidebar -->
             <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
                 <nav class="nav flex-column mt-2">
-                    <a class="nav-link nav-link-admin active" href="/admin/dashboard">Inicio</a>
-                    <a class="nav-link nav-link-admin" href="/admin/festivales">Festivales</a>
-
-                    <!-- Enlaces a reportes y liquidación -->
-                    <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/recaudacion/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Reporte Recaudación</a>
-                    
-                    <!-- Enlace añadido para Reporte de Rentabilidad Neta -->
-                    <a class="nav-link nav-link-admin" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">Rentabilidad Neta</a>
-
-                    <!-- Nuevo reporte de unidades con mayor canon -->
-                    <a class="nav-link nav-link-admin" th:href="@{/admin/reportes/mayores-canon}">
-                        Reporte de Cánones
+                    <a class="nav-link nav-link-admin active d-flex align-items-center gap-2" href="/admin/dashboard">
+                        <span>🏠</span> Inicio
+                    </a>
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" href="/admin/festivales">
+                        <span>🎪</span> Festivales
                     </a>
 
-                    <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
+                    <!-- Enlaces a reportes y liquidación -->
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{'/admin/reportes/recaudacion/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">
+                        <span>📊</span> Reporte Recaudación
+                    </a>
+                    
+                    <!-- Enlace añadido para Reporte de Rentabilidad Neta -->
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${primerFestivalId != null ? primerFestivalId : 1}}">
+                        <span>📈</span> Rentabilidad Neta
+                    </a>
 
-                    <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
+                    <!-- Nuevo reporte de unidades con mayor canon -->
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{/admin/reportes/mayores-canon}">
+                        <span>🏆</span> Reporte de Cánones
+                    </a>
+
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{/liquidacion}">
+                        <span>💵</span> Liquidación de Haberes
+                    </a>
+
+                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" href="/cambiar-password">
+                        <span>🔑</span> Cambiar Contraseña
+                    </a>
                 </nav>
             </div>
 
             <!-- Contenido del Dashboard -->
             <div class="col-12 col-md-10 p-4 p-md-5">
-                <h2 class="fw-bold mb-1">Panel de Control</h2>
-                <p class="mb-4" style="color: #e0e0e0;">Resumen del sistema y gestión de Epicentro Gourmet.</p>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                            <span>📊</span> Panel de Control
+                        </h2>
+                        <p class="mb-0 text-white-50">Resumen del sistema y gestión integral de Epicentro Gourmet.</p>
+                    </div>
+                </div>
 
                 <!-- Tarjetas en grilla adaptativa -->
-                <div class="row">
+                <div class="row g-4">
 
                     <!-- Usuarios Registrados -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-2">Usuarios Registrados</h5>
-                                <p class="text-muted small mb-2">Cuentas habilitadas en el sistema.</p>
-                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${usuariosCount != null ? usuariosCount : 0}">0</h3>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-custom h-100 p-2" style="border-top: 4px solid #800020;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">👥</span> Usuarios
+                                    </h5>
+                                    <span class="badge bg-light text-secondary border">Sistema</span>
+                                </div>
+                                <p class="text-muted small mb-3">Cuentas activas habilitadas en la plataforma.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020; font-size: 2.2rem;" th:text="${usuariosCount != null ? usuariosCount : 0}">0</h3>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recaudación Total -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-2">Recaudación Total</h5>
-                                <p class="text-muted small mb-2">Acumulado de ventas registradas.</p>
-                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="'$' + ${#numbers.formatDecimal(recaudacionMensual != null ? recaudacionMensual : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-custom h-100 p-2" style="border-top: 4px solid #28a745;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">💰</span> Recaudación
+                                    </h5>
+                                    <span class="badge bg-light text-success border">Ventas</span>
+                                </div>
+                                <p class="text-muted small mb-3">Acumulado total de ventas registradas.</p>
+                                <h3 class="fw-bold m-0" style="color: #28a745; font-size: 2.2rem;" th:text="'$' + ${#numbers.formatDecimal(recaudacionMensual != null ? recaudacionMensual : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
                             </div>
                         </div>
                     </div>
 
-                    <!-- NUEVO: Rentabilidad Neta -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-2">Rentabilidad Neta</h5>
-                                <p class="text-muted small mb-2">Balance neto de ingresos menos costos.</p>
-                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="'$' + ${#numbers.formatDecimal(rentabilidadNetaTotal != null ? rentabilidadNetaTotal : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
+                    <!-- Rentabilidad Neta -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-custom h-100 p-2" style="border-top: 4px solid #17a2b8;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">📈</span> Rentabilidad Neta
+                                    </h5>
+                                    <span class="badge bg-light text-info border">Balance</span>
+                                </div>
+                                <p class="text-muted small mb-3">Balance neto de ingresos menos costos.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020; font-size: 2.2rem;" th:text="'$' + ${#numbers.formatDecimal(rentabilidadNetaTotal != null ? rentabilidadNetaTotal : 0, 1, 'POINT', 0, 'COMMA')}">$0</h3>
                             </div>
                         </div>
                     </div>
 
                     <!-- Unidades de Venta Habilitadas -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-2">Unidades de Venta Habilitadas</h5>
-                                <p class="text-muted small mb-2">Food Trucks y Puestos Desarmables registrados.</p>
-                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${unidadesCount != null ? unidadesCount : 0}">0</h3>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-custom h-100 p-2" style="border-top: 4px solid #fd7e14;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">🏢</span> Unidades de Venta
+                                    </h5>
+                                    <span class="badge bg-light text-warning border">Puestos</span>
+                                </div>
+                                <p class="text-muted small mb-3">Food Trucks y Puestos Desarmables registrados.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020; font-size: 2.2rem;" th:text="${unidadesCount != null ? unidadesCount : 0}">0</h3>
                             </div>
                         </div>
                     </div>
 
                     <!-- Personal Especializado (Staff) -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card card-custom h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-2">Personal Especializado (Staff)</h5>
-                                <p class="text-muted small mb-2">Cajeros y Cocineros registrados en unidades.</p>
-                                <h3 class="fw-bold m-0" style="color: #800020;" th:text="${staffCount != null ? staffCount : 0}">0</h3>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card card-custom h-100 p-2" style="border-top: 4px solid #6f42c1;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">👨‍🍳</span> Personal (Staff)
+                                    </h5>
+                                    <span class="badge bg-light text-primary border">Equipo</span>
+                                </div>
+                                <p class="text-muted small mb-3">Cajeros y Cocineros registrados en unidades.</p>
+                                <h3 class="fw-bold m-0" style="color: #800020; font-size: 2.2rem;" th:text="${staffCount != null ? staffCount : 0}">0</h3>
                             </div>
                         </div>
                     </div>

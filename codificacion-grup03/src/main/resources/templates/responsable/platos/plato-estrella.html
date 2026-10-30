@@ -21,7 +21,7 @@
 
             <div>
                 <a th:href="@{/responsable/index}" class="menu-button">
-                    ← Volver al Menu
+                    <span>←</span> Volver al Menú
                 </a>
             </div>
         </section>
@@ -35,8 +35,8 @@
             </div>
         </div>
         <section class="card menu-card p-4 p-md-5 mb-4">
-            <h2 class="h5 fw-bold pb-2 mb-3 border-bottom" style="color: #800020;">
-                Consultar plato más vendido
+            <h2 class="h5 fw-bold pb-2 mb-3 border-bottom d-flex align-items-center gap-2" style="color: #800020;">
+                <span>⭐</span> Consultar plato más vendido
             </h2>
 
             <p class="text-secondary small mb-4">
@@ -45,7 +45,9 @@
 
             <form th:action="@{/plato-estrella}" method="post">
                 <div class="mb-4">
-                    <label for="festivalId" class="form-label fw-bold">Festival</label>
+                    <label for="festivalId" class="form-label fw-bold d-flex align-items-center gap-1">
+                        <span>🎪</span> Festival
+                    </label>
                     <select id="festivalId"
                             name="festivalId"
                             class="form-select"
@@ -64,7 +66,7 @@
                     <button type="submit"
                             class="menu-button menu-button-primary py-2 w-100 justify-content-center"
                             th:disabled="${festivales == null or #lists.isEmpty(festivales)}">
-                        Consultar Plato Estrella
+                        <span>⭐</span> Consultar Plato Estrella
                     </button>
                 </div>
             </form>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -12,64 +11,92 @@
 
 <nav class="navbar navbar-dark admin-header px-4 py-2">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">
-            Epicentro Gourmet - Admin
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-3" th:href="@{/admin/dashboard}">
+            <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa"
+                 style="height: 45px; border-radius: 4px;" onerror="this.style.display='none'">
+            <div class="d-flex flex-column lh-sm">
+                <span class="fw-bold" style="font-size: 1rem;">Epicentro Gourmet</span>
+                <span style="font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 400;">Universidad Nacional de Lanús</span>
+            </div>
         </a>
         <form th:action="@{/logout}" method="post" class="m-0">
-            <button type="submit" class="btn btn-outline-custom btn-sm">
-                Cerrar Sesión
+            <button type="submit" class="btn btn-outline-custom btn-sm d-inline-flex align-items-center gap-1">
+                <span>🚪</span> Cerrar Sesión
             </button>
         </form>
     </div>
 </nav>
 
-<div class="container py-5">
-    <a th:href="@{/admin/festivales}" class="btn btn-secondary mb-4">
-        Volver a festivales
-    </a>
-
-    <h2 class="fw-bold mb-2"
-        th:text="${festival.nombre}">
-        Nombre del festival
-    </h2>
-
-    <h5 class="mb-4">Unidades de venta habilitadas</h5>
-
-    <div th:if="${#lists.isEmpty(unidades)}" class="alert alert-info">
-        Este festival no tiene unidades de venta asociadas.
+<div class="container py-5" style="max-width: 1200px;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <span class="badge bg-light text-secondary border mb-1">
+                <span>🎪</span> Festival
+            </span>
+            <h2 class="fw-bold text-white mb-1" th:text="${festival.nombre}">
+                Nombre del festival
+            </h2>
+            <p class="text-white-50 mb-0">Unidades de venta habilitadas y asignación de responsables para esta edición.</p>
+        </div>
+        <a th:href="@{/admin/festivales}" class="btn btn-outline-light d-inline-flex align-items-center gap-2 fw-semibold px-3 py-2">
+            <span>←</span> Volver a Festivales
+        </a>
     </div>
 
+    <div th:if="${unidades == null or #lists.isEmpty(unidades)}" class="card card-custom p-4 text-center">
+        <div class="py-4">
+            <span style="font-size: 2.5rem; display: block; margin-bottom: 10px;">🏢</span>
+            <h5 class="fw-bold text-muted">Sin unidades asociadas</h5>
+            <p class="text-muted small mb-0">Este festival no tiene unidades de venta asignadas actualmente.</p>
+        </div>
+    </div>
 
-<div class="table-responsive"
-     th:unless="${#sets.isEmpty(unidades)}">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nombre comercial</th>
-                <th>Superficie (m²)</th>
-                <th>Responsable</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="unidad : ${unidades}">
-                <td th:text="${unidad.codigo}">Código</td>
-                <td th:text="${unidad.nombreComercial}">Nombre comercial</td>
-                <td th:text="${unidad.superficieM2}">0</td>
-             
-<td th:text="${unidad.responsable != null
-    ? unidad.responsable.nombre + ' ' + unidad.responsable.apellido
-    : 'Sin responsable'}">
-    Responsable
-</td>
+    <div class="card card-custom p-0 overflow-hidden" th:unless="${unidades == null or #lists.isEmpty(unidades)}">
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-light border-bottom">
+            <h5 class="fw-bold m-0 d-flex align-items-center gap-2" style="color: #600018;">
+                <span>🏢</span> Unidades de Venta Habilitadas
+            </h5>
+            <span class="badge bg-white text-secondary border px-3 py-2" th:text="${#lists.size(unidades)} + ' unidad(es)'">
+                0 unidad(es)
+            </span>
+        </div>
 
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<div th:if="${#sets.isEmpty(unidades)}" class="alert alert-info">
-    Este festival no tiene unidades de venta asociadas.
+        <div class="table-responsive">
+            <table class="table table-custom align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Código</th>
+                        <th>Nombre Comercial</th>
+                        <th>Superficie</th>
+                        <th class="pe-4">Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="unidad : ${unidades}">
+                        <td class="ps-4">
+                            <span class="badge bg-light text-dark border fw-bold" th:text="${unidad.codigo}">
+                                Código
+                            </span>
+                        </td>
+                        <td class="fw-semibold text-dark" th:text="${unidad.nombreComercial}">
+                            Nombre comercial
+                        </td>
+                        <td class="text-muted" th:text="${unidad.superficieM2} + ' m²'">
+                            0 m²
+                        </td>
+                        <td class="pe-4">
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span>👤</span>
+                                <strong th:text="${unidad.responsable != null ? unidad.responsable.nombre + ' ' + unidad.responsable.apellido : 'Sin responsable'}">
+                                    Responsable
+                                </strong>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
