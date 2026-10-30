@@ -144,18 +144,44 @@
                                required>
                     </div>
 
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               id="requiereElectricidad"
-                               name="requiereElectricidad"
-                               value="true"
-                               th:checked="${requiereElectricidad == true}">
-                        <label class="form-check-label text-white"
-                               for="requiereElectricidad">
-                            ¿Requiere conexión eléctrica?
-                        </label>
-                    </div>
+                  <!-- CAMPOS EXCLUSIVOS DE FOOD TRUCK -->
+
+<div id="datosFoodTruck"
+     class="border border-light rounded p-3 mb-3">
+
+    <h3 class="h6 fw-bold text-white mb-3">
+        Datos del Food Truck
+    </h3>
+
+    <div class="mb-3">
+        <label for="patente"
+               class="form-label text-white">
+            Patente
+        </label>
+        <input type="text"
+               id="patente"
+               name="patente"
+               class="form-control"
+               maxlength="20"
+               th:value="${patente}"
+               required>
+    </div>
+
+   <div class="mb-3 d-flex align-items-center gap-2">
+    <input class="form-check-input mt-0"
+           type="checkbox"
+           id="requiereElectricidad"
+           name="requiereElectricidad"
+           value="true"
+           style="position: static; margin: 0; min-width: 1rem; width: 1rem; height: 1rem;"
+           th:checked="${requiereElectricidad == true}">
+    <label class="form-check-label text-white mb-0"
+           for="requiereElectricidad"
+           style="position: static; display: inline;">
+        ¿Requiere conexión eléctrica?
+    </label>
+</div>
+</div>
                 </div>
 
                 <!-- CAMPOS EXCLUSIVOS DE PUESTO DESARMABLE -->
