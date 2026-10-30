@@ -2,168 +2,284 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mi Información - Epicentro Gourmet</title>
-  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-  <link rel="stylesheet" th:href="@{/css/finanzas.css}">
-  <link rel="stylesheet" th:href="@{/css/vistas.css}">
-  <style>
-    body {
-      background-color: #800020;
-      font-family: "Segoe UI", sans-serif;
-      min-height: 100vh;
-      color: #333;
-    }
-    .card-info {
-      background: #ffffff;
-      border: 2px solid #000000;
-      border-radius: 10px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-    .dato-linea {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #eeeeee;
-    }
-    .dato-linea:last-child {
-      border-bottom: none;
-    }
-    .dato-label {
-      font-weight: 600;
-      color: #5c0617;
-    }
-    .dato-valor {
-      color: #222222;
-    }
-    .btn-epicentro {
-      background-color: #800020;
-      color: #ffffff !important;
-      border: 1px solid #800020;
-      border-radius: 6px;
-      padding: 9px 20px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      transition: all 0.2s;
-    }
-    .btn-epicentro:hover {
-      background-color: #5c0617;
-      border-color: #5c0617;
-    }
-    .btn-secundario {
-      background-color: transparent;
-      border: 1px solid #800020;
-      color: #800020 !important;
-      border-radius: 6px;
-      padding: 9px 20px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      transition: all 0.2s;
-    }
-    .btn-secundario:hover {
-      background-color: #800020;
-      color: #ffffff !important;
-    }
-    .logo {
-      text-align: center;
-      margin-top: 24px;
-    }
-    .logo .unla-logo-img {
-      width: 100px;
-      height: auto;
-      border: 2px solid black;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Información - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/finanzas.css}">
+    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+
+    <style>
+        body {
+            background-color: #800020;
+            font-family: "Segoe UI", sans-serif;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .card-info {
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .dato-linea {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .dato-linea:last-child {
+            border-bottom: none;
+        }
+
+        .dato-label {
+            font-weight: 600;
+            color: #5c0617;
+            flex-shrink: 0;
+        }
+
+        .dato-valor {
+            color: #222222;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-epicentro {
+            background-color: #800020;
+            color: #ffffff !important;
+            border: 1px solid #800020;
+            border-radius: 6px;
+            padding: 9px 20px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .btn-epicentro:hover {
+            background-color: #5c0617;
+            border-color: #5c0617;
+        }
+
+        .btn-secundario {
+            background-color: transparent;
+            border: 1px solid #800020;
+            color: #800020 !important;
+            border-radius: 6px;
+            padding: 9px 20px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .btn-secundario:hover {
+            background-color: #800020;
+            color: #ffffff !important;
+        }
+
+        .logo {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .logo .unla-logo-img {
+            width: 100px;
+            height: auto;
+            border: 2px solid black;
+        }
+
+        @media (max-width: 480px) {
+            .card-info {
+                padding: 18px;
+            }
+
+            .dato-linea {
+                align-items: flex-start;
+            }
+
+            .dato-label,
+            .dato-valor {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <main class="container" style="max-width: 650px; margin: 35px auto; padding: 0 15px;">
+<main class="container" style="max-width: 650px; margin: 35px auto; padding: 0 15px;">
 
     <header class="text-center text-white mb-4">
-      <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
-      <h2 class="h5 text-white-50 mb-0">Mi Información</h2>
+        <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
+        <h2 class="h5 text-white-50 mb-0">Mi Información</h2>
     </header>
 
-    <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
+    <!-- Mensaje de error -->
+    <div th:if="${error != null}"
+         class="alert alert-danger text-center py-2 shadow-sm mb-3"
+         th:text="${error}">
+        No se pudieron cargar los datos.
+    </div>
 
-    <!-- Datos del Empleado -->
+    <!-- Datos personales y laborales -->
     <section class="card-info" th:if="${empleado != null}">
-      <h4 class="fw-bold mb-3" style="color: #800020;">Datos del Empleado</h4>
-      <div class="dato-linea">
-        <span class="dato-label">Nombre y Apellido:</span>
-        <span class="dato-valor fw-bold" th:text="${empleado.nombre}">Martín González</span>
-      </div>
-      <div class="dato-linea">
-        <span class="dato-label">DNI:</span>
-        <span class="dato-valor" th:text="${empleado.dni}">12345678</span>
-      </div>
-      <div class="dato-linea">
-        <span class="dato-label">Puesto / Rol:</span>
-        <span class="dato-valor badge bg-dark text-white px-2 py-1" th:text="${empleado.rol}">Cajero</span>
-      </div>
-      <div class="dato-linea">
-        <span class="dato-label">Antigüedad:</span>
-        <span class="dato-valor" th:text="${empleado.antiguedad} + ' años'">0 años</span>
-      </div>
-      <!-- Datos extra solo para cajeros -->
-      <div class="dato-linea" th:if="${empleado.cajero}">
-        <span class="dato-label">Turno:</span>
-        <span class="dato-valor" th:text="${empleado.turno} ?: 'N/D'">Mañana</span>
-      </div>
-      <div class="dato-linea" th:if="${empleado.cajero}">
-        <span class="dato-label">N° de Caja:</span>
-        <span class="dato-valor" th:text="${empleado.numeroCaja} ?: 'N/D'">1</span>
-      </div>
+
+        <h4 class="fw-bold mb-3" style="color: #800020;">
+            Datos del Empleado
+        </h4>
+
+        <div class="dato-linea">
+            <span class="dato-label">Nombre y Apellido:</span>
+            <span class="dato-valor fw-bold"
+                  th:text="${empleado.nombre != null ? empleado.nombre : 'No disponible'}">
+                Nombre del empleado
+            </span>
+        </div>
+
+        <div class="dato-linea">
+            <span class="dato-label">DNI:</span>
+            <span class="dato-valor"
+                  th:text="${empleado.dni != null ? empleado.dni : 'No disponible'}">
+                DNI
+            </span>
+        </div>
+
+        <div class="dato-linea">
+            <span class="dato-label">Puesto / Rol:</span>
+            <span class="dato-valor">
+                <span class="badge bg-dark text-white px-2 py-1"
+                      th:text="${empleado.rol != null ? empleado.rol : 'No especificado'}">
+                    Rol
+                </span>
+            </span>
+        </div>
+
+        <div class="dato-linea">
+            <span class="dato-label">Antigüedad:</span>
+            <span class="dato-valor"
+                  th:text="${empleado.antiguedad != null ? empleado.antiguedad : 'No disponible'}">
+                Antigüedad
+            </span>
+        </div>
+
+        <!-- Información exclusiva de los cajeros -->
+        <div th:if="${empleado.cajero}">
+
+            <div class="dato-linea">
+                <span class="dato-label">Turno:</span>
+                <span class="dato-valor"
+                      th:text="${empleado.turno != null ? empleado.turno : 'No asignado'}">
+                    Turno
+                </span>
+            </div>
+
+            <div class="dato-linea">
+                <span class="dato-label">N.º de Caja:</span>
+                <span class="dato-valor"
+                      th:text="${empleado.numeroCaja != null ? empleado.numeroCaja : 'No asignada'}">
+                    Número de caja
+                </span>
+            </div>
+
+        </div>
+
     </section>
 
-    <!-- Asignación en el Festival Activo -->
+    <!-- Mensaje cuando no se encuentra al empleado -->
+    <section class="card-info text-center" th:if="${empleado == null}">
+        <h4 class="fw-bold mb-3" style="color: #800020;">
+            Información no disponible
+        </h4>
+        <p class="text-muted mb-0">
+            No se encontraron los datos del empleado asociado a tu sesión.
+            Volvé al menú o contactá al administrador del sistema.
+        </p>
+    </section>
+
+    <!-- Asignación vigente -->
     <section class="card-info" th:if="${asignacionActual != null}">
-      <h4 class="fw-bold mb-3" style="color: #800020;">Asignación Actual</h4>
-      <div class="dato-linea">
-        <span class="dato-label">Festival Activo:</span>
-        <span class="dato-valor fw-bold" th:text="${asignacionActual.festival}">Epicentro Gourmet 2026</span>
-      </div>
-      <div class="dato-linea">
-        <span class="dato-label">Unidad de Venta:</span>
-        <span class="dato-valor" th:text="${asignacionActual.unidad}">Food Truck 1</span>
-      </div>
+
+        <h4 class="fw-bold mb-3" style="color: #800020;">
+            Asignación Actual
+        </h4>
+
+        <div class="dato-linea">
+            <span class="dato-label">Festival vigente:</span>
+            <span class="dato-valor fw-bold"
+                  th:text="${asignacionActual.festival}">
+                Festival vigente
+            </span>
+        </div>
+
+        <div class="dato-linea">
+            <span class="dato-label">Unidad de venta:</span>
+            <span class="dato-valor"
+                  th:text="${asignacionActual.unidad}">
+                Unidad de venta
+            </span>
+        </div>
+
     </section>
 
-    <div class="card-info text-center" th:if="${asignacionActual == null}">
-      <p class="text-muted m-0">No registras una unidad de venta asignada para el festival activo actual.</p>
-    </div>
+    <!-- Sin asignación vigente -->
+    <section class="card-info text-center"
+             th:if="${empleado != null and asignacionActual == null}">
 
-    <!-- Acciones del Empleado -->
+        <p class="text-muted m-0">
+            No registrás una unidad de venta vinculada a un festival vigente.
+        </p>
+
+    </section>
+
+    <!-- Acciones del empleado -->
     <section class="card-info text-center">
-      <h4 class="fw-bold mb-3" style="color: #800020;">Mis Acciones</h4>
-      <div class="d-flex flex-wrap justify-content-center gap-3">
-        <a class="btn-epicentro" th:href="@{/liquidacion}">
-          📄 Ver mis Haberes
-        </a>
-        <a class="btn-secundario" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
-          🔒 Cerrar Caja
-        </a>
-       <a class="btn-secundario" th:href="@{/empleado/volver-al-menu}">
-        ⬅️ Volver al Menú
-      </a>
-      </div>
+
+        <h4 class="fw-bold mb-3" style="color: #800020;">
+            Mis Acciones
+        </h4>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+
+            <a class="btn-epicentro"
+               th:href="@{/liquidacion}">
+                📄 Ver mis Haberes
+            </a>
+
+            <a class="btn-secundario"
+               th:href="@{/cajero/cierre-caja}"
+               th:if="${empleado != null and empleado.cajero}">
+                🔒 Cerrar Caja
+            </a>
+
+            <a class="btn-secundario"
+               th:href="@{/empleado/volver-al-menu}">
+                ⬅️ Volver al Menú
+            </a>
+
+        </div>
+
     </section>
 
+    <!-- Logo institucional -->
     <div class="logo">
-      <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
+        <img class="unla-logo-img"
+             alt="Logo UNLa"
+             th:src="@{/images/unla-logo.png}">
     </div>
 
-  </main>
+</main>
 
-  <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
-  <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
 </html>

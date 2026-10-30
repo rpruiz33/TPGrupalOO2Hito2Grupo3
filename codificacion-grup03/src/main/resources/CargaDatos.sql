@@ -1,26 +1,6 @@
 use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE items_pedido;
-TRUNCATE TABLE pedidos;
-TRUNCATE TABLE festival_unidad_venta;
-TRUNCATE TABLE unidad_venta_staff;
-TRUNCATE TABLE food_trucks;
-TRUNCATE TABLE puestos_desarmables;
-TRUNCATE TABLE unidades_venta;
-TRUNCATE TABLE cajero;
-TRUNCATE TABLE cocineros;
-TRUNCATE TABLE staff;
-TRUNCATE TABLE categorias_cocina;
-TRUNCATE TABLE platos;
-TRUNCATE TABLE costos;
-TRUNCATE TABLE festivales;
-TRUNCATE TABLE usuarios;
-TRUNCATE TABLE roles;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
-
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
 
