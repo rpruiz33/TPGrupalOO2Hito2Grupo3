@@ -20,7 +20,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
       data-locations: classpath:CargaDatos.sql
 
   thymeleaf:

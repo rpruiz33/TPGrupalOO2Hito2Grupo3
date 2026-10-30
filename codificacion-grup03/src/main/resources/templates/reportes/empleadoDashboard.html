@@ -205,7 +205,7 @@
         </p>
     </section>
 
-    <!-- Asignación al festival -->
+    <!-- Asignación vigente -->
     <section class="card-info" th:if="${asignacionActual != null}">
 
         <h4 class="fw-bold mb-3" style="color: #800020;">
@@ -213,15 +213,15 @@
         </h4>
 
         <div class="dato-linea">
-            <span class="dato-label">Festival Activo:</span>
+            <span class="dato-label">Festival vigente:</span>
             <span class="dato-valor fw-bold"
                   th:text="${asignacionActual.festival}">
-                Festival
+                Festival vigente
             </span>
         </div>
 
         <div class="dato-linea">
-            <span class="dato-label">Unidad de Venta:</span>
+            <span class="dato-label">Unidad de venta:</span>
             <span class="dato-valor"
                   th:text="${asignacionActual.unidad}">
                 Unidad de venta
@@ -230,12 +230,12 @@
 
     </section>
 
-    <!-- Sin asignación -->
+    <!-- Sin asignación vigente -->
     <section class="card-info text-center"
              th:if="${empleado != null and asignacionActual == null}">
 
         <p class="text-muted m-0">
-            No registrás una unidad de venta asignada para el festival activo actual.
+            No registrás una unidad de venta vinculada a un festival vigente.
         </p>
 
     </section>

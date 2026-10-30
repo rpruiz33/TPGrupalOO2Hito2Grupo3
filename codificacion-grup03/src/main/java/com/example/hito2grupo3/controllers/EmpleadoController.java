@@ -1,7 +1,6 @@
 package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.*;
-import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 
@@ -24,16 +23,13 @@ public class EmpleadoController {
 
     private final StaffRepository staffRepository;
     private final UnidadVentaRepository unidadVentaRepository;
-    private final FestivalRepository festivalRepository;
 
     public EmpleadoController(
             StaffRepository staffRepository,
-            UnidadVentaRepository unidadVentaRepository,
-            FestivalRepository festivalRepository) {
+            UnidadVentaRepository unidadVentaRepository) {
 
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
-        this.festivalRepository = festivalRepository;
     }
 
     @GetMapping("/index")
@@ -186,24 +182,11 @@ public class EmpleadoController {
 
         model.addAttribute("empleado", empleadoMap);
 
-        // Buscar el festival que está vigente hoy.
+        // Buscar una unidad asignada al empleado que esté vinculada
+        // con un festival vigente en la fecha actual.
         LocalDate hoy = LocalDate.now();
 
-        Festival festivalActivo = festivalRepository.findAll()
-                .stream()
-                .filter(f ->
-                        f.getFechaInicio() != null
-                                && f.getFechaFin() != null
-                                && !hoy.isBefore(f.getFechaInicio())
-                                && !hoy.isAfter(f.getFechaFin())
-                )
-                .findFirst()
-                .orElse(null);
-
-        model.addAttribute("festival", festivalActivo);
-
-        // Buscar una unidad vinculada al empleado.
-        UnidadVenta unidad = unidadVentaRepository.findAll()
+        UnidadVenta unidadVigente = unidadVentaRepository.findAll()
                 .stream()
                 .filter(u ->
                         (u.getResponsable() != null
@@ -213,27 +196,60 @@ public class EmpleadoController {
                                 ))
                         ||
                         (u.getStaffAsignado() != null
-                                && u.getStaffAsignado()
-                                        .stream()
+                                && u.getStaffAsignado().stream()
                                         .anyMatch(s ->
                                                 Objects.equals(
                                                         s.getId(),
                                                         staff.getId()
                                                 )
                                         )
-                                )
+                        )
+                )
+                .filter(u -> u.getFestivales() != null
+                        && u.getFestivales().stream().anyMatch(f ->
+                                f.getFechaInicio() != null
+                                        && f.getFechaFin() != null
+                                        && !hoy.isBefore(f.getFechaInicio())
+                                        && !hoy.isAfter(f.getFechaFin())
+                        )
                 )
                 .findFirst()
                 .orElse(null);
 
-        // Mostrar la asignación solamente si existe un festival vigente
-        // y una unidad asociada al empleado.
-        if (unidad != null && festivalActivo != null) {
+        if (unidadVigente != null) {
+            // De esa unidad, mostrar únicamente los festivales vigentes.
+            var festivalesVigentes = unidadVigente.getFestivales().stream()
+                    .filter(f ->
+                            f.getFechaInicio() != null
+                                    && f.getFechaFin() != null
+                                    && !hoy.isBefore(f.getFechaInicio())
+                                    && !hoy.isAfter(f.getFechaFin())
+                    )
+                    .toList();
+
+            model.addAttribute("unidadAsignada", unidadVigente);
+            model.addAttribute("festivalesAsignados", festivalesVigentes);
+
+            // Mantener compatibilidad con la vista que utiliza
+            // el atributo "asignacionActual".
             Map<String, Object> asignacion = new HashMap<>();
+            asignacion.put("unidad", unidadVigente.getNombreComercial());
+            asignacion.put(
+                    "festival",
+                    festivalesVigentes.isEmpty()
+                            ? "Sin festival vigente"
+                            : festivalesVigentes.get(0).getNombre()
+            );
+            model.addAttribute("asignacionActual", asignacion);
+        } else {
+            // Puede tener asignaciones históricas o futuras, pero si ninguna
+            // está vigente hoy, no se muestra como asignación actual.
+            model.addAttribute("unidadAsignada", null);
+            model.addAttribute("festivalesAsignados", java.util.Collections.emptyList());
 
-            asignacion.put("unidad", unidad.getNombreComercial());
-            asignacion.put("festival", festivalActivo.getNombre());
-
+            Map<String, Object> asignacion = new HashMap<>();
+            asignacion.put("unidad", "Sin unidad con festival vigente");
+            asignacion.put("festival", "Sin festival vigente");
             model.addAttribute("asignacionActual", asignacion);
         }
 
