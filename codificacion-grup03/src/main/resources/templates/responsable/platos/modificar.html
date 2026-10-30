@@ -16,15 +16,13 @@
         <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}"></div>
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
-                <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
-                    <span>✏️</span> Modificar Plato
-                </h1>
+                <h1 class="h3 fw-bold mb-1">Modificar plato</h1>
                 <p class="text-white-50 mb-0">Actualizá la información del plato y guardá los cambios.</p>
             </div>
 
             <div>
                 <a th:href="@{/responsable/platos}" class="menu-button">
-                    <span>←</span> Volver a Platos
+                    ← Volver al Menu
                 </a>
             </div>
         </section>
@@ -123,11 +121,11 @@
 
                 <!-- Botones de Acción -->
                 <div class="d-flex gap-2 pt-3 border-top flex-wrap">
-                    <button type="submit" class="menu-button menu-button-primary py-2 justify-content-center" style="flex: 2; min-width: 180px;">
-                        <span>💾</span> Guardar Cambios
+                    <button type="submit" class="menu-button menu-button-primary py-2" style="flex: 2; min-width: 180px;">
+                        Guardar cambios
                     </button>
-                    <a th:href="@{/responsable/platos}" class="menu-button py-2 text-center justify-content-center" style="flex: 1; min-width: 120px;">
-                        <span>✖</span> Cancelar
+                    <a th:href="@{/responsable/platos}" class="menu-button py-2 text-center" style="flex: 1; min-width: 120px;">
+                        Cancelar
                     </a>
                 </div>
 

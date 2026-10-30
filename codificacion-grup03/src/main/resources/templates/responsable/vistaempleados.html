@@ -25,25 +25,22 @@
 
             <div class="d-flex flex-wrap gap-2">
                 <a th:href="@{/responsable/index}" class="menu-button">
-                    <span>←</span> Volver al Menú
+                    ← Volver al Menu
                 </a>
                 <a th:href="@{/responsable/usuarios/nuevo}" class="menu-button menu-button-primary">
-                    <span>➕</span> Nuevo empleado
+                    + Nuevo empleado
                 </a>
             </div>
         </section>     
-        <div th:if="${unidadVenta != null}" class="alert alert-light border shadow-sm mb-4 d-flex align-items-center gap-2">
-            <span>🏢</span>
-            <div>
-                <strong>Unidad de venta:</strong>
-                <span th:text="${unidadVenta.nombreComercial}">Nombre de la unidad</span>
-                <span class="text-muted" th:text="'(' + ${unidadVenta.codigo} + ')'">(Código)</span>
-            </div>
+        <div th:if="${unidadVenta != null}" class="alert alert-light border shadow-sm mb-4">
+            <strong>Unidad de venta:</strong>
+            <span th:text="${unidadVenta.nombreComercial}">Nombre de la unidad</span>
+            <span class="text-muted" th:text="'(' + ${unidadVenta.codigo} + ')'">(Código)</span>
         </div>
         
         <section class="card menu-card p-4 mb-4">
-            <h3 class="h5 fw-bold mb-3 pb-2 border-bottom d-flex align-items-center gap-2" style="color: #800020;">
-                <span>🔍</span> Buscar empleados
+            <h3 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
+                🔍 Buscar empleados
             </h3>
             <form th:action="@{/responsable/usuarios}" method="get">
                 <div class="row g-3">
@@ -76,10 +73,10 @@
 
                 <div class="d-flex flex-wrap gap-2 mt-3">
                     <button type="submit" class="menu-button menu-button-primary">
-                        <span>🔍</span> Buscar
+                        Buscar
                     </button>
                     <a th:href="@{/responsable/usuarios}" class="menu-button">
-                        <span>🧹</span> Limpiar filtros
+                        Limpiar filtros
                     </a>
                 </div>
             </form>
@@ -151,33 +148,33 @@
                             <td class="text-center text-nowrap pe-3">
                                 <div class="d-flex flex-wrap justify-content-center gap-1">
                                     <a th:href="@{/responsable/usuarios/editar/{id}(id=${empleado.usuario != null ? empleado.usuario.id : empleado.id})}"
-                                       class="menu-button py-1 px-2 d-inline-flex align-items-center gap-1"
+                                       class="menu-button py-1 px-2"
                                        title="Editar empleado y usuario">
-                                        <span>✏️</span> Editar
+                                        Editar
                                     </a>
 
                                     <a th:if="${empleado.usuario != null}"
                                        th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuario.id})}"
-                                       class="menu-button py-1 px-2 d-inline-flex align-items-center gap-1"
+                                       class="menu-button py-1 px-2"
                                        title="Reenviar credenciales por mail"
                                        onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
-                                        <span>✉️</span> Reenviar mail
+                                        Reenviar mail
                                     </a>
 
                                     <a th:if="${empleado.activo}"
                                        th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
-                                       class="btn btn-outline-danger btn-sm py-1 px-2 d-inline-flex align-items-center gap-1"
+                                       class="btn btn-outline-danger btn-sm py-1 px-2"
                                        title="Dar de baja lógica"
                                        onclick="return confirm('¿Está seguro de dar de baja a este empleado?');">
-                                        <span>🗑️</span> Baja
+                                        Dar de baja
                                     </a>
 
                                     <a th:unless="${empleado.activo}"
                                        th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
-                                       class="btn btn-outline-success btn-sm py-1 px-2 d-inline-flex align-items-center gap-1"
+                                       class="btn btn-outline-success btn-sm py-1 px-2"
                                        title="Dar de alta al empleado"
                                        onclick="return confirm('¿Desea dar de alta a este empleado? Se enviará una nueva contraseña por mail.');">
-                                        <span>🔄</span> Activar
+                                        ↑ Dar de alta
                                     </a>
                                 </div>
                             </td>

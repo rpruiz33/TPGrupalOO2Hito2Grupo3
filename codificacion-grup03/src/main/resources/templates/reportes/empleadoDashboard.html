@@ -45,9 +45,7 @@
 
                 <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
                     <span class="text-secondary fw-semibold">Puesto / Rol</span>
-                    <span class="badge px-3 py-2 fw-semibold"
-                          style="background-color: #f3ebec; color: #600018; border: 1px solid #dfc7cb; font-size: 0.82rem;"
-                          th:text="${empleado.rol != null ? empleado.rol : 'No especificado'}">Rol</span>
+                    <span class="badge bg-secondary px-2 py-1" th:text="${empleado.rol != null ? empleado.rol : 'No especificado'}">Rol</span>
                 </div>
 
                 <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
@@ -99,17 +97,17 @@
                 ⚡ Mis Acciones
             </h2>
 
-            <div class="d-flex flex-wrap justify-content-center gap-3 pt-2">
-                <a class="menu-button menu-button-primary py-2 px-4 d-inline-flex align-items-center gap-2" th:href="@{/liquidacion}">
-                    <span>📄</span> Ver mis Haberes
+            <div class="d-flex flex-wrap justify-content-center gap-2 pt-2">
+                <a class="menu-button menu-button-primary py-2 px-3" th:href="@{/liquidacion}">
+                    📄 Ver mis Haberes
                 </a>
 
-                <a class="menu-button py-2 px-4 d-inline-flex align-items-center gap-2" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
-                    <span>🔒</span> Cerrar Caja
+                <a class="menu-button py-2 px-3" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
+                    🔒 Cerrar Caja
                 </a>
 
-                <a class="menu-button py-2 px-4 d-inline-flex align-items-center gap-2" th:href="@{/empleado/volver-al-menu}">
-                    <span>⬅️</span> Volver al Menú
+                <a class="menu-button py-2 px-3" th:href="@{/empleado/volver-al-menu}">
+                    ⬅️ Volver al Menú
                 </a>
             </div>
         </section>

@@ -4,171 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Recaudación - Epicentro Gourmet</title>
-    <meta name="description" content="Reporte de recaudación por festival y unidad de venta - Epicentro Gourmet UNLa.">
+
+    
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
-    <style>
-        @media print {
-            .admin-sidebar, .no-print { display: none !important; }
-            body { background-color: #fff !important; color: #000 !important; }
-            .col-md-10 { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }
-        }
-    </style>
 </head>
 <body>
 
-    <!-- Header / Navbar Superior -->
+   
     <nav class="navbar navbar-dark admin-header px-4 py-2">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="/admin/dashboard">
-                <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa"
-                     style="height: 45px; border-radius: 4px;"
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;" 
                      onerror="this.style.display='none'">
-                <div class="d-flex flex-column lh-sm">
-                    <span class="fw-bold" style="font-size: 1rem;">Epicentro Gourmet</span>
-                    <span style="font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 400;">Universidad Nacional de Lanús</span>
-                </div>
+                <span>Epicentro Gourmet - Admin</span>
             </a>
+
             <div class="d-flex align-items-center gap-3">
-                <span class="small d-none d-md-inline text-white-50 d-flex align-items-center gap-1">
-                    <span>👤</span> Administrador
-                </span>
+                <span class="small d-none d-md-inline">Administrador</span>
                 <form th:action="@{/logout}" method="post" class="m-0">
-                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1 d-inline-flex align-items-center gap-1">
-                        <span>🚪</span> Cerrar Sesión
-                    </button>
+                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
                 </form>
             </div>
         </div>
     </nav>
 
-    <!-- Layout principal -->
+    
     <div class="container-fluid">
         <div class="row">
 
-            <!-- Menú Lateral Sidebar -->
+           
             <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
                 <nav class="nav flex-column mt-2">
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" href="/admin/dashboard">
-                        <span>🏠</span> Inicio
-                    </a>
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" href="/admin/festivales">
-                        <span>🎪</span> Festivales
-                    </a>
-                    <a class="nav-link nav-link-admin active d-flex align-items-center gap-2" th:href="@{'/admin/reportes/recaudacion/festival/' + ${festivalId != null ? festivalId : 1}}">
-                        <span>📊</span> Reporte Recaudación
-                    </a>
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{'/admin/reportes/rentabilidad-neta/festival/' + ${festivalId != null ? festivalId : 1}}">
-                        <span>📈</span> Rentabilidad Neta
-                    </a>
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{/admin/reportes/mayores-canon}">
-                        <span>🏆</span> Reporte de Cánones
-                    </a>
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" th:href="@{/liquidacion}">
-                        <span>💵</span> Liquidación de Haberes
-                    </a>
-                    <a class="nav-link nav-link-admin d-flex align-items-center gap-2" href="/cambiar-password">
-                        <span>🔑</span> Cambiar Contraseña
-                    </a>
+                    <a class="nav-link nav-link-admin" href="/admin/dashboard">Inicio</a>
+                    <a class="nav-link nav-link-admin" href="/admin/festival">Festivales</a>
+                    <a class="nav-link nav-link-admin active" th:href="@{/admin/reportes/recaudacion/festival/1}">Reporte Recaudación</a>
+                    <a class="nav-link nav-link-admin" th:href="@{/liquidacion}">Liquidación de Haberes</a>
+                    <a class="nav-link nav-link-admin" href="/cambiar-password">Cambiar Contraseña</a>
                 </nav>
             </div>
 
-            <!-- Contenido del Reporte -->
-            <div class="col-12 col-md-10 p-4 p-md-5">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div class="col-md-10 p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h1 class="fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 1.6rem;">
-                            <span>📊</span> Reporte de Recaudación
-                        </h1>
-                        <p class="mb-0 text-white-50 d-flex align-items-center gap-2">
-                            <span>🎪</span> Festival:
-                            <strong class="text-white"
-                                    th:text="${reporte != null ? reporte.nombreFestival : 'Sin festival seleccionado'}">Nombre del Festival</strong>
-                        </p>
+                        <h2 class="fw-bold mb-1">Reporte de Recaudación</h2>
+                        <p class="mb-0" style="color: #e0e0e0;" th:text="${reporte.nombreFestival}">Nombre del Festival</p>
                     </div>
-                    <button type="button" onclick="window.print();" class="btn btn-outline-light d-inline-flex align-items-center gap-2 fw-semibold px-3 py-2">
-                        <span>🖨️</span> Imprimir Reporte
-                    </button>
                 </div>
 
-                <!-- KPI Cards -->
+                
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
-                        <div class="card card-custom p-3" style="border-top: 4px solid #28a745;">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
-                                        <span style="font-size: 1.3rem;">💰</span> Recaudación Total
-                                    </h5>
-                                    <span class="badge bg-light text-success border">Total</span>
-                                </div>
-                                <h2 class="fw-bold m-0" style="color: #28a745; font-size: 2.2rem;" 
+                        <div class="card card-custom p-2">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-2">Recaudación Total</h5>
+                                <h2 class="fw-bold m-0" style="color: #800020;" 
                                     th:text="'$' + ${#numbers.formatDecimal(reporte.recaudacionTotal, 1, 'POINT', 2, 'COMMA')}">$0,00</h2>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="card card-custom p-3" style="border-top: 4px solid #800020;">
-                            <div class="card-body p-2">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
-                                        <span style="font-size: 1.3rem;">📦</span> Pedidos Realizados
-                                    </h5>
-                                    <span class="badge bg-light text-secondary border">Ventas</span>
-                                </div>
-                                <h2 class="fw-bold m-0" style="color: #800020; font-size: 2.2rem;" 
+                        <div class="card card-custom p-2">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-2">Pedidos Realizados</h5>
+                                <h2 class="fw-bold m-0" style="color: #800020;" 
                                     th:text="${reporte.cantidadPedidos}">0</h2>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Desglose por Unidad -->
-                <div class="card card-custom p-0 overflow-hidden">
-                    <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-light border-bottom">
-                        <h5 class="fw-bold m-0 d-flex align-items-center gap-2" style="color: #600018;">
-                            <span>🏢</span> Desglose por Unidad de Venta
-                        </h5>
-                        <span class="badge bg-white text-secondary border px-3 py-2" th:if="${ranking != null and !#lists.isEmpty(ranking)}"
-                              th:text="${#lists.size(ranking)} + ' unidad(es)'">
-                            0 unidades
-                        </span>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-custom align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">Código</th>
-                                    <th>Nombre Comercial</th>
-                                    <th>Tipo de Unidad</th>
-                                    <th class="text-end pe-4">Recaudado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="unidad : ${ranking}">
-                                    <td class="ps-4">
-                                        <span class="badge bg-light text-dark border fw-bold" th:text="${unidad.codigo}">PD-0000001</span>
-                                    </td>
-                                    <td class="fw-semibold text-dark" th:text="${unidad.nombreComercial}">Puesto de Prueba</td>
-                                    <td>
-                                        <span class="badge bg-secondary-subtle text-secondary border" th:text="${unidad.tipoUnidad}">FoodTruck</span>
-                                    </td>
-                                    <td class="text-end pe-4 fw-bold" style="color: #800020; font-size: 1.05rem;" 
-                                        th:text="'$' + ${#numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">$0,00</td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(ranking)}">
-                                    <td colspan="4" class="text-center py-4 text-muted">
-                                        <div class="py-3">
-                                            <span style="font-size: 2rem; display: block; margin-bottom: 6px;">📋</span>
-                                            No hay pedidos registrados para este festival.
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <h4 class="fw-bold mb-3 mt-4">Desglose por Unidad de Venta</h4>
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Código</th>
+                                <th>Nombre Comercial</th>
+                                <th>Tipo de Unidad</th>
+                                <th class="text-end pe-3">Recaudado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="unidad : ${ranking}">
+                                <td class="ps-3 fw-semibold" th:text="${unidad.codigo}">PD-0000001</td>
+                                <td th:text="${unidad.nombreComercial}">Puesto de Prueba</td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${unidad.tipoUnidad}">FoodTruck</span>
+                                </td>
+                                <td class="text-end pe-3 fw-bold" style="color: #800020;" 
+                                    th:text="'$' + ${#numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">$0,00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(ranking)}">
+                                <td colspan="4" class="text-center py-4 text-muted">No hay pedidos registrados para este festival.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
             </div>

@@ -18,11 +18,9 @@
         <!-- Encabezado de la página y botones de acción -->
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
-                <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
-                    <span>🍽️</span> Mis Platos
-                </h1>
+                <h1 class="h3 fw-bold mb-1">Mis platos</h1>
                 <p class="text-white-50 mb-0" th:if="${unidadVenta != null}">
-                    🏢 Unidad de venta: <strong class="text-white" th:text="${unidadVenta.nombreComercial}"></strong>
+                    Unidad de venta: <strong class="text-white" th:text="${unidadVenta.nombreComercial}"></strong>
                 </p>
                 <p class="text-white-50 mb-0" th:unless="${unidadVenta != null}">
                     Administrá la oferta gastronómica de tu unidad.
@@ -31,10 +29,10 @@
 
             <div class="d-flex flex-wrap gap-2">
                 <a th:href="@{/responsable/index}" class="menu-button">
-                    <span>←</span> Volver al Menú
+                    ← Volver al Menu
                 </a>
                 <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary">
-                    <span>➕</span> Registrar Plato
+                    + Registrar Plato
                 </a>
             </div>
         </section>
@@ -43,10 +41,8 @@
         <section class="card menu-card overflow-hidden" th:if="${error == null}">
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
-                <h3 class="h5 fw-bold m-0 d-flex align-items-center gap-2" style="color: #800020;">
-                    <span>🍽️</span> Platos Registrados
-                </h3>
-                <span class="badge bg-white text-secondary border px-3 py-2 fw-semibold"
+                <h3 class="h5 fw-bold m-0" style="color: #800020;">Platos registrados</h3>
+                <span class="text-secondary small fw-semibold"
                       th:text="${platos != null ? #lists.size(platos) + ' plato(s)' : '0 platos'}">
                     Platos
                 </span>
@@ -54,20 +50,20 @@
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead style="background-color: #5c0617; color: #ffffff;">
+                    <thead style="background-color: #f4eaec; color: #600018;">
                         <tr>
-                            <th class="ps-3 text-white">Nombre del plato</th>
-                            <th class="text-white">Precio de venta</th>
-                            <th class="text-white">Costo de producción</th>
-                            <th class="text-white">Estado</th>
-                            <th class="text-center pe-3 text-white">Acciones</th>
+                            <th class="ps-3">Nombre del plato</th>
+                            <th>Precio de venta</th>
+                            <th>Costo de producción</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-3">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="plato : ${platos}">
-                            <td class="ps-3 fw-bold text-dark" th:text="${plato.nombre}"></td>
+                            <td class="ps-3 fw-bold" th:text="${plato.nombre}"></td>
 
-                            <td class="fw-semibold text-success" 
+                            <td class="fw-semibold" 
                                 th:text="${'$ ' + #numbers.formatDecimal(plato.precio, 1, 'POINT', 2, 'COMMA')}">
                             </td>
 
@@ -82,8 +78,8 @@
 
                             <td class="text-center pe-3">
                                 <a th:href="@{/responsable/platos/modificar/{id}(id=${plato.id})}"
-                                   class="menu-button py-1 px-3 d-inline-flex align-items-center gap-1">
-                                    <span>✏️</span> Modificar
+                                   class="menu-button py-1 px-3">
+                                    Modificar
                                 </a>
                             </td>
                         </tr>

@@ -7,15 +7,10 @@
     <nav th:fragment="app-navbar(titulo, rol, homeUrl)" class="navbar navbar-dark admin-header px-4 py-2">
         <div class="container-fluid d-flex justify-content-between align-items-center">
                <!-- Logo -->
-            <a class="navbar-brand fw-bold d-flex align-items-center gap-3 m-0"
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-3 m-0" 
                th:href="@{${homeUrl != null ? homeUrl : '/responsable/index'}}">
-                <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa"
-                     style="height: 45px; border-radius: 4px;" onerror="this.style.display='none'">
-                <div class="d-flex flex-column lh-sm">
-                    <span class="fw-bold" style="font-size: 1rem;"
-                          th:text="${titulo != null ? titulo : 'Epicentro Gourmet'}">Epicentro Gourmet</span>
-                    <span style="font-size: 0.72rem; color: rgba(255,255,255,0.6); font-weight: 400;">Universidad Nacional de Lanús</span>
-                </div>
+                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 42px;" onerror="this.style.display='none'">
+                <span th:text="${titulo != null ? titulo : 'Epicentro Gourmet - Responsable'}">Epicentro Gourmet</span>
             </a>
             <div style="display: flex; align-items: center; white-space: nowrap;">
                 <span style="color: #ffffff; font-weight: 600; font-size: 0.92rem; margin-right: 25px; display: inline-flex; align-items: center;">
