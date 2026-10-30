@@ -31,15 +31,18 @@ public class LiquidacionController {
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
     private final StaffRepository staffRepository;
+    private final com.example.hito2grupo3.configuration.SueldoProperties sueldoProperties;
 
     public LiquidacionController(LiquidacionServiceImpl liquidacionService,
                                  FestivalRepository festivalRepository,
                                  UnidadVentaRepository unidadVentaRepository,
-                                 StaffRepository staffRepository) {
+                                 StaffRepository staffRepository,
+                                 com.example.hito2grupo3.configuration.SueldoProperties sueldoProperties) {
         this.liquidacionService = liquidacionService;
         this.festivalRepository = festivalRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.staffRepository = staffRepository;
+        this.sueldoProperties = sueldoProperties;
     }
 
     @GetMapping("/liquidacion")
@@ -81,6 +84,24 @@ public class LiquidacionController {
             model.addAttribute("todasLasUnidades", unidadVentaRepository.findAll());
         }
 
+        BigDecimal sueldoBaseEfectivo;
+        try {
+            if (sueldo != null) {
+                if (sueldo <= 0) {
+                    throw new IllegalArgumentException("El sueldo base debe ser mayor a 0.");
+                }
+                sueldoBaseEfectivo = BigDecimal.valueOf(sueldo);
+            } else {
+                sueldoBaseEfectivo = sueldoProperties.baseOrDefault();
+            }
+            liquidacionService.validarSueldoBase(sueldoBaseEfectivo);
+            model.addAttribute("sueldo", sueldoBaseEfectivo);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("sueldo", sueldo != null ? sueldo : sueldoProperties.baseOrDefault());
+            return "reportes/liquidacion";
+        }
+
         if (idFestival != null && principal != null) {
             try {
                 ILiquidacionService.ResultadoLiquidacion r;
@@ -88,12 +109,15 @@ public class LiquidacionController {
                 if (esEmpleado) {
                     // El empleado únicamente puede ver sus propios haberes
                     try {
-                        r = liquidacionService.liquidarEmpleado(principal.getName(), idFestival);
+                        r = liquidacionService.liquidarEmpleado(principal.getName(), idFestival, sueldoBaseEfectivo);
                     } catch (Exception e) {
-                        BigDecimal sueldoBase = new BigDecimal("100000");
+                        if (e instanceof IllegalArgumentException && e.getMessage() != null
+                                && (e.getMessage().contains("duración") || e.getMessage().contains("sueldo"))) {
+                            throw (IllegalArgumentException) e;
+                        }
                         BigDecimal antiguedad = new BigDecimal("15000"); // 3 años x $5.000
                         int periodos = 2; // factor 100%
-                        BigDecimal total = new BigDecimal("115000");
+                        BigDecimal total = sueldoBaseEfectivo.add(antiguedad);
                         LiquidacionDTO dtoFicticio = new LiquidacionDTO(
                                 1L,
                                 "Martín González",
@@ -101,7 +125,7 @@ public class LiquidacionController {
                                 "38452910",
                                 "Cajero",
                                 3L,
-                                sueldoBase,
+                                sueldoBaseEfectivo,
                                 antiguedad,
                                 periodos,
                                 total
@@ -116,15 +140,15 @@ public class LiquidacionController {
                 } else if (esAdmin) {
                     // El admin puede ver todos los empleados (si no especifica unidad) o filtrar por unidad
                     if (unidadId != null && unidadId > 0) {
-                        r = liquidacionService.liquidarPorUnidad(unidadId, idFestival);
+                        r = liquidacionService.liquidarPorUnidad(unidadId, idFestival, sueldoBaseEfectivo);
                         model.addAttribute("unidadId", unidadId);
                     } else {
-                        r = liquidacionService.liquidarTodos(idFestival);
+                        r = liquidacionService.liquidarTodos(idFestival, sueldoBaseEfectivo);
                     }
                 } else {
                     // Responsable: ve la liquidación de los empleados de su unidad
                     if (unidadId != null) {
-                        r = liquidacionService.liquidarPorUnidad(unidadId, idFestival);
+                        r = liquidacionService.liquidarPorUnidad(unidadId, idFestival, sueldoBaseEfectivo);
                         model.addAttribute("unidadId", unidadId);
                     } else if (codigo != null && !codigo.isBlank()) {
                         String codBuscado = codigo.trim();
@@ -134,13 +158,13 @@ public class LiquidacionController {
                                         .findFirst()
                                         .orElse(null));
                         if (uv != null) {
-                            r = liquidacionService.liquidarPorUnidad(uv.getId(), idFestival);
+                            r = liquidacionService.liquidarPorUnidad(uv.getId(), idFestival, sueldoBaseEfectivo);
                             model.addAttribute("unidadId", uv.getId());
                         } else {
-                            r = liquidacionService.liquidar(principal.getName(), idFestival);
+                            r = liquidacionService.liquidar(principal.getName(), idFestival, sueldoBaseEfectivo);
                         }
                     } else {
-                        r = liquidacionService.liquidar(principal.getName(), idFestival);
+                        r = liquidacionService.liquidar(principal.getName(), idFestival, sueldoBaseEfectivo);
                     }
                 }
 
@@ -167,6 +191,7 @@ public class LiquidacionController {
     public String verReciboLiquidacion(@PathVariable Long id,
                                        @RequestParam(required = false) Long festivalId,
                                        @RequestParam(required = false) Long unidadId,
+                                       @RequestParam(required = false) Double sueldo,
                                        Authentication authentication,
                                        Principal principal,
                                        Model model) {
@@ -178,6 +203,18 @@ public class LiquidacionController {
         boolean esEmpleado = !esAdmin && !esResponsable;
 
         try {
+            BigDecimal sueldoBaseEfectivo;
+            if (sueldo != null) {
+                if (sueldo <= 0) {
+                    throw new IllegalArgumentException("El sueldo base debe ser mayor a 0.");
+                }
+                sueldoBaseEfectivo = BigDecimal.valueOf(sueldo);
+            } else {
+                sueldoBaseEfectivo = sueldoProperties.baseOrDefault();
+            }
+            liquidacionService.validarSueldoBase(sueldoBaseEfectivo);
+            model.addAttribute("sueldo", sueldoBaseEfectivo);
+
             Long targetFestivalId = festivalId;
             if (targetFestivalId == null) {
                 Festival f = festivalRepository.findAll().stream()
@@ -210,13 +247,13 @@ public class LiquidacionController {
                 ILiquidacionService.ResultadoLiquidacion resultado;
 
                 if (esEmpleado && principal != null) {
-                    resultado = liquidacionService.liquidarEmpleado(principal.getName(), targetFestivalId);
+                    resultado = liquidacionService.liquidarEmpleado(principal.getName(), targetFestivalId, sueldoBaseEfectivo);
                 } else if (unidadId != null && unidadId > 0) {
-                    resultado = liquidacionService.liquidarPorUnidad(unidadId, targetFestivalId);
+                    resultado = liquidacionService.liquidarPorUnidad(unidadId, targetFestivalId, sueldoBaseEfectivo);
                 } else if (esAdmin) {
-                    resultado = liquidacionService.liquidarTodos(targetFestivalId);
+                    resultado = liquidacionService.liquidarTodos(targetFestivalId, sueldoBaseEfectivo);
                 } else {
-                    resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId);
+                    resultado = liquidacionService.liquidar(principal.getName(), targetFestivalId, sueldoBaseEfectivo);
                 }
 
                 final Long finalId = idEfectivo;

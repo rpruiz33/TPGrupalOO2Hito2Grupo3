@@ -15,6 +15,18 @@ public interface ILiquidacionService {
 
     ResultadoLiquidacion liquidarEmpleado(String emailEmpleado, Long festivalId);
 
+    ResultadoLiquidacion liquidar(String emailResponsable, Long festivalId, BigDecimal sueldoBase);
+
+    ResultadoLiquidacion liquidarPorUnidad(Long unidadId, Long festivalId, BigDecimal sueldoBase);
+
+    ResultadoLiquidacion liquidarTodos(Long festivalId, BigDecimal sueldoBase);
+
+    ResultadoLiquidacion liquidarEmpleado(String emailEmpleado, Long festivalId, BigDecimal sueldoBase);
+
+    void validarSueldoBase(BigDecimal sueldoBase);
+
+    void validarDuracionFestival(LocalDate inicio, LocalDate fin);
+
     long diasDelFestival(LocalDate inicio, LocalDate fin);
 
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
