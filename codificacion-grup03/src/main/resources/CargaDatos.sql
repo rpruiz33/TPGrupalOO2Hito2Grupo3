@@ -1,25 +1,5 @@
+CREATE DATABASE IF NOT EXISTS ghsicilianotfi;
 use ghsicilianotfi;
-SET FOREIGN_KEY_CHECKS = 0;
-
-TRUNCATE TABLE items_pedido;
-TRUNCATE TABLE pedidos;
-TRUNCATE TABLE festival_unidad_venta;
-TRUNCATE TABLE unidad_venta_staff;
-TRUNCATE TABLE food_trucks;
-TRUNCATE TABLE puestos_desarmables;
-TRUNCATE TABLE unidades_venta;
-TRUNCATE TABLE cajero;
-TRUNCATE TABLE cocineros;
-TRUNCATE TABLE staff;
-TRUNCATE TABLE categorias_cocina;
-TRUNCATE TABLE platos;
-TRUNCATE TABLE costos;
-TRUNCATE TABLE festivales;
-TRUNCATE TABLE usuarios;
-TRUNCATE TABLE roles;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
 
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
@@ -27,16 +7,29 @@ START TRANSACTION;
 -- #############################################################################
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
-INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
+INSERT INTO roles (id, nombre)
+VALUES
+    (1, 'ADMIN'),
+    (2, 'RESPONSABLE'),
+    (3, 'EMPLEADO'),
+    (4, 'CAJERO'),
+    (5, 'COCINERO')
+ON DUPLICATE KEY UPDATE
+    nombre = VALUES(nombre);
  --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
 SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
 
-INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
-(1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
-(3, 0, 'admin@epicentro.com',  @hash_pw, 1),
-(4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
-(5, 0, 'responsable@epicentro.com',  @hash_pw, 2);
+INSERT INTO usuarios (
+    id, debe_cambiar_password, email, password_hash, rol_id
+)
+VALUES
+    (1, 0, 'rpruiz33@gmail.com', @hash_pw, 1),
+    (2, 0, 'empleado@epicentro.com', @hash_pw, 3),
+    (3, 0, 'admin@epicentro.com', @hash_pw, 1),
+    (4, 0, 'cajero@epicentro.com', @hash_pw, 4),
+    (5, 0, 'responsable@epicentro.com', @hash_pw, 2)
+ON DUPLICATE KEY UPDATE
+    email = VALUES(email);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
