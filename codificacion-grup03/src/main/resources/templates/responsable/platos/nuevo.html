@@ -1,217 +1,143 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Alta de platos | Epicentro Gourmet</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f3f3;
-            color: #222;
-        }
-
-        header {
-            background: #800020;
-            color: white;
-            padding: 22px 35px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 25px;
-        }
-
-        main {
-            max-width: 650px;
-            margin: 40px auto;
-            padding: 30px;
-            background: white;
-            border: 1px solid #222;
-            border-radius: 10px;
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #800020;
-        }
-
-        label {
-            display: block;
-            margin: 18px 0 7px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #777;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .info {
-            padding: 15px;
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f8f5f5;
-        }
-
-        .info p {
-            margin: 8px 0;
-        }
-
-        .info strong {
-            color: #800020;
-        }
-
-        .mensaje {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .exito {
-            background: #e1f4e5;
-            color: #185c2a;
-        }
-
-        .error {
-            background: #fbe4e4;
-            color: #8a1111;
-        }
-
-        .botones {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-
-        button, .volver {
-            padding: 12px 18px;
-            border: 1px solid #222;
-            border-radius: 5px;
-            font-size: 15px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        button {
-            background: #800020;
-            color: white;
-        }
-
-        .volver {
-            background: white;
-            color: #222;
-        }
-    </style>
+    <title>Alta de platos - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
 <body>
-<header>
-    <h1>Epicentro Gourmet</h1>
-</header>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 720px;">
+        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm" role="status" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}"></div>
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Alta de platos</h1>
+                <p class="text-white-50 mb-0">Completá los datos para registrar un nuevo plato en tu oferta.</p>
+            </div>
 
-<main>
-    <h2>Alta de platos</h2>
-    <p>Completá los datos del nuevo plato.</p>
+            <div>
+                <a th:href="@{/responsable/platos}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </section>
 
-    <!-- Mensajes generales -->
-    <div class="mensaje exito"
-         th:if="${mensaje}"
-         th:text="${mensaje}">
-    </div>
+        <section class="card menu-card p-4 p-md-5">
+            <div class="card border-0 mb-4 bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="fs-4 text-secondary" aria-hidden="true">🍽️</div>
+                        <div>
+                            <span class="small text-muted d-block">Unidad de venta</span>
+                            <strong class="text-dark" th:if="${unidadVenta != null}" th:text="${unidadVenta.nombreComercial}"></strong>
+                            <span class="text-muted fst-italic" th:unless="${unidadVenta != null}">No se encontró una unidad de venta asignada.</span>
+                        </div>
+                    </div>
 
-    <div class="mensaje error"
-         th:if="${error}"
-         th:text="${error}">
-    </div>
+                    <div class="d-flex align-items-center gap-3 pt-2 border-top">
+                        <div class="fs-4 text-secondary" aria-hidden="true">🎪</div>
+                        <div>
+                            <span class="small text-muted d-block">Festival vigente</span>
+                            <strong class="text-dark" th:if="${festival != null}" th:text="${festival.nombre}"></strong>
+                            <span class="text-muted fst-italic" th:if="${festival == null and avisoFestival == null}">No hay información del festival disponible.</span>
+                        </div>
+                    </div>
 
-    <!-- Información de la unidad de venta y el festival -->
-    <div class="info">
-        <p>
-            <strong>Unidad de venta:</strong>
-            <span th:if="${unidadVenta != null}"
-                  th:text="${unidadVenta.nombreComercial}">
-            </span>
-            <span th:if="${unidadVenta == null}">
-                No se encontró una unidad de venta asignada.
-            </span>
-        </p>
+                    <div class="alert alert-warning py-2 px-3 mt-3 mb-0 small" th:if="${avisoFestival}" th:text="${avisoFestival}"></div>
+                </div>
+            </div>
 
-        <p>
-            <strong>Festival vigente:</strong>
-            <span th:if="${festival != null}"
-                  th:text="${festival.nombre}">
-            </span>
-            <span th:if="${festival == null and avisoFestival == null}">
-                No hay información del festival disponible.
-            </span>
-        </p>
+            <h2 class="h5 fw-bold pb-2 mb-4 border-bottom" style="color: #800020;">
+                Datos del nuevo plato
+            </h2>
+            <form th:action="@{/responsable/platos/guardar}"
+                  th:object="${plato}"
+                  method="post">
+                <div class="alert alert-danger shadow-sm mb-3" th:if="${#fields.hasAnyErrors()}">
+                    <ul class="mb-0 ps-3">
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <label for="nombre" class="form-label fw-bold">
+                        Nombre del plato <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           id="nombre"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                           th:field="*{nombre}"
+                           maxlength="100"
+                           placeholder="Ej.: Hamburguesa completa"
+                           required>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('nombre')}"
+                         th:errors="*{nombre}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="precio" class="form-label fw-bold">
+                        Precio de venta ($) <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           id="precio"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('precio')} ? 'is-invalid' : ''"
+                           th:field="*{precio}"
+                           min="1"
+                           step="0.01"
+                           placeholder="Ej.: 8500.00"
+                           required>
+                    <div class="form-text text-muted">
+                        Importe final a cobrar al cliente.
+                    </div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('precio')}"
+                         th:errors="*{precio}">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="costoProduccion" class="form-label fw-bold">
+                        Costo de producción ($) <span class="text-danger">*</span>
+                    </label>
+                    <input type="number"
+                           id="costoProduccion"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('costoProduccion')} ? 'is-invalid' : ''"
+                           th:field="*{costoProduccion}"
+                           min="1"
+                           step="0.01"
+                           placeholder="Ej.: 3200.00"
+                           required>
+                    <div class="form-text text-muted">
+                        Costo estimado de insumos y elaboración.
+                    </div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('costoProduccion')}"
+                         th:errors="*{costoProduccion}">
+                    </div>
+                </div>
+                <div class="d-flex gap-2 pt-3 border-top flex-wrap">
+                    <button type="submit" class="menu-button menu-button-primary py-2" style="flex: 2; min-width: 180px;">
+                        Guardar plato
+                    </button>
+                    <a th:href="@{/responsable/platos}" class="menu-button py-2 text-center" style="flex: 1; min-width: 120px;">
+                        Cancelar
+                    </a>
+                </div>
 
-        <div class="mensaje error"
-             th:if="${avisoFestival}"
-             th:text="${avisoFestival}">
-        </div>
-    </div>
+            </form>
 
-    <form th:action="@{/responsable/platos/guardar}"
-          th:object="${plato}"
-          method="post">
+        </section>
 
-        <!-- Errores de validación del formulario -->
-        <div class="mensaje error"
-             th:if="${#fields.hasAnyErrors()}">
-            <ul>
-                <li th:each="err : ${#fields.allErrors()}"
-                    th:text="${err}">
-                </li>
-            </ul>
-        </div>
+    </main>
 
-        <label for="nombre">Nombre del plato</label>
-        <input type="text"
-               id="nombre"
-               th:field="*{nombre}"
-               maxlength="100"
-               placeholder="Ej.: Hamburguesa completa"
-               required>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
-        <label for="precio">Precio de venta ($)</label>
-        <input type="number"
-               id="precio"
-               th:field="*{precio}"
-               min="1"
-               step="0.01"
-               placeholder="Ej.: 8500.00"
-               required>
-
-        <label for="costoProduccion">Costo de producción ($)</label>
-        <input type="number"
-               id="costoProduccion"
-               th:field="*{costoProduccion}"
-               min="1"
-               step="0.01"
-               placeholder="Ej.: 3200.00"
-               required>
-
-        <div class="botones">
-            <button type="submit">Guardar plato</button>
-
-            <a class="volver" th:href="@{/responsable/index}">
-                Volver al panel
-            </a>
-        </div>
-    </form>
-</main>
 </body>
 </html>
