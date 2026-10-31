@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${festival.id == null ? 'Nuevo Festival' : 'Editar Festival'} + ' - Epicentro Gourmet'">Formulario Festival</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+</head>
+<body>
+
+<nav class="navbar navbar-dark admin-header px-4 py-2">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">
+            Epicentro Gourmet - Admin
+        </a>
+        <form th:action="@{/logout}" method="post" class="m-0">
+            <button type="submit" class="btn btn-outline-custom btn-sm">
+                Cerrar Sesión
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="container py-5" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" th:text="${festival.id == null ? 'Nuevo Festival' : 'Editar Festival'}">
+                Formulario de Festival
+            </h2>
+            <p class="text-white-50 mb-0">
+                <span th:if="${festival.id == null}">Completá los datos requeridos para programar una nueva edición.</span>
+                <span th:unless="${festival.id == null}">Actualizá el nombre, las fechas y las unidades de venta habilitadas.</span>
+            </p>
+        </div>
+        <a th:href="@{/admin/festivales}" class="btn btn-secondary">
+            ← Volver a festivales
+        </a>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card card-custom p-4 p-md-5 shadow">
+        <form th:action="${festival.id == null} ? @{/admin/festivales/guardar} : @{/admin/festivales/editar/{id}(id=${festival.id})}"
+              th:object="${festival}"
+              method="post">
+
+            <!-- ID oculto si es edición -->
+            <input type="hidden" th:field="*{id}" th:if="${festival.id != null}"/>
+
+            <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">
+                1. Información General del Evento
+            </h5>
+
+            <!-- Nombre -->
+            <div class="mb-3">
+                <label for="nombre" class="form-label fw-bold">Nombre del Festival</label>
+                <input type="text"
+                       class="form-control"
+                       id="nombre"
+                       th:field="*{nombre}"
+                       placeholder="Ej: Epicentro Gourmet UNLa (Edición Primavera)"
+                       th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                       required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">
+                    El nombre es obligatorio.
+                </div>
+            </div>
+
+            <!-- Fechas -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="fechaInicio" class="form-label fw-bold">Fecha de Inicio</label>
+                    <input type="date"
+                           class="form-control"
+                           id="fechaInicio"
+                           th:field="*{fechaInicio}"
+                           th:classappend="${#fields.hasErrors('fechaInicio')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaInicio')}" th:errors="*{fechaInicio}">
+                        La fecha de inicio es requerida.
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="fechaFin" class="form-label fw-bold">Fecha de Finalización</label>
+                    <input type="date"
+                           class="form-control"
+                           id="fechaFin"
+                           th:field="*{fechaFin}"
+                           th:classappend="${#fields.hasErrors('fechaFin')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaFin')}" th:errors="*{fechaFin}">
+                        La fecha de fin es requerida.
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">
+                2. Unidades de Venta Habilitadas
+            </h5>
+            <p class="text-muted small mb-3">
+                Seleccioná las unidades de venta (Food Trucks y Puestos Desarmables) autorizadas a operar en esta edición del festival.
+            </p>
+
+            <div th:if="${#lists.isEmpty(todasUnidades)}" class="alert alert-warning small">
+                No hay unidades de venta registradas en el sistema actualmente. Podés guardar el festival y asignarlas más adelante.
+            </div>
+
+            <div class="mb-4" th:unless="${#lists.isEmpty(todasUnidades)}">
+                <div class="row g-2 border rounded p-3 bg-light" style="max-height: 280px; overflow-y: auto;">
+                    <div class="col-md-6" th:each="unidad : ${todasUnidades}">
+                        <div class="form-check p-2 bg-white rounded border">
+                            <input class="form-check-input ms-0 me-2"
+                                   type="checkbox"
+                                   th:value="${unidad.id}"
+                                   th:field="*{unidadesVentaIds}"
+                                   th:id="'unidad_' + ${unidad.id}">
+                            <label class="form-check-label d-block text-truncate" th:for="'unidad_' + ${unidad.id}">
+                                <strong th:text="${unidad.nombreComercial}">Nombre Comercial</strong>
+                                <span class="d-block small text-muted">
+                                    Código: <span th:text="${unidad.codigo}">FT-0000001</span> | 
+                                    <span th:text="${unidad.superficieM2}">10</span> m²
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a th:href="@{/admin/festivales}" class="btn btn-outline-secondary px-4">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary px-4"
+                        th:text="${festival.id == null ? 'Guardar Festival' : 'Actualizar Festival'}">
+                    Guardar Festival
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

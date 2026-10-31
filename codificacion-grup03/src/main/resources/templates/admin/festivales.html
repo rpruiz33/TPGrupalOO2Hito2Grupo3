@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -24,35 +23,102 @@
 </nav>
 
 <div class="container py-5">
-    <a th:href="@{/admin/dashboard}" class="btn btn-secondary mb-4">
-        Volver al panel
-    </a>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
+            ← Volver al panel
+        </a>
+        <a th:href="@{/admin/festivales/nuevo}" class="btn btn-light fw-bold shadow-sm">
+            + Registrar Nuevo Festival
+        </a>
+    </div>
 
-    <h2 class="fw-bold mb-2">Festivales registrados</h2>
-    <p>Seleccioná un festival para consultar sus unidades de venta.</p>
+    <!-- Mensajes de notificación -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Gestión de Festivales (ABM)</h2>
+        <p class="text-white-50">Administrá las ediciones temáticas anuales, sus fechas de vigencia y puestos habilitados.</p>
+    </div>
 
     <div th:if="${#lists.isEmpty(festivales)}" class="alert alert-info">
-        No hay festivales registrados.
+        No hay festivales registrados actualmente. Podés registrar el primero haciendo clic en "Registrar Nuevo Festival".
     </div>
 
     <div class="row">
-        <div class="col-md-6 col-lg-4 mb-4"
-             th:each="festival : ${festivales}">
-            <div class="card card-custom h-100">
+        <div class="col-md-6 col-lg-4 mb-4" th:each="festival : ${festivales}">
+            <div class="card card-custom h-100 d-flex flex-column justify-content-between">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold"
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge"
+                              th:classappend="${!festival.activo ? 'bg-danger' : (festival.estado == 'En curso' ? 'bg-success' : (festival.estado == 'Próximo' ? 'bg-primary' : 'bg-secondary'))}"
+                              th:text="${festival.estado}">
+                            Estado
+                        </span>
+                        <span class="text-muted small" th:if="${festival.diasDuracion > 0}"
+                              th:text="${festival.diasDuracion} + ' días'">
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-2 text-dark"
+                        th:classappend="${!festival.activo ? 'text-decoration-line-through text-muted' : ''}"
                         th:text="${festival.nombre}">
                         Nombre del festival
-                    </h5>
+                    </h4>
 
-                    <p class="text-muted mb-3">
-                        Consultá las unidades de venta asociadas a esta edición.
-                    </p>
+                    <div class="mb-3 small text-muted">
+                        <div>
+                            <strong>Inicio:</strong> 
+                            <span th:text="${festival.fechaInicio != null ? #temporals.format(festival.fechaInicio, 'dd/MM/yyyy') : '-'}">01/01/2026</span>
+                        </div>
+                        <div>
+                            <strong>Fin:</strong> 
+                            <span th:text="${festival.fechaFin != null ? #temporals.format(festival.fechaFin, 'dd/MM/yyyy') : '-'}">10/01/2026</span>
+                        </div>
+                        <div class="mt-2 text-dark">
+                            <strong>Unidades habilitadas:</strong>
+                            <span class="badge bg-light text-dark border" th:text="${festival.cantidadUnidades}">0</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <a class="btn btn-primary"
+                <div class="card-footer bg-transparent border-top p-3 d-flex flex-column gap-2">
+                    <a class="btn btn-outline-primary btn-sm w-100"
                        th:href="@{/admin/festivales/{id}(id=${festival.id})}">
-                        Ver unidades de venta
+                        Ver Unidades de Venta
                     </a>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary btn-sm flex-fill"
+                           th:href="@{/admin/festivales/editar/{id}(id=${festival.id})}">
+                            Editar
+                        </a>
+
+                        <!-- Botón Dar de baja si está activo -->
+                        <form th:if="${festival.activo}"
+                              th:action="@{/admin/festivales/baja/{id}(id=${festival.id})}" method="post"
+                              class="m-0 flex-fill"
+                              onsubmit="return confirm('¿Está seguro de que desea dar de baja este festival?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                Dar de baja
+                            </button>
+                        </form>
+
+                        <!-- Botón Reactivar si está dado de baja -->
+                        <form th:unless="${festival.activo}"
+                              th:action="@{/admin/festivales/reactivar/{id}(id=${festival.id})}" method="post"
+                              class="m-0 flex-fill"
+                              onsubmit="return confirm('¿Desea reactivar este festival?');">
+                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                Reactivar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
