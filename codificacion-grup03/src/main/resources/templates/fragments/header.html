@@ -13,7 +13,12 @@
             
             
             <a class="navbar-brand fw-bold d-flex align-items-center gap-3 m-0" 
-               th:href="@{${homeUrl != null ? homeUrl : '/'}}">
+               th:href="@{${homeUrl != null ? homeUrl : (
+                    #authorization.expression('hasAnyRole(''ADMIN'')') ? '/admin/dashboard' : (
+                    #authorization.expression('hasAnyRole(''RESPONSABLE'')') ? '/responsable/index' : (
+                    #authorization.expression('hasAnyRole(''CAJERO'')') ? '/cajero/index' : '/empleado/index'
+                    ))
+               )}}">
                 <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 42px;" onerror="this.style.display='none'">
                 <span th:text="${titulo != null ? titulo : 'Epicentro Gourmet'}">Epicentro Gourmet</span>
             </a>
@@ -23,16 +28,17 @@
                 <span style="color: #ffffff; font-weight: 600; font-size: 0.92rem; margin-right: 25px; display: inline-flex; align-items: center;">
                     <span style="margin-right: 6px;">👤</span>
                     
-                    
-                    <span sec:authorize="hasRole('ADMIN')">Administrador</span>
+                    <span sec:authorize="hasAnyRole('ADMIN')">Administrador</span>
 
-                    
-                    <span sec:authorize="hasRole('RESPONSABLE')" 
-                          th:text="${nombreResponsable != null ? nombreResponsable : 'Responsable'}">
-                        Responsable
-                    </span>
+                    <span sec:authorize="hasAnyRole('RESPONSABLE')">Responsable</span>
 
-                    <span sec:authorize="!hasRole('ADMIN') and !hasRole('RESPONSABLE')" 
+                    <span sec:authorize="hasAnyRole('CAJERO')">Cajero</span>
+
+                    <span sec:authorize="hasAnyRole('COCINERO')">Cocinero</span>
+
+                    <span sec:authorize="hasAnyRole('EMPLEADO') and !hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO')">Empleado</span>
+
+                    <span sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO', 'EMPLEADO')" 
                           th:text="${rol != null ? rol : 'Usuario'}">
                         Usuario
                     </span>
