@@ -204,31 +204,63 @@
       };
     }
 
-    // Al cargar: solo completa las fechas que estén vacías
+    function aplicarLimitesFestival(f) {
+      if (f && f.inicio && f.fin) {
+        fechaDesde.min = f.inicio;
+        fechaDesde.max = f.fin;
+        fechaHasta.min = f.inicio;
+        fechaHasta.max = f.fin;
+      } else {
+        fechaDesde.removeAttribute('min');
+        fechaDesde.removeAttribute('max');
+        fechaHasta.removeAttribute('min');
+        fechaHasta.removeAttribute('max');
+      }
+    }
+
+    // Al cargar: aplica los límites del festival y completa las fechas que estén vacías
     const opcionActual = select.options[select.selectedIndex];
     if (opcionActual && opcionActual.value) {
       const f = fechasDeOpcion(opcionActual);
+      aplicarLimitesFestival(f);
       if (!fechaDesde.value) fechaDesde.value = f.inicio;
       if (!fechaHasta.value) fechaHasta.value = f.fin;
     }
 
-    // Al cambiar de festival: reemplaza las fechas por las del festival elegido
+    // Al cambiar de festival: actualiza límites y reemplaza las fechas por las del festival elegido
     select.addEventListener('change', function () {
       const opcion = select.options[select.selectedIndex];
       if (opcion && opcion.value) {
         const f = fechasDeOpcion(opcion);
+        aplicarLimitesFestival(f);
         fechaDesde.value = f.inicio;
         fechaHasta.value = f.fin;
       } else {
+        aplicarLimitesFestival(null);
         fechaDesde.value = '';
         fechaHasta.value = '';
       }
     });
 
-    // Validación de rango de fechas en cliente
+    // Validación de rango y límites del festival en cliente
     const form = document.querySelector('form.filtros');
     if (form) {
       form.addEventListener('submit', function (e) {
+        const opcion = select.options[select.selectedIndex];
+        if (opcion && opcion.value) {
+          const f = fechasDeOpcion(opcion);
+          if (f.inicio && fechaDesde.value && fechaDesde.value < f.inicio) {
+            e.preventDefault();
+            alert('La fecha "Desde" (' + fechaDesde.value + ') no puede ser anterior al inicio del festival (' + f.inicio + ').');
+            return;
+          }
+          if (f.fin && fechaHasta.value && fechaHasta.value > f.fin) {
+            e.preventDefault();
+            alert('La fecha "Hasta" (' + fechaHasta.value + ') no puede ser posterior a la finalización del festival (' + f.fin + ').');
+            return;
+          }
+        }
+
         if (fechaDesde.value && fechaHasta.value && fechaDesde.value > fechaHasta.value) {
           e.preventDefault();
           alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');

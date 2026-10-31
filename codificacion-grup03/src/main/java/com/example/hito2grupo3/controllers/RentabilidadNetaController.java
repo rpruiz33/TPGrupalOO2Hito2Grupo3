@@ -104,10 +104,22 @@ public class RentabilidadNetaController {
             return VISTA_RENTABILIDAD;
         }
 
-        // Validación de rango de fechas
+        // Validación de coherencia de rango de fechas
         if (desde != null && hasta != null && desde.isAfter(hasta)) {
             model.addAttribute("error", "La fecha 'Desde' (" + desde + ") no puede ser posterior a la fecha 'Hasta' (" + hasta + ").");
             return VISTA_RENTABILIDAD;
+        }
+
+        // Validación de límites del festival seleccionado
+        if (fest != null && fest.getFechaInicio() != null && fest.getFechaFin() != null) {
+            if (desde != null && desde.isBefore(fest.getFechaInicio())) {
+                model.addAttribute("error", "La fecha 'Desde' (" + desde + ") no puede ser anterior al inicio del festival (" + fest.getFechaInicio() + ").");
+                return VISTA_RENTABILIDAD;
+            }
+            if (hasta != null && hasta.isAfter(fest.getFechaFin())) {
+                model.addAttribute("error", "La fecha 'Hasta' (" + hasta + ") no puede ser posterior al cierre del festival (" + fest.getFechaFin() + ").");
+                return VISTA_RENTABILIDAD;
+            }
         }
 
         // 3) Calcular siempre
