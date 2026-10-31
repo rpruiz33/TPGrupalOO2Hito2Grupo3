@@ -57,5 +57,13 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
             LocalDate fechaFin);
 
 
-
+@Query("""
+    SELECT DISTINCT f
+    FROM Festival f
+    JOIN f.unidadesVentaHabilitadas u
+    WHERE u.id = :unidadVentaId
+    ORDER BY f.fechaInicio DESC
+    """)
+List<Festival> buscarTodosPorUnidadVenta(
+        @Param("unidadVentaId") Long unidadVentaId);
 }

@@ -481,8 +481,27 @@ CREATE TEMPORARY TABLE tmp_dias (d INT);
 INSERT INTO tmp_dias VALUES
 (0),(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY), @festival_id, uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY),
+    @festival_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
@@ -539,6 +558,7 @@ SET @recaudado = (
     FROM items_pedido ip
     JOIN pedidos p ON p.id = ip.pedido_id
     WHERE p.festival_id = @festival_id
+      AND p.estado = 'A'
 );
 
 SET @objetivo = (@costos_fest + IF(@incluir_sueldos = 1, @costo_staff, 0)) * @margen;
@@ -558,7 +578,8 @@ SELECT @costos_fest AS costos_festival,
        @factor      AS factor_aplicado,
        (SELECT SUM(ip.cantidad * ip.precio_unitario)
           FROM items_pedido ip JOIN pedidos p ON p.id = ip.pedido_id
-         WHERE p.festival_id = @festival_id) AS recaudado_despues;
+         WHERE p.festival_id = @festival_id
+            AND p.estado = 'A') AS recaudado_despues;
 -- #############################################################################
 -- PARTE 4: PEDIDOS E ITEMS PARA LOS FESTIVALES PASADOS
 -- Anual (hace ~1 año): recaudacion media-baja (15 dias, cantidad 1-2)
@@ -631,10 +652,27 @@ INSERT INTO tmp_mp_ant VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
-       @festival_anterior_id,
-       uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
+    @festival_anterior_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 CROSS JOIN tmp_dias_ant d
@@ -703,10 +741,27 @@ INSERT INTO tmp_mp_anu VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
-       @festival_anual_id,
-       uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
+    @festival_anual_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 CROSS JOIN tmp_dias_anu d
@@ -753,7 +808,7 @@ SELECT f.nombre AS festival, uv.codigo, uv.nombre_comercial,
 FROM festivales f
 JOIN festival_unidad_venta fuv ON fuv.festival_id = f.id
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
-LEFT JOIN pedidos p ON p.unidad_venta_id = uv.id AND p.festival_id = f.id
+LEFT JOIN pedidos p ON p.unidad_venta_id = uv.id AND p.festival_id = f.id AND p.estado = 'A'
 LEFT JOIN items_pedido ip ON ip.pedido_id = p.id
 GROUP BY f.nombre, uv.codigo, uv.nombre_comercial
 ORDER BY uv.codigo;

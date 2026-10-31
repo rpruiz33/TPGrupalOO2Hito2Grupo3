@@ -4,6 +4,7 @@ package com.example.hito2grupo3.repositories;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,19 +18,58 @@ import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    @Query("SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) FROM ItemPedido ip")
-    BigDecimal calcularRecaudacionTotal();
+    // ============================
+    // HISTORIAL DE PEDIDOS
+    // ============================
+
+    /**
+     * Obtiene todos los pedidos de una unidad de venta,
+     * tanto activos como revertidos.
+     * Incluye sus datos relacionados para mostrar el historial.
+     */
+    @Query("""
+            SELECT DISTINCT p
+            FROM Pedido p
+            LEFT JOIN FETCH p.festival
+            LEFT JOIN FETCH p.unidadVenta
+            LEFT JOIN FETCH p.registradoPor
+            LEFT JOIN FETCH p.anuladoPor
+            LEFT JOIN FETCH p.items ip
+            LEFT JOIN FETCH ip.plato
+            WHERE p.unidadVenta.id = :unidadVentaId
+            ORDER BY p.fechaRegistro DESC, p.id DESC
+            """)
+    List<Pedido> obtenerHistorialPorUnidad(
+            @Param("unidadVentaId") Long unidadVentaId);
+
+
+    // ============================
+    // RECAUDACIÓN
+    // ============================
 
     @Query("""
             SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
             FROM ItemPedido ip
-            WHERE ip.pedido.fechaTransaccion >= :desde
+            WHERE ip.pedido.estado = 'A'
+            """)
+    BigDecimal calcularRecaudacionTotal();
+
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM ItemPedido ip
+            WHERE ip.pedido.estado = 'A'
+              AND ip.pedido.fechaTransaccion >= :desde
               AND ip.pedido.fechaTransaccion <= :hasta
             """)
     BigDecimal calcularRecaudacionEntreFechas(
             @Param("desde") LocalDate desde,
             @Param("hasta") LocalDate hasta);
 
+
+    // ============================
+    // REPORTE POR FESTIVAL
+    // ============================
 
     @Query("""
             SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
@@ -39,13 +79,21 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
                 COUNT(DISTINCT p.id)
             )
             FROM Festival f
-            LEFT JOIN Pedido p ON p.festival.id = f.id
-            LEFT JOIN ItemPedido ip ON ip.pedido.id = p.id
+            LEFT JOIN Pedido p
+                ON p.festival.id = f.id
+                AND p.estado = 'A'
+            LEFT JOIN ItemPedido ip
+                ON ip.pedido.id = p.id
             WHERE f.id = :festivalId
             GROUP BY f.id, f.nombre
             """)
     ReporteVentaDTO obtenerReporteVentaPorFestival(
             @Param("festivalId") Long festivalId);
+
+
+    // ============================
+    // RANKING POR UNIDAD DE VENTA
+    // ============================
 
     @Query("""
             SELECT new com.example.hito2grupo3.dto.RankingUnidadDTO(
@@ -61,9 +109,12 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             )
             FROM UnidadVenta uv
             JOIN uv.festivales f
-            LEFT JOIN Pedido p ON p.unidadVenta.id = uv.id
+            LEFT JOIN Pedido p
+                ON p.unidadVenta.id = uv.id
                 AND p.festival.id = :festivalId
-            LEFT JOIN ItemPedido ip ON ip.pedido.id = p.id
+                AND p.estado = 'A'
+            LEFT JOIN ItemPedido ip
+                ON ip.pedido.id = p.id
             WHERE f.id = :festivalId
             GROUP BY uv.id, uv.nombreComercial, uv.codigo, TYPE(uv)
             ORDER BY COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) DESC
@@ -71,21 +122,33 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<RankingUnidadDTO> obtenerRankingPorFestival(
             @Param("festivalId") Long festivalId);
 
+
+    // ============================
+    // INGRESOS POR FESTIVAL Y FECHAS
+    // ============================
+
     @Query("""
-            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) 
-            FROM Pedido p 
-            JOIN p.items ip 
-            WHERE p.festival.id = :festivalId 
-              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde) 
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.festival.id = :festivalId
+              AND p.estado = 'A'
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
               AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
             """)
     BigDecimal sumarIngresosPorFestivalYFechas(
-            @Param("festivalId") Long festivalId, 
-            @Param("fechaDesde") LocalDate fechaDesde, 
+            @Param("festivalId") Long festivalId,
+            @Param("fechaDesde") LocalDate fechaDesde,
             @Param("fechaHasta") LocalDate fechaHasta);
 
+
+    // ============================
+    // VENTAS POR UNIDAD Y FECHA
+    // ============================
+
     /**
-     * Calcula el total recaudado por una unidad de venta en una fecha específica.
+     * Calcula el total vendido por una unidad en una fecha.
+     * Excluye pedidos revertidos.
      */
     @Query("""
             SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
@@ -93,13 +156,16 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             JOIN p.items ip
             WHERE p.unidadVenta.id = :unidadVentaId
               AND p.fechaTransaccion = :fecha
+              AND p.estado = 'A'
             """)
     BigDecimal calcularTotalVentasPorUnidadYFecha(
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("fecha") LocalDate fecha);
 
+
     /**
-     * Obtiene el detalle de ventas por plato de una unidad de venta en una fecha específica.
+     * Obtiene el detalle de ventas por plato de una unidad
+     * en una fecha específica.
      */
     @Query("""
             SELECT new com.example.hito2grupo3.dto.VentaUnidadDiaDTO(
@@ -112,6 +178,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             JOIN p.items ip
             WHERE p.unidadVenta.id = :unidadVentaId
               AND p.fechaTransaccion = :fecha
+              AND p.estado = 'A'
             GROUP BY ip.plato.nombre, ip.precioUnitario
             ORDER BY ip.plato.nombre
             """)
@@ -119,8 +186,15 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("fecha") LocalDate fecha);
 
+
+    // ============================
+    // PLATO MÁS VENDIDO
+    // ============================
+
     /**
-     * Obtiene el plato más vendido de una unidad de venta en un festival.
+     * Obtiene el plato más vendido de una unidad
+     * en un festival.
+     * Excluye pedidos revertidos.
      */
     @Query("""
             SELECT new com.example.hito2grupo3.dto.PlatoDTO(
@@ -133,10 +207,24 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             JOIN p.items ip
             WHERE p.unidadVenta.id = :unidadVentaId
               AND p.festival.id = :festivalId
+              AND p.estado = 'A'
             GROUP BY ip.plato.id, ip.plato.nombre
             ORDER BY SUM(ip.cantidad) DESC
             """)
     List<PlatoDTO> obtenerPlatosEstrella(
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("festivalId") Long festivalId);
+@Query("""
+        SELECT DISTINCT p
+        FROM Pedido p
+        LEFT JOIN FETCH p.festival
+        LEFT JOIN FETCH p.unidadVenta
+        LEFT JOIN FETCH p.registradoPor
+        LEFT JOIN FETCH p.anuladoPor
+        LEFT JOIN FETCH p.items ip
+        LEFT JOIN FETCH ip.plato
+        WHERE p.id = :pedidoId
+        """)
+Optional<Pedido> obtenerDetallePorId(
+        @Param("pedidoId") Long pedidoId);
 }
