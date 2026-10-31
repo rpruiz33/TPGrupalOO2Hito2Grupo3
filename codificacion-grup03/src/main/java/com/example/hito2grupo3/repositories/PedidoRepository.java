@@ -1,4 +1,3 @@
-
 package com.example.hito2grupo3.repositories;
 
 import java.math.BigDecimal;
@@ -24,7 +23,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     /**
      * Obtiene todos los pedidos de una unidad de venta,
-     * tanto activos como revertidos.
+     * tanto activos como anulados.
      * Incluye sus datos relacionados para mostrar el historial.
      */
     @Query("""
@@ -47,6 +46,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     // RECAUDACIÓN
     // ============================
 
+    /**
+     * Calcula la recaudación total.
+     * Excluye pedidos anulados.
+     */
     @Query("""
             SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
             FROM ItemPedido ip
@@ -55,6 +58,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     BigDecimal calcularRecaudacionTotal();
 
 
+    /**
+     * Calcula la recaudación entre dos fechas.
+     * Excluye pedidos anulados.
+     */
     @Query("""
             SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
             FROM ItemPedido ip
@@ -65,6 +72,13 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     BigDecimal calcularRecaudacionEntreFechas(
             @Param("desde") LocalDate desde,
             @Param("hasta") LocalDate hasta);
+
+
+    // ============================
+    // VALIDACIONES
+    // ============================
+
+    boolean existsByFestival_Id(Long festivalId);
 
 
     // ============================
@@ -148,7 +162,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     /**
      * Calcula el total vendido por una unidad en una fecha.
-     * Excluye pedidos revertidos.
+     * Excluye pedidos anulados.
      */
     @Query("""
             SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
@@ -194,7 +208,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     /**
      * Obtiene el plato más vendido de una unidad
      * en un festival.
-     * Excluye pedidos revertidos.
+     * Excluye pedidos anulados.
      */
     @Query("""
             SELECT new com.example.hito2grupo3.dto.PlatoDTO(
@@ -214,17 +228,24 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<PlatoDTO> obtenerPlatosEstrella(
             @Param("unidadVentaId") Long unidadVentaId,
             @Param("festivalId") Long festivalId);
-@Query("""
-        SELECT DISTINCT p
-        FROM Pedido p
-        LEFT JOIN FETCH p.festival
-        LEFT JOIN FETCH p.unidadVenta
-        LEFT JOIN FETCH p.registradoPor
-        LEFT JOIN FETCH p.anuladoPor
-        LEFT JOIN FETCH p.items ip
-        LEFT JOIN FETCH ip.plato
-        WHERE p.id = :pedidoId
-        """)
-Optional<Pedido> obtenerDetallePorId(
-        @Param("pedidoId") Long pedidoId);
+
+
+    // ============================
+    // DETALLE DEL PEDIDO
+    // ============================
+
+    @Query("""
+            SELECT DISTINCT p
+            FROM Pedido p
+            LEFT JOIN FETCH p.festival
+            LEFT JOIN FETCH p.unidadVenta
+            LEFT JOIN FETCH p.registradoPor
+            LEFT JOIN FETCH p.anuladoPor
+            LEFT JOIN FETCH p.items ip
+            LEFT JOIN FETCH ip.plato
+            WHERE p.id = :pedidoId
+            """)
+    Optional<Pedido> obtenerDetallePorId(
+            @Param("pedidoId") Long pedidoId);
+
 }

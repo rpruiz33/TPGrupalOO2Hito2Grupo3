@@ -21,9 +21,12 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @jakarta.validation.constraints.NotBlank(message = "El correo electrónico es obligatorio")
+    @jakarta.validation.constraints.Email(message = "Debe ingresar un correo electrónico válido")
     @Column(nullable = false, unique = true)
     private String email;
 
+    @jakarta.validation.constraints.NotBlank(message = "La contraseña es obligatoria")
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

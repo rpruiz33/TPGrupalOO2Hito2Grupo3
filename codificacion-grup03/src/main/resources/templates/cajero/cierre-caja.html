@@ -528,6 +528,19 @@
         }
     });
 
+    // Validación del filtro de fechas
+    const formFiltro = document.querySelector('form[action*="/cajero/cierre-caja"][method="get"]');
+    if (formFiltro) {
+        formFiltro.addEventListener('submit', function (e) {
+            const desde = formFiltro.querySelector('input[name="desde"]').value;
+            const hasta = formFiltro.querySelector('input[name="hasta"]').value;
+            if (desde && hasta && desde > hasta) {
+                e.preventDefault();
+                alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+            }
+        });
+    }
+
     // Botón "Usar este monto en el cierre": pre-carga el total de ventas del día
     const btnUsarTotal = document.getElementById('btnUsarTotal');
     if (btnUsarTotal) {
