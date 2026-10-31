@@ -73,29 +73,5 @@ Long primerFestivalId = festivalRepository.findFirstByOrderByIdAsc()
 
         return "admin/dashboard"; 
     }
-
-@GetMapping("/festivales")
-public String listarFestivales(Model model) {
-    model.addAttribute("festivales", festivalRepository.findAll());
-    return "admin/festivales";
 }
 
-@GetMapping("/festivales/{id}")
-@Transactional(readOnly = true)
-public String verUnidadesFestival(@PathVariable Long id, Model model) {
-    Festival festival = festivalRepository.findById(id)
-            .orElse(null);
-
-    if (festival == null) {
-        return "redirect:/admin/festivales";
-    }
-
-    model.addAttribute("festival", festival);
-    model.addAttribute(
-            "unidades",
-            festival.getUnidadesVentaHabilitadas()
-    );
-
-    return "admin/unidades-festivales";
-}
-}
