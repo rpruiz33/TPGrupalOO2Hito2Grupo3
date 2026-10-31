@@ -18,9 +18,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import org.springframework.security.core.Authentication;
 
 @Controller
 @RequestMapping("/cajero")
@@ -50,6 +53,7 @@ public class CajeroController {
     public String mostrarCierreCaja(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            Authentication authentication,
             Principal principal,
             Model model) {
 
@@ -64,7 +68,6 @@ public class CajeroController {
                 Long cajeroId = (Long) resumen.get("cajeroId");
                 model.addAttribute("cajeroId", cajeroId);
 
-                // Si en el resumen viene una unidad de venta asociada, la pasamos; si no, buscamos una por defecto
                 Long unidadVentaId = (Long) resumen.get("unidadVentaId");
                 model.addAttribute("unidadVentaId", unidadVentaId);
             }
@@ -97,14 +100,34 @@ public class CajeroController {
             model.addAttribute("unidadVentaId", null);
         }
 
-        // Cargar unidades de venta para el formulario de registro
+        // Cargar unidades de venta: el cajero solo debe ver sus unidades asignadas
         try {
-            List<UnidadVenta> unidades = unidadVentaRepository.findAll();
+            Long cajeroId = (Long) model.getAttribute("cajeroId");
+            boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            List<UnidadVenta> unidades;
+            if (esAdmin) {
+                unidades = unidadVentaRepository.findAll();
+            } else if (cajeroId != null) {
+                unidades = new ArrayList<>(unidadVentaRepository.buscarPorStaffAsignado(cajeroId));
+                if (unidades.isEmpty()) {
+                    unidadVentaRepository.findByResponsable_Id(cajeroId).ifPresent(unidades::add);
+                }
+            } else {
+                unidades = Collections.emptyList();
+            }
+
             model.addAttribute("unidades", unidades);
-            
-            // Si unidadVentaId llegó nulo pero hay unidades, asignamos la primera por defecto para evitar nulos
-            if (!unidades.isEmpty() && model.getAttribute("unidadVentaId") == null) {
-                model.addAttribute("unidadVentaId", unidades.get(0).getId());
+
+            // Si hay unidades asignadas, fijar la primera si no hay una válida seleccionada
+            if (!unidades.isEmpty()) {
+                Long currentUvId = (Long) model.getAttribute("unidadVentaId");
+                boolean contiene = currentUvId != null && unidades.stream().anyMatch(u -> Objects.equals(u.getId(), currentUvId));
+                if (!contiene) {
+                    model.addAttribute("unidadVentaId", unidades.get(0).getId());
+                    model.addAttribute("unidadVentaNombre", unidades.get(0).getNombreComercial());
+                }
             }
         } catch (Exception e) {
             model.addAttribute("unidades", Collections.emptyList());
@@ -123,6 +146,7 @@ public class CajeroController {
             @RequestParam(required = false) Long unidadVentaId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) BigDecimal montoRecaudado,
+            Authentication authentication,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
@@ -148,16 +172,26 @@ public class CajeroController {
             if (unidadVentaId == null && resumen != null && resumen.get("unidadVentaId") != null) {
                 unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
             }
-            
-            if (unidadVentaId == null) {
-                List<UnidadVenta> unidades = unidadVentaRepository.findAll();
-                if (!unidades.isEmpty()) {
-                    unidadVentaId = unidades.get(0).getId();
-                }
-            }
 
             if (unidadVentaId == null) {
                 throw new IllegalArgumentException("Debe seleccionar una unidad de venta obligatoriamente.");
+            }
+
+            // Validar que el cajero pertenezca a la unidad de venta si no es admin
+            boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!esAdmin) {
+                final Long finalCajeroId = cajeroId;
+                final Long finalUvId = unidadVentaId;
+                boolean asignado = unidadVentaRepository.buscarPorStaffAsignado(finalCajeroId).stream()
+                        .anyMatch(u -> Objects.equals(u.getId(), finalUvId))
+                        || unidadVentaRepository.findByResponsable_Id(finalCajeroId)
+                        .map(u -> Objects.equals(u.getId(), finalUvId)).orElse(false);
+
+                if (!asignado) {
+                    throw new IllegalArgumentException("No tiene permisos para registrar el cierre de una unidad de venta que no tiene asignada.");
+                }
             }
 
             // 3. Validar fecha (no puede ser futura)

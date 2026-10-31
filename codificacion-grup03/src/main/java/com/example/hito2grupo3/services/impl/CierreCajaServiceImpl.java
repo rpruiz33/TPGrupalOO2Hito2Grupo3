@@ -58,8 +58,8 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
             throw new IllegalArgumentException("El monto recaudado no puede ser negativo.");
         }
 
-        // Si ya existe un cierre para ese cajero en esa fecha, se actualiza con el monto recaudado
-        Optional<CierreCaja> existente = cierreCajaRepository.findByCajeroIdAndFecha(cajeroId, fecha);
+        // Si ya existe un cierre para ese cajero en esa unidad de venta y en esa fecha, se actualiza
+        Optional<CierreCaja> existente = cierreCajaRepository.findByCajeroIdAndUnidadVentaIdAndFecha(cajeroId, unidadVentaId, fecha);
         CierreCaja cierre = existente.orElseGet(CierreCaja::new);
         cierre.setFecha(fecha);
         cierre.setMontoRecaudado(montoRecaudado);

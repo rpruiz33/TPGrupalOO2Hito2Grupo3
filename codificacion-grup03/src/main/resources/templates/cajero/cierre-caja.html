@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/modern-business.css}">
     <link rel="stylesheet" th:href="@{/css/custom-login.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 
     <style>
         body {
@@ -285,13 +286,21 @@
 </head>
 
 <body>
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
 
-<main class="container page-container">
+<main class="container page-container mt-2">
 
     <!-- Encabezado -->
-    <header class="text-center text-white mb-4">
-        <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
-        <h2 class="h5 text-white-50 mb-0">Cierre de Caja</h2>
+    <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Cierre de Caja</h1>
+            <p class="text-white-50 mb-0">Registro y consulta de cierres de caja del personal.</p>
+        </div>
+        <div>
+            <a th:href="@{/cajero/index}" class="menu-button">
+                ← Volver al Menu
+            </a>
+        </div>
     </header>
 
     <!-- Alertas -->
@@ -408,14 +417,12 @@
                     <!-- Unidad de Venta -->
                     <div class="col-md-6">
                         <label for="unidadVentaId" class="form-label">Unidad de Venta</label>
-                        <select id="unidadVentaId" name="unidadVentaId" class="form-select" required>
-                            <option value="" disabled th:selected="${unidadVentaId == null}">Seleccionar unidad...</option>
+
                             <option th:each="uv : ${unidades}"
                                     th:value="${uv.id}"
                                     th:text="${uv.nombreComercial}"
                                     th:selected="${uv.id == unidadVentaId}">
                             </option>
-                        </select>
                     </div>
 
                     <!-- Fecha -->
@@ -502,15 +509,8 @@
     </div>
 
     <!-- Navegación -->
-    <div class="text-center mt-3 d-flex justify-content-center gap-3">
+    <div class="text-center mt-4">
         <a th:href="@{/cajero/index}" class="btn-volver">← Volver al Panel</a>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-volver">Cerrar sesión</button>
-        </form>
-    </div>
-
-    <div class="logo">
-        <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
     </div>
 
 </main>

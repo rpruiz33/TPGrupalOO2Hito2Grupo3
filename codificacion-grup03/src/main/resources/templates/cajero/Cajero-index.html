@@ -16,6 +16,9 @@
     <link rel="stylesheet"
           th:href="@{/css/custom-login.css}">
 
+    <link rel="stylesheet"
+          th:href="@{/css/panel-base.css}">
+
     <style>
         body {
             background-color: #800020;
@@ -112,12 +115,13 @@
 </head>
 
 <body>
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
 
-<main class="container panel-container">
+<main class="container panel-container mt-2">
 
     <header class="text-center text-white mb-4">
-        <h1 class="fw-bold mb-1 fs-3">Epicentro Gourmet</h1>
-        <h2 class="h5 text-white-50 mb-0">Panel de Cajero</h2>
+        <h1 class="h3 fw-bold mb-1">Panel de Cajero</h1>
+        <p class="text-white-50 mb-0">Gestión de ventas y operaciones de caja.</p>
     </header>
 
     <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
@@ -222,19 +226,6 @@
         </div>
         </div>
     </section>
-
-    <!-- Cerrar sesión -->
-    <div class="text-center mt-4">
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-button">
-                Cerrar sesión
-            </button>
-        </form>
-    </div>
-
-    <div class="logo">
-    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
-  </div>
 
 </main>
 

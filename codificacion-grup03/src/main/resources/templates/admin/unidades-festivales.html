@@ -1,77 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unidades de venta - Epicentro Gourmet</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
 </head>
+
 <body>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 1100px;">
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1" th:text="${festival.nombre}">
+                    Nombre del festival
+                </h1>
+                <p class="text-white-50 mb-0">Unidades de venta gastronómicas habilitadas para esta edición.</p>
+            </div>
 
-<nav class="navbar navbar-dark admin-header px-4 py-2">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">
-            Epicentro Gourmet - Admin
-        </a>
-        <form th:action="@{/logout}" method="post" class="m-0">
-            <button type="submit" class="btn btn-outline-custom btn-sm">
-                Cerrar Sesión
-            </button>
-        </form>
-    </div>
-</nav>
+            <div>
+                <a th:href="@{/admin/festivales}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </section>
+        <section class="card menu-card overflow-hidden">
 
-<div class="container py-5">
-    <a th:href="@{/admin/festivales}" class="btn btn-secondary mb-4">
-        Volver a festivales
-    </a>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    🏪 Unidades asignadas
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${unidades != null ? #sets.size(unidades) + ' unidad(es)' : '0 unidades'}">
+                    0 unidades
+                </span>
+            </div>
 
-    <h2 class="fw-bold mb-2"
-        th:text="${festival.nombre}">
-        Nombre del festival
-    </h2>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-3">Código</th>
+                            <th>Nombre comercial</th>
+                            <th>Superficie (m²)</th>
+                            <th class="pe-3">Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="unidad : ${unidades}">
+                            <td class="ps-3 fw-bold text-dark" th:text="${unidad.codigo}">Código</td>
 
-    <h5 class="mb-4">Unidades de venta habilitadas</h5>
+                            <td class="fw-semibold" th:text="${unidad.nombreComercial}">Nombre comercial</td>
 
-    <div th:if="${#lists.isEmpty(unidades)}" class="alert alert-info">
-        Este festival no tiene unidades de venta asociadas.
-    </div>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2 py-1" 
+                                      th:text="${unidad.superficieM2} + ' m²'">0 m²</span>
+                            </td>
 
+                            <td class="pe-3">
+                                <span th:if="${unidad.responsable != null}" 
+                                      class="fw-semibold text-dark"
+                                      th:text="${unidad.responsable.nombre + ' ' + unidad.responsable.apellido}">
+                                    Responsable
+                                </span>
+                                <span th:unless="${unidad.responsable != null}" class="text-muted fst-italic">
+                                    Sin responsable
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${unidades == null or #sets.isEmpty(unidades)}">
+                            <td colspan="4" class="text-center py-5 text-secondary">
+                                <div class="fs-2 mb-2" aria-hidden="true">🏪</div>
+                                <strong>Este festival no tiene unidades de venta asociadas.</strong>
+                                <p class="mb-0 mt-1 small">
+                                    Podés asignarle puestos gastronómicos o food trucks desde la administración de festivales.
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-<div class="table-responsive"
-     th:unless="${#sets.isEmpty(unidades)}">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nombre comercial</th>
-                <th>Superficie (m²)</th>
-                <th>Responsable</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="unidad : ${unidades}">
-                <td th:text="${unidad.codigo}">Código</td>
-                <td th:text="${unidad.nombreComercial}">Nombre comercial</td>
-                <td th:text="${unidad.superficieM2}">0</td>
-             
-<td th:text="${unidad.responsable != null
-    ? unidad.responsable.nombre + ' ' + unidad.responsable.apellido
-    : 'Sin responsable'}">
-    Responsable
-</td>
+        </section>
 
-            </tr>
-        </tbody>
-    </table>
-</div>
+    </main>
 
-<div th:if="${#sets.isEmpty(unidades)}" class="alert alert-info">
-    Este festival no tiene unidades de venta asociadas.
-</div>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
-<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

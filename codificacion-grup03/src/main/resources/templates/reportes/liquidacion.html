@@ -1,230 +1,196 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Liquidación de Haberes - Epicentro Gourmet</title>
-  <link rel="stylesheet" th:href="@{/css/panel.css}">
-  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-  <link rel="stylesheet" th:href="@{/css/liquidacion.css}">
-  <style>
-    .card-custom,
-    .tarjeta.card-custom,
-    .filtro,
-    .tarjeta {
-      background-color: #fffde7 !important;
-      color: #5c0617 !important;
-      border: 1px solid rgba(255, 253, 231, 0.3) !important;
-    }
-    .form-select,
-    .form-control {
-      background-color: #fffde7 !important;
-      color: #5c0617 !important;
-      border: 1px solid #c9b037 !important;
-    }
-    .table,
-    .table th,
-    .table td {
-      background-color: transparent !important;
-      color: #5c0617 !important;
-    }
-    .etiqueta, .subtitulo, label, h5, .nota, .valor {
-      color: #5c0617 !important;
-    }
-    @media print {
-      .admin-header,
-      .sidebar,
-      .filtro,
-      .btn-bordo,
-      .btn-print,
-      .btn-pdf,
-      .no-print {
-        display: none !important;
-      }
-      body {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-      }
-      .layout {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      main.contenido {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      h1 {
-        color: #5c0617 !important;
-        font-size: 24pt !important;
-      }
-      p.subtitulo {
-        color: #333333 !important;
-      }
-      .card-custom, .tarjeta {
-        background-color: #ffffff !important;
-        border: 1px solid #ccc !important;
-        box-shadow: none !important;
-        page-break-inside: avoid;
-      }
-      .table {
-        border-collapse: collapse !important;
-        width: 100% !important;
-      }
-      .table th, .table td {
-        border: 1px solid #ddd !important;
-        padding: 8px !important;
-        color: #000000 !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Liquidación de Haberes - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
+
 <body>
-  <nav class="navbar navbar-dark admin-header px-4 py-2">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="#">
-        <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;">
-        <span>Epicentro Gourmet</span>
-      </a>
-      <div class="d-flex align-items-center gap-3">
-        <span class="text-white-50 small" th:if="${esAdmin}">Rol: Administrador</span>
-        <span class="text-white-50 small" th:if="${esEmpleado}">Rol: Empleado</span>
-        <span class="text-white-50 small" th:if="${esResponsable}">Rol: Responsable</span>
-        <form th:action="@{/logout}" method="post" class="m-0">
-          <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
-        </form>
-      </div>
-    </div>
-  </nav>
+    <nav sec:authorize="hasRole('ADMIN')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <nav sec:authorize="hasRole('RESPONSABLE')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
+    <nav sec:authorize="hasRole('EMPLEADO') or (!hasRole('ADMIN') and !hasRole('RESPONSABLE'))" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Empleado', 'Empleado', '/empleado/index')}"></nav>
+    <main class="container-fluid panel-container mt-4 px-3 px-md-4" style="max-width: 1350px;">
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1" th:if="${esEmpleado}">📄 Mis Haberes</h1>
+                <h1 class="h3 fw-bold mb-1" th:if="${esAdmin}">📄 Liquidación General de Haberes</h1>
+                <h1 class="h3 fw-bold mb-1" th:if="${esResponsable}">📄 Liquidación de Haberes</h1>
 
-  <div class="layout">
-    <nav class="sidebar admin-sidebar">
-      <a class="nav-link-admin" th:href="${esAdmin ? '/admin/dashboard' : '/empleado/dashboard'}">Inicio</a>
-      <a class="nav-link-admin active" th:href="@{/liquidacion}">Liquidación</a>
-    </nav>
+                <p class="text-white-50 mb-0" th:if="${esEmpleado}">
+                    Empleado: <strong class="text-white" th:text="${empleadoNombre}"></strong>
+                    <span th:if="${empleadoEmail != null and !#strings.isEmpty(empleadoEmail)}" th:text="'(' + ${empleadoEmail} + ')'"></span>
+                </p>
+                <p class="text-white-50 mb-0" th:if="${esAdmin}">
+                    Liquidación de sueldos y jornales de todo el personal del festival.
+                </p>
+                <p class="text-white-50 mb-0" th:if="${esResponsable}">
+                    Sueldos del personal de tu unidad de venta según el festival activo.
+                </p>
+            </div>
 
-    <main class="contenido">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h1 style="color: #ffffff;" th:if="${esEmpleado}">Mis Haberes</h1>
-          <h1 style="color: #ffffff;" th:if="${esAdmin}">Liquidación General de Haberes</h1>
-          <h1 style="color: #ffffff;" th:if="${esResponsable}">Liquidación de Haberes</h1>
+            <div class="d-flex flex-wrap gap-2 d-print-none">
+                <button type="button" onclick="window.print();" class="menu-button">
+                    🖨️ Imprimir Liquidación
+                </button>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+                <a sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+                <a sec:authorize="hasRole('EMPLEADO') or (!hasRole('ADMIN') and !hasRole('RESPONSABLE'))" th:href="@{/empleado/dashboard}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </section>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
+        <section class="card menu-card p-3 mb-4 d-print-none" th:if="${esAdmin}">
+            <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+                <h2 class="h6 fw-bold m-0" style="color: #800020;">
+                    🔍 Filtro de Liquidación
+                </h2>
+                <span class="text-muted small">
+                    Festival: <strong class="text-dark" th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet 2026'}"></strong>
+                </span>
+            </div>
 
-          <p class="subtitulo" style="color: #ffffff !important;" th:if="${esEmpleado}">
-            Empleado: <strong th:text="${empleadoNombre}"></strong>
-            <span th:if="${empleadoEmail != null and !#strings.isEmpty(empleadoEmail)}" th:text="'(' + ${empleadoEmail} + ')'"></span>
-          </p>
-          <p class="subtitulo" style="color: #ffffff !important;" th:if="${esAdmin}">
-            Liquidación de sueldos de todo el personal del festival.
-          </p>
-          <p class="subtitulo" style="color: #ffffff !important;" th:if="${esResponsable}">
-            Sueldos del personal de tu unidad de venta según el festival.
-          </p>
-        </div>
-        <button type="button" onclick="window.print();" class="btn btn-outline-light btn-print px-3 py-2 fw-bold">
-          🖨️ Imprimir Liquidación Haberes
-        </button>
-      </div>
+            <form th:action="@{/liquidacion}" method="get">
+                <input type="hidden" name="festivalId" th:value="${festival != null ? festival.id : ''}" />
 
-      <div class="alerta" th:if="${error}" th:text="${error}"></div>
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-7 col-lg-5">
+                        <label for="unidadId" class="form-label small fw-semibold text-secondary mb-1">Unidad de venta</label>
+                        <select id="unidadId" name="unidadId" class="form-select form-select-sm">
+                            <option value="">-- Todos los empleados (General) --</option>
+                            <option th:each="u : ${todasLasUnidades}"
+                                    th:value="${u.id}"
+                                    th:text="${u.codigo + ' - ' + u.nombreComercial}"
+                                    th:selected="${unidadId != null and unidadId == u.id}">
+                            </option>
+                        </select>
+                    </div>
 
-      <!-- Filtro para el Admin o selección de festival -->
-      <form class="tarjeta card-custom filtro p-4" th:action="@{/liquidacion}" method="get" style="margin-bottom:30px">
-        <div class="d-flex flex-wrap align-items-center gap-3">
-          <div class="campo m-0">
-            <label class="fw-bold me-2">Festival:</label>
-            <span th:text="${festival != null ? festival.nombre : 'Epicentro Gourmet 2026'}"></span>
-            <input type="hidden" name="festivalId" th:value="${festival != null ? festival.id : ''}" />
-          </div>
+                    <div class="col-12 col-md-3 col-lg-2">
+                        <button type="submit" 
+                                class="menu-button menu-button-primary w-100 py-1 small justify-content-center"
+                                style="font-size: 0.85rem; height: 31px;">
+                            Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="row g-3 justify-content-center mb-4">
+            
+            <div class="col-md-4">
+                <div class="card menu-card p-3 text-center h-100">
+                    <span class="text-muted small fw-semibold">Unidad de venta</span>
+                    <strong class="fs-5 text-dark my-1" th:text="${unidad != null ? unidad : '-'}">-</strong>
+                    <span class="text-secondary small">Asignación laboral</span>
+                </div>
+            </div>
 
-          <!-- Selector de Unidad solo para Administrador -->
-          <div class="campo m-0 d-flex align-items-center" th:if="${esAdmin}">
-            <label class="fw-bold me-2">Unidad de venta:</label>
-            <select name="unidadId" class="form-select d-inline-block w-auto" style="min-width: 220px;">
-              <option value="">-- Todos los empleados (General) --</option>
-              <option th:each="u : ${todasLasUnidades}"
-                      th:value="${u.id}"
-                      th:text="${u.codigo + ' - ' + u.nombreComercial}"
-                      th:selected="${unidadId != null and unidadId == u.id}">
-              </option>
-            </select>
-          </div>
+            <div class="col-md-4">
+                <div class="card menu-card p-3 text-center h-100">
+                    <span class="text-muted small fw-semibold">Duración del festival</span>
+                    <strong class="fs-5 my-1" style="color: #800020;" 
+                            th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">
+                        0 días
+                    </strong>
+                    <span class="text-secondary small">Días computados</span>
+                </div>
+            </div>
 
-          <button type="submit" class="btn-bordo ms-auto" th:if="${esAdmin}">Filtrar liquidación</button>
-        </div>
-      </form>
+            <div class="col-md-4">
+                <div class="card menu-card p-3 text-center h-100">
+                    <span class="text-muted small fw-semibold" th:text="${esEmpleado ? 'Total a percibir' : 'Total a pagar'}">Total a pagar</span>
+                    <strong class="fs-4 text-success my-1" 
+                            th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">
+                        $0
+                    </strong>
+                    <span class="text-secondary small">Importe neto liquidado</span>
+                </div>
+            </div>
 
-      <!-- Summary cards -->
-      <div class="tarjetas mb-4">
-        <div class="tarjeta card-custom">
-          <div class="etiqueta fw-bold">Unidad de venta</div>
-          <div class="valor chico" th:text="${unidad != null ? unidad : '-'}">-</div>
-        </div>
-        <div class="tarjeta card-custom">
-          <div class="etiqueta fw-bold">Duración del festival</div>
-          <div class="valor" th:text="${diasFestival != null ? diasFestival + ' días' : '0 días'}">0 días</div>
-        </div>
-        <div class="tarjeta card-custom">
-          <div class="etiqueta fw-bold" th:text="${esEmpleado ? 'Total a percibir' : 'Total a pagar'}">Total a pagar</div>
-          <div class="valor fw-bold" th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</div>
-        </div>
-      </div>
+        </section>
+        <section class="card menu-card overflow-hidden mb-4">
 
-      <!-- Detalle de Personal y Haberes -->
-      <div class="tarjeta card-custom p-4">
-        <h5 class="mb-3 fw-bold" th:text="${esEmpleado ? 'Mi Liquidación Individual' : 'Detalle de Personal y Haberes'}">
-          Detalle de Personal y Haberes
-        </h5>
-        <div class="tabla-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Empleado</th>
-                <th>Email</th>
-                <th>DNI</th>
-                <th>Rol / Categoría</th>
-                <th class="num">Sueldo Base</th>
-                <th class="num">Plus / Antigüedad</th>
-                <th class="num">Períodos (Base 30 días)</th>
-                <th class="num">Total a Cobrar</th>
-                <th class="text-center no-print">Recibo</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
-                <td th:text="${l.nombreCompleto}">Nombre</td>
-                <td th:text="${l.email != null and !#strings.isEmpty(l.email) ? l.email : '-'}">email</td>
-                <td th:text="${l.dni}">00000000</td>
-                <td th:text="${l.rol}">Cajero</td>
-                <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                <td class="num" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                <td class="num" th:text="${l.periodos} + ' período(s)'">0</td>
-                <td class="num fw-bold" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
-                <td class="text-center no-print">
-                  <a class="btn-pdf" th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId}, unidadId=${unidadId})}">Ver PDF</a>
-                </td>
-              </tr>
-              <tr th:if="${liquidaciones == null or #lists.isEmpty(liquidaciones)}">
-                <td colspan="9" class="text-center text-muted py-4">
-                  No hay liquidaciones registradas para el criterio seleccionado.
-                </td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="7" class="text-end fw-bold" th:text="${esEmpleado ? 'Total a percibir:' : 'Total General:'}">Total General:</td>
-                <td class="num fw-bold text-danger" colspan="2" th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;" 
+                    th:text="${esEmpleado ? '👤 Mi Liquidación Individual' : '👥 Detalle de Personal y Haberes'}">
+                    Detalle de Personal y Haberes
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${liquidaciones != null ? #lists.size(liquidaciones) + ' registro(s)' : '0 registros'}">
+                    0 registros
+                </span>
+            </div>
 
-      <p class="nota mt-3">
-        Cálculo basado en sueldo base, antigüedad ($5.000 por año), plus por categoría y proporción de haberes calculada cada 30 días.
-      </p>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-3 py-3" style="min-width: 150px;">Empleado</th>
+                            <th class="py-3" style="min-width: 170px;">Email</th>
+                            <th class="py-3" style="min-width: 95px;">DNI</th>
+                            <th class="py-3" style="min-width: 110px;">Rol</th>
+                            <th class="text-end py-3" style="min-width: 110px;">Sueldo Base</th>
+                            <th class="text-end py-3" style="min-width: 110px;">Plus / Antig.</th>
+                            <th class="text-center py-3" style="min-width: 110px;">Períodos</th>
+                            <th class="text-end py-3" style="min-width: 125px;">Total a Cobrar</th>
+                            <th class="text-center pe-3 py-3 d-print-none" style="min-width: 90px;">Recibo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="l : ${liquidaciones}" th:if="${liquidaciones != null and !#lists.isEmpty(liquidaciones)}">
+                            <td class="ps-3 py-2 fw-bold text-dark" th:text="${l.nombreCompleto}">Nombre</td>
+                            <td class="py-2 small text-secondary" th:text="${l.email != null and !#strings.isEmpty(l.email) ? l.email : '-'}">-</td>
+                            <td class="py-2 font-monospace small" th:text="${l.dni}">00000000</td>
+                            <td class="py-2">
+                                <span class="badge bg-secondary px-2 py-1" th:text="${l.rol}">Cajero</span>
+                            </td>
+                            <td class="text-end py-2 text-secondary" th:text="'$' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                            <td class="text-end py-2 text-secondary" th:text="'$' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                            <td class="text-center py-2 small" th:text="${l.periodos} + ' período(s)'">0</td>
+                            <td class="text-end py-2 fw-bold text-success" th:text="'$' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 0, 'COMMA')}">$0</td>
+                            <td class="text-center pe-3 py-2 d-print-none">
+                                <a class="menu-button py-1 px-2 small" 
+                                   style="font-size: 0.8rem; white-space: nowrap;"
+                                   th:href="@{/reciboPdf/{id}(id=${l.empleadoId}, festivalId=${festivalId}, unidadId=${unidadId})}">
+                                    Ver PDF
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${liquidaciones == null or #lists.isEmpty(liquidaciones)}">
+                            <td colspan="9" class="text-center py-5 text-secondary">
+                                <div class="fs-2 mb-2" aria-hidden="true">🧾</div>
+                                <strong>No hay liquidaciones registradas para el criterio seleccionado.</strong>
+                                <p class="mb-0 mt-1 small">
+                                    Ajustá los filtros de consulta o verificá las asignaciones activas.
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light border-top">
+                        <tr>
+                            <td colspan="7" class="text-end fw-bold ps-3 py-3" th:text="${esEmpleado ? 'Total a percibir:' : 'Total General:'}">Total General:</td>
+                            <td class="text-end fw-bold fs-6 text-success py-3" th:text="${totalGeneral != null ? '$' + #numbers.formatDecimal(totalGeneral, 1, 'POINT', 0, 'COMMA') : '$0'}">$0</td>
+                            <td class="d-print-none pe-3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </section>
     </main>
-  </div>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
 </body>
 </html>
