@@ -417,14 +417,13 @@
                     <!-- Unidad de Venta -->
                     <div class="col-md-6">
                         <label for="unidadVentaId" class="form-label">Unidad de Venta</label>
-                        <select id="unidadVentaId" name="unidadVentaId" class="form-select" required>
-                            <option value="" disabled th:selected="${unidadVentaId == null}">Seleccionar unidad...</option>
+                        
                             <option th:each="uv : ${unidades}"
                                     th:value="${uv.id}"
                                     th:text="${uv.nombreComercial}"
                                     th:selected="${uv.id == unidadVentaId}">
                             </option>
-                        </select>
+
                     </div>
 
                     <!-- Fecha -->
