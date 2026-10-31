@@ -39,7 +39,7 @@
                 <h2 class="h6 fw-bold m-0" style="color: #800020;">
                     🔍 Filtros de Consulta
                 </h2>
-                <span class="text-muted small">Ajustá festival y rango temporal</span>
+                <span class="text-muted small">Ajustá festival</span>
             </div>
 
             <form th:action="@{/reportes/rentabilidad}" method="get">
@@ -60,25 +60,10 @@
                         </select>
                     </div>
 
-                  
-                    <div class="col-6 col-sm-5 col-lg-2">
-                        <label for="fechaDesde" class="form-label small fw-semibold text-secondary mb-1">Desde</label>
-                        <input type="date" 
-                               id="fechaDesde" 
-                               name="fechaDesde" 
-                               class="form-control form-control-sm px-2 text-center" 
-                               th:value="${fechaDesde}">
-                    </div>
+          
 
                     
-                    <div class="col-6 col-sm-5 col-lg-2">
-                        <label for="fechaHasta" class="form-label small fw-semibold text-secondary mb-1">Hasta</label>
-                        <input type="date" 
-                               id="fechaHasta" 
-                               name="fechaHasta" 
-                               class="form-control form-control-sm px-2 text-center" 
-                               th:value="${fechaHasta}">
-                    </div>
+                 
 
                     
                     <div class="col-12 col-sm-2 col-lg-2">
