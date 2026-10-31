@@ -18,9 +18,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import org.springframework.security.core.Authentication;
 
 @Controller
 @RequestMapping("/cajero")
@@ -50,6 +53,7 @@ public class CajeroController {
     public String mostrarCierreCaja(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            Authentication authentication,
             Principal principal,
             Model model) {
 
@@ -64,21 +68,24 @@ public class CajeroController {
                 Long cajeroId = (Long) resumen.get("cajeroId");
                 model.addAttribute("cajeroId", cajeroId);
 
-                // Si en el resumen viene una unidad de venta asociada, la pasamos; si no, buscamos una por defecto
                 Long unidadVentaId = (Long) resumen.get("unidadVentaId");
                 model.addAttribute("unidadVentaId", unidadVentaId);
             }
 
-            // Si se especificaron fechas, filtrar el historial
+            // Si se especificaron fechas, validar rango y filtrar el historial
             if (desde != null && hasta != null) {
-                Long cajeroId = (Long) resumen.get("cajeroId");
-                if (cajeroId != null) {
-                    List<CierreCaja> historialFiltrado =
-                            cierreCajaService.obtenerHistorialPorCajeroYFechas(cajeroId, desde, hasta);
-                    BigDecimal totalFiltrado =
-                            cierreCajaService.calcularRecaudacionEntreFechas(cajeroId, desde, hasta);
-                    model.addAttribute("historial", historialFiltrado);
-                    model.addAttribute("totalFiltrado", totalFiltrado);
+                if (desde.isAfter(hasta)) {
+                    model.addAttribute("error", "La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'.");
+                } else {
+                    Long cajeroId = (Long) resumen.get("cajeroId");
+                    if (cajeroId != null) {
+                        List<CierreCaja> historialFiltrado =
+                                cierreCajaService.obtenerHistorialPorCajeroYFechas(cajeroId, desde, hasta);
+                        BigDecimal totalFiltrado =
+                                cierreCajaService.calcularRecaudacionEntreFechas(cajeroId, desde, hasta);
+                        model.addAttribute("historial", historialFiltrado);
+                        model.addAttribute("totalFiltrado", totalFiltrado);
+                    }
                 }
                 model.addAttribute("desde", desde);
                 model.addAttribute("hasta", hasta);
@@ -93,14 +100,34 @@ public class CajeroController {
             model.addAttribute("unidadVentaId", null);
         }
 
-        // Cargar unidades de venta para el formulario de registro
+        // Cargar unidades de venta: el cajero solo debe ver sus unidades asignadas
         try {
-            List<UnidadVenta> unidades = unidadVentaRepository.findAll();
+            Long cajeroId = (Long) model.getAttribute("cajeroId");
+            boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            List<UnidadVenta> unidades;
+            if (esAdmin) {
+                unidades = unidadVentaRepository.findAll();
+            } else if (cajeroId != null) {
+                unidades = new ArrayList<>(unidadVentaRepository.buscarPorStaffAsignado(cajeroId));
+                if (unidades.isEmpty()) {
+                    unidadVentaRepository.findByResponsable_Id(cajeroId).ifPresent(unidades::add);
+                }
+            } else {
+                unidades = Collections.emptyList();
+            }
+
             model.addAttribute("unidades", unidades);
-            
-            // Opcional: Si unidadVentaId llegó nulo pero hay unidades, asignamos la primera por defecto para evitar nulos
-            if (!unidades.isEmpty() && model.getAttribute("unidadVentaId") == null) {
-                model.addAttribute("unidadVentaId", unidades.get(0).getId());
+
+            // Si hay unidades asignadas, fijar la primera si no hay una válida seleccionada
+            if (!unidades.isEmpty()) {
+                Long currentUvId = (Long) model.getAttribute("unidadVentaId");
+                boolean contiene = currentUvId != null && unidades.stream().anyMatch(u -> Objects.equals(u.getId(), currentUvId));
+                if (!contiene) {
+                    model.addAttribute("unidadVentaId", unidades.get(0).getId());
+                    model.addAttribute("unidadVentaNombre", unidades.get(0).getNombreComercial());
+                }
             }
         } catch (Exception e) {
             model.addAttribute("unidades", Collections.emptyList());
@@ -111,7 +138,7 @@ public class CajeroController {
 
    /**
      * POST /cajero/cierre-caja
-     * Registra un nuevo cierre de caja.
+     * Registra un nuevo cierre de caja con validaciones de negocio.
      */
     @PostMapping("/cierre-caja")
     public String registrarCierreCaja(
@@ -119,6 +146,7 @@ public class CajeroController {
             @RequestParam(required = false) Long unidadVentaId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) BigDecimal montoRecaudado,
+            Authentication authentication,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
@@ -136,35 +164,50 @@ public class CajeroController {
                 else if (resumen.get("cajeroId") != null) cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
             }
 
-            // Si aún es nulo, buscamos un valor por defecto o lanzamos error descriptivo
             if (cajeroId == null) {
                 throw new IllegalArgumentException("No se encontró un ID válido para el cajero actual.");
             }
 
-            // 2. Resolver unidadVentaId si viene nulo (si el select no se envió o llegó vacío)
+            // 2. Resolver unidadVentaId si viene nulo
             if (unidadVentaId == null && resumen != null && resumen.get("unidadVentaId") != null) {
                 unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
-            }
-            
-            if (unidadVentaId == null) {
-                List<UnidadVenta> unidades = unidadVentaRepository.findAll();
-                if (!unidades.isEmpty()) {
-                    unidadVentaId = unidades.get(0).getId(); // Asigna la primera unidad de la base de datos por defecto
-                }
             }
 
             if (unidadVentaId == null) {
                 throw new IllegalArgumentException("Debe seleccionar una unidad de venta obligatoriamente.");
             }
 
-            // 3. Fecha por defecto
-            if (fecha == null) {
-                fecha = LocalDate.now();
+            // Validar que el cajero pertenezca a la unidad de venta si no es admin
+            boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!esAdmin) {
+                final Long finalCajeroId = cajeroId;
+                final Long finalUvId = unidadVentaId;
+                boolean asignado = unidadVentaRepository.buscarPorStaffAsignado(finalCajeroId).stream()
+                        .anyMatch(u -> Objects.equals(u.getId(), finalUvId))
+                        || unidadVentaRepository.findByResponsable_Id(finalCajeroId)
+                        .map(u -> Objects.equals(u.getId(), finalUvId)).orElse(false);
+
+                if (!asignado) {
+                    throw new IllegalArgumentException("No tiene permisos para registrar el cierre de una unidad de venta que no tiene asignada.");
+                }
             }
 
-            // 4. Monto por defecto si es nulo
+            // 3. Validar fecha (no puede ser futura)
+            if (fecha == null) {
+                fecha = LocalDate.now();
+            } else if (fecha.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("La fecha de cierre de caja no puede ser una fecha futura.");
+            }
+
+            // 4. Validar monto recaudado (no negativo, máximo 2 decimales)
             if (montoRecaudado == null) {
                 montoRecaudado = BigDecimal.ZERO;
+            } else if (montoRecaudado.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("El monto recaudado no puede ser un valor negativo.");
+            } else if (montoRecaudado.scale() > 2) {
+                throw new IllegalArgumentException("El monto recaudado no puede tener más de 2 decimales.");
             }
 
             // Ejecutar el servicio de guardado

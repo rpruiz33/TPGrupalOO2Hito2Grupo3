@@ -224,9 +224,19 @@ public class PedidoController {
 
     @PostMapping("/alta")
     public String registrarPedido(
-            @ModelAttribute PedidoAltaDTO datos,
+            @jakarta.validation.Valid @ModelAttribute("datos") PedidoAltaDTO datos,
+            org.springframework.validation.BindingResult bindingResult,
             Principal principal,
             RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getAllErrors().stream()
+                    .map(org.springframework.context.support.DefaultMessageSourceResolvable::getDefaultMessage)
+                    .findFirst()
+                    .orElse("Datos del pedido inválidos.");
+            redirectAttributes.addFlashAttribute("error", errorMsg);
+            return "redirect:/pedidos/alta";
+        }
 
         try {
             Staff staff = obtenerStaffAutenticado(principal);

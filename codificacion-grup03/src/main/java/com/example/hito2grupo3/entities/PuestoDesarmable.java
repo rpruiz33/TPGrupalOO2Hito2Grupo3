@@ -23,7 +23,12 @@ public class PuestoDesarmable extends UnidadVenta {
     public static final String PREFIJO_CODIGO = "PD-";
     public static final String REGEX_CODIGO_PUESTO = "^PD-[0-9]{7}$";
 
+    @jakarta.validation.constraints.NotNull(message = "La cantidad de carpas es obligatoria")
+    @jakarta.validation.constraints.Min(value = 1, message = "La cantidad de carpas debe ser mayor a cero")
     private Integer cantidadCarpas;
+
+    @jakarta.validation.constraints.NotNull(message = "El tiempo de montaje es obligatorio")
+    @jakarta.validation.constraints.Min(value = 1, message = "El tiempo de montaje debe ser mayor a cero minutos")
     private Integer tiempoMontajeMin;
 
     public static boolean esCodigoValidoPuesto(String codigo) {

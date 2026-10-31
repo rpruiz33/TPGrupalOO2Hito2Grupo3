@@ -29,7 +29,6 @@
         <section class="card menu-card p-4 p-md-5">
             <div class="card border-0 mb-4 bg-light" th:if="${unidadVenta != null}">
                 <div class="card-body p-3 d-flex align-items-center gap-3">
-                    <div class="fs-3 text-secondary" aria-hidden="true">🍽️</div>
                     <div>
                         <span class="small text-muted d-block">Unidad de venta</span>
                         <strong class="text-dark" th:text="${unidadVenta.nombreComercial}">Nombre de la unidad</strong>
@@ -42,6 +41,12 @@
             <form th:action="@{/responsable/platos/modificar/{id}(id=${plato.id})}"
                   th:object="${plato}"
                   method="post">
+                <div class="alert alert-danger shadow-sm mb-3" th:if="${#fields.hasAnyErrors()}">
+                    <div class="fw-bold mb-1">Por favor revise los siguientes errores:</div>
+                    <ul class="mb-0 ps-3">
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                    </ul>
+                </div>
                 <div class="mb-3">
                     <label for="nombre" class="form-label fw-bold">
                         Nombre del plato <span class="text-danger">*</span>
@@ -51,7 +56,10 @@
                            class="form-control"
                            th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
                            th:field="*{nombre}"
-                           maxlength="100"
+                           minlength="2"
+                           maxlength="50"
+                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                           title="Solo letras y espacios (2 a 50 caracteres)"
                            placeholder="Ej.: Hamburguesa completa"
                            required>
                     <div class="invalid-feedback"
@@ -66,7 +74,7 @@
                     <input type="number"
                            id="precio"
                            class="form-control"
-                           th:classappend="${#fields.hasErrors('precio')} ? 'is-invalid' : ''"
+                           th:classappend="${#fields.hasErrors('precio') || #fields.hasErrors('precioMayorACosto')} ? 'is-invalid' : ''"
                            th:field="*{precio}"
                            min="0.01"
                            step="0.01"
@@ -79,6 +87,10 @@
                          th:if="${#fields.hasErrors('precio')}"
                          th:errors="*{precio}">
                     </div>
+                    <div class="text-danger small mt-1"
+                         th:if="${#fields.hasErrors('precioMayorACosto')}"
+                         th:errors="*{precioMayorACosto}">
+                    </div>
                 </div>
 
                 <!-- Costo de producción -->
@@ -89,7 +101,7 @@
                     <input type="number"
                            id="costoProduccion"
                            class="form-control"
-                           th:classappend="${#fields.hasErrors('costoProduccion')} ? 'is-invalid' : ''"
+                           th:classappend="${#fields.hasErrors('costoProduccion') || #fields.hasErrors('precioMayorACosto')} ? 'is-invalid' : ''"
                            th:field="*{costoProduccion}"
                            min="0.01"
                            step="0.01"

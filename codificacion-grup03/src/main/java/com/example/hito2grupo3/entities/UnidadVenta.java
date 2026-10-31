@@ -36,9 +36,19 @@ public abstract class UnidadVenta {
     @Column(name = "codigo", nullable = false, unique = true, length = LONGITUD_CODIGO)
     private String codigo;
 
+    @jakarta.validation.constraints.NotBlank(message = "El nombre comercial es obligatorio")
+    @jakarta.validation.constraints.Size(min = 2, max = 50, message = "El nombre comercial debe tener entre 2 y 50 caracteres")
+    @jakarta.validation.constraints.Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s.,'-]+$", message = "El nombre comercial contiene caracteres inválidos")
     private String nombreComercial;
 
+    @jakarta.validation.constraints.NotNull(message = "La superficie es obligatoria")
+    @jakarta.validation.constraints.DecimalMin(value = "0.01", message = "La superficie debe ser mayor a cero")
+    @jakarta.validation.constraints.Digits(integer = 6, fraction = 2, message = "La superficie debe tener como máximo 2 decimales")
     private BigDecimal superficieM2;
+
+    public void setNombreComercial(String nombreComercial) {
+        this.nombreComercial = nombreComercial != null ? nombreComercial.trim() : null;
+    }
 
     public static boolean esCodigoValido(String codigo) {
         if (codigo == null) {

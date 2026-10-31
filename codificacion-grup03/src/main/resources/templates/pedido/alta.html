@@ -7,14 +7,26 @@
     <title>Alta de pedido - Epicentro Gourmet</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/vistas.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
 <body class="login-body">
-<main class="contenedor">
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Ventas', null, null)}"></nav>
 
-    <header class="text-center mb-4">
-        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
-        <p class="mb-0 text-white-50">Alta de pedido</p>
+<main class="contenedor mt-2">
+
+    <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Alta de Pedido</h1>
+            <p class="text-white-50 mb-0">Registrá una venta seleccionando festival, unidad y platos.</p>
+        </div>
+        <div>
+            <a class="menu-button" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">← Volver al Menu</a>
+            <a class="menu-button" sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}">← Volver al Menu</a>
+            <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/cajero/index}">← Volver al Menu</a>
+            <a class="menu-button" sec:authorize="hasRole('COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
+            <a class="menu-button" sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
+        </div>
     </header>
 
     <div class="error" role="alert" th:if="${error}" th:text="${error}">
@@ -44,6 +56,7 @@
                        name="fecha"
                        class="form-control"
                        th:value="${fechaActual}"
+                       th:max="${fechaActual}"
                        required>
 
                 <small id="avisoFecha" class="text-warning mt-2 d-none">
@@ -174,40 +187,10 @@
                     Registrar pedido
                 </button>
 
-                
-                <a class="boton"
-   sec:authorize="hasRole('ADMIN')"
-   th:href="@{/admin/index}">
-    Volver
-</a>
-
-<a class="boton"
-   sec:authorize="hasRole('RESPONSABLE')"
-   th:href="@{/responsable/index}">
-    Volver
-</a>
-
-<a class="boton"
-   sec:authorize="hasRole('EMPLEADO')"
-   th:href="@{/empleado/index}">
-    Volver
-</a>
-
-<a class="boton"
-   sec:authorize="hasRole('CAJERO')"
-   th:href="@{/cajero/index}">
-    Volver
-</a>
             </div>
 
         </form>
     </section>
-
-    <div class="logo">
-        <img th:src="@{/images/unla-logo.png}"
-             alt="Logo UNLa"
-             class="unla-logo-img">
-    </div>
 
 </main>
 
