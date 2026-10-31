@@ -17,6 +17,8 @@ import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
+    boolean existsByFestival_Id(Long festivalId);
+
     @Query("SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) FROM ItemPedido ip")
     BigDecimal calcularRecaudacionTotal();
 

@@ -104,6 +104,12 @@ public class RentabilidadNetaController {
             return VISTA_RENTABILIDAD;
         }
 
+        // Validación de rango de fechas
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            model.addAttribute("error", "La fecha 'Desde' (" + desde + ") no puede ser posterior a la fecha 'Hasta' (" + hasta + ").");
+            return VISTA_RENTABILIDAD;
+        }
+
         // 3) Calcular siempre
         try {
             model.addAttribute("ranking", r.obtenerRankingUnidades(id));

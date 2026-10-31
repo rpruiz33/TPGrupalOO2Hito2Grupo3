@@ -1,26 +1,22 @@
 package com.example.hito2grupo3.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemPedidoDTO {
 
+    @NotNull(message = "Debe especificar el plato")
     private Long platoId;
+
+    @NotNull(message = "La cantidad es obligatoria")
+    @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer cantidad;
-
-    public ItemPedidoDTO() {
-    }
-
-    public Long getPlatoId() {
-        return platoId;
-    }
-
-    public void setPlatoId(Long platoId) {
-        this.platoId = platoId;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
-    }
 }

@@ -49,6 +49,9 @@ public class Festival {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
+    @jakarta.persistence.Column(nullable = false)
+    private boolean activo = true;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "festival_id") // Crea la columna 'festival_id' en la tabla 'costos'
     private Set<Costos> costos = new HashSet<>();
