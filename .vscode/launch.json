@@ -14,13 +14,7 @@
       "request": "launch",
       "mainClass": "com.example.hito2grupo3.Hito2grupo3Application",
       "cwd": "${workspaceFolder}/codificacion-grup03",
-      "env": {
-        "DB_URL": "jdbc:mysql://localhost:3306/ghsicilianotfi?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
-        "DB_USER": "root",
-        "DB_PASSWORD":"root",
-        "USERNAME": "root",
-        "PASSWORD": "root"
-      }
+      "projectName": "demo"
     }
   ]
 }

@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.Entity;
 
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -16,8 +21,14 @@ import jakarta.persistence.Entity;
 @Table(name = "Cajero")
 public class Cajero extends Staff {
 
+    @Pattern(regexp = "^(?i)(MAÑANA|MANANA|TARDE|NOCHE)$", message = "El turno debe ser Mañana, Tarde o Noche")
     private String turno;
+
+    @Min(value = 1, message = "El número de caja debe ser al menos 1")
     private Integer NumeroCaja;
+
+    @PositiveOrZero(message = "El plus o adicional debe ser mayor o igual a cero")
+    @Digits(integer = 10, fraction = 2, message = "El plus solo puede tener hasta 2 decimales")
     private BigDecimal plusOadicional;
 
     public Cajero(long id, String nombre, String apellido, String dni,

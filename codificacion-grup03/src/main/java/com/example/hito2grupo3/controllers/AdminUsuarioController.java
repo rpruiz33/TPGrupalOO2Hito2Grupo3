@@ -15,8 +15,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -132,8 +135,15 @@ public class AdminUsuarioController {
     @PostMapping("/guardar")
     public String guardarEmpleado(
             Authentication authentication,
-            @ModelAttribute("empleado") EmpleadoDTO dto,
+            @Valid @ModelAttribute("empleado") EmpleadoDTO dto,
+            BindingResult result,
+            Model model,
             RedirectAttributes redirectAttrs) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
+        }
 
         try {
             Staff nuevoStaff = empleadoService.crearEmpleado(dto);
@@ -166,15 +176,17 @@ public class AdminUsuarioController {
             );
 
         } catch (IllegalArgumentException e) {
-            redirectAttrs.addFlashAttribute("error", e.getMessage());
-            return "redirect:/responsable/usuarios/nuevo";
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
 
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute(
+            model.addAttribute(
                     "error",
                     "Error inesperado al registrar el empleado: " + e.getMessage()
             );
-            return "redirect:/responsable/usuarios/nuevo";
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
         }
 
         return "redirect:/responsable/usuarios";
@@ -248,15 +260,23 @@ public class AdminUsuarioController {
     @PostMapping("/actualizar/{id}")
     public String actualizarEmpleado(
             @PathVariable("id") Long id,
-            @ModelAttribute("empleado") EmpleadoDTO dto,
+            @Valid @ModelAttribute("empleado") EmpleadoDTO dto,
+            BindingResult result,
+            Model model,
             RedirectAttributes redirectAttrs) {
+
+        if (result.hasErrors()) {
+            dto.setId(id);
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
+        }
 
         try {
             Staff staff = staffRepository.findByUsuario_Id(id)
                     .or(() -> staffRepository.findById(id))
                     .orElseThrow(() ->
                             new IllegalArgumentException(
-                                    "No se encontró el empleado con ID: " + id
+                                     "No se encontró el empleado con ID: " + id
                             )
                     );
 
@@ -268,16 +288,19 @@ public class AdminUsuarioController {
             );
 
         } catch (IllegalArgumentException e) {
-            redirectAttrs.addFlashAttribute("error", e.getMessage());
-            return "redirect:/responsable/usuarios/editar/" + id;
+            dto.setId(id);
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
 
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute(
+            dto.setId(id);
+            model.addAttribute(
                     "error",
                     "Error inesperado al actualizar el empleado: " + e.getMessage()
             );
-
-            return "redirect:/responsable/usuarios/editar/" + id;
+            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            return "responsable/usuario-form";
         }
 
         return "redirect:/responsable/usuarios";
