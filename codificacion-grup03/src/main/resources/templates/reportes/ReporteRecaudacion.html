@@ -1,34 +1,109 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Recaudación - Epicentro Gourmet</title>
-
-    
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
 </head>
+
 <body>
-
-   
-    <nav class="navbar navbar-dark admin-header px-4 py-2">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold d-flex align-items-center gap-3" href="/admin/dashboard">
-                <img th:src="@{/images/unla-logo.png}" alt="UNLa" style="height: 45px;" 
-                     onerror="this.style.display='none'">
-                <span>Epicentro Gourmet - Admin</span>
-            </a>
-
-            <div class="d-flex align-items-center gap-3">
-                <span class="small d-none d-md-inline">Administrador</span>
-                <form th:action="@{/logout}" method="post" class="m-0">
-                    <button type="submit" class="btn btn-outline-custom btn-sm px-3 py-1">Cerrar Sesión</button>
-                </form>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 1100px;">
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">📊 Reporte de Recaudación</h1>
+                <p class="text-white-50 mb-0" th:text="${reporte.nombreFestival}">Nombre del Festival</p>
             </div>
-        </div>
-    </nav>
 
+            <div>
+                <a th:href="@{/admin/dashboard}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </section>
+        <section class="row g-3 justify-content-center mb-4">
+            <div class="col-sm-6">
+                <div class="card menu-card p-3 text-center h-100">
+                    <span class="text-muted small fw-semibold">Recaudación Total</span>
+                    <strong class="fs-3 text-success my-1" 
+                            th:text="'$' + ${#numbers.formatDecimal(reporte.recaudacionTotal, 1, 'POINT', 2, 'COMMA')}">
+                        $0,00
+                    </strong>
+                    <span class="text-secondary small">Total acumulado de ventas</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card menu-card p-3 text-center h-100">
+                    <span class="text-muted small fw-semibold">Pedidos Realizados</span>
+                    <strong class="fs-3 my-1" style="color: #800020;" 
+                            th:text="${reporte.cantidadPedidos}">
+                        0
+                    </strong>
+                    <span class="text-secondary small">Transacciones confirmadas</span>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="card menu-card overflow-hidden">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    🏪 Desglose por Unidad de Venta
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${ranking != null ? #lists.size(ranking) + ' unidad(es)' : '0 unidades'}">
+                    0 unidades
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-3">Código</th>
+                            <th>Nombre Comercial</th>
+                            <th>Tipo de Unidad</th>
+                            <th class="text-end pe-3">Recaudado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="unidad : ${ranking}">
+                            <td class="ps-3 fw-bold text-dark" th:text="${unidad.codigo}">PD-0000001</td>
+                            <td class="fw-semibold" th:text="${unidad.nombreComercial}">Puesto de Prueba</td>
+                            <td>
+                                <span class="badge bg-secondary px-2 py-1" th:text="${unidad.tipoUnidad}">FoodTruck</span>
+                            </td>
+                            <td class="text-end pe-3 fw-bold" style="color: #800020;" 
+                                th:text="'$' + ${#numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">
+                                $0,00
+                            </td>
+                        </tr>
+
+                        <tr th:if="${ranking == null or #lists.isEmpty(ranking)}">
+                            <td colspan="4" class="text-center py-5 text-secondary">
+                                <div class="fs-2 mb-2" aria-hidden="true">🧾</div>
+                                <strong>No hay pedidos registrados para este festival.</strong>
+                                <p class="mb-0 mt-1 small">
+                                    Los importes aparecerán a medida que las unidades registren ventas.
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+</html>
     
     <div class="container-fluid">
         <div class="row">
