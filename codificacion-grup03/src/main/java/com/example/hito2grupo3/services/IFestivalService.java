@@ -4,7 +4,10 @@ import java.util.List;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
+<<<<<<< HEAD
 import com.example.hito2grupo3.entities.UnidadVenta;
+=======
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
 
 public interface IFestivalService {
 
@@ -25,6 +28,7 @@ public interface IFestivalService {
     void reactivar(Long id);
 
     void eliminarFestival(Long id);
+<<<<<<< HEAD
 
     /**
      * Retorna todas las unidades de venta disponibles en el sistema
@@ -39,3 +43,7 @@ public interface IFestivalService {
 }
 
 
+=======
+}
+
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)

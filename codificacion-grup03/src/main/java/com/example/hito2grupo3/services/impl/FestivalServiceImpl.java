@@ -159,6 +159,7 @@ public class FestivalServiceImpl implements IFestivalService {
 
         return dto;
     }
+<<<<<<< HEAD
 
     @Override
     @Transactional(readOnly = true)
@@ -173,3 +174,6 @@ public class FestivalServiceImpl implements IFestivalService {
     }
 }
 
+=======
+}
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
