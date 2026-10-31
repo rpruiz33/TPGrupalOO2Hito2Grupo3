@@ -22,8 +22,14 @@ public class FoodTruck extends UnidadVenta {
     public static final String PREFIJO_CODIGO = "FT-";
     public static final String REGEX_CODIGO_FOOD_TRUCK = "^FT-[0-9]{7}$";
 
+    @jakarta.validation.constraints.NotBlank(message = "La patente es obligatoria para un Food Truck")
+    @jakarta.validation.constraints.Pattern(regexp = "^[A-Z0-9\\s-]{6,10}$", message = "La patente debe tener un formato válido (ej: AB123CD o ABC123)")
     private String patente;
     private boolean requiereElectricidad;
+
+    public void setPatente(String patente) {
+        this.patente = patente != null ? patente.trim().toUpperCase() : null;
+    }
 
     public static boolean esCodigoValidoFoodTruck(String codigo) {
         if (codigo == null) {

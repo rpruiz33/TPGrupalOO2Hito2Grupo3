@@ -48,6 +48,14 @@
                 </div>
             </div>
 
+            <!-- Alerta con resumen de errores de validación -->
+            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger shadow-sm mb-4" role="alert">
+                <div class="fw-bold mb-2">Por favor, corrija los siguientes errores antes de continuar:</div>
+                <ul class="mb-0 ps-3">
+                    <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                </ul>
+            </div>
+
             <form id="empleadoForm" 
                   th:action="${empleado.id == null} ? @{/responsable/usuarios/guardar} : @{/responsable/usuarios/actualizar/{id}(id=${empleado.usuarioId != null ? empleado.usuarioId : empleado.id})}" 
                   th:object="${empleado}" method="post">
@@ -57,37 +65,54 @@
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Nombre</label>
-                        <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej. Juan" required>
+                        <input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{nombre}" 
+                               placeholder="Ej. Juan" required minlength="2" maxlength="50"
+                               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo letras y espacios (2 a 50 caracteres)">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Apellido</label>
-                        <input type="text" class="form-control" th:field="*{apellido}" placeholder="Ej. Pérez" required>
+                        <input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{apellido}" 
+                               placeholder="Ej. Pérez" required minlength="2" maxlength="50"
+                               pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo letras y espacios (2 a 50 caracteres)">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">DNI</label>
-                        <input type="text" class="form-control" th:field="*{dni}" placeholder="Ej. 35123456" required>
+                        <input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{dni}" 
+                               placeholder="Ej. 35123456" required minlength="7" maxlength="8"
+                               pattern="^[0-9]{7,8}$" title="El DNI debe contener 7 u 8 dígitos numéricos sin puntos ni letras">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Correo Electrónico (Usuario de Acceso)</label>
-                        <input type="email" class="form-control" th:field="*{email}" placeholder="empleado@epicentro.com" required>
+                        <input type="email" class="form-control" th:errorclass="is-invalid" th:field="*{email}" 
+                               placeholder="empleado@epicentro.com" required maxlength="100">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Fecha de Nacimiento</label>
-                        <input type="date" class="form-control" th:field="*{fechaNacimiento}" required>
+                        <input type="date" class="form-control" th:errorclass="is-invalid" th:field="*{fechaNacimiento}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}"></div>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('mayorDeEdad')}" th:errors="*{mayorDeEdad}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Fecha de Ingreso</label>
-                        <input type="date" class="form-control" th:field="*{fechaIngreso}" required>
+                        <input type="date" class="form-control" th:errorclass="is-invalid" th:field="*{fechaIngreso}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaIngreso')}" th:errors="*{fechaIngreso}"></div>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fechaIngresoValida')}" th:errors="*{fechaIngresoValida}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Sueldo Base ($)</label>
-                        <input type="number" step="0.01" class="form-control" th:field="*{sueldo}" placeholder="150000.00" required>
+                        <input type="number" step="0.01" min="0.01" class="form-control" th:errorclass="is-invalid" th:field="*{sueldo}" 
+                               placeholder="150000.00" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('sueldo')}" th:errors="*{sueldo}"></div>
                     </div>
                 </div>
 
@@ -96,11 +121,12 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Tipo de Empleado</label>
                     <th:block th:if="${empleado.id == null}">
-                        <select id="selectTipo" class="form-select" th:field="*{tipo}">
+                        <select id="selectTipo" class="form-select" th:errorclass="is-invalid" th:field="*{tipo}">
                             <option value="GENERAL">Staff General</option>
                             <option value="CAJERO">Cajero</option>
                             <option value="COCINERO">Cocinero</option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
                     </th:block>
                     <th:block th:unless="${empleado.id == null}">
                         <select id="selectTipo" class="form-select bg-light" disabled>
@@ -118,19 +144,22 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Turno</label>
-                            <select class="form-select" th:field="*{turno}">
+                            <select class="form-select" th:errorclass="is-invalid" th:field="*{turno}">
                                 <option value="Manana">Mañana</option>
                                 <option value="Tarde">Tarde</option>
                                 <option value="Noche">Noche</option>
                             </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('turno')}" th:errors="*{turno}"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Número de Caja</label>
-                            <input type="number" class="form-control" th:field="*{numeroCaja}" placeholder="Ej. 1">
+                            <input type="number" min="1" max="999" class="form-control" th:errorclass="is-invalid" th:field="*{numeroCaja}" placeholder="Ej. 1">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('numeroCaja')}" th:errors="*{numeroCaja}"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Plus o Adicional ($)</label>
-                            <input type="number" step="0.01" class="form-control" th:field="*{plusOadicional}" placeholder="0.00">
+                            <input type="number" step="0.01" min="0" class="form-control" th:errorclass="is-invalid" th:field="*{plusOadicional}" placeholder="0.00">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('plusOadicional')}" th:errors="*{plusOadicional}"></div>
                         </div>
                     </div>
                 </div>
@@ -140,7 +169,10 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Especialidad</label>
-                            <input type="text" class="form-control" th:field="*{especialidad}" placeholder="Ej. Carnes Rojas, Pizzas">
+                            <input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{especialidad}" 
+                                   placeholder="Ej. Carnes Rojas, Pizzas" maxlength="50"
+                                   pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo letras y espacios">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Categoría de Cocina</label>
@@ -156,7 +188,8 @@
                     <div class="row g-3 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Bono por Peligrosidad ($)</label>
-                            <input type="number" step="0.01" class="form-control" th:field="*{bonoPeligrosidad}" placeholder="0.00">
+                            <input type="number" step="0.01" min="0" class="form-control" th:errorclass="is-invalid" th:field="*{bonoPeligrosidad}" placeholder="0.00">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('bonoPeligrosidad')}" th:errors="*{bonoPeligrosidad}"></div>
                         </div>
                         <div class="col-md-6 pt-md-4">
                             <div class="form-check form-switch">

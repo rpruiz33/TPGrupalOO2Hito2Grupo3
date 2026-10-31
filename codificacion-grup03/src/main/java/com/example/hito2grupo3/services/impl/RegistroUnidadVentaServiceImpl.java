@@ -133,10 +133,26 @@ public class RegistroUnidadVentaServiceImpl
                     "Completá todos los campos obligatorios.");
         }
 
-        // Validar DNI: exactamente 8 dígitos numéricos
-        if (!dni.matches("[0-9]{8}")) {
+        // Validar longitudes y caracteres en nombres y apellidos
+        if (nombre.length() < 2 || nombre.length() > 50 || !nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
             throw new IllegalArgumentException(
-                    "El DNI debe contener exactamente 8 dígitos numéricos, sin puntos ni espacios.");
+                    "El nombre solo debe contener letras y espacios (entre 2 y 50 caracteres).");
+        }
+
+        if (apellido.length() < 2 || apellido.length() > 50 || !apellido.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
+            throw new IllegalArgumentException(
+                    "El apellido solo debe contener letras y espacios (entre 2 y 50 caracteres).");
+        }
+
+        if (nombreComercial.length() < 2 || nombreComercial.length() > 50) {
+            throw new IllegalArgumentException(
+                    "El nombre comercial debe tener entre 2 y 50 caracteres.");
+        }
+
+        // Validar DNI: 7 u 8 dígitos numéricos
+        if (!dni.matches("^[0-9]{7,8}$")) {
+            throw new IllegalArgumentException(
+                    "El DNI debe contener 7 u 8 dígitos numéricos, sin puntos ni letras.");
         }
 
         // Validar formato básico del email

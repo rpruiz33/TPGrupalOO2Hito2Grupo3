@@ -224,6 +224,17 @@
         fechaHasta.value = '';
       }
     });
+
+    // Validación de rango de fechas en cliente
+    const form = document.querySelector('form.filtros');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        if (fechaDesde.value && fechaHasta.value && fechaDesde.value > fechaHasta.value) {
+          e.preventDefault();
+          alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+        }
+      });
+    }
   });
 </script>
 </body>
