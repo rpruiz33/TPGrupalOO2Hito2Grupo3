@@ -5,12 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unidades de venta - Epicentro Gourmet</title>
-    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}" />
+    <link rel="stylesheet" th:href="@{/css/modificar-unidad.css}" />
 </head>
 
 <body>
-    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <nav
+        th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}">
+    </nav>
     <main class="container panel-container mt-4" style="max-width: 1100px;">
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
@@ -26,14 +29,16 @@
                 </a>
             </div>
         </section>
+
         <section class="card menu-card overflow-hidden">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+            <div
+                class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h2 class="h5 fw-bold m-0" style="color: #800020;">
                     🏪 Unidades asignadas
                 </h2>
                 <span class="text-secondary small fw-semibold"
-                      th:text="${unidades != null ? #sets.size(unidades) + ' unidad(es)' : '0 unidades'}">
+                    th:text="${unidades != null ? #sets.size(unidades) + ' unidad(es)' : '0 unidades'}">
                     0 unidades
                 </span>
             </div>
@@ -46,8 +51,10 @@
                             <th>Nombre comercial</th>
                             <th>Superficie (m²)</th>
                             <th class="pe-3">Responsable</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <tr th:each="unidad : ${unidades}">
                             <td class="ps-3 fw-bold text-dark" th:text="${unidad.codigo}">Código</td>
@@ -55,27 +62,35 @@
                             <td class="fw-semibold" th:text="${unidad.nombreComercial}">Nombre comercial</td>
 
                             <td>
-                                <span class="badge bg-light text-dark border px-2 py-1" 
-                                      th:text="${unidad.superficieM2} + ' m²'">0 m²</span>
+                                <span class="badge bg-light text-dark border px-2 py-1"
+                                    th:text="${unidad.superficieM2} + ' m²'">0 m²</span>
                             </td>
 
                             <td class="pe-3">
-                                <span th:if="${unidad.responsable != null}" 
-                                      class="fw-semibold text-dark"
-                                      th:text="${unidad.responsable.nombre + ' ' + unidad.responsable.apellido}">
+                                <span th:if="${unidad.responsable != null}" class="fw-semibold text-dark"
+                                    th:text="${unidad.responsable.nombre + ' ' + unidad.responsable.apellido}">
                                     Responsable
                                 </span>
                                 <span th:unless="${unidad.responsable != null}" class="text-muted fst-italic">
                                     Sin responsable
                                 </span>
                             </td>
+
+                            <td>
+                                <a th:href="@{/admin/unidades/{id}/editar(id=${unidad.id}, festivalId=${festival.id})}"
+                                    class="btn btn-sm btn-modificar">
+                                    Modificar
+                                </a>
+                            </td>
                         </tr>
+
                         <tr th:if="${unidades == null or #sets.isEmpty(unidades)}">
-                            <td colspan="4" class="text-center py-5 text-secondary">
+                            <td colspan="5" class="text-center py-5 text-secondary">
                                 <div class="fs-2 mb-2" aria-hidden="true">🏪</div>
                                 <strong>Este festival no tiene unidades de venta asociadas.</strong>
                                 <p class="mb-0 mt-1 small">
-                                    Podés asignarle puestos gastronómicos o food trucks desde la administración de festivales.
+                                    Podés asignarle puestos gastronómicos o food trucks desde la administración de
+                                    festivales.
                                 </p>
                             </td>
                         </tr>
@@ -90,4 +105,5 @@
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
+
 </html>
