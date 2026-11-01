@@ -86,6 +86,12 @@ public class SecurityConfiguration {
                                     "CAJERO"
                             );
 
+                    // Acceso historial pedidos
+                    auth.requestMatchers("/pedidos/**")
+                            .hasAnyRole(
+                                    "RESPONSABLE",
+                                    "CAJERO"
+                            );
                     // El resto de las rutas requiere autenticación
                     auth.anyRequest().authenticated();
                 })
