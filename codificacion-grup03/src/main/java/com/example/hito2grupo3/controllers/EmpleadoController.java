@@ -278,24 +278,21 @@ public String mostrarDashboard(
             return "redirect:/login";
         }
 
-        if (tieneRol(authentication, "ROLE_CAJERO")) {
-            return "redirect:/cajero/index";
+        if (tieneRol(authentication, "ROLE_ADMIN")) {
+            return "redirect:/admin/dashboard";
         }
 
         if (tieneRol(authentication, "ROLE_RESPONSABLE")) {
             return "redirect:/responsable/index";
         }
 
-        if (tieneRol(authentication, "ROLE_EMPLEADO")) {
+        if (tieneRol(authentication, "ROLE_CAJERO")) {
+            return "redirect:/cajero/index";
+        }
+
+        if (tieneRol(authentication, "ROLE_COCINERO")
+                || tieneRol(authentication, "ROLE_EMPLEADO")) {
             return "redirect:/empleado/index";
-        }
-
-        if (tieneRol(authentication, "ROLE_COCINERO")) {
-            return "redirect:/cocinero/index";
-        }
-
-        if (tieneRol(authentication, "ROLE_ADMIN")) {
-            return "redirect:/admin/index";
         }
 
         return "redirect:/access-denied";
