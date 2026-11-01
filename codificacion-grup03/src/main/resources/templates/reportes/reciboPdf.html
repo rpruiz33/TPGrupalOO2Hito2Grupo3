@@ -1,104 +1,161 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Recibo de sueldo - Epicentro Gourmet</title>
-  <link rel="stylesheet" th:href="@{/css/finanzas.css}">
-  <link rel="stylesheet" th:href="@{/css/vistas.css}">
-  <style>
-    @media print {
-      .acciones-doble, .logo {
-        display: none !important;
-      }
-      body {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-      }
-      .contenedor {
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recibo de Sueldo - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
+    <style>
+        .recibo-simple-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            max-width: 720px;
+            margin: 25px auto;
+            color: #212529;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .recibo-simple-card h1 {
+            color: #800020;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .recibo-simple-card .subtitulo {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .recibo-tabla th {
+            background-color: #f8f9fa;
+            color: #800020;
+            font-weight: 600;
+        }
+
+        @media print {
+            nav, .admin-header, .d-print-none {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .recibo-simple-card {
+                box-shadow: none !important;
+                border: 1px solid #dee2e6 !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 20px !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
+    <!-- Navbar común con los demás paneles -->
+    <nav sec:authorize="hasRole('ADMIN')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <nav sec:authorize="hasRole('RESPONSABLE')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
+    <nav sec:authorize="hasRole('CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
+    <nav sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Empleado', 'Empleado', '/empleado/index')}"></nav>
 
-<main class="contenedor" th:with="recibo=${recibo}">
+    <main class="container py-3">
+        
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-3" role="alert" th:text="${error}"></div>
 
-  <header>
-    <h1>Epicentro Gourmet</h1>
-    <p>Recibo de sueldo</p>
-  </header>
+        <!-- Tarjeta blanca simple con el recibo -->
+        <div class="card recibo-simple-card p-4 p-md-5" th:if="${recibo != null}">
+            
+            <header class="text-center pb-3 border-bottom mb-4">
+                <h1>Epicentro Gourmet</h1>
+                <p class="subtitulo mb-0">Recibo de sueldo</p>
+            </header>
 
-  <p class="unidad">
-    <span th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</span>
-    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}" th:text="' · ' + ${recibo.email}"> · empleado@epicentro.com</span> ·
-    <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> ·
-    <span th:text="${recibo.rol}">Cajero Senior</span>
-  </p>
+            <!-- Datos del empleado -->
+            <div class="mb-3 text-center">
+                <h2 class="h5 fw-bold mb-1" th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</h2>
+                <div class="text-muted small">
+                    <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> · 
+                    <span th:text="${recibo.rol}">Cajero</span>
+                    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}" th:text="' · ' + ${recibo.email}"> · empleado@epicentro.com</span>
+                </div>
+            </div>
 
-  <div class="resumen">
-    <div class="dato">
-      <span>Festival</span>
-      <strong th:text="${recibo.festival}">Epicentro Gourmet 2026</strong>
-    </div>
-    <div class="dato principal">
-      <span>Total a cobrar</span>
-      <strong th:text="'$ ' + ${#numbers.formatDecimal(recibo.total,1,'POINT',0,'COMMA')}">$ 102.000</strong>
-    </div>
-  </div>
+            <!-- Resumen Festival y Total -->
+            <div class="row g-2 text-center my-3 p-3 bg-light rounded border">
+                <div class="col-6">
+                    <span class="text-muted small d-block">Festival</span>
+                    <strong class="text-dark" th:text="${recibo.festival}">Epicentro Gourmet 2026</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-muted small d-block">Total a cobrar</span>
+                    <strong class="fs-5 text-success" th:text="'$ ' + ${#numbers.formatDecimal(recibo.total, 1, 'POINT', 0, 'COMMA')}">$ 102.000</strong>
+                </div>
+            </div>
 
-  <section aria-labelledby="t-liquidacion">
-    <h2 id="t-liquidacion">Liquidación de haberes</h2>
-    <div class="tabla-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Concepto</th>
-            <th style="text-align: right;">Monto / Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Unidad de venta</td>
-            <td style="text-align: right;" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas &amp; Bebidas</td>
-          </tr>
-          <tr>
-            <td>Duración del festival</td>
-            <td style="text-align: right;" th:text="${recibo.diasFestival} + ' días'">3 días</td>
-          </tr>
-          <tr>
-            <td>Sueldo base</td>
-            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase,1,'POINT',0,'COMMA')}">$ 60.000</td>
-          </tr>
-          <tr th:if="${recibo.plusCategoria != null}">
-            <td>Plus por categoría</td>
-            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria,1,'POINT',0,'COMMA')}">$ 15.000</td>
-          </tr>
-          <tr th:if="${recibo.montoAntiguedad != null}">
-            <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
-            <td style="text-align: right;" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad,1,'POINT',0,'COMMA')}">$ 10.000</td>
-          </tr>
-          <tr>
-            <td>Coeficiente por duración</td>
-            <td style="text-align: right;" th:text="${recibo.coeficiente}">1.2</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+            <!-- Tabla de conceptos -->
+            <h3 class="h6 fw-bold mt-3 mb-2" style="color: #800020;">Liquidación de haberes</h3>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered recibo-tabla align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th class="text-end" style="width: 200px;">Monto / Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unidad de venta</td>
+                            <td class="text-end text-muted" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas</td>
+                        </tr>
+                        <tr>
+                            <td>Duración del festival</td>
+                            <td class="text-end" th:text="${recibo.diasFestival} + ' días'">3 días</td>
+                        </tr>
+                        <tr>
+                            <td>Sueldo base</td>
+                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$ 60.000</td>
+                        </tr>
+                        <tr th:if="${recibo.plusCategoria != null}">
+                            <td>Plus por categoría</td>
+                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria, 1, 'POINT', 0, 'COMMA')}">$ 15.000</td>
+                        </tr>
+                        <tr th:if="${recibo.montoAntiguedad != null}">
+                            <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
+                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad, 1, 'POINT', 0, 'COMMA')}">$ 10.000</td>
+                        </tr>
+                        <tr>
+                            <td>Coeficiente por duración</td>
+                            <td class="text-end" th:text="${recibo.coeficiente}">1.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-  <div class="acciones-doble">
-    <button type="button" class="boton" onclick="window.print()">Imprimir PDF</button>
-    <a class="boton" th:href="@{/liquidacion}">Volver</a>
-  </div>
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-center gap-3 d-print-none mb-4">
+                <button type="button" class="menu-button" onclick="window.print()">
+                    🖨️ Imprimir PDF
+                </button>
+                <a class="menu-button" th:href="@{/liquidacion}">
+                    ← Volver
+                </a>
+            </div>
 
-  <div class="logo">
-    <img class="unla-logo-img" alt="Logo UNLa" th:src="@{/images/unla-logo.png}">
-  </div>
 
-</main>
+        </div>
+
+    </main>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

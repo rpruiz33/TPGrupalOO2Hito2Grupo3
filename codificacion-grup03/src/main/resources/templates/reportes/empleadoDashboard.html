@@ -99,9 +99,9 @@
 
             <div class="d-flex flex-wrap justify-content-center gap-2 pt-2">
                 <a class="menu-button menu-button-primary py-2 px-3" th:href="@{/liquidacion}">
-    <span sec:authorize="hasAnyRole('ADMIN', 'RESPONSABLE')">Haberes Empleados</span>
-    <span sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE')">Ver mis Haberes</span>
-</a>
+                    <span sec:authorize="hasAnyRole('ADMIN', 'RESPONSABLE')">Haberes Empleados</span>
+                    <span sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE')">Ver mis Haberes</span>
+                </a>
 
                 <a class="menu-button py-2 px-3" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
                     🔒 Cerrar Caja

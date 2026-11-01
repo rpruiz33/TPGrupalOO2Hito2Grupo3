@@ -414,15 +414,14 @@
                     <!-- Campo oculto: cajeroId -->
                     <input type="hidden" name="cajeroId" th:value="${cajeroId}">
 
-                    <!-- Unidad de Venta -->
+                    <!-- Unidad de Venta asignada -->
                     <div class="col-md-6">
-                        <label for="unidadVentaId" class="form-label">Unidad de Venta</label>
-
-                            <option th:each="uv : ${unidades}"
-                                    th:value="${uv.id}"
-                                    th:text="${uv.nombreComercial}"
-                                    th:selected="${uv.id == unidadVentaId}">
-                            </option>
+                        <label for="unidadVentaNombre" class="form-label">Unidad de Venta</label>
+                        <input type="hidden" id="unidadVentaId" name="unidadVentaId" th:value="${unidadVentaId != null ? unidadVentaId : (unidades != null and !unidades.isEmpty() ? unidades[0].id : '')}">
+                        <input type="text" id="unidadVentaNombre" class="form-control"
+                               th:value="${unidadVentaNombre != null ? unidadVentaNombre : (unidades != null and !unidades.isEmpty() ? unidades[0].nombreComercial : 'Sin unidad asignada')}"
+                               readonly required>
+                        <small class="text-muted">Unidad de venta asignada a tu puesto</small>
                     </div>
 
                     <!-- Fecha -->
