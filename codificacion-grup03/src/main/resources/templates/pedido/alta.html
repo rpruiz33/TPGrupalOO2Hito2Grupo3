@@ -27,6 +27,8 @@
             <a class="menu-button" sec:authorize="hasRole('COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
             <a class="menu-button" sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
         </div>
+        <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/pedidos/historial}">🧾 Historial de pedidos</a>
+        <div class="d-flex flex-wrap gap-2"></div>
     </header>
 
     <div class="error" role="alert" th:if="${error}" th:text="${error}">

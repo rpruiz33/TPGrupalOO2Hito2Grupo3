@@ -22,14 +22,36 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- #############################################################################
 
 -- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
-INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES 
--- Active: Empezó hace 10 días y termina en 15 días
-('Epicentro Gourmet UNLa (Edicion Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
+INSERT INTO festivales (
+    nombre,
+    fecha_inicio,
+    fecha_fin,
+    activo
+) VALUES
 
--- Finalizados: Pasados respecto al día de ejecución
-('Epicentro Gourmet UNLa (Edicion Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
-('Epicentro Gourmet UNLa (Edicion Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
+-- Festival actual
+(
+    'Epicentro Gourmet UNLa (Edicion Actual)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY),
+    DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY),
+    TRUE
+),
 
+-- Festival anterior
+(
+    'Epicentro Gourmet UNLa (Edicion Anterior)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY),
+    DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY),
+    TRUE
+),
+
+-- Festival anual
+(
+    'Epicentro Gourmet UNLa (Edicion Anual)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY),
+    DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY),
+    TRUE
+);
 -- Asignamos los IDs de los festivales
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
 SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);
