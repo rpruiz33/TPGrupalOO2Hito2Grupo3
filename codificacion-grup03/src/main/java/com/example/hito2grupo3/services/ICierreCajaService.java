@@ -44,4 +44,20 @@ public interface ICierreCajaService {
      * Obtiene el resumen del cierre para la vista, buscando el cajero por email.
      */
     Map<String, Object> obtenerResumenCierre(String emailCajero);
+
+    /**
+     * Reabre la caja para la fecha y unidad indicadas permitiendo continuar operando.
+     *
+     * @param cajeroId      ID del cajero.
+     * @param unidadVentaId ID de la unidad de venta.
+     * @param fecha         Fecha del cierre a reabrir.
+     * @param motivo        Motivo opcional de la reapertura.
+     * @return El CierreCaja en estado REABIERTA.
+     */
+    CierreCaja reabrirCaja(Long cajeroId, Long unidadVentaId, LocalDate fecha, String motivo);
+
+    /**
+     * Obtiene el cierre de caja de un cajero para una unidad de venta y fecha específicas.
+     */
+    java.util.Optional<CierreCaja> obtenerCierre(Long cajeroId, Long unidadVentaId, LocalDate fecha);
 }

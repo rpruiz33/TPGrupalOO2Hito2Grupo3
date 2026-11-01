@@ -15,6 +15,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
@@ -55,6 +56,19 @@ public class CierreCaja {
     @JoinColumn(name = "unidad_venta_id", nullable = false)
     private UnidadVenta unidadVenta;
 
+    // Estado del cierre: CERRADA o REABIERTA
+    @Column(name = "estado", length = 20)
+    private String estado = "CERRADA";
+
+    @Column(name = "fecha_hora_cierre")
+    private LocalDateTime fechaHoraCierre;
+
+    @Column(name = "fecha_hora_reapertura")
+    private LocalDateTime fechaHoraReapertura;
+
+    @Column(name = "motivo_reapertura", length = 255)
+    private String motivoReapertura;
+
     public CierreCaja(Long id, LocalDate fecha, BigDecimal montoRecaudado,
                       Cajero cajero, UnidadVenta unidadVenta) {
         this.id = id;
@@ -62,5 +76,15 @@ public class CierreCaja {
         this.montoRecaudado = montoRecaudado;
         this.cajero = cajero;
         this.unidadVenta = unidadVenta;
+        this.estado = "CERRADA";
+        this.fechaHoraCierre = LocalDateTime.now();
+    }
+
+    public boolean isCerrada() {
+        return "CERRADA".equalsIgnoreCase(this.estado);
+    }
+
+    public boolean isReabierta() {
+        return "REABIERTA".equalsIgnoreCase(this.estado);
     }
 }

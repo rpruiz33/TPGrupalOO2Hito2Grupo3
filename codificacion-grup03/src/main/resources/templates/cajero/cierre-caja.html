@@ -79,22 +79,48 @@
                 </div>
             </div>
 
-            <div class="mt-4 pt-3 border-top text-center">
-                <span class="text-muted small fw-semibold d-block mb-1">Total recaudado acumulado</span>
-                <span class="fs-4 fw-bold px-3 py-1 rounded bg-light border text-success"
-                      th:text="'$ ' + ${#numbers.formatDecimal(totalAcumulado ?: 0, 1, 'POINT', 2, 'COMMA')}">
-                    $ 0,00
-                </span>
-
-                <div th:if="${totalFiltrado != null}" class="mt-2">
-                    <small class="text-muted">Total en período filtrado: </small>
-                    <strong class="text-success fw-bold"
-                            th:text="'$ ' + ${#numbers.formatDecimal(totalFiltrado, 1, 'POINT', 2, 'COMMA')}">
+            <div class="mt-4 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="text-center">
+                    <span class="text-muted small fw-semibold d-block mb-1">Total recaudado acumulado</span>
+                    <span class="fs-4 fw-bold px-3 py-1 rounded bg-light border text-success"
+                          th:text="'$ ' + ${#numbers.formatDecimal(totalAcumulado ?: 0, 1, 'POINT', 2, 'COMMA')}">
                         $ 0,00
-                    </strong>
+                    </span>
+                    <div th:if="${totalFiltrado != null}" class="mt-2">
+                        <small class="text-muted">Total en período filtrado: </small>
+                        <strong class="text-success fw-bold"
+                                th:text="'$ ' + ${#numbers.formatDecimal(totalFiltrado, 1, 'POINT', 2, 'COMMA')}">
+                            $ 0,00
+                        </strong>
+                    </div>
+                </div>
+                <!-- Estado de la caja de hoy -->
+                <div class="text-center">
+                    <span class="text-muted small fw-semibold d-block mb-1">Estado de caja hoy</span>
+                    <span th:if="${cajaCerradaHoy}" class="badge fs-6 px-3 py-2" style="background-color:#dc3545;">🔒 CERRADA</span>
+                    <span th:if="${cajaReabiertaHoy}" class="badge fs-6 px-3 py-2" style="background-color:#fd7e14;">🔓 REABIERTA</span>
+                    <span th:if="${!cajaCerradaHoy and !cajaReabiertaHoy}" class="badge fs-6 px-3 py-2" style="background-color:#198754;">✅ ABIERTA</span>
                 </div>
             </div>
         </section>
+
+        <!-- Alerta: caja cerrada hoy → botón reabrir -->
+        <div th:if="${cajaCerradaHoy}" class="alert mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3"
+             style="background-color:#fff3cd; border-left:4px solid #ffc107; border-radius:8px; color:#6d4c00;">
+            <div>
+                <strong>⚠️ La caja de hoy ya fue cerrada.</strong><br>
+                <small>Si necesitás seguir registrando ventas o corregir el arqueo, podés reabrir la caja.</small>
+            </div>
+            <form th:action="@{/cajero/reabrir-caja}" method="post" style="margin:0;">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="cajeroId" th:value="${cajeroId}">
+                <input type="hidden" name="unidadVentaId" th:value="${unidadVentaId}">
+                <button type="submit" class="menu-button menu-button-primary"
+                        style="background-color:#ffc107; border-color:#ffc107; color:#000;">
+                    🔓 Reabrir Caja
+                </button>
+            </form>
+        </div>
         <section class="card menu-card overflow-hidden mb-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h2 class="h5 fw-bold m-0" style="color: #800020;">
@@ -163,7 +189,14 @@
                 🔒 Registrar Cierre de Caja
             </h2>
 
-            <form th:action="@{/cajero/cierre-caja}" method="post" id="formCierreCaja">
+            <!-- Aviso cuando la caja ya está cerrada -->
+            <div th:if="${cajaCerradaHoy}" class="text-center py-4 text-secondary">
+                <div class="fs-1 mb-2">🔒</div>
+                <strong>La caja ya fue cerrada para el día de hoy.</strong><br>
+                <small>Para volver a registrar un cierre, primero debés reabrir la caja.</small>
+            </div>
+
+            <form th:if="${!cajaCerradaHoy}" th:action="@{/cajero/cierre-caja}" method="post" id="formCierreCaja">
 
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="cajeroId" th:value="${cajeroId}">
@@ -171,7 +204,7 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-6">
                         <label for="unidadVentaNombre" class="form-label small fw-semibold text-secondary mb-1">Unidad de venta</label>
-                        <input type="hidden" id="unidadVentaId" name="unidadVentaId" 
+                        <input type="hidden" id="unidadVentaId" name="unidadVentaId"
                                th:value="${unidadVentaId != null ? unidadVentaId : (unidades != null and !unidades.isEmpty() ? unidades[0].id : '')}">
                         <input type="text" id="unidadVentaNombre" class="form-control"
                                th:value="${unidadVentaNombre != null ? unidadVentaNombre : (unidades != null and !unidades.isEmpty() ? unidades[0].nombreComercial : 'Sin unidad asignada')}"
@@ -240,6 +273,7 @@
                         <tr>
                             <th class="ps-4 py-3">Fecha</th>
                             <th class="py-3">Unidad de Venta</th>
+                            <th class="text-center py-3">Estado</th>
                             <th class="text-end pe-4 py-3">Monto Recaudado</th>
                         </tr>
                     </thead>
@@ -247,6 +281,11 @@
                         <tr th:each="cierre : ${historial}">
                             <td class="ps-4 py-2 fw-semibold text-dark" th:text="${#temporals.format(cierre.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
                             <td class="py-2 text-secondary" th:text="${cierre.unidadVenta != null ? cierre.unidadVenta.nombreComercial : 'N/D'}">Unidad</td>
+                            <td class="text-center py-2">
+                                <span th:if="${cierre.cerrada}" class="badge" style="background-color:#dc3545;">CERRADA</span>
+                                <span th:if="${cierre.reabierta}" class="badge" style="background-color:#fd7e14;">REABIERTA</span>
+                                <span th:if="${!cierre.cerrada and !cierre.reabierta}" class="badge bg-secondary">ABIERTA</span>
+                            </td>
                             <td class="text-end pe-4 py-2 fw-bold text-success"
                                 th:text="'$ ' + ${#numbers.formatDecimal(cierre.montoRecaudado, 1, 'POINT', 2, 'COMMA')}">
                                 $ 0,00
@@ -263,6 +302,8 @@
         </section>
 
     </main>
+
+
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
     <script>
@@ -311,6 +352,7 @@
                 }
             });
         }
+
 
     });
     </script>

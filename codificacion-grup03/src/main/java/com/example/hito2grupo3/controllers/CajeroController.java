@@ -222,4 +222,49 @@ public class CajeroController {
 
         return "redirect:/cajero/cierre-caja";
     }
+
+    /**
+     * POST /cajero/reabrir-caja
+     * Reabre el cierre de caja del día actual para permitir seguir registrando ventas.
+     */
+    @PostMapping("/reabrir-caja")
+    public String reabrirCaja(
+            @RequestParam(required = false) Long cajeroId,
+            @RequestParam(required = false) Long unidadVentaId,
+            @RequestParam(required = false, defaultValue = "") String motivo,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            String email = principal != null ? principal.getName() : "";
+            Map<String, Object> resumen = null;
+            try {
+                resumen = cierreCajaService.obtenerResumenCierre(email);
+            } catch (Exception ignored) {}
+
+            if (cajeroId == null && resumen != null && resumen.get("cajeroId") != null) {
+                cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
+            }
+            if (unidadVentaId == null && resumen != null && resumen.get("unidadVentaId") != null) {
+                unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
+            }
+
+            if (cajeroId == null) {
+                throw new IllegalArgumentException("No se pudo determinar el cajero actual.");
+            }
+            if (unidadVentaId == null) {
+                throw new IllegalArgumentException("No se pudo determinar la unidad de venta.");
+            }
+
+            cierreCajaService.reabrirCaja(cajeroId, unidadVentaId, LocalDate.now(), motivo);
+            redirectAttributes.addFlashAttribute("mensaje", "Caja reabierta exitosamente. Podés continuar registrando ventas.");
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al reabrir la caja: " + e.getMessage());
+        }
+
+        return "redirect:/cajero/cierre-caja";
+    }
 }

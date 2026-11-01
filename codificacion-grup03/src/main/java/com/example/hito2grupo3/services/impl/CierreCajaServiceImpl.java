@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -58,15 +59,50 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
             throw new IllegalArgumentException("El monto recaudado no puede ser negativo.");
         }
 
-        // Si ya existe un cierre para ese cajero en esa unidad de venta y en esa fecha, se actualiza
+        // Si ya existe un cierre previo y su estado es CERRADA, se debe reabrir explícitamente antes de volver a cerrar
         Optional<CierreCaja> existente = cierreCajaRepository.findByCajeroIdAndUnidadVentaIdAndFecha(cajeroId, unidadVentaId, fecha);
+        if (existente.isPresent() && "CERRADA".equalsIgnoreCase(existente.get().getEstado())) {
+            throw new IllegalStateException("La caja para esta unidad en la fecha de hoy ya fue cerrada. Para continuar registrando o actualizar el arqueo, debés reabrir la caja.");
+        }
+
         CierreCaja cierre = existente.orElseGet(CierreCaja::new);
         cierre.setFecha(fecha);
         cierre.setMontoRecaudado(montoRecaudado);
         cierre.setCajero(cajero);
         cierre.setUnidadVenta(unidadVenta);
+        cierre.setEstado("CERRADA");
+        cierre.setFechaHoraCierre(LocalDateTime.now());
 
         return cierreCajaRepository.save(cierre);
+    }
+
+    @Override
+    @Transactional
+    public CierreCaja reabrirCaja(Long cajeroId, Long unidadVentaId, LocalDate fecha, String motivo) {
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
+
+        CierreCaja cierre = cierreCajaRepository.findByCajeroIdAndUnidadVentaIdAndFecha(cajeroId, unidadVentaId, fecha)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró ningún cierre de caja para reabrir en la fecha seleccionada."));
+
+        if (!"CERRADA".equalsIgnoreCase(cierre.getEstado())) {
+            throw new IllegalStateException("La caja no se encuentra cerrada actualmente.");
+        }
+
+        cierre.setEstado("REABIERTA");
+        cierre.setFechaHoraReapertura(LocalDateTime.now());
+        if (motivo != null && !motivo.isBlank()) {
+            cierre.setMotivoReapertura(motivo.trim());
+        }
+
+        return cierreCajaRepository.save(cierre);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CierreCaja> obtenerCierre(Long cajeroId, Long unidadVentaId, LocalDate fecha) {
+        return cierreCajaRepository.findByCajeroIdAndUnidadVentaIdAndFecha(cajeroId, unidadVentaId, fecha);
     }
 
     @Override
@@ -139,6 +175,18 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
         resumen.put("historial", historial);
         resumen.put("totalAcumulado", totalAcumulado != null ? totalAcumulado : BigDecimal.ZERO);
         resumen.put("fechaHoy", LocalDate.now());
+
+        // Verificar estado de la caja de hoy para la unidad asignada
+        Optional<CierreCaja> cierreHoy = (unidad != null)
+                ? cierreCajaRepository.findByCajeroIdAndUnidadVentaIdAndFecha(cajero.getId(), unidad.getId(), LocalDate.now())
+                : Optional.empty();
+
+        boolean cajaCerradaHoy = cierreHoy.isPresent() && "CERRADA".equalsIgnoreCase(cierreHoy.get().getEstado());
+        boolean cajaReabiertaHoy = cierreHoy.isPresent() && "REABIERTA".equalsIgnoreCase(cierreHoy.get().getEstado());
+
+        resumen.put("cierreHoy", cierreHoy.orElse(null));
+        resumen.put("cajaCerradaHoy", cajaCerradaHoy);
+        resumen.put("cajaReabiertaHoy", cajaReabiertaHoy);
 
         // Ventas de hoy para la unidad asignada al cajero
         if (unidad != null) {
