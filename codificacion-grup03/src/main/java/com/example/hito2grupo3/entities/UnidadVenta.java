@@ -105,6 +105,5 @@ public abstract class UnidadVenta {
     @OneToMany(mappedBy = "unidadVenta")
     private List<Pedido> pedidos = new ArrayList<>();
 
-    public abstract BigDecimal calcularCanon();
 
 }

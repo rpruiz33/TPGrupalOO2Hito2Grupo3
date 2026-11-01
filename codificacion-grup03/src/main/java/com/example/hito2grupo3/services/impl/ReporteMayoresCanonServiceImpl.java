@@ -2,10 +2,11 @@ package com.example.hito2grupo3.services.impl;
 
 import com.example.hito2grupo3.dto.ReporteMayoresCanonDTO;
 import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.entities.FoodTruck;
 import com.example.hito2grupo3.entities.PuestoDesarmable;
+import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.FestivalRepository;
+import com.example.hito2grupo3.services.ICanonService;
 import com.example.hito2grupo3.services.IReporteMayoresCanonService;
 
 import org.springframework.stereotype.Service;
@@ -16,14 +17,16 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-public class ReporteMayoresCanonServiceImpl
-        implements IReporteMayoresCanonService {
+public class ReporteMayoresCanonServiceImpl implements IReporteMayoresCanonService {
 
     private final FestivalRepository festivalRepository;
+    private final ICanonService canonService; // Inyectamos el servicio de canon
 
     public ReporteMayoresCanonServiceImpl(
-            FestivalRepository festivalRepository) {
+            FestivalRepository festivalRepository,
+            ICanonService canonService) {
         this.festivalRepository = festivalRepository;
+        this.canonService = canonService;
     }
 
     @Override
@@ -38,22 +41,21 @@ public class ReporteMayoresCanonServiceImpl
         LocalDate hoy = LocalDate.now();
 
         Festival festivalActivo = festivalRepository
-                .findFirstByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(
-                        hoy, hoy)
+                .findFirstByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(hoy, hoy)
                 .orElseThrow(() -> new IllegalStateException(
                         "No hay un festival activo en la fecha actual."));
 
         return festivalActivo.getUnidadesVentaHabilitadas()
                 .stream()
                 .sorted(Comparator.comparing(
-                        UnidadVenta::calcularCanon,
+                        canonService::calcularCanon, // Calcula usando el servicio
                         Comparator.reverseOrder()))
                 .limit(cantidad)
                 .map(unidad -> new ReporteMayoresCanonDTO(
                         unidad.getNombreComercial(),
                         unidad.getCodigo(),
                         obtenerTipoUnidad(unidad),
-                        unidad.calcularCanon()))
+                        canonService.calcularCanon(unidad))) // Calcula usando el servicio
                 .toList();
     }
 

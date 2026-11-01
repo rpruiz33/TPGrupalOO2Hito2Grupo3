@@ -10,19 +10,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import com.example.hito2grupo3.services.ICanonService;
 @Controller
 @RequestMapping("/responsable")
 public class ResponsableController {
 
     private final StaffRepository staffRepository;
     private final UnidadVentaRepository unidadVentaRepository;
+    private final ICanonService canonService;
 
     public ResponsableController(
             StaffRepository staffRepository,
-            UnidadVentaRepository unidadVentaRepository) {
+            UnidadVentaRepository unidadVentaRepository,
+        ICanonService canonService) {
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
+        this.canonService = canonService;
     }
 
     @GetMapping("/index")
@@ -58,8 +61,7 @@ public class ResponsableController {
 return "responsable/index";
 
     }
-
-        @GetMapping("/canon")
+     @GetMapping("/canon")
     public String calcularCanon(
             Authentication authentication,
             Model model) {
@@ -94,7 +96,8 @@ return "responsable/index";
                     "error",
                     "No tenés una unidad de venta asignada.");
         } else {
-            model.addAttribute("canon", unidad.calcularCanon());
+            // Se calcula a través del servicio desacoplado
+            model.addAttribute("canon", canonService.calcularCanon(unidad));
         }
 
         return "responsable/index";

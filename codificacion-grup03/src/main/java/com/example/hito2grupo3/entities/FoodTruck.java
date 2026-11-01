@@ -72,15 +72,6 @@ public class FoodTruck extends UnidadVenta {
         this.patente = patente;
         this.requiereElectricidad = requiereElectricidad;
     }
-     @Override
-public BigDecimal calcularCanon() {
-    BigDecimal canon = getSuperficieM2()
-            .multiply(BigDecimal.valueOf(500));
 
-    if (isRequiereElectricidad()) {
-        canon = canon.add(BigDecimal.valueOf(2000));
-    }
+}
 
-    return canon;
-}
-}
