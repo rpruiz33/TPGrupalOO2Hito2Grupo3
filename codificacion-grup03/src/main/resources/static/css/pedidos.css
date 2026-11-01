@@ -87,3 +87,32 @@
 body.modal-anulacion-abierto {
     overflow: hidden;
 }
+/* ========================================
+   MODAL NATIVO DE ANULACIÓN - HISTORIAL
+======================================== */
+
+dialog#modalAnular:not([open]) {
+    display: none !important;
+}
+
+dialog#modalAnular {
+    width: min(90%, 500px);
+    max-width: 500px;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    background-color: #fff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+}
+
+dialog#modalAnular::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+dialog#modalAnular .modal-contenido {
+    padding: 24px;
+}
+
+dialog#modalAnular textarea {
+    resize: vertical;
+}

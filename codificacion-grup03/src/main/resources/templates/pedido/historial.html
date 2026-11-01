@@ -9,33 +9,7 @@
 
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
-
-    <style>
-        /* Modal nativo de anulación: oculto cuando no está abierto */
-        #modalAnular:not([open]) {
-            display: none !important;
-        }
-
-        #modalAnular {
-            width: min(90%, 500px);
-            border: none;
-            border-radius: 12px;
-            padding: 0;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
-        }
-
-        #modalAnular::backdrop {
-            background: rgba(0, 0, 0, 0.65);
-        }
-
-        #modalAnular .modal-contenido {
-            padding: 24px;
-        }
-
-        #modalAnular textarea {
-            resize: vertical;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/pedidos.css}">
 </head>
 
 <body>
