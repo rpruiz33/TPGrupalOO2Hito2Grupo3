@@ -128,13 +128,8 @@
                     Cantidad
                 </label>
 
-                <input type="number"
-                       id="cantidad"
-                       class="form-control"
-                       min="1"
-                       step="1"
-                       value="1"
-                       required>
+<input type="number" id="cantidad" class="form-control"
+       min="1" max="100" step="1" value="1" required>
             </div>
 
             <div class="mb-4">
@@ -436,10 +431,15 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
-            alert("La cantidad debe ser un número entero mayor a cero.");
-            return;
-        }
+       if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+    alert("La cantidad debe ser un número entero mayor a cero.");
+    return;
+}
+
+if (cantidad > 100) {
+    alert("La cantidad máxima por plato es de 100 unidades.");
+    return;
+}
 
         const id = opcion.value;
         const precio = Number(opcion.dataset.precio);
@@ -449,24 +449,29 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (items.has(id)) {
-            const cantidadNueva = items.get(id).cantidad + cantidad;
+if (items.has(id)) {
+    const cantidadNueva = items.get(id).cantidad + cantidad;
 
-            if (!Number.isSafeInteger(cantidadNueva)) {
-                alert("La cantidad total del plato es demasiado grande.");
-                return;
-            }
+    if (!Number.isSafeInteger(cantidadNueva)) {
+        alert("La cantidad total del plato es demasiado grande.");
+        return;
+    }
 
-            items.get(id).cantidad = cantidadNueva;
+    if (cantidadNueva > 100) {
+        alert("No podés superar las 100 unidades del mismo plato.");
+        return;
+    }
 
-        } else {
-            items.set(id, {
-                id: id,
-                nombre: opcion.textContent,
-                precio: precio,
-                cantidad: cantidad
-            });
-        }
+    items.get(id).cantidad = cantidadNueva;
+
+} else {
+    items.set(id, {
+        id: id,
+        nombre: opcion.textContent,
+        precio: precio,
+        cantidad: cantidad
+    });
+}
 
         dibujarTabla();
 

@@ -24,6 +24,15 @@ public interface UnidadVentaRepository
     WHERE s.id = :staffId
 """)
 List<UnidadVenta> buscarPorStaffAsignado(@Param("staffId") Long staffId);
+@Query("""
+    SELECT DISTINCT u
+    FROM UnidadVenta u
+    LEFT JOIN u.staffAsignado s
+    WHERE s.id = :staffId
+       OR u.responsable.id = :staffId
+""")
+List<UnidadVenta> buscarPorStaffAsignadoOResponsable(
+        @Param("staffId") Long staffId);
 
     // Verifica si ya existe una unidad con ese código
     boolean existsByCodigo(String codigo);

@@ -5,140 +5,243 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Panel del Responsable - Epicentro Gourmet</title>
+
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
 <body>
+
 <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
-    <!-- Contenido Principal -->
-    <main class="container panel-container mt-4">
-        <header class="panel-header text-center text-white">
-            <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
-            <h2 class="text-white-50 mb-2">Panel del Responsable</h2>
-            <p class="unit-info mb-0">
-                Unidad de venta:
-                <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
-                    Sin asignar
+
+<!-- Contenido Principal -->
+<main class="container panel-container mt-4">
+
+    <header class="panel-header text-center text-white">
+        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+        <h2 class="text-white-50 mb-2">Panel del Responsable</h2>
+
+        <p class="unit-info mb-0">
+            Unidad de venta:
+            <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
+                Sin asignar
+            </strong>
+        </p>
+    </header>
+
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center py-2 shadow-sm mb-3"
+         th:text="${mensaje}">
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger text-center py-2 shadow-sm mb-3"
+         th:text="${error}">
+    </div>
+
+
+    <!-- Sección Canon -->
+    <section class="mb-4 text-center">
+
+        <a th:href="@{/responsable/canon}" class="btn-canon">
+            💰 Calcular canon
+        </a>
+
+        <div th:if="${canon != null}"
+             class="alert alert-light text-center mt-3 shadow-sm mx-auto canon-result-box">
+
+            <p class="mb-1 text-secondary">
+                Canon de
+                <strong th:text="${unidadVenta.nombreComercial}">
+                    Mi unidad
                 </strong>
             </p>
-        </header>
-        <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
-                        
-        <!-- Sección Canon -->
-        <section class="mb-4 text-center">
-            <a th:href="@{/responsable/canon}" class="btn-canon">
-                💰 Calcular canon
-            </a>
 
-            <div th:if="${canon != null}" class="alert alert-light text-center mt-3 shadow-sm mx-auto canon-result-box">
-                <p class="mb-1 text-secondary">
-                    Canon de <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
-                </p>
-                <p class="fs-3 fw-bold mb-0 canon-amount">
-                    $ <span th:text="${#numbers.formatDecimal(canon, 1, 2)}">0,00</span>
-                </p>
+            <p class="fs-3 fw-bold mb-0 canon-amount">
+                $ <span th:text="${#numbers.formatDecimal(canon, 1, 2)}">0,00</span>
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Opciones del panel -->
+    <section>
+
+        <div class="row g-3 justify-content-center">
+
+            <!-- Empleados -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">👥</div>
+
+                            <h3 class="fw-bold">Empleados</h3>
+
+                            <p class="text-secondary">
+                                Administrá los empleados asignados a tu unidad,
+                                cuentas y credenciales.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/responsable/usuarios}"
+                               class="menu-button menu-button-primary w-100">
+                                Administrar empleados
+                            </a>
+                        </div>
+
+                    </div>
+                </article>
             </div>
-        </section>
-        <section>
-            <div class="row g-3 justify-content-center">
 
-                <!-- Empleados -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="menu-icon" aria-hidden="true">👥</div>
-                                <h3 class="fw-bold">Empleados</h3>
-                                <p class="text-secondary">
-                                    Administrá los empleados asignados a tu unidad, cuentas y credenciales.
-                                </p>
-                            </div>
-                            <div class="d-flex flex-column gap-2 mt-2">
-                                <a th:href="@{/responsable/usuarios}" class="menu-button menu-button-primary w-100">
-                                    Administrar empleados
+
+            <!-- Platos -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">🍽️</div>
+
+                            <h3 class="fw-bold">Gestión de platos</h3>
+
+                            <p class="text-secondary">
+                                Registrá nuevos platos y consultá los platos de tu unidad.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+
+                            <a th:href="@{/responsable/platos/nuevo}"
+                               class="menu-button menu-button-primary w-100">
+                                Alta de plato
+                            </a>
+
+                            <div class="d-flex gap-1 justify-content-center">
+
+                                <a th:href="@{/responsable/platos}"
+                                   class="menu-button w-50">
+                                    Mis platos
                                 </a>
+
+                                <a th:href="@{/plato-estrella}"
+                                   class="menu-button w-50">
+                                    Estrella
+                                </a>
+
                             </div>
                         </div>
-                    </article>
-                </div>
 
-                <!-- Platos -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="menu-icon" aria-hidden="true">🍽️</div>
-                                <h3 class="fw-bold">Gestión de platos</h3>
-                                <p class="text-secondary">
-                                    Registrá nuevos platos y consultá los platos de tu unidad.
-                                </p>
-                            </div>
-                            <div class="d-flex flex-column gap-2 mt-2">
-                                <a th:href="@{/responsable/platos/nuevo}" class="menu-button menu-button-primary w-100">
-                                    Alta de plato
-                                </a>
-                                <div class="d-flex gap-1 justify-content-center">
-                                    <a th:href="@{/responsable/platos}" class="menu-button w-50">
-                                        Mis platos
-                                    </a>
-                                    <a th:href="@{/plato-estrella}" class="menu-button w-50">
-                                        Estrella
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-
-                <!--  Información Personal -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="menu-icon" aria-hidden="true">👤</div>
-                                <h3 class="fw-bold">Mi información</h3>
-                                <p class="text-secondary">
-                                    Consultá tu información personal y actividad reciente.
-                                </p>
-                            </div>
-                            <div class="d-flex flex-column gap-2 mt-2">
-                                <a th:href="@{/empleado/dashboard}" class="menu-button w-100">
-                                    Mi información
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-
-                <!--  Seguridad -->
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="card menu-card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="menu-icon" aria-hidden="true">🔒</div>
-                                <h3 class="fw-bold">Seguridad</h3>
-                                <p class="text-secondary">
-                                    Cambiá tu contraseña de acceso periódicamente.
-                                </p>
-                            </div>
-                            <div class="d-flex flex-column gap-2 mt-2">
-                                <a th:href="@{/cambiar-password}" class="menu-button w-100">
-                                    Cambiar contraseña
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-
+                    </div>
+                </article>
             </div>
-        </section>
 
-    </main>
 
-    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
-    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+            <!-- Historial de pedidos -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">📋</div>
+
+                            <h3 class="fw-bold">Historial de pedidos</h3>
+
+                            <p class="text-secondary">
+                                Consultá los pedidos registrados en tus unidades
+                                de venta, filtrá por festival y revisá sus detalles.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+
+                            <a th:href="@{/pedidos/historial}"
+                               class="menu-button menu-button-primary w-100">
+                                Ver historial
+                            </a>
+
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+
+
+            <!-- Información Personal -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">👤</div>
+
+                            <h3 class="fw-bold">Mi información</h3>
+
+                            <p class="text-secondary">
+                                Consultá tu información personal y actividad reciente.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+
+                            <a th:href="@{/empleado/dashboard}"
+                               class="menu-button w-100">
+                                Mi información
+                            </a>
+
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+
+
+            <!-- Seguridad -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">🔒</div>
+
+                            <h3 class="fw-bold">Seguridad</h3>
+
+                            <p class="text-secondary">
+                                Cambiá tu contraseña de acceso periódicamente.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+
+                            <a th:href="@{/cambiar-password}"
+                               class="menu-button w-100">
+                                Cambiar contraseña
+                            </a>
+
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
 </html>
