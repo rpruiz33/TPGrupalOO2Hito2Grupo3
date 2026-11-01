@@ -108,16 +108,7 @@
                 Información completa del pedido registrado.
             </p>
         </div>
-
-        <div>
-            <span th:if="${pedido.estado == 'A'}" class="badge bg-success fs-6">
-                ✓ Activo
-            </span>
-            <span th:if="${pedido.estado == 'R'}" class="badge bg-danger fs-6">
-                ✕ Anulado
-            </span>
-        </div>
-    </section>
+   </section>
 
     <!-- Mensajes -->
     <div th:if="${mensaje}"
