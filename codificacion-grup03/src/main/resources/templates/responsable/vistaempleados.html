@@ -4,17 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Administración de empleados - Epicentro Gourmet</title> 
+    <title>Administración de empleados - Epicentro Gourmet</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
 <body>
-    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
-  
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}">
+    </nav>
+
     <main class="container panel-container mt-4" style="max-width: 1400px;">
-        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm" role="status" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}"></div> 
+        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm" role="status" th:text="${mensaje}">
+        </div>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}"></div>
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
                 <h1 class="h3 fw-bold mb-1">Administración de empleados</h1>
@@ -31,13 +33,13 @@
                     + Nuevo empleado
                 </a>
             </div>
-        </section>     
+        </section>
         <div th:if="${unidadVenta != null}" class="alert alert-light border shadow-sm mb-4">
             <strong>Unidad de venta:</strong>
             <span th:text="${unidadVenta.nombreComercial}">Nombre de la unidad</span>
             <span class="text-muted" th:text="'(' + ${unidadVenta.codigo} + ')'">(Código)</span>
         </div>
-        
+
         <section class="card menu-card p-4 mb-4">
             <h3 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
                 🔍 Buscar empleados
@@ -47,29 +49,25 @@
                     <div class="col-md-3">
                         <label for="nombre" class="form-label fw-semibold">Nombre</label>
                         <input type="text" id="nombre" name="nombre" class="form-control"
-                               placeholder="Ingresá un nombre" th:value="${nombre}">
+                            placeholder="Ingresá un nombre" th:value="${nombre}">
                     </div>
                     <div class="col-md-3">
                         <label for="apellido" class="form-label fw-semibold">Apellido</label>
                         <input type="text" id="apellido" name="apellido" class="form-control"
-                               placeholder="Ingresá un apellido" th:value="${apellido}">
+                            placeholder="Ingresá un apellido" th:value="${apellido}">
                     </div>
 
                     <div class="col-md-3">
                         <label for="dni" class="form-label fw-semibold">DNI</label>
-                        <input type="text" id="dni" name="dni" class="form-control"
-                               placeholder="Ingresá un DNI" th:value="${dni}">
+                        <input type="text" id="dni" name="dni" class="form-control" placeholder="Ingresá un DNI"
+                            th:value="${dni}">
                     </div>
 
-<div class="col-md-3">
-    <label for="email" class="form-label fw-semibold">Email</label>
-    <input type="text"
-           id="email"
-           name="email"
-           class="form-control"
-           placeholder="Ingresá un email"
-           th:value="${email}">
-</div>
+                    <div class="col-md-3">
+                        <label for="email" class="form-label fw-semibold">Email</label>
+                        <input type="text" id="email" name="email" class="form-control" placeholder="Ingresá un email"
+                            th:value="${email}">
+                    </div>
 
                     <div class="col-md-3">
                         <label for="estado" class="form-label fw-semibold">Estado del empleado</label>
@@ -80,51 +78,51 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-    <label for="rol" class="form-label fw-semibold">Puesto / Rol</label>
-    <select id="rol" name="rol" class="form-select">
-        <option value="" th:selected="${rol == null or rol == ''}">
-            Todos los puestos
-        </option>
-        <option value="EMPLEADO" th:selected="${rol == 'EMPLEADO'}">
-            Empleado
-        </option>
-        <option value="CAJERO" th:selected="${rol == 'CAJERO'}">
-            Cajero
-        </option>
-        <option value="COCINERO" th:selected="${rol == 'COCINERO'}">
-            Cocinero
-        </option>
-    </select>
-</div>
+                        <label for="rol" class="form-label fw-semibold">Puesto / Rol</label>
+                        <select id="rol" name="rol" class="form-select">
+                            <option value="" th:selected="${rol == null or rol == ''}">
+                                Todos los puestos
+                            </option>
+                            <option value="EMPLEADO" th:selected="${rol == 'EMPLEADO'}">
+                                Empleado
+                            </option>
+                            <option value="CAJERO" th:selected="${rol == 'CAJERO'}">
+                                Cajero
+                            </option>
+                            <option value="COCINERO" th:selected="${rol == 'COCINERO'}">
+                                Cocinero
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mt-3">
-                    <button type="submit" class="menu-button menu-button-primary">
-                        Buscar
-                    </button>
-                    <a th:href="@{/responsable/usuarios}" class="menu-button">
-                        Limpiar filtros
-                    </a>
-                </div>
+    <button type="button"
+            id="limpiarFiltros"
+            class="menu-button">
+        Limpiar filtros
+    </button>
+</div>
             </form>
-        </section>       
+        </section>
         <section class="card menu-card overflow-hidden">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+            <div
+                class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h3 class="h5 fw-bold m-0" style="color: #800020;">Empleados registrados</h3>
-                <span class="text-secondary small fw-semibold"
-                      th:text="${empleados != null ? #lists.size(empleados) + ' empleado(s)' : '0 empleados'}">
+                <span id="cantidadResultados" class="text-secondary small fw-semibold"
+                    th:text="${empleados != null ? #lists.size(empleados) + ' empleado(s)' : '0 empleados'}">
                     Empleados
                 </span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table id="tablaEmpleados" class="table table-hover align-middle mb-0">
                     <thead style="background-color: #f4eaec; color: #600018;">
                         <tr>
                             <th class="ps-3">ID</th>
                             <th>Empleado / DNI</th>
                             <th>Puesto</th>
-                            <th>Usuario / Email</th>
+                            <th>Email</th>
                             <th>Fecha de ingreso</th>
                             <th>Sueldo</th>
                             <th>Estado</th>
@@ -132,7 +130,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="empleado : ${empleados}">
+                        <tr th:each="empleado : ${empleados}"
+                            th:attr="
+                            data-nombre=${empleado.nombre},
+                            data-apellido=${empleado.apellido},
+                            data-dni=${empleado.dni},
+                            data-email=${empleado.usuario != null ? empleado.usuario.email : ''},
+                            data-estado=${empleado.activo ? 'ACTIVOS' : 'INACTIVOS'},
+                            data-rol=${empleado.usuario != null and empleado.usuario.rol != null ? empleado.usuario.rol.nombre : 'EMPLEADO'}">
                             <td class="ps-3" th:text="${empleado.id}"></td>
 
                             <td>
@@ -142,15 +147,21 @@
 
                             <td>
                                 <!-- Cajero -->
-                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cajero)}" class="badge bg-primary">
-                                    Cajero (Caja <span th:text="${empleado.numeroCaja != null ? empleado.numeroCaja : 'N/D'}"></span>)
+                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cajero)}"
+                                    class="badge bg-primary">
+                                    Cajero (Caja <span
+                                        th:text="${empleado.numeroCaja != null ? empleado.numeroCaja : 'N/D'}"></span>)
                                 </span>
                                 <!-- Cocinero -->
-                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cocinero)}" class="badge bg-warning text-dark">
-                                    Cocinero <span th:if="${empleado.categoriaCocina != null}" th:text="'(' + ${empleado.categoriaCocina.nombre} + ')'"></span>
+                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cocinero)}"
+                                    class="badge bg-warning text-dark">
+                                    Cocinero <span th:if="${empleado.categoriaCocina != null}"
+                                        th:text="'(' + ${empleado.categoriaCocina.nombre} + ')'"></span>
                                 </span>
                                 <!-- Staff General -->
-                                <span th:if="${!(empleado instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(empleado instanceof T(com.example.hito2grupo3.entities.Cocinero))}" class="badge bg-secondary">
+                                <span
+                                    th:if="${!(empleado instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(empleado instanceof T(com.example.hito2grupo3.entities.Cocinero))}"
+                                    class="badge bg-secondary">
                                     Staff General
                                 </span>
                             </td>
@@ -158,14 +169,19 @@
                             <td>
                                 <th:block th:if="${empleado.usuario != null}">
                                     <div class="fw-bold" th:text="${empleado.usuario.email}"></div>
-                                    <span th:if="${empleado.usuario.rol != null}" class="badge bg-light text-dark border" th:text="${empleado.usuario.rol.nombre}"></span>
+
                                 </th:block>
-                                <span th:unless="${empleado.usuario != null}" class="text-muted fst-italic">Sin cuenta</span>
+                                <span th:unless="${empleado.usuario != null}" class="text-muted fst-italic">Sin
+                                    cuenta</span>
                             </td>
 
-                            <td th:text="${empleado.fechaIngreso != null ? #temporals.format(empleado.fechaIngreso, 'dd/MM/yyyy') : '-'}"></td>
+                            <td
+                                th:text="${empleado.fechaIngreso != null ? #temporals.format(empleado.fechaIngreso, 'dd/MM/yyyy') : '-'}">
+                            </td>
 
-                            <td class="fw-semibold" th:text="${empleado.sueldo != null ? '$ ' + #numbers.formatDecimal(empleado.sueldo, 1, 'POINT', 2, 'COMMA') : '-'}"></td>
+                            <td class="fw-semibold"
+                                th:text="${empleado.sueldo != null ? '$ ' + #numbers.formatDecimal(empleado.sueldo, 1, 'POINT', 2, 'COMMA') : '-'}">
+                            </td>
 
                             <td>
                                 <span th:if="${empleado.activo}" class="badge bg-success">✓ Activo</span>
@@ -175,39 +191,42 @@
                             <td class="text-center text-nowrap pe-3">
                                 <div class="d-flex flex-wrap justify-content-center gap-1">
                                     <a th:href="@{/responsable/usuarios/editar/{id}(id=${empleado.usuario != null ? empleado.usuario.id : empleado.id})}"
-                                       class="menu-button py-1 px-2"
-                                       title="Editar empleado y usuario">
+                                        class="menu-button py-1 px-2" title="Editar empleado y usuario">
                                         Editar
                                     </a>
 
                                     <a th:if="${empleado.usuario != null}"
-                                       th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuario.id})}"
-                                       class="menu-button py-1 px-2"
-                                       title="Reenviar credenciales por mail"
-                                       onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
+                                        th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuario.id})}"
+                                        class="menu-button py-1 px-2" title="Reenviar credenciales por mail"
+                                        onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
                                         Reenviar mail
                                     </a>
 
                                     <a th:if="${empleado.activo}"
-                                       th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
-                                       class="btn btn-outline-danger btn-sm py-1 px-2"
-                                       title="Dar de baja lógica"
-                                       onclick="return confirm('¿Está seguro de dar de baja a este empleado?');">
+                                        th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
+                                        class="btn btn-outline-danger btn-sm py-1 px-2" title="Dar de baja lógica"
+                                        onclick="return confirm('¿Está seguro de dar de baja a este empleado?');">
                                         Dar de baja
                                     </a>
 
                                     <a th:unless="${empleado.activo}"
-                                       th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
-                                       class="btn btn-outline-success btn-sm py-1 px-2"
-                                       title="Dar de alta al empleado"
-                                       onclick="return confirm('¿Desea dar de alta a este empleado? Se enviará una nueva contraseña por mail.');">
+                                        th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
+                                        class="btn btn-outline-success btn-sm py-1 px-2" title="Dar de alta al empleado"
+                                        onclick="return confirm('¿Desea dar de alta a este empleado? Se enviará una nueva contraseña por mail.');">
                                         ↑ Dar de alta
                                     </a>
                                 </div>
                             </td>
                         </tr>
+<tr id="sinResultadosFiltro"
+    style="display: none;"
+    th:if="${empleados != null and !#lists.isEmpty(empleados)}">
 
-                      
+    <td colspan="8" class="text-center py-5 text-secondary">
+        No se encontraron empleados con los filtros seleccionados.
+    </td>
+</tr>
+
                         <tr th:if="${empleados == null or #lists.isEmpty(empleados)}">
                             <td colspan="8" class="text-center py-5 text-secondary">
                                 <div class="fs-2 mb-2" aria-hidden="true">👥</div>
@@ -226,6 +245,132 @@
     </main>
 
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const nombre = document.getElementById("nombre");
+    const apellido = document.getElementById("apellido");
+    const dni = document.getElementById("dni");
+    const email = document.getElementById("email");
+    const estado = document.getElementById("estado");
+    const rol = document.getElementById("rol");
+
+    const contador = document.getElementById("cantidadResultados");
+    const sinResultados = document.getElementById("sinResultadosFiltro");
+    const botonLimpiar = document.getElementById("limpiarFiltros");
+    const formulario = document.querySelector("form");
+
+    const filas = Array.from(
+        document.querySelectorAll("#tablaEmpleados tbody tr[data-nombre]")
+    );
+
+    function normalizar(valor) {
+        return (valor || "")
+            .toString()
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function aplicarFiltros() {
+
+        const filtroNombre = normalizar(nombre.value);
+        const filtroApellido = normalizar(apellido.value);
+        const filtroDni = normalizar(dni.value);
+        const filtroEmail = normalizar(email.value);
+        const filtroEstado = estado.value;
+        const filtroRol = normalizar(rol.value);
+
+        let visibles = 0;
+
+        filas.forEach(function (fila) {
+
+            const coincideNombre =
+                normalizar(fila.dataset.nombre).includes(filtroNombre);
+
+            const coincideApellido =
+                normalizar(fila.dataset.apellido).includes(filtroApellido);
+
+            const coincideDni =
+                normalizar(fila.dataset.dni).includes(filtroDni);
+
+            const coincideEmail =
+                normalizar(fila.dataset.email).includes(filtroEmail);
+
+            const coincideEstado =
+                !filtroEstado ||
+                filtroEstado === "TODOS" ||
+                fila.dataset.estado === filtroEstado;
+
+            // Quitar ROLE_ si viene incluido en el nombre del rol.
+            const rolEmpleado = normalizar(fila.dataset.rol)
+                .replace(/^role_/, "");
+
+            const coincideRol =
+                !filtroRol || rolEmpleado === filtroRol;
+
+            const mostrar =
+                coincideNombre &&
+                coincideApellido &&
+                coincideDni &&
+                coincideEmail &&
+                coincideEstado &&
+                coincideRol;
+
+            fila.style.display = mostrar ? "" : "none";
+
+            if (mostrar) {
+                visibles++;
+            }
+        });
+
+        contador.textContent = visibles + " empleado(s)";
+
+        if (sinResultados) {
+            sinResultados.style.display =
+                filas.length > 0 && visibles === 0
+                    ? "table-row"
+                    : "none";
+        }
+    }
+
+    // Filtrar mientras se escribe.
+    [
+        nombre,
+        apellido,
+        dni,
+        email,
+        estado,
+        rol
+    ].forEach(function (campo) {
+        campo.addEventListener("input", aplicarFiltros);
+        campo.addEventListener("change", aplicarFiltros);
+    });
+
+    // Evitar que Enter envíe el formulario y recargue la página.
+    formulario.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+    });
+
+    // Limpiar filtros.
+    botonLimpiar.addEventListener("click", function () {
+
+        nombre.value = "";
+        apellido.value = "";
+        dni.value = "";
+        email.value = "";
+        estado.value = "TODOS";
+        rol.value = "";
+
+        aplicarFiltros();
+    });
+
+    // Aplicar filtros al cargar.
+    aplicarFiltros();
+
+});
+</script>
 </body>
+
 </html>
