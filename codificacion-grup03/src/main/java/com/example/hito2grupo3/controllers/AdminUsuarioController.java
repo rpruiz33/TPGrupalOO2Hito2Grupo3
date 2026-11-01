@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 
 @Controller
 @RequestMapping({"/responsable/usuarios", "/admin/usuarios"})
@@ -53,67 +54,110 @@ public class AdminUsuarioController {
         this.unidadVentaRepository = unidadVentaRepository;
     }
 
-    // Listar empleados asignados a la unidad del responsable
-    @GetMapping
-    public String listarUsuarios(
-            Authentication authentication,
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String apellido,
-            @RequestParam(required = false) String dni,
-            @RequestParam(defaultValue = "ACTIVOS") String estado,
-            Model model) {
+    
 
-        nombre = limpiarFiltro(nombre);
-        apellido = limpiarFiltro(apellido);
-        dni = limpiarFiltro(dni);
+@GetMapping
+public String listarUsuarios(
+        Authentication authentication,
+        @RequestParam(required = false) String nombre,
+        @RequestParam(required = false) String apellido,
+        @RequestParam(required = false) String dni,
+        @RequestParam(required = false) String email,
+        @RequestParam(defaultValue = "ACTIVOS") String estado,
+        @RequestParam(required = false) String rol,
+        Model model) {
 
-        // Validar el estado recibido
-        if (!List.of("ACTIVOS", "INACTIVOS", "TODOS").contains(estado)) {
-            estado = "ACTIVOS";
+    nombre = limpiarFiltro(nombre);
+    apellido = limpiarFiltro(apellido);
+    dni = limpiarFiltro(dni);
+    email = limpiarFiltro(email);
+
+    // Validar el estado recibido
+    if (!List.of("ACTIVOS", "INACTIVOS", "TODOS").contains(estado)) {
+        estado = "ACTIVOS";
+    }
+
+    // Normalizar y validar el rol recibido
+    String rolFiltro = limpiarFiltro(rol);
+
+    if (rolFiltro != null) {
+        rolFiltro = rolFiltro.toUpperCase(Locale.ROOT);
+
+        if (!List.of("EMPLEADO", "CAJERO", "COCINERO").contains(rolFiltro)) {
+            rolFiltro = null;
         }
+    }
 
-        if (authentication != null && authentication.isAuthenticated()) {
+    if (authentication != null && authentication.isAuthenticated()) {
 
-            Staff responsable = staffRepository
-                    .findByUsuario_Email(authentication.getName())
+        Staff responsable = staffRepository
+                .findByUsuario_Email(authentication.getName())
+                .orElse(null);
+
+        if (responsable != null) {
+
+            UnidadVenta unidad = unidadVentaRepository
+                    .findByResponsable_Id(responsable.getId())
                     .orElse(null);
 
-            if (responsable != null) {
+            if (unidad != null) {
 
-                UnidadVenta unidad = unidadVentaRepository
-                        .findByResponsable_Id(responsable.getId())
-                        .orElse(null);
+                // Filtros de nombre, apellido, DNI y estado
+                List<Staff> empleados =
+                        staffRepository.filtrarPorUnidadYEstado(
+                                unidad.getId(),
+                                nombre,
+                                apellido,
+                                dni,
+                                estado
+                        );
 
-                if (unidad != null) {
+                final String filtroRol = rolFiltro;
+                final String filtroEmail = email == null
+                        ? null
+                        : email.toLowerCase(Locale.ROOT);
 
-                    // Aplicar filtros de nombre, apellido, DNI y estado
-                    List<Staff> empleados =
-                            staffRepository.filtrarPorUnidadYEstado(
-                                    unidad.getId(),
-                                    nombre,
-                                    apellido,
-                                    dni,
-                                    estado
-                            );
+                // Aplicar filtros por rol y email
+                empleados = empleados.stream()
+                        .filter(empleado ->
+                                filtroRol == null
+                                || (empleado.getUsuario() != null
+                                    && empleado.getUsuario().getRol() != null
+                                    && empleado.getUsuario().getRol().getNombre() != null
+                                    && filtroRol.equalsIgnoreCase(
+                                            empleado.getUsuario().getRol().getNombre().trim()
+                                    ))
+                        )
+                        .filter(empleado ->
+                                filtroEmail == null
+                                || (empleado.getUsuario() != null
+                                    && empleado.getUsuario().getEmail() != null
+                                    && empleado.getUsuario().getEmail()
+                                            .toLowerCase(Locale.ROOT)
+                                            .contains(filtroEmail))
+                        )
+                        .toList();
 
-                    model.addAttribute("empleados", empleados);
-                    model.addAttribute("unidadVenta", unidad);
-                    model.addAttribute("nombre", nombre);
-                    model.addAttribute("apellido", apellido);
-                    model.addAttribute("dni", dni);
-                    model.addAttribute("estado", estado);
+                model.addAttribute("empleados", empleados);
+                model.addAttribute("unidadVenta", unidad);
+                model.addAttribute("nombre", nombre);
+                model.addAttribute("apellido", apellido);
+                model.addAttribute("dni", dni);
+                model.addAttribute("email", email);
+                model.addAttribute("estado", estado);
+                model.addAttribute("rol", rolFiltro);
 
-                    return "responsable/vistaempleados";
-                }
+                return "responsable/vistaempleados";
             }
         }
-
-        // Se conserva el comportamiento original para el listado general
-        List<Usuario> usuarios = usuarioRepository.findAll();
-        model.addAttribute("usuarios", usuarios);
-
-        return "responsable/vistausuarios";
     }
+    List<Usuario> usuarios = usuarioRepository.findAll();
+    model.addAttribute("usuarios", usuarios);
+
+    return "responsable/vistausuarios";
+}
+
+
 
     private String limpiarFiltro(String valor) {
         return valor == null || valor.isBlank() ? null : valor.trim();

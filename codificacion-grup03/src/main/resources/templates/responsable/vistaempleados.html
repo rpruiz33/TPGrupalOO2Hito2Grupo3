@@ -61,6 +61,16 @@
                                placeholder="Ingresá un DNI" th:value="${dni}">
                     </div>
 
+<div class="col-md-3">
+    <label for="email" class="form-label fw-semibold">Email</label>
+    <input type="text"
+           id="email"
+           name="email"
+           class="form-control"
+           placeholder="Ingresá un email"
+           th:value="${email}">
+</div>
+
                     <div class="col-md-3">
                         <label for="estado" class="form-label fw-semibold">Estado del empleado</label>
                         <select id="estado" name="estado" class="form-select">
@@ -69,6 +79,23 @@
                             <option value="TODOS" th:selected="${estado == 'TODOS'}">Todos</option>
                         </select>
                     </div>
+                    <div class="col-md-3">
+    <label for="rol" class="form-label fw-semibold">Puesto / Rol</label>
+    <select id="rol" name="rol" class="form-select">
+        <option value="" th:selected="${rol == null or rol == ''}">
+            Todos los puestos
+        </option>
+        <option value="EMPLEADO" th:selected="${rol == 'EMPLEADO'}">
+            Empleado
+        </option>
+        <option value="CAJERO" th:selected="${rol == 'CAJERO'}">
+            Cajero
+        </option>
+        <option value="COCINERO" th:selected="${rol == 'COCINERO'}">
+            Cocinero
+        </option>
+    </select>
+</div>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mt-3">
