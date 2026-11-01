@@ -220,3 +220,45 @@ a.menu-button-primary:hover,
     }
     
 }
+
+/* ========================================
+   CONTROLES DE FORMULARIOS - EPICENTRO
+======================================== */
+
+.control-epicentro {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.55rem 0.85rem;
+
+    border: 1px solid #d9c5cb;
+    border-radius: 8px;
+
+    background-color: #fff;
+    color: #343a40;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+/* Estado seleccionado */
+.control-epicentro:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.12);
+    outline: none;
+}
+
+/* Opciones de los desplegables */
+select.control-epicentro option {
+    color: #343a40;
+    background-color: #fff;
+}
+
+/* Controles deshabilitados */
+.control-epicentro:disabled {
+    background-color: #f1f1f1;
+    color: #888;
+    cursor: not-allowed;
+}

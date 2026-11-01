@@ -48,7 +48,7 @@
                     
                     <div class="col-12 col-lg-6" th:if="${festivales != null and !festivales.isEmpty()}">
                         <label for="festivalId" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
-                        <select id="festivalId" name="festivalId" class="form-select form-select-sm">
+                        <select id="festivalId" name="festivalId" class="form-select control-epicentro">
                             <option value="">-- Seleccione Festival --</option>
                             <option th:each="f : ${festivales}"
                                     th:value="${f.id}"

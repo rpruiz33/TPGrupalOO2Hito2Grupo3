@@ -71,15 +71,15 @@
 
                     <div class="col-md-3">
                         <label for="estado" class="form-label fw-semibold">Estado del empleado</label>
-                        <select id="estado" name="estado" class="form-select">
+                        <select id="estado" name="estado" class="form-select control-epicentro">
                             <option value="ACTIVOS" th:selected="${estado == 'ACTIVOS'}">Activos</option>
                             <option value="INACTIVOS" th:selected="${estado == 'INACTIVOS'}">Inactivos</option>
                             <option value="TODOS" th:selected="${estado == 'TODOS'}">Todos</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label for="rol" class="form-label fw-semibold">Puesto / Rol</label>
-                        <select id="rol" name="rol" class="form-select">
+                        <label for="rol" class="form-label fw-semibold">Puesto</label>
+                        <select id="rol" name="rol" class="form-select control-epicentro">
                             <option value="" th:selected="${rol == null or rol == ''}">
                                 Todos los puestos
                             </option>

@@ -121,7 +121,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Tipo de Empleado</label>
                     <th:block th:if="${empleado.id == null}">
-                        <select id="selectTipo" class="form-select" th:errorclass="is-invalid" th:field="*{tipo}">
+                        <select id="selectTipo" class="form-select control-epicentro" th:errorclass="is-invalid" th:field="*{tipo}">
                             <option value="GENERAL">Staff General</option>
                             <option value="CAJERO">Cajero</option>
                             <option value="COCINERO">Cocinero</option>
@@ -129,7 +129,7 @@
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
                     </th:block>
                     <th:block th:unless="${empleado.id == null}">
-                        <select id="selectTipo" class="form-select bg-light" disabled>
+                        <select id="selectTipo" class="form-select control-epicentro bg-light" disabled>
                             <option th:value="'GENERAL'" th:selected="${empleado.tipo == 'GENERAL'}">Staff General</option>
                             <option th:value="'CAJERO'" th:selected="${empleado.tipo == 'CAJERO'}">Cajero</option>
                             <option th:value="'COCINERO'" th:selected="${empleado.tipo == 'COCINERO'}">Cocinero</option>
@@ -176,7 +176,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Categoría de Cocina</label>
-                            <select class="form-select" th:field="*{categoriaCocinaId}">
+                            <select class="form-select control-epicentro" th:field="*{categoriaCocinaId}">
                                 <option value="">-- Sin categoría asignada --</option>
                                 <option th:each="cat : ${categoriasCocina}" 
                                         th:value="${cat.id}" 
