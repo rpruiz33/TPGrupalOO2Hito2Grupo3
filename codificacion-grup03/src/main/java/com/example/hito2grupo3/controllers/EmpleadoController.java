@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Controller
-@RequestMapping("/empleado")
+
 public class EmpleadoController {
 
     private final StaffRepository staffRepository;
@@ -32,16 +32,15 @@ public class EmpleadoController {
         this.unidadVentaRepository = unidadVentaRepository;
     }
 
-    @GetMapping("/index")
-    public String mostrarIndex() {
-        return "empleado/index";
-    }
-
-    @GetMapping("/dashboard")
-    public String mostrarDashboard(
-            Principal principal,
-            Authentication authentication,
-            Model model) {
+@GetMapping("/empleado/index")
+public String mostrarIndex() {
+    return "empleado/index";
+}
+@GetMapping("/mi-informacion")
+public String mostrarDashboard(
+        Principal principal,
+        Authentication authentication,
+        Model model) {
 
         // Verificar que exista una sesión autenticada.
         if (principal == null || authentication == null) {
@@ -62,7 +61,7 @@ public class EmpleadoController {
                             + ". Contactá con el administrador."
             );
 
-            return "reportes/empleadoDashboard";
+            return "mi-informacion";
         }
 
         // Determinar el rol según los permisos de Spring Security.
@@ -79,7 +78,7 @@ public class EmpleadoController {
                             + "Contactá con el administrador."
             );
 
-            return "reportes/empleadoDashboard";
+            return "mi-informacion";
         }
 
         // Calcular la antigüedad en años, meses y días.
@@ -253,7 +252,7 @@ public class EmpleadoController {
             model.addAttribute("asignacionActual", asignacion);
         }
 
-        return "reportes/empleadoDashboard";
+        return "mi-informacion";
     }
 
     /**
@@ -270,7 +269,7 @@ public class EmpleadoController {
     /**
      * Redirige al usuario autenticado al menú que le corresponde.
      */
-    @GetMapping("/volver-al-menu")
+    @GetMapping("/empleado/volver-al-menu")
     public String volverAlMenu(
             Principal principal,
             Authentication authentication) {

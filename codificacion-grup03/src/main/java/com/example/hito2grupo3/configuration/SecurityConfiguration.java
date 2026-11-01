@@ -77,6 +77,15 @@ public class SecurityConfiguration {
                             "EMPLEADO",
                             "CAJERO"
                     );
+                    // Mi-informacion
+                    auth.requestMatchers(
+                            "/mi-informacion"
+                    ).hasAnyRole(
+                            "RESPONSABLE",
+                            "EMPLEADO",
+                            "CAJERO",
+                            "COCINERO"
+                    );
 
                     // Acceso al módulo de cajeros
                     auth.requestMatchers("/cajero/**")

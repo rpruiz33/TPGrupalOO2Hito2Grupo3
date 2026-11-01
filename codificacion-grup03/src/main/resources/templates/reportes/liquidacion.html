@@ -44,7 +44,7 @@
                 <a sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}" class="menu-button">
                     ← Volver al Menu
                 </a>
-                <a sec:authorize="hasRole('EMPLEADO') or (!hasRole('ADMIN') and !hasRole('RESPONSABLE'))" th:href="@{/empleado/dashboard}" class="menu-button">
+                <a sec:authorize="hasRole('EMPLEADO') or (!hasRole('ADMIN') and !hasRole('RESPONSABLE'))" th:href="@{/mi-informacion}" class="menu-button">
                     ← Volver al Menu
                 </a>
             </div>
