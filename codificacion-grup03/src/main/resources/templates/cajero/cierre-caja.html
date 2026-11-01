@@ -1,497 +1,253 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cierre de Caja - Epicentro Gourmet</title>
-
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/css/modern-business.css}">
-    <link rel="stylesheet" th:href="@{/css/custom-login.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
-
-    <style>
-        body {
-            background-color: #800020;
-            font-family: "Segoe UI", sans-serif;
-            min-height: 100vh;
-        }
-
-        .page-container {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 32px 20px 48px;
-        }
-
-        /* ---- Tarjetas generales ---- */
-        .cc-card {
-            background-color: #ffffff;
-            border: 3px solid #000000;
-            border-radius: 10px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-            margin-bottom: 24px;
-        }
-
-        .cc-card .card-header {
-            background-color: #800020;
-            color: #ffffff;
-            border-radius: 7px 7px 0 0;
-            padding: 12px 20px;
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: 0.02em;
-        }
-
-        .cc-card .card-body {
-            padding: 20px 24px;
-        }
-
-        /* ---- Resumen cajero ---- */
-        .resumen-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 24px;
-        }
-
-        .resumen-item label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 2px;
-        }
-
-        .resumen-item p {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #111827;
-            margin: 0;
-        }
-
-        .total-badge {
-            display: inline-block;
-            background-color: #800020;
-            color: #fff;
-            padding: 6px 18px;
-            border-radius: 20px;
-            font-size: 1.05rem;
-            font-weight: 700;
-        }
-
-        /* ---- Formulario de registro ---- */
-        .form-label {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-control, .form-select {
-            border: 1.5px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #800020;
-            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12);
-        }
-
-        .btn-registrar {
-            background-color: #800020;
-            color: #fff;
-            border: none;
-            border-radius: 7px;
-            padding: 9px 28px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: background-color 0.2s ease, transform 0.15s ease;
-        }
-
-        .btn-registrar:hover {
-            background-color: #5c0016;
-            transform: translateY(-1px);
-        }
-
-        /* ---- Tabla de historial ---- */
-        .hist-table {
-            font-size: 0.85rem;
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .hist-table thead th {
-            background-color: #f3f4f6;
-            color: #374151;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            letter-spacing: 0.05em;
-            padding: 10px 14px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .hist-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.15s ease;
-        }
-
-        .hist-table tbody tr:hover {
-            background-color: #fdf2f4;
-        }
-
-        .hist-table tbody td {
-            padding: 10px 14px;
-            color: #374151;
-        }
-
-        .monto-col {
-            font-weight: 700;
-            color: #065f46;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: #9ca3af;
-            font-size: 0.9rem;
-        }
-
-        /* ---- Filtro fechas ---- */
-        .btn-filtrar {
-            background-color: transparent;
-            border: 1.5px solid #800020;
-            color: #800020;
-            border-radius: 6px;
-            padding: 7px 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-filtrar:hover {
-            background-color: #800020;
-            color: #fff;
-        }
-
-        .btn-limpiar {
-            background-color: transparent;
-            border: 1.5px solid #6b7280;
-            color: #6b7280;
-            border-radius: 6px;
-            padding: 7px 16px;
-            font-size: 0.85rem;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-
-        .btn-limpiar:hover {
-            background-color: #6b7280;
-            color: #fff;
-        }
-
-        /* ---- Volver / logout ---- */
-        .btn-volver {
-            border: 1.5px solid #ffffff;
-            color: #ffffff;
-            border-radius: 6px;
-            padding: 7px 20px;
-            font-size: 0.88rem;
-            background: transparent;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-
-        .btn-volver:hover {
-            background-color: #ffffff;
-            color: #800020;
-        }
-
-        .logo {
-            text-align: center;
-            margin-top: 28px;
-        }
-
-        .logo .unla-logo-img {
-            width: 90px;
-            height: auto;
-            border: 2px solid black;
-        }
-
-        /* ---- Ventas del día ---- */
-        .ventas-dia-table {
-            font-size: 0.83rem;
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .ventas-dia-table thead th {
-            background-color: #f3f4f6;
-            color: #374151;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            letter-spacing: 0.04em;
-            padding: 8px 12px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .ventas-dia-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .ventas-dia-table tbody tr:hover {
-            background-color: #f9fafb;
-        }
-
-        .ventas-dia-table tbody td {
-            padding: 8px 12px;
-            color: #374151;
-        }
-
-        .ventas-total-row td {
-            font-weight: 700;
-            color: #065f46;
-            border-top: 2px solid #e5e7eb;
-            background-color: #f0fdf4;
-        }
-
-        .btn-usar-total {
-            background-color: #065f46;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 16px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .btn-usar-total:hover {
-            background-color: #047857;
-        }
-
-        .ventas-empty {
-            text-align: center;
-            padding: 20px;
-            color: #9ca3af;
-            font-size: 0.88rem;
-        }
-    </style>
 </head>
 
 <body>
-<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 950px;">
+        <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">💰 Cierre de Caja</h1>
+                <p class="text-white-50 mb-0">Arqueo diario, resumen de recaudación e historial de turnos.</p>
+            </div>
+            <div>
+                <a th:href="@{/cajero/index}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </header>
 
-<main class="container page-container mt-2">
+      
+        <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-4" role="status" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-4" role="alert" th:text="${error}"></div>
 
-    <!-- Encabezado -->
-    <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Cierre de Caja</h1>
-            <p class="text-white-50 mb-0">Registro y consulta de cierres de caja del personal.</p>
-        </div>
-        <div>
-            <a th:href="@{/cajero/index}" class="menu-button">
-                ← Volver al Menu
-            </a>
-        </div>
-    </header>
+        <section class="card menu-card p-4 mb-4">
+            <h2 class="h5 fw-bold pb-2 mb-3 border-bottom" style="color: #800020;">
+                👤 Información del Cajero y Turno
+            </h2>
 
-    <!-- Alertas -->
-    <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
-    <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">Cajero / Operador</small>
+                        <strong class="text-dark fs-6" th:text="${cajeroNombre} ?: 'N/D'">Nombre Cajero</strong>
+                    </div>
+                </div>
 
-    <!-- Resumen del cajero -->
-    <div class="cc-card">
-        <div class="card-header">👤 Información del Cajero</div>
-        <div class="card-body">
-            <div class="resumen-grid">
-                <div class="resumen-item">
-                    <label>Nombre</label>
-                    <p th:text="${cajeroNombre} ?: 'N/D'">Cajero Nombre</p>
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">Documento (DNI)</small>
+                        <strong class="text-dark fs-6 font-monospace" th:text="${cajeroDni} ?: 'N/D'">00000000</strong>
+                    </div>
                 </div>
-                <div class="resumen-item">
-                    <label>DNI</label>
-                    <p th:text="${cajeroDni} ?: 'N/D'">00000000</p>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">Turno asignado</small>
+                        <strong class="text-dark fs-6" th:text="${cajeroTurno} ?: 'N/D'">Mañana</strong>
+                    </div>
                 </div>
-                <div class="resumen-item">
-                    <label>Turno</label>
-                    <p th:text="${cajeroTurno} ?: 'N/D'">Mañana</p>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">N.º de Caja</small>
+                        <strong class="text-dark fs-6 font-monospace" th:text="${cajeroNumeroCaja} ?: '1'">1</strong>
+                    </div>
                 </div>
-                <div class="resumen-item">
-                    <label>N° de Caja</label>
-                    <p th:text="${cajeroNumeroCaja} ?: 'N/D'">1</p>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">Unidad de venta</small>
+                        <strong class="text-dark fs-6" th:text="${unidadVentaNombre} ?: 'Sin asignar'">Food Truck</strong>
+                    </div>
                 </div>
-                <div class="resumen-item">
-                    <label>Unidad de Venta</label>
-                    <p th:text="${unidadVentaNombre} ?: 'Sin asignar'">Food Truck</p>
-                </div>
-                <div class="resumen-item">
-                    <label>Fecha de hoy</label>
-                    <p th:text="${#temporals.format(fechaHoy, 'dd/MM/yyyy')}">01/01/2026</p>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <small class="text-muted d-block fw-semibold mb-1">Fecha contable</small>
+                        <strong class="text-dark fs-6" th:text="${#temporals.format(fechaHoy, 'dd/MM/yyyy')}">01/01/2026</strong>
+                    </div>
                 </div>
             </div>
 
-            <hr class="my-3">
-
-            <div class="text-center">
-                <small class="text-muted d-block mb-1">Total acumulado recaudado</small>
-                <span class="total-badge"
+            <div class="mt-4 pt-3 border-top text-center">
+                <span class="text-muted small fw-semibold d-block mb-1">Total recaudado acumulado</span>
+                <span class="fs-4 fw-bold px-3 py-1 rounded bg-light border text-success"
                       th:text="'$ ' + ${#numbers.formatDecimal(totalAcumulado ?: 0, 1, 'POINT', 2, 'COMMA')}">
                     $ 0,00
                 </span>
+
                 <div th:if="${totalFiltrado != null}" class="mt-2">
                     <small class="text-muted">Total en período filtrado: </small>
-                    <strong class="text-success"
-                            th:text="'$ ' + ${#numbers.formatDecimal(totalFiltrado, 1, 'POINT', 2, 'COMMA')}"></strong>
+                    <strong class="text-success fw-bold"
+                            th:text="'$ ' + ${#numbers.formatDecimal(totalFiltrado, 1, 'POINT', 2, 'COMMA')}">
+                        $ 0,00
+                    </strong>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Ventas del día en la unidad -->
-    <div class="cc-card">
-        <div class="card-header">🛒 Ventas del Día en tu Unidad</div>
-        <div class="card-body p-0">
-
-            <!-- Si hay ventas -->
-            <div th:if="${ventasHoy != null and !#lists.isEmpty(ventasHoy)}">
-                <table class="ventas-dia-table">
-                    <thead>
+        </section>
+        <section class="card menu-card overflow-hidden mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    🛒 Ventas del Día en tu Unidad
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${ventasHoy != null ? #lists.size(ventasHoy) + ' plato(s) facturado(s)' : '0 ventas'}">
+                    0 ventas
+                </span>
+            </div>
+            <div th:if="${ventasHoy != null and !#lists.isEmpty(ventasHoy)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
                         <tr>
-                            <th>Plato</th>
-                            <th class="text-center">Cant.</th>
-                            <th class="text-end">Precio Unit.</th>
-                            <th class="text-end">Subtotal</th>
+                            <th class="ps-4 py-3">Plato</th>
+                            <th class="text-center py-3">Cant.</th>
+                            <th class="text-end py-3">Precio Unit.</th>
+                            <th class="text-end pe-4 py-3">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="v : ${ventasHoy}">
-                            <td th:text="${v.nombrePlato}">Plato</td>
-                            <td class="text-center" th:text="${v.cantidadVendida}">0</td>
-                            <td class="text-end"
-                                th:text="'$ ' + ${#numbers.formatDecimal(v.precioUnitario, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                            <td class="text-end monto-col"
-                                th:text="'$ ' + ${#numbers.formatDecimal(v.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                        </tr>
-                        <tr class="ventas-total-row">
-                            <td colspan="3">Total vendido hoy</td>
-                            <td class="text-end"
-                                th:text="'$ ' + ${#numbers.formatDecimal(totalVentasHoy ?: 0, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="ps-4 py-2 fw-semibold text-dark" th:text="${v.nombrePlato}">Plato</td>
+                            <td class="text-center py-2">
+                                <span class="badge bg-light text-dark border px-2 py-1 font-monospace" th:text="${v.cantidadVendida}">0</span>
+                            </td>
+                            <td class="text-end py-2 text-secondary"
+                                th:text="'$ ' + ${#numbers.formatDecimal(v.precioUnitario, 1, 'POINT', 2, 'COMMA')}">
+                                $ 0,00
+                            </td>
+                            <td class="text-end pe-4 py-2 fw-bold text-success"
+                                th:text="'$ ' + ${#numbers.formatDecimal(v.subtotal, 1, 'POINT', 2, 'COMMA')}">
+                                $ 0,00
+                            </td>
                         </tr>
                     </tbody>
+                    <tfoot class="table-light border-top">
+                        <tr>
+                            <th colspan="3" class="text-end fw-bold ps-4 py-3">Total vendido hoy:</th>
+                            <th class="text-end pe-4 py-3 fs-5 fw-bold text-success"
+                                th:text="'$ ' + ${#numbers.formatDecimal(totalVentasHoy ?: 0, 1, 'POINT', 2, 'COMMA')}">
+                                $ 0,00
+                            </th>
+                        </tr>
+                    </tfoot>
                 </table>
-                <div class="p-3 text-end">
-                    <button type="button" class="btn-usar-total" id="btnUsarTotal"
+
+                <div class="card-footer bg-light px-4 py-3 text-end">
+                    <button type="button" class="menu-button menu-button-primary py-1 px-3 small" id="btnUsarTotal"
                             th:attr="data-total=${totalVentasHoy}">
-                        ↓ Usar este monto en el cierre
+                         Usar este monto en el cierre
                     </button>
                 </div>
             </div>
 
-            <!-- Sin ventas registradas hoy -->
-            <div class="ventas-empty"
-                 th:if="${ventasHoy == null or #lists.isEmpty(ventasHoy)}">
-                📭 No se registraron ventas hoy en esta unidad.
+         
+            <div th:if="${ventasHoy == null or #lists.isEmpty(ventasHoy)}" class="text-center py-5 text-secondary">
+                <div class="fs-2 mb-2" aria-hidden="true">📭</div>
+                <strong>No se registraron ventas hoy en esta unidad.</strong>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Formulario: Registrar nuevo cierre -->
-    <div class="cc-card">
-        <div class="card-header">🔒 Registrar Cierre de Caja</div>
-        <div class="card-body">
-            <!-- CORREGIDO: Se eliminaron las comillas extra y se asegura el envío correcto -->
+       
+        <section class="card menu-card p-4 mb-4">
+            <h2 class="h5 fw-bold pb-2 mb-3 border-bottom" style="color: #800020;">
+                🔒 Registrar Cierre de Caja
+            </h2>
+
             <form th:action="@{/cajero/cierre-caja}" method="post" id="formCierreCaja">
-                <div class="row g-3">
 
-                    <!-- Campo oculto: cajeroId -->
-                    <input type="hidden" name="cajeroId" th:value="${cajeroId}">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="cajeroId" th:value="${cajeroId}">
 
-                    <!-- Unidad de Venta asignada -->
-                    <div class="col-md-6">
-                        <label for="unidadVentaNombre" class="form-label">Unidad de Venta</label>
-                        <input type="hidden" id="unidadVentaId" name="unidadVentaId" th:value="${unidadVentaId != null ? unidadVentaId : (unidades != null and !unidades.isEmpty() ? unidades[0].id : '')}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6">
+                        <label for="unidadVentaNombre" class="form-label small fw-semibold text-secondary mb-1">Unidad de venta</label>
+                        <input type="hidden" id="unidadVentaId" name="unidadVentaId" 
+                               th:value="${unidadVentaId != null ? unidadVentaId : (unidades != null and !unidades.isEmpty() ? unidades[0].id : '')}">
                         <input type="text" id="unidadVentaNombre" class="form-control"
                                th:value="${unidadVentaNombre != null ? unidadVentaNombre : (unidades != null and !unidades.isEmpty() ? unidades[0].nombreComercial : 'Sin unidad asignada')}"
                                readonly required>
-                        <small class="text-muted">Unidad de venta asignada a tu puesto</small>
+                        <small class="text-muted">Unidad asignada a tu sesión operativa</small>
                     </div>
 
-                    <!-- Fecha -->
-                    <div class="col-md-3">
-                        <label for="fecha" class="form-label">Fecha del cierre</label>
-                        <input type="date" id="fecha" name="fecha" class="form-control"
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label for="fecha" class="form-label small fw-semibold text-secondary mb-1">Fecha del cierre</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control text-center"
                                th:value="${#temporals.format(fechaHoy, 'yyyy-MM-dd')}" readonly required>
-                        <small class="text-muted">Día de hoy</small>
+                        <small class="text-muted">Jornada contable de hoy</small>
                     </div>
 
-                    <!-- Monto -->
-                    <div class="col-md-3">
-                        <label for="montoRecaudado" class="form-label">Monto recaudado ($)</label>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label for="montoRecaudado" class="form-label small fw-semibold text-secondary mb-1">Monto recaudado ($)</label>
                         <input type="number" id="montoRecaudado" name="montoRecaudado"
-                               class="form-control" step="0.01" min="0"
+                               class="form-control text-end fw-bold" step="0.01" min="0"
                                th:value="${totalVentasHoy != null ? totalVentasHoy : 0}" required>
-                        <small class="text-muted">Total vendido según BD</small>
+                        <small class="text-muted">Total vendido según registros</small>
                     </div>
 
-                    <!-- Botón -->
-                    <div class="col-12 text-end mt-1">
-                        <button type="submit" class="btn-registrar" id="btnRegistrarCierre">
-                            ✔ Confirmar Cierre de Caja
+                    <div class="col-12 text-end pt-2">
+                        <button type="submit" class="menu-button menu-button-primary py-2 px-4" id="btnRegistrarCierre">
+                            Confirmar Cierre de Caja
                         </button>
                     </div>
+
                 </div>
             </form>
-        </div>
-    </div>
+        </section>
 
-    <!-- Historial de cierres -->
-    <div class="cc-card">
-        <div class="card-header">📋 Historial de Cierres</div>
-        <div class="card-body p-0">
+        <section class="card menu-card overflow-hidden mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    📋 Historial de Cierres
+                </h2>
+                <span class="text-muted small">Cierres de turno realizados</span>
+            </div>
 
-            <!-- Filtro por fechas -->
-            <div class="p-3 border-bottom">
+            <div class="p-3 border-bottom bg-white">
                 <form th:action="@{/cajero/cierre-caja}" method="get" class="row g-2 align-items-end">
-                    <div class="col-auto">
-                        <label class="form-label mb-0 small fw-semibold">Desde</label>
-                        <input type="date" name="desde" class="form-control form-control-sm"
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Desde</label>
+                        <input type="date" name="desde" class="form-control form-control-sm text-center"
                                th:value="${desde != null ? #temporals.format(desde, 'yyyy-MM-dd') : ''}">
                     </div>
-                    <div class="col-auto">
-                        <label class="form-label mb-0 small fw-semibold">Hasta</label>
-                        <input type="date" name="hasta" class="form-control form-control-sm"
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Hasta</label>
+                        <input type="date" name="hasta" class="form-control form-control-sm text-center"
                                th:value="${hasta != null ? #temporals.format(hasta, 'yyyy-MM-dd') : ''}">
                     </div>
-                    <div class="col-auto d-flex gap-2">
-                        <button type="submit" class="btn-filtrar">Filtrar</button>
-                        <a th:href="@{/cajero/cierre-caja}" class="btn-limpiar">Limpiar</a>
+                    <div class="col-12 col-md-6 d-flex gap-2">
+                        <button type="submit" class="menu-button menu-button-primary py-1 px-3 small" style="font-size: 0.85rem;">
+                            Filtrar
+                        </button>
+                        <a th:href="@{/cajero/cierre-caja}" class="menu-button py-1 px-3 small" style="font-size: 0.85rem;">
+                            Limpiar
+                        </a>
                     </div>
                 </form>
             </div>
-
-            <!-- Tabla -->
-            <div class="p-0">
-                <table class="hist-table" th:if="${historial != null and !#lists.isEmpty(historial)}">
-                    <thead>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" th:if="${historial != null and !#lists.isEmpty(historial)}">
+                    <thead style="background-color: #f4eaec; color: #600018;">
                         <tr>
-                            <th>Fecha</th>
-                            <th>Unidad de Venta</th>
-                            <th>Monto Recaudado</th>
+                            <th class="ps-4 py-3">Fecha</th>
+                            <th class="py-3">Unidad de Venta</th>
+                            <th class="text-end pe-4 py-3">Monto Recaudado</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="cierre : ${historial}">
-                            <td th:text="${#temporals.format(cierre.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
-                            <td th:text="${cierre.unidadVenta != null ? cierre.unidadVenta.nombreComercial : 'N/D'}">Unidad</td>
-                            <td class="monto-col"
+                            <td class="ps-4 py-2 fw-semibold text-dark" th:text="${#temporals.format(cierre.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
+                            <td class="py-2 text-secondary" th:text="${cierre.unidadVenta != null ? cierre.unidadVenta.nombreComercial : 'N/D'}">Unidad</td>
+                            <td class="text-end pe-4 py-2 fw-bold text-success"
                                 th:text="'$ ' + ${#numbers.formatDecimal(cierre.montoRecaudado, 1, 'POINT', 2, 'COMMA')}">
                                 $ 0,00
                             </td>
@@ -499,60 +255,65 @@
                     </tbody>
                 </table>
 
-                <div class="empty-state"
-                     th:if="${historial == null or #lists.isEmpty(historial)}">
-                    📭 No hay cierres de caja registrados aún.
+                <div class="text-center py-5 text-secondary" th:if="${historial == null or #lists.isEmpty(historial)}">
+                    <div class="fs-2 mb-2" aria-hidden="true">🧾</div>
+                    <strong>No hay cierres de caja registrados aún para este criterio.</strong>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Navegación -->
-    <div class="text-center mt-4">
-        <a th:href="@{/cajero/index}" class="btn-volver">← Volver al Panel</a>
-    </div>
+    </main>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
-</main>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
-<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
-
-<script>
-    // Validación simple del formulario antes de enviar
-    document.getElementById('formCierreCaja').addEventListener('submit', function (e) {
-        const monto = parseFloat(document.getElementById('montoRecaudado').value);
-        if (isNaN(monto) || monto < 0) {
-            e.preventDefault();
-            alert('El monto recaudado debe ser un número positivo.');
+        // Validación simple de monto positivo
+        const formCierre = document.getElementById('formCierreCaja');
+        if (formCierre) {
+            formCierre.addEventListener('submit', function (e) {
+                const montoInput = document.getElementById('montoRecaudado');
+                const monto = parseFloat(montoInput.value);
+                if (isNaN(monto) || monto < 0) {
+                    e.preventDefault();
+                    alert('El monto recaudado debe ser un número positivo.');
+                    montoInput.focus();
+                }
+            });
         }
+
+        // Validación de coherencia en el filtro de fechas (Desde <= Hasta)
+        const formFiltro = document.querySelector('form[action*="/cajero/cierre-caja"][method="get"]');
+        if (formFiltro) {
+            formFiltro.addEventListener('submit', function (e) {
+                const desde = formFiltro.querySelector('input[name="desde"]').value;
+                const hasta = formFiltro.querySelector('input[name="hasta"]').value;
+                if (desde && hasta && desde > hasta) {
+                    e.preventDefault();
+                    alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+                }
+            });
+        }
+
+        // Precarga rápida del total vendido en el día
+        const btnUsarTotal = document.getElementById('btnUsarTotal');
+        if (btnUsarTotal) {
+            btnUsarTotal.addEventListener('click', function () {
+                const total = parseFloat(this.getAttribute('data-total')) || 0;
+                const montoInput = document.getElementById('montoRecaudado');
+                montoInput.value = total.toFixed(2);
+                montoInput.focus();
+                
+                // Desplazamiento suave al formulario
+                const formSection = document.getElementById('formCierreCaja');
+                if (formSection) {
+                    formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+
     });
-
-    // Validación del filtro de fechas
-    const formFiltro = document.querySelector('form[action*="/cajero/cierre-caja"][method="get"]');
-    if (formFiltro) {
-        formFiltro.addEventListener('submit', function (e) {
-            const desde = formFiltro.querySelector('input[name="desde"]').value;
-            const hasta = formFiltro.querySelector('input[name="hasta"]').value;
-            if (desde && hasta && desde > hasta) {
-                e.preventDefault();
-                alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
-            }
-        });
-    }
-
-    // Botón "Usar este monto en el cierre": pre-carga el total de ventas del día
-    const btnUsarTotal = document.getElementById('btnUsarTotal');
-    if (btnUsarTotal) {
-        btnUsarTotal.addEventListener('click', function () {
-            const total = parseFloat(this.getAttribute('data-total')) || 0;
-            const montoInput = document.getElementById('montoRecaudado');
-            montoInput.value = total.toFixed(2);
-            montoInput.focus();
-            // Scroll suave al formulario
-            document.getElementById('formCierreCaja').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    }
-</script>
+    </script>
 
 </body>
 </html>

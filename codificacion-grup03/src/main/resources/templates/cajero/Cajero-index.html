@@ -4,250 +4,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Panel del Cajero - Epicentro Gourmet</title>
 
-    <link rel="stylesheet"
-          th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-
-    <link rel="stylesheet"
-          th:href="@{/css/modern-business.css}">
-
-    <link rel="stylesheet"
-          th:href="@{/css/custom-login.css}">
-
-    <link rel="stylesheet"
-          th:href="@{/css/panel-base.css}">
-
-    <style>
-        body {
-            background-color: #800020;
-            font-family: "Segoe UI", sans-serif;
-            min-height: 100vh;
-        }
-
-        .panel-container {
-            max-width: 580px;
-            margin: 0 auto;
-            padding: 35px 20px;
-        }
-
-        .menu-card {
-            background-color: #ffffff;
-            border: 3px solid #000000;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 380px;
-            margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            transition: transform 0.2s ease,
-                        box-shadow 0.2s ease;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-        }
-
-        .menu-card .card-body {
-            padding: 14px 18px;
-        }
-
-        .menu-icon {
-            font-size: 1.35rem;
-            margin-bottom: 4px;
-        }
-
-        .menu-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 4px;
-        }
-
-        .menu-card p {
-            font-size: 0.82rem;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-
-        .menu-button {
-            border: 1px solid #800020;
-            color: #800020;
-            border-radius: 6px;
-            padding: 5px 14px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-
-        .menu-button:hover {
-            background-color: #800020;
-            color: #ffffff;
-        }
-
-        .logout-button {
-            border: 1px solid #ffffff;
-            color: #ffffff;
-            border-radius: 6px;
-            padding: 6px 16px;
-            font-size: 0.9rem;
-            background: transparent;
-            text-decoration: none;
-        }
-
-        .logout-button:hover {
-            background-color: #ffffff;
-            color: #800020;
-        }
-
-   .logo {
-  text-align: center;
-  margin-top: 32px;
-}
-
-.logo .unla-logo-img {
-  width: 110px;
-  height: auto;
-  border: 2px solid black;
-}
-    </style>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
-
 <body>
-<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
 
-<main class="container panel-container mt-2">
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', null, '/cajero/index')}"></nav>
+<main class="container panel-container mt-4">
 
-    <header class="text-center text-white mb-4">
-        <h1 class="h3 fw-bold mb-1">Panel de Cajero</h1>
-        <p class="text-white-50 mb-0">Gestión de ventas y operaciones de caja.</p>
+    <header class="panel-header text-center text-white mb-4">
+        <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
+        <h2 class="text-white-50 mb-2">Panel del Cajero</h2>
+
+        <p class="unit-info mb-0">
+            Unidad de venta:
+            <strong th:text="${unidadVenta != null ? unidadVenta.nombreComercial : 'Sin asignar'}">
+                Sin asignar
+            </strong>
+        </p>
     </header>
 
-    <div th:if="${mensaje}" class="alert alert-success text-center py-2 shadow-sm mb-3" th:text="${mensaje}"></div>
-    <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm mb-3" th:text="${error}"></div>
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center py-2 shadow-sm mb-3"
+         th:text="${mensaje}">
+    </div>
 
-    <!-- 3 Secciones apiladas verticalmente con borde negro y más separación -->
+    <div th:if="${error}"
+         class="alert alert-danger text-center py-2 shadow-sm mb-3"
+         th:text="${error}">
+    </div>
     <section>
-        <div class="row g-4 justify-content-center">
 
-            <!-- Sección 1: Alta de Pedido -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-                        <div class="menu-icon" aria-hidden="true">
-                            🛒
+        <div class="row g-3 justify-content-center">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">🛒</div>
+
+                            <h3 class="fw-bold">Alta de pedido</h3>
+
+                            <p class="text-secondary">
+                                Registrá una nueva venta seleccionando festival, unidad y platos disponibles.
+                            </p>
                         </div>
 
-                        <h3 class="fw-bold">
-                            Alta de pedido
-                        </h3>
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/pedidos/alta}"
+                               class="menu-button menu-button-primary w-100">
+                                Registrar pedido
+                            </a>
+                        </div>
 
-                        <p class="text-secondary">
-                            Registrá una venta seleccionando festival, unidad y platos.
-                        </p>
-
-                        <a th:href="@{/pedidos/alta}"
-                           class="menu-button">
-                            Registrar pedido
-                        </a>
                     </div>
                 </article>
             </div>
-            <!-- Sección 2: Historial de pedidos -->
-<div class="col-12 d-flex justify-content-center">
-    <article class="card menu-card">
-        <div class="card-body text-center">
-            <div class="menu-icon" aria-hidden="true">
-                📋
-            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
 
-            <h3 class="fw-bold">
-                Historial de pedidos
-            </h3>
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
 
-            <p class="text-secondary">
-                Consultá los pedidos de tus unidades de venta y revisá su estado.
-            </p>
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">📋</div>
 
-            <a th:href="@{/pedidos/historial}"
-               class="menu-button">
-                Ver historial
-            </a>
-        </div>
-    </article>
-</div>
+                            <h3 class="fw-bold">Historial de pedidos</h3>
 
-            <!-- Sección 2: Mi información -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-                        <div class="menu-icon" aria-hidden="true">
-                            👤
+                            <p class="text-secondary">
+                                Consultá los pedidos registrados de tus unidades de venta y revisá su estado.
+                            </p>
                         </div>
 
-                        <h3 class="fw-bold">
-                            Mi información
-                        </h3>
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/pedidos/historial}"
+                               class="menu-button w-100">
+                                Ver historial
+                            </a>
+                        </div>
 
-                        <p class="text-secondary">
-                            Consultá la información de tu actividad como empleado.
-                        </p>
-                        <a th:href="@{/empleado/dashboard}"
-                           class="menu-button">
-                            Mi información
-                        </a>
+                    </div>
+                </article>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3" th:if="${esCajero != null ? esCajero : true}">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">💰</div>
+
+                            <h3 class="fw-bold">Cierre de caja</h3>
+
+                            <p class="text-secondary">
+                                Consultá las ventas registradas y realizá el arqueo y balance de caja del día.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/cajero/cierre-caja}"
+                               class="menu-button w-100">
+                                Cerrar caja
+                            </a>
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">👤</div>
+
+                            <h3 class="fw-bold">Mi información</h3>
+
+                            <p class="text-secondary">
+                                Consultá tu información personal, festival asignado y recibos de haberes.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/empleado/dashboard}"
+                               class="menu-button w-100">
+                                Mi información
+                            </a>
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <article class="card menu-card h-100">
+
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                        <div>
+                            <div class="menu-icon" aria-hidden="true">🔒</div>
+
+                            <h3 class="fw-bold">Seguridad</h3>
+
+                            <p class="text-secondary">
+                                Cambiá tu contraseña de acceso periódicamente para proteger tu cuenta.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a th:href="@{/cambiar-password}"
+                               class="menu-button w-100">
+                                Cambiar contraseña
+                            </a>
+                        </div>
+
                     </div>
                 </article>
             </div>
 
-            <!-- Sección 3: Seguridad / Cambiar Contraseña -->
-            <div class="col-12 d-flex justify-content-center">
-                <article class="card menu-card">
-                    <div class="card-body text-center">
-                        <div class="menu-icon" aria-hidden="true">
-                            🔒
-                        </div>
-
-                        <h3 class="fw-bold">
-                            Seguridad
-                        </h3>
-
-                        <p class="text-secondary">
-                            Cambiá tu contraseña de acceso en cualquier momento.
-                        </p>
-                        <a th:href="@{/cambiar-password}"
-                           class="menu-button">
-                            Cambiar Contraseña
-                        </a>
-                    </div>
-                </article>
-            </div>
-           <!-- Sección 4: Cierre de caja, exclusivo para cajeros -->
-<div class="col-12 d-flex justify-content-center"
-     th:if="${esCajero}">
-    <article class="card menu-card">
-        <div class="card-body text-center">
-            <div class="menu-icon" aria-hidden="true">
-                💰
-            </div>
-
-            <h3 class="fw-bold">
-                Cierre de caja
-            </h3>
-
-            <p class="text-secondary">
-                Consultá las ventas registradas y realizá el cierre de caja del día.
-            </p>
-
-            <a th:href="@{/cajero/cierre-caja}"
-               class="menu-button">
-                Cerrar caja
-            </a>
         </div>
-        </article>
-        </div>
-        </div>
+
     </section>
 
 </main>

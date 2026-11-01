@@ -74,108 +74,98 @@
         </div>
 
         <!-- FILTROS -->
-        <section class="card menu-card p-4 mb-4">
-            <h2 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
-                🔍 Buscar pedidos
-            </h2>
+         <!-- FILTROS COMPACTOS EN VIVO -->
+        <section class="card menu-card p-3 p-md-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
+                <h2 class="h6 fw-bold m-0" style="color: #800020;">
+                    🔍 Filtros de Búsqueda
+                </h2>
+                <span class="text-muted small">Filtrado dinámico en tiempo real</span>
+            </div>
 
-            <div class="row g-3">
-                <!-- Número de pedido -->
-                <div class="col-md-4">
-                    <label for="filtroId" class="form-label fw-semibold">
-                        Número de pedido
-                    </label>
-                    <input type="number" id="filtroId" class="form-control" min="1" placeholder="Ej. 125">
-                </div>
-
-                <!-- Unidad de venta -->
-                <div class="col-md-4">
-                    <label for="filtroUnidad" class="form-label fw-semibold">
-                        Unidad de venta
-                    </label>
-                    <select id="filtroUnidad" class="form-select">
-                        <option value="">Todas las unidades</option>
-                        <option th:each="unidad : ${unidadesVenta}" th:value="${unidad.nombreComercial}"
-                            th:attr="data-id=${unidad.id}" th:text="${unidad.nombreComercial}">
-                        </option>
-                    </select>
+            <!-- Fila 1: Filtros principales -->
+            <div class="row g-2 align-items-end mb-2">
+                <!-- N.º Pedido -->
+                <div class="col-6 col-md-3 col-lg-2">
+                    <label for="filtroId" class="form-label small fw-semibold text-secondary mb-1">N.º Pedido</label>
+                    <input type="number" id="filtroId" class="form-control form-control-sm" min="1" placeholder="Ej. 125">
                 </div>
 
                 <!-- Estado -->
-                <div class="col-md-4">
-                    <label for="filtroEstado" class="form-label fw-semibold">
-                        Estado
-                    </label>
-                    <select id="filtroEstado" class="form-select">
-                        <option value="">Todos los estados</option>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <label for="filtroEstado" class="form-label small fw-semibold text-secondary mb-1">Estado</label>
+                    <select id="filtroEstado" class="form-select form-select-sm">
+                        <option value="">Todos</option>
                         <option value="A">Activos</option>
                         <option value="R">Anulados</option>
                     </select>
                 </div>
 
-                <!-- Festival -->
-                <div class="col-md-4">
-                    <label for="filtroFestival" class="form-label fw-semibold">
-                        Festival
-                    </label>
-                    <select id="filtroFestival" class="form-select">
-                        <option value="">Todos los festivales</option>
-                    </select>
-                </div>
-
-                <!-- Empleado -->
-                <div class="col-md-4">
-                    <label for="filtroEmpleado" class="form-label fw-semibold">
-                        Registrado por
-                    </label>
-                    <select id="filtroEmpleado" class="form-select">
-                        <option value="">Todos los empleados</option>
-                        <option th:each="empleado : ${empleados}" th:value="${empleado.id}"
-                            th:text="${empleado.nombre + ' ' + empleado.apellido}">
+                <!-- Unidad de Venta -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label for="filtroUnidad" class="form-label small fw-semibold text-secondary mb-1">Unidad de venta</label>
+                    <select id="filtroUnidad" class="form-select form-select-sm">
+                        <option value="">Todas las unidades</option>
+                        <option th:each="unidad : ${unidadesVenta}" 
+                                th:value="${unidad.nombreComercial}"
+                                th:attr="data-id=${unidad.id}" 
+                                th:text="${unidad.nombreComercial}">
                         </option>
                     </select>
                 </div>
 
-                <!-- Fecha desde -->
-                <div class="col-md-4">
-                    <label for="fechaDesde" class="form-label fw-semibold">
-                        Fecha de registro desde
-                    </label>
-                    <input type="date" id="fechaDesde" class="form-control">
-                </div>
-
-                <!-- Fecha hasta -->
-                <div class="col-md-4">
-                    <label for="fechaHasta" class="form-label fw-semibold">
-                        Fecha de registro hasta
-                    </label>
-                    <input type="date" id="fechaHasta" class="form-control">
+                <!-- Festival -->
+                <div class="col-12 col-md-12 col-lg-4">
+                    <label for="filtroFestival" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
+                    <select id="filtroFestival" class="form-select form-select-sm">
+                        <option value="">Todos los festivales</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- RESULTADOS Y BOTONES -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 pt-3 border-top">
-                <span class="text-secondary small fw-semibold">
-                    Pedidos encontrados:
-                    <strong id="cantidadResultados" class="text-dark">0</strong>
+            <!-- Fila 2: Segmentación secundaria -->
+            <div class="row g-2 align-items-end">
+                <!-- Empleado -->
+                <div class="col-12 col-md-4">
+                    <label for="filtroEmpleado" class="form-label small fw-semibold text-secondary mb-1">Operador / Registrado por</label>
+                    <select id="filtroEmpleado" class="form-select form-select-sm">
+                        <option value="">Todos los operadores</option>
+                        <option th:each="empleado : ${empleados}" 
+                                th:value="${empleado.id}"
+                                th:text="${empleado.nombre + ' ' + empleado.apellido}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Fecha Desde -->
+                <div class="col-6 col-md-4">
+                    <label for="fechaDesde" class="form-label small fw-semibold text-secondary mb-1">Registro Desde</label>
+                    <input type="date" id="fechaDesde" class="form-control form-control-sm text-center">
+                </div>
+
+                <!-- Fecha Hasta -->
+                <div class="col-6 col-md-4">
+                    <label for="fechaHasta" class="form-label small fw-semibold text-secondary mb-1">Registro Hasta</label>
+                    <input type="date" id="fechaHasta" class="form-control form-control-sm text-center">
+                </div>
+            </div>
+
+            <!-- Barra inferior de estado y acciones (sin botón Buscar redundante) -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 pt-3 border-top">
+                <span class="text-secondary small">
+                    Coincidencias encontradas: <strong id="cantidadResultados" class="text-dark fs-6">0</strong>
                 </span>
 
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" id="btnBuscar" class="menu-button menu-button-primary">
-                        🔍 Buscar
-                    </button>
-
-                    <button type="button" id="limpiarFiltros" class="menu-button">
+                <div class="d-flex gap-2">
+                    <button type="button" id="limpiarFiltros" class="menu-button py-1 px-3 small" style="font-size: 0.85rem;">
                         Limpiar filtros
                     </button>
-
-                    <button type="button" id="alternarHistorial" class="menu-button">
+                    <button type="button" id="alternarHistorial" class="menu-button menu-button-primary py-1 px-3 small" style="font-size: 0.85rem;">
                         Ver todo el historial
                     </button>
                 </div>
             </div>
         </section>
-
         <!-- TABLA DE PEDIDOS -->
         <section class="card menu-card overflow-hidden mb-4">
             <div
