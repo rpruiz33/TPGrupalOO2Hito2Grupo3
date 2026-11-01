@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Historial de pedidos</title>
+    <title>Historial de pedidos - Epicentro Gourmet</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-
-    <!-- Estilos del proyecto -->
-    <link rel="stylesheet" th:href="@{/css/vistas.css}">
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 
     <style>
-        /* Modal de anulación */
+        /* Modal nativo de anulación: oculto cuando no está abierto */
+        #modalAnular:not([open]) {
+            display: none !important;
+        }
+
         #modalAnular {
             width: min(90%, 500px);
             border: none;
@@ -35,766 +35,623 @@
         #modalAnular textarea {
             resize: vertical;
         }
-
-        /* Filtros */
-        .filtros-card {
-            border-radius: 12px;
-        }
-
-        /* Tabla sin desplazamiento horizontal */
-        .tabla-pedidos {
-            width: 100%;
-            table-layout: fixed;
-            margin-bottom: 0;
-        }
-
-        .tabla-pedidos th,
-        .tabla-pedidos td {
-            white-space: normal;
-            overflow-wrap: anywhere;
-            vertical-align: middle;
-        }
-
-        .tabla-pedidos th:nth-child(1) { width: 5%; }
-        .tabla-pedidos th:nth-child(2) { width: 10%; }
-        .tabla-pedidos th:nth-child(3) { width: 11%; }
-        .tabla-pedidos th:nth-child(4) { width: 12%; }
-        .tabla-pedidos th:nth-child(5) { width: 12%; }
-        .tabla-pedidos th:nth-child(6) { width: 12%; }
-        .tabla-pedidos th:nth-child(7) { width: 9%; }
-        .tabla-pedidos th:nth-child(8) { width: 7%; }
-        .tabla-pedidos th:nth-child(9) { width: 22%; }
-
-        .tabla-pedidos .btn {
-            white-space: nowrap;
-        }
     </style>
 </head>
 
-<body class="login-body">
+<body>
 
-<div class="container py-5 contenedor">
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Historial de pedidos', null, null)}"></nav>
 
-    <!-- ENCABEZADO -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <main class="container panel-container mt-4" style="max-width: 1400px;">
 
-        <div>
-            <h2 class="fw-bold">Historial de pedidos</h2>
+        <!-- ENCABEZADO -->
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Historial de pedidos</h1>
+                <p class="text-white-50 mb-0">
+                    Consultá los pedidos registrados en tus unidades de venta.
+                </p>
+            </div>
 
-            <p class="text-secondary mb-0">
-                Consultá los pedidos registrados en tus unidades de venta.
-            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="menu-button" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">← Volver al
+                    Menu</a>
+                <a class="menu-button" sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}">← Volver
+                    al Menu</a>
+                <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/cajero/index}">← Volver al Menu</a>
+                <a class="menu-button" sec:authorize="hasRole('COCINERO')" th:href="@{/empleado/index}">← Volver al
+                    Menu</a>
+                <a class="menu-button" sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO')"
+                    th:href="@{/empleado/index}">← Volver al Menu</a>
+            </div>
+        </section>
+
+        <!-- MENSAJES -->
+        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm" role="status" th:text="${mensaje}">
         </div>
 
-        <!-- Volver al inicio según el rol -->
-        <a th:if="${rol == 'RESPONSABLE'}"
-           th:href="@{/responsable/index}"
-           class="btn btn-primary">
-            Volver al inicio
-        </a>
-
-        <a th:if="${rol == 'CAJERO'}"
-           th:href="@{/cajero/index}"
-           class="btn btn-primary">
-            Volver al inicio
-        </a>
-
-    </div>
-
-    <!-- MENSAJES -->
-    <div th:if="${mensaje}"
-         class="alert alert-success"
-         th:text="${mensaje}">
-    </div>
-
-    <div th:if="${error}"
-         class="alert alert-danger"
-         th:text="${error}">
-    </div>
-
-
-    <!-- FILTROS -->
-    <div class="card shadow-sm mb-4 filtros-card">
-
-        <div class="card-header bg-white py-3">
-            <h5 class="fw-bold mb-0">
-                Buscar pedidos
-            </h5>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}">
         </div>
 
-        <div class="card-body">
+        <!-- FILTROS -->
+        <section class="card menu-card p-4 mb-4">
+            <h2 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
+                🔍 Buscar pedidos
+            </h2>
 
             <div class="row g-3">
-
                 <!-- Número de pedido -->
                 <div class="col-md-4">
                     <label for="filtroId" class="form-label fw-semibold">
                         Número de pedido
                     </label>
-
-                    <input type="number"
-                           id="filtroId"
-                           class="form-control"
-                           min="1"
-                           placeholder="Ej. 125">
+                    <input type="number" id="filtroId" class="form-control" min="1" placeholder="Ej. 125">
                 </div>
-
 
                 <!-- Unidad de venta -->
                 <div class="col-md-4">
                     <label for="filtroUnidad" class="form-label fw-semibold">
                         Unidad de venta
                     </label>
-
                     <select id="filtroUnidad" class="form-select">
-
-                        <option value="">
-                            Todas las unidades
+                        <option value="">Todas las unidades</option>
+                        <option th:each="unidad : ${unidadesVenta}" th:value="${unidad.nombreComercial}"
+                            th:attr="data-id=${unidad.id}" th:text="${unidad.nombreComercial}">
                         </option>
-
-                        <option th:each="unidad : ${unidadesVenta}"
-                                th:value="${unidad.nombreComercial}"
-                                th:attr="data-id=${unidad.id}"
-                                th:text="${unidad.nombreComercial}">
-                        </option>
-
                     </select>
                 </div>
-
 
                 <!-- Estado -->
                 <div class="col-md-4">
                     <label for="filtroEstado" class="form-label fw-semibold">
                         Estado
                     </label>
-
                     <select id="filtroEstado" class="form-select">
-
                         <option value="">Todos los estados</option>
                         <option value="A">Activos</option>
                         <option value="R">Anulados</option>
-
                     </select>
                 </div>
-
 
                 <!-- Festival -->
                 <div class="col-md-4">
                     <label for="filtroFestival" class="form-label fw-semibold">
                         Festival
                     </label>
-
                     <select id="filtroFestival" class="form-select">
-
-                        <option value="">
-                            Todos los festivales
-                        </option>
-
+                        <option value="">Todos los festivales</option>
                     </select>
                 </div>
-
 
                 <!-- Empleado -->
                 <div class="col-md-4">
                     <label for="filtroEmpleado" class="form-label fw-semibold">
                         Registrado por
                     </label>
-
                     <select id="filtroEmpleado" class="form-select">
-
                         <option value="">Todos los empleados</option>
-
-                        <option th:each="empleado : ${empleados}"
-                                th:value="${empleado.id}"
-                                th:text="${empleado.nombre + ' ' + empleado.apellido}">
+                        <option th:each="empleado : ${empleados}" th:value="${empleado.id}"
+                            th:text="${empleado.nombre + ' ' + empleado.apellido}">
                         </option>
-
                     </select>
                 </div>
-
 
                 <!-- Fecha desde -->
                 <div class="col-md-4">
                     <label for="fechaDesde" class="form-label fw-semibold">
                         Fecha de registro desde
                     </label>
-
-                    <input type="date"
-                           id="fechaDesde"
-                           class="form-control">
+                    <input type="date" id="fechaDesde" class="form-control">
                 </div>
-
 
                 <!-- Fecha hasta -->
                 <div class="col-md-4">
                     <label for="fechaHasta" class="form-label fw-semibold">
                         Fecha de registro hasta
                     </label>
-
-                    <input type="date"
-                           id="fechaHasta"
-                           class="form-control">
+                    <input type="date" id="fechaHasta" class="form-control">
                 </div>
-
             </div>
 
-
             <!-- RESULTADOS Y BOTONES -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
-
-                <span class="text-secondary">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 pt-3 border-top">
+                <span class="text-secondary small fw-semibold">
                     Pedidos encontrados:
-                    <strong id="cantidadResultados">0</strong>
+                    <strong id="cantidadResultados" class="text-dark">0</strong>
                 </span>
 
                 <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" id="btnBuscar" class="menu-button menu-button-primary">
+                        🔍 Buscar
+                    </button>
 
-                    <button type="button"
-                            id="limpiarFiltros"
-                            class="btn btn-secondary">
+                    <button type="button" id="limpiarFiltros" class="menu-button">
                         Limpiar filtros
                     </button>
 
-                    <button type="button"
-                            id="alternarHistorial"
-                            class="btn btn-primary">
+                    <button type="button" id="alternarHistorial" class="menu-button">
                         Ver todo el historial
                     </button>
-
                 </div>
+            </div>
+        </section>
 
+        <!-- TABLA DE PEDIDOS -->
+        <section class="card menu-card overflow-hidden mb-4">
+            <div
+                class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    🧾 Pedidos registrados
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                    th:text="${pedidos != null ? #lists.size(pedidos) + ' pedido(s)' : '0 pedidos'}">
+                    0 pedidos
+                </span>
             </div>
 
-        </div>
-    </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaPedidos">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-3">N.º</th>
+                            <th>Fecha del pedido</th>
+                            <th>Fecha de registro</th>
+                            <th>Unidad de venta</th>
+                            <th>Festival</th>
+                            <th>Registrado por</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-3">Acciones</th>
+                        </tr>
+                    </thead>
 
-
-    <!-- TABLA DE PEDIDOS -->
-    <div class="card shadow-sm">
-
-        <div class="card-header bg-white py-3">
-            <h5 class="fw-bold mb-0">
-                Pedidos registrados
-            </h5>
-        </div>
-
-        <div class="card-body">
-
-            <table class="table table-hover align-middle tabla-pedidos"
-                   id="tablaPedidos">
-
-                <thead class="table-light">
-
-                    <tr>
-                        <th>N.º</th>
-                        <th>Fecha del pedido</th>
-                        <th>Fecha de registro</th>
-                        <th>Unidad de venta</th>
-                        <th>Festival</th>
-                        <th>Registrado por</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    <tr th:each="pedido : ${pedidos}"
-
-                        th:attr="data-id=${pedido.id},
+                    <tbody>
+                        <tr th:each="pedido : ${pedidos}" th:attr="data-id=${pedido.id},
                                  data-unidad=${pedido.unidadVenta.nombreComercial},
                                  data-estado=${pedido.estado},
                                  data-festival=${pedido.festival.id},
-                                 data-empleado=${pedido.registradoPor.id},
+                                 data-empleado=${pedido.registradoPor != null ? pedido.registradoPor.id : ''},
                                  data-fecha=${pedido.fechaRegistro != null
                                     ? #temporals.format(pedido.fechaRegistro, 'yyyy-MM-dd')
                                     : ''}">
 
+                            <!-- ID -->
+                            <td class="ps-3 fw-bold" th:text="${pedido.id}"></td>
 
-                        <!-- ID -->
-                        <td th:text="${pedido.id}"></td>
-
-
-                        <!-- Fecha transacción -->
-                        <td th:text="${pedido.fechaTransaccion != null
+                            <!-- Fecha transacción -->
+                            <td th:text="${pedido.fechaTransaccion != null
                             ? #temporals.format(pedido.fechaTransaccion, 'dd/MM/yyyy')
                             : '-'}">
-                        </td>
+                            </td>
 
-
-                        <!-- Fecha registro -->
-                        <td th:text="${pedido.fechaRegistro != null
+                            <!-- Fecha registro -->
+                            <td th:text="${pedido.fechaRegistro != null
                             ? #temporals.format(pedido.fechaRegistro, 'dd/MM/yyyy HH:mm')
                             : '-'}">
-                        </td>
+                            </td>
 
+                            <!-- Unidad -->
+                            <td th:text="${pedido.unidadVenta.nombreComercial}"></td>
 
-                        <!-- Unidad -->
-                        <td th:text="${pedido.unidadVenta.nombreComercial}">
-                        </td>
+                            <!-- Festival -->
+                            <td th:text="${pedido.festival.nombre}"></td>
 
+                            <!-- Registrado por -->
+                            <td
+                                th:text="${pedido.registradoPor != null ? (pedido.registradoPor.nombre + ' ' + pedido.registradoPor.apellido) : 'N/D'}">
+                            </td>
 
-                        <!-- Festival -->
-                        <td th:text="${pedido.festival.nombre}">
-                        </td>
+                            <!-- Total -->
+                            <td class="fw-semibold" th:text="${'$ ' + #numbers.formatDecimal(
+                            pedido.calcularTotal(), 1, 'POINT', 2, 'COMMA')}">
+                            </td>
 
+                            <!-- Estado -->
+                            <td>
+                                <span th:if="${pedido.estado == 'A'}" class="badge bg-success">
+                                    ✓ Activo
+                                </span>
+                                <span th:if="${pedido.estado == 'R'}" class="badge bg-danger">
+                                    ✕ Anulado
+                                </span>
+                            </td>
 
-                        <!-- Registrado por -->
-                        <td th:text="${pedido.registradoPor.nombre + ' ' + pedido.registradoPor.apellido}">
-                        </td>
+                            <!-- Acciones -->
+                            <td class="text-center text-nowrap pe-3">
+                                <div class="d-flex flex-wrap justify-content-center gap-1">
+                                    <a th:href="@{/pedidos/{id}(id=${pedido.id})}" class="menu-button py-1 px-2"
+                                        title="Ver detalle del pedido">
+                                        Ver detalle
+                                    </a>
 
+                                    <button th:if="${pedido.estado == 'A'}" type="button"
+                                        class="btn btn-outline-danger btn-sm py-1 px-2 js-anular"
+                                        th:attr="data-id=${pedido.id}" title="Anular pedido">
+                                        Anular
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
 
-                        <!-- Total -->
-                        <td th:text="${'$ ' + #numbers.formatDecimal(
-                            pedido.calcularTotal(), 1, 'COMMA', 2, 'POINT')}">
-                        </td>
+                        <!-- Sin pedidos -->
+                        <tr th:if="${#lists.isEmpty(pedidos)}">
+                            <td colspan="9" class="text-center text-secondary py-4">
+                                No hay pedidos registrados.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-
-                        <!-- Estado -->
-                        <td>
-
-                            <span th:if="${pedido.estado == 'A'}"
-                                  class="badge bg-success">
-                                Activo
-                            </span>
-
-                            <span th:if="${pedido.estado == 'R'}"
-                                  class="badge bg-danger">
-                                Anulado
-                            </span>
-
-                        </td>
-
-
-                        <!-- Acciones -->
-                        <td>
-
-                            <div class="d-flex gap-2 flex-wrap">
-
-                                <a th:href="@{/pedidos/{id}(id=${pedido.id})}"
-                                   class="btn btn-sm btn-primary">
-                                    Ver detalle
-                                </a>
-
-                                <button th:if="${pedido.estado == 'A'}"
-                                        type="button"
-                                        class="btn btn-sm btn-danger js-anular"
-                                        th:attr="data-id=${pedido.id}">
-                                    Anular
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- Sin pedidos -->
-                    <tr th:if="${#lists.isEmpty(pedidos)}">
-
-                        <td colspan="9"
-                            class="text-center text-secondary py-4">
-                            No hay pedidos registrados.
-                        </td>
-
-                    </tr>
-
-
-                </tbody>
-
-            </table>
-
-
-            <!-- Sin coincidencias -->
-            <div id="sinResultados"
-                 class="text-center text-secondary py-4"
-                 style="display: none;">
-                No se encontraron pedidos con los filtros seleccionados.
+                <!-- Sin coincidencias -->
+                <div id="sinResultados" class="text-center text-secondary py-4" style="display: none;">
+                    No se encontraron pedidos con los filtros seleccionados.
+                </div>
             </div>
+        </section>
 
+    </main>
+
+    <!-- MODAL NATIVO DE ANULACIÓN -->
+    <dialog id="modalAnular">
+        <div class="modal-contenido">
+            <h5 class="fw-bold mb-3" style="color: #800020;">
+                Anular pedido
+            </h5>
+
+            <p class="text-secondary small">
+                Esta acción no se puede deshacer. El pedido quedará registrado
+                como anulado y no se contabilizará en los reportes.
+            </p>
+
+            <form id="formAnular" method="post">
+                <!-- CSRF -->
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}"
+                    th:value="${_csrf.token}">
+
+                <div class="mb-3">
+                    <label for="motivo" class="form-label fw-semibold">
+                        Motivo de anulación
+                    </label>
+                    <textarea id="motivo" name="motivo" class="form-control" rows="4" maxlength="500" required
+                        placeholder="Indique el motivo de la anulación..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" id="cancelarAnulacion" class="menu-button">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn btn-danger btn-sm px-3">
+                        Confirmar anulación
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
+    </dialog>
 
-</div>
 
+    <!-- JAVASCRIPT -->
+    <script th:inline="javascript">
 
-<!-- MODAL NATIVO DE ANULACIÓN -->
-<dialog id="modalAnular">
+        document.addEventListener("DOMContentLoaded", function () {
 
-    <div class="modal-contenido">
+            // ==========================================
+            // ELEMENTOS DE LOS FILTROS
+            // ==========================================
 
-        <h5 class="fw-bold mb-3">
-            Anular pedido
-        </h5>
+            const filtroId = document.getElementById("filtroId");
+            const filtroUnidad = document.getElementById("filtroUnidad");
+            const filtroEstado = document.getElementById("filtroEstado");
+            const filtroFestival = document.getElementById("filtroFestival");
+            const filtroEmpleado = document.getElementById("filtroEmpleado");
 
-        <p class="text-secondary">
-            Esta acción no se puede deshacer. El pedido quedará registrado
-            como anulado y no se contabilizará en los reportes.
-        </p>
+            const fechaDesde = document.getElementById("fechaDesde");
+            const fechaHasta = document.getElementById("fechaHasta");
 
+            const cantidadResultados =
+                document.getElementById("cantidadResultados");
 
-        <form id="formAnular" method="post">
+            const sinResultados =
+                document.getElementById("sinResultados");
 
-            <!-- CSRF -->
-            <input type="hidden"
-                   th:if="${_csrf != null}"
-                   th:name="${_csrf.parameterName}"
-                   th:value="${_csrf.token}">
+            const botonAlternar =
+                document.getElementById("alternarHistorial");
 
+            const btnBuscar =
+                document.getElementById("btnBuscar");
 
-            <label for="motivo" class="form-label">
-                Motivo de anulación
-            </label>
-
-            <textarea id="motivo"
-                      name="motivo"
-                      class="form-control mb-3"
-                      rows="4"
-                      maxlength="500"
-                      required
-                      placeholder="Indique el motivo de la anulación..."></textarea>
-
-
-            <div class="d-flex justify-content-end gap-2">
-
-                <button type="button"
-                        id="cancelarAnulacion"
-                        class="btn btn-secondary">
-                    Cancelar
-                </button>
-
-                <button type="submit"
-                        class="btn btn-danger">
-                    Confirmar anulación
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</dialog>
-
-
-<!-- JAVASCRIPT -->
-<script th:inline="javascript">
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    // ==========================================
-    // ELEMENTOS DE LOS FILTROS
-    // ==========================================
-
-    const filtroId = document.getElementById("filtroId");
-    const filtroUnidad = document.getElementById("filtroUnidad");
-    const filtroEstado = document.getElementById("filtroEstado");
-    const filtroFestival = document.getElementById("filtroFestival");
-    const filtroEmpleado = document.getElementById("filtroEmpleado");
-
-    const fechaDesde = document.getElementById("fechaDesde");
-    const fechaHasta = document.getElementById("fechaHasta");
-
-    const cantidadResultados =
-        document.getElementById("cantidadResultados");
-
-    const sinResultados =
-        document.getElementById("sinResultados");
-
-    const botonAlternar =
-        document.getElementById("alternarHistorial");
-
-    const filas = Array.from(
-        document.querySelectorAll("#tablaPedidos tbody tr[data-id]")
-    );
-
-    // Ruta base de la aplicación.
-    const contexto = /*[[@{/}]]*/ "/";
-
-    // Por defecto se muestran los últimos 20.
-    let mostrarTodos = false;
-
-
-    // ==========================================
-    // CANTIDAD Y FILTRADO DE PEDIDOS
-    // ==========================================
-
-    function aplicarFiltros() {
-
-        const id = filtroId.value.trim();
-        const unidad = filtroUnidad.value;
-        const estado = filtroEstado.value;
-        const festival = filtroFestival.value;
-        const empleado = filtroEmpleado.value;
-
-        const desde = fechaDesde.value;
-        const hasta = fechaHasta.value;
-
-        let visibles = 0;
-
-        filas.forEach(function (fila, indice) {
-
-            // Limitar a los primeros 20 pedidos,
-            // salvo que se solicite ver todo.
-            const dentroDelLimite =
-                mostrarTodos || indice < 20;
-
-            const coincideId =
-                !id || fila.dataset.id === id;
-
-            const coincideUnidad =
-                !unidad || fila.dataset.unidad === unidad;
-
-            const coincideEstado =
-                !estado || fila.dataset.estado === estado;
-
-            const coincideFestival =
-                !festival || fila.dataset.festival === festival;
-
-            const coincideEmpleado =
-                !empleado || fila.dataset.empleado === empleado;
-
-            const fecha = fila.dataset.fecha;
-
-            const coincideDesde =
-                !desde || (fecha && fecha >= desde);
-
-            const coincideHasta =
-                !hasta || (fecha && fecha <= hasta);
-
-            const mostrar =
-                dentroDelLimite &&
-                coincideId &&
-                coincideUnidad &&
-                coincideEstado &&
-                coincideFestival &&
-                coincideEmpleado &&
-                coincideDesde &&
-                coincideHasta;
-
-            fila.style.display = mostrar ? "" : "none";
-
-            if (mostrar) {
-                visibles++;
-            }
-
-        });
-
-        cantidadResultados.textContent = visibles;
-
-        sinResultados.style.display =
-            filas.length > 0 && visibles === 0
-                ? "block"
-                : "none";
-    }
-
-
-    // ==========================================
-    // CARGAR FESTIVALES SEGÚN UNIDAD SELECCIONADA
-    // ==========================================
-
-    async function cargarFestivalesPorUnidad() {
-
-        const unidadSeleccionada =
-            filtroUnidad.selectedOptions[0];
-
-        const unidadId = unidadSeleccionada
-            ? unidadSeleccionada.dataset.id
-            : null;
-
-        // Reiniciar el desplegable de festivales.
-        filtroFestival.innerHTML = "";
-
-        const opcionTodos = document.createElement("option");
-
-        opcionTodos.value = "";
-        opcionTodos.textContent = "Todos los festivales";
-
-        filtroFestival.appendChild(opcionTodos);
-
-        // Si se seleccionan todas las unidades,
-        // no se consulta ningún festival específico.
-        if (!unidadId) {
-            aplicarFiltros();
-            return;
-        }
-
-        try {
-
-            const respuesta = await fetch(
-                contexto + "pedidos/unidades/" + unidadId + "/festivales"
+            const filas = Array.from(
+                document.querySelectorAll("#tablaPedidos tbody tr[data-id]")
             );
 
-            if (!respuesta.ok) {
-                throw new Error(
-                    "No se pudieron obtener los festivales."
-                );
+            // Ruta base de la aplicación.
+            const contexto = /*[[@{/}]]*/ "/";
+
+            // Por defecto se muestran los últimos 20.
+            let mostrarTodos = false;
+
+
+            // ==========================================
+            // CANTIDAD Y FILTRADO DE PEDIDOS
+            // ==========================================
+
+            function aplicarFiltros() {
+
+                const id = filtroId.value.trim();
+                const unidad = filtroUnidad.value;
+                const estado = filtroEstado.value;
+                const festival = filtroFestival.value;
+                const empleado = filtroEmpleado.value;
+
+                const desde = fechaDesde.value;
+                const hasta = fechaHasta.value;
+
+                let visibles = 0;
+
+                filas.forEach(function (fila, indice) {
+
+                    // Limitar a los primeros 20 pedidos,
+                    // salvo que se solicite ver todo.
+                    const dentroDelLimite =
+                        mostrarTodos || indice < 20;
+
+                    const coincideId =
+                        !id || fila.dataset.id === id;
+
+                    const coincideUnidad =
+                        !unidad || fila.dataset.unidad === unidad;
+
+                    const coincideEstado =
+                        !estado || fila.dataset.estado === estado;
+
+                    const coincideFestival =
+                        !festival || fila.dataset.festival === festival;
+
+                    const coincideEmpleado =
+                        !empleado || fila.dataset.empleado === empleado;
+
+                    const fecha = fila.dataset.fecha;
+
+                    const coincideDesde =
+                        !desde || (fecha && fecha >= desde);
+
+                    const coincideHasta =
+                        !hasta || (fecha && fecha <= hasta);
+
+                    const mostrar =
+                        dentroDelLimite &&
+                        coincideId &&
+                        coincideUnidad &&
+                        coincideEstado &&
+                        coincideFestival &&
+                        coincideEmpleado &&
+                        coincideDesde &&
+                        coincideHasta;
+
+                    fila.style.display = mostrar ? "" : "none";
+
+                    if (mostrar) {
+                        visibles++;
+                    }
+
+                });
+
+                cantidadResultados.textContent = visibles;
+
+                sinResultados.style.display =
+                    filas.length > 0 && visibles === 0
+                        ? "block"
+                        : "none";
             }
 
-            const festivales = await respuesta.json();
 
-            festivales.forEach(function (festival) {
+            // ==========================================
+            // CARGAR FESTIVALES SEGÚN UNIDAD SELECCIONADA
+            // ==========================================
 
-                const opcion = document.createElement("option");
+            async function cargarFestivalesPorUnidad() {
 
-                opcion.value = festival.id;
-                opcion.textContent = festival.nombre;
+                const unidadSeleccionada =
+                    filtroUnidad.selectedOptions[0];
 
-                filtroFestival.appendChild(opcion);
+                const unidadId = unidadSeleccionada
+                    ? unidadSeleccionada.dataset.id
+                    : null;
+
+                // Reiniciar el desplegable de festivales.
+                filtroFestival.innerHTML = "";
+
+                const opcionTodos = document.createElement("option");
+
+                opcionTodos.value = "";
+                opcionTodos.textContent = "Todos los festivales";
+
+                filtroFestival.appendChild(opcionTodos);
+
+                // Si se seleccionan todas las unidades,
+                // no se consulta ningún festival específico.
+                if (!unidadId) {
+                    aplicarFiltros();
+                    return;
+                }
+
+                try {
+
+                    const respuesta = await fetch(
+                        contexto + "pedidos/unidades/" + unidadId + "/festivales"
+                    );
+
+                    if (!respuesta.ok) {
+                        throw new Error(
+                            "No se pudieron obtener los festivales."
+                        );
+                    }
+
+                    const festivales = await respuesta.json();
+
+                    festivales.forEach(function (festival) {
+
+                        const opcion = document.createElement("option");
+
+                        opcion.value = festival.id;
+                        opcion.textContent = festival.nombre;
+
+                        filtroFestival.appendChild(opcion);
+
+                    });
+
+                } catch (error) {
+
+                    console.error(
+                        "Error al cargar festivales:",
+                        error
+                    );
+
+                    const opcionError = document.createElement("option");
+
+                    opcionError.disabled = true;
+                    opcionError.textContent = "Error al cargar los festivales";
+
+                    filtroFestival.appendChild(opcionError);
+                }
+
+                aplicarFiltros();
+            }
+
+
+            // ==========================================
+            // ESCUCHAR CAMBIOS EN LOS FILTROS
+            // ==========================================
+
+            // Al cambiar la unidad, cargar sus festivales.
+            filtroUnidad.addEventListener(
+                "change",
+                cargarFestivalesPorUnidad
+            );
+
+            [
+                filtroId,
+                filtroUnidad,
+                filtroEstado,
+                filtroFestival,
+                filtroEmpleado,
+                fechaDesde,
+                fechaHasta
+            ].forEach(function (filtro) {
+
+                filtro.addEventListener("input", aplicarFiltros);
+                filtro.addEventListener("change", aplicarFiltros);
 
             });
 
-        } catch (error) {
-
-            console.error(
-                "Error al cargar festivales:",
-                error
-            );
-
-            const opcionError = document.createElement("option");
-
-            opcionError.disabled = true;
-            opcionError.textContent = "Error al cargar los festivales";
-
-            filtroFestival.appendChild(opcionError);
-        }
-
-        aplicarFiltros();
-    }
+            if (btnBuscar) {
+                btnBuscar.addEventListener("click", aplicarFiltros);
+            }
 
 
-    // ==========================================
-    // ESCUCHAR CAMBIOS EN LOS FILTROS
-    // ==========================================
+            // ==========================================
+            // ALTERNAR ENTRE ÚLTIMOS 20 Y TODO EL HISTORIAL
+            // ==========================================
 
-    // Al cambiar la unidad, cargar sus festivales.
-    filtroUnidad.addEventListener(
-        "change",
-        cargarFestivalesPorUnidad
-    );
+            botonAlternar.addEventListener("click", function () {
 
-    [
-        filtroId,
-        filtroUnidad,
-        filtroEstado,
-        filtroFestival,
-        filtroEmpleado,
-        fechaDesde,
-        fechaHasta
-    ].forEach(function (filtro) {
+                mostrarTodos = !mostrarTodos;
 
-        filtro.addEventListener("input", aplicarFiltros);
-        filtro.addEventListener("change", aplicarFiltros);
+                botonAlternar.textContent = mostrarTodos
+                    ? "Ver últimos 20"
+                    : "Ver todo el historial";
 
-    });
+                aplicarFiltros();
+
+            });
 
 
-    // ==========================================
-    // ALTERNAR ENTRE ÚLTIMOS 20 Y TODO EL HISTORIAL
-    // ==========================================
+            // ==========================================
+            // LIMPIAR FILTROS
+            // ==========================================
 
-    botonAlternar.addEventListener("click", function () {
+            document.getElementById("limpiarFiltros")
+                .addEventListener("click", function () {
 
-        mostrarTodos = !mostrarTodos;
+                    filtroId.value = "";
+                    filtroUnidad.value = "";
+                    filtroEstado.value = "";
 
-        botonAlternar.textContent = mostrarTodos
-            ? "Ver últimos 20"
-            : "Ver todo el historial";
+                    filtroFestival.innerHTML =
+                        '<option value="">Todos los festivales</option>';
 
-        aplicarFiltros();
+                    filtroEmpleado.value = "";
 
-    });
+                    fechaDesde.value = "";
+                    fechaHasta.value = "";
+
+                    aplicarFiltros();
+
+                });
 
 
-    // ==========================================
-    // LIMPIAR FILTROS
-    // ==========================================
-
-    document.getElementById("limpiarFiltros")
-        .addEventListener("click", function () {
-
-            filtroId.value = "";
-            filtroUnidad.value = "";
-            filtroEstado.value = "";
-
-            filtroFestival.innerHTML =
-                '<option value="">Todos los festivales</option>';
-
-            filtroEmpleado.value = "";
-
-            fechaDesde.value = "";
-            fechaHasta.value = "";
+            // ==========================================
+            // APLICAR FILTROS AL CARGAR LA PÁGINA
+            // ==========================================
 
             aplicarFiltros();
 
+
+            // ==========================================
+            // ANULACIÓN DE PEDIDOS
+            // ==========================================
+
+            const modal = document.getElementById("modalAnular");
+
+            const formulario = document.getElementById("formAnular");
+
+            const motivo = document.getElementById("motivo");
+
+            const cancelar = document.getElementById("cancelarAnulacion");
+
+
+            // Abrir modal de anulación.
+            document.querySelectorAll(".js-anular").forEach(function (boton) {
+
+                boton.addEventListener("click", function () {
+
+                    const id = boton.dataset.id;
+
+                    formulario.action =
+                        contexto + "pedidos/" + id + "/anular";
+
+                    motivo.value = "";
+
+                    modal.showModal();
+
+                    motivo.focus();
+
+                });
+
+            });
+
+
+            // Cancelar anulación.
+            cancelar.addEventListener("click", function () {
+
+                modal.close();
+
+            });
+
+
+            // Cerrar al hacer clic fuera del diálogo.
+            modal.addEventListener("click", function (evento) {
+
+                if (evento.target === modal) {
+                    modal.close();
+                }
+
+            });
+
         });
 
-
-    // ==========================================
-    // APLICAR FILTROS AL CARGAR LA PÁGINA
-    // ==========================================
-
-    aplicarFiltros();
-
-
-    // ==========================================
-    // ANULACIÓN DE PEDIDOS
-    // ==========================================
-
-    const modal = document.getElementById("modalAnular");
-
-    const formulario = document.getElementById("formAnular");
-
-    const motivo = document.getElementById("motivo");
-
-    const cancelar = document.getElementById("cancelarAnulacion");
-
-
-    // Abrir modal de anulación.
-    document.querySelectorAll(".js-anular").forEach(function (boton) {
-
-        boton.addEventListener("click", function () {
-
-            const id = boton.dataset.id;
-
-            formulario.action =
-                contexto + "pedidos/" + id + "/anular";
-
-            motivo.value = "";
-
-            modal.showModal();
-
-            motivo.focus();
-
-        });
-
-    });
-
-
-    // Cancelar anulación.
-    cancelar.addEventListener("click", function () {
-
-        modal.close();
-
-    });
-
-
-    // Cerrar al hacer clic fuera del diálogo.
-    modal.addEventListener("click", function (evento) {
-
-        if (evento.target === modal) {
-            modal.close();
-        }
-
-    });
-
-});
-
-</script>
+    </script>
 
 </body>
+
 </html>
