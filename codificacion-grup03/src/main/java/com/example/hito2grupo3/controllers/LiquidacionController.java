@@ -91,9 +91,9 @@ public class LiquidacionController {
                         r = liquidacionService.liquidarEmpleado(principal.getName(), idFestival);
                     } catch (Exception e) {
                         BigDecimal sueldoBase = new BigDecimal("100000");
-                        BigDecimal antiguedad = new BigDecimal("15000"); // 3 años x $5.000
-                        int periodos = 2; // factor 100%
-                        BigDecimal total = new BigDecimal("115000");
+                        BigDecimal montoAntiguedad = new BigDecimal("15000"); // 3 años × $5.000
+                        BigDecimal plusCategoria = BigDecimal.ZERO;           // Cajero: sin plus de cocina
+                        BigDecimal total = sueldoBase.add(montoAntiguedad).add(plusCategoria);
                         LiquidacionDTO dtoFicticio = new LiquidacionDTO(
                                 1L,
                                 "Martín González",
@@ -102,8 +102,8 @@ public class LiquidacionController {
                                 "Cajero",
                                 3L,
                                 sueldoBase,
-                                antiguedad,
-                                periodos,
+                                montoAntiguedad,
+                                plusCategoria,
                                 total
                         );
                         r = new ILiquidacionService.ResultadoLiquidacion(
@@ -240,10 +240,10 @@ public class LiquidacionController {
                     reciboMap.put("diasFestival", resultado.diasFestival());
                     boolean esCajero = "Cajero".equalsIgnoreCase(liquidacionDTO.rol());
                     reciboMap.put("sueldoBase", liquidacionDTO.sueldoBase());
-                    reciboMap.put("plusCategoria", esCajero ? null : liquidacionDTO.adicional());
-                    reciboMap.put("montoAntiguedad", esCajero ? liquidacionDTO.adicional() : null);
+                    reciboMap.put("plusCategoria", liquidacionDTO.plusCategoria());
+                    reciboMap.put("montoAntiguedad", liquidacionDTO.montoAntiguedad());
                     reciboMap.put("aniosAntiguedad", liquidacionDTO.aniosAntiguedad());
-                    reciboMap.put("coeficiente", liquidacionDTO.periodos() * 0.5);
+                    reciboMap.put("coeficiente", 1.0);
                     reciboMap.put("total", liquidacionDTO.total());
                     reciboMap.put("fechaEmision", LocalDate.now());
 

@@ -227,25 +227,25 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     private LiquidacionDTO armarLiquidacionEmpleado(Staff s, Festival festival, BigDecimal sueldoBase,
                                                    BigDecimal factorProporcional, int periodos, String emailOverride) {
         long anios = aniosAntiguedad(s.getFechaIngreso(), festival.getFechaInicio());
-        BigDecimal adicional;
+        BigDecimal montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
+                .multiply(BigDecimal.valueOf(anios));
+        BigDecimal plusCategoria;
         String rol;
 
         if (s instanceof Cocinero c) {
-            adicional = resolverPlusCocina(c);
+            plusCategoria = resolverPlusCocina(c);
             rol = (c.getCategoriaCocina() != null && c.getCategoriaCocina().getNombre() != null)
                     ? c.getCategoriaCocina().getNombre()
                     : "Cocinero";
         } else if (s instanceof Cajero) {
-            BigDecimal plusAntig = sueldoProperties.porAnioAntiguedadOrDefault()
-                    .multiply(BigDecimal.valueOf(anios));
-            adicional = plusAntig;
+            plusCategoria = BigDecimal.ZERO;
             rol = "Cajero";
         } else {
             return null;
         }
 
-        BigDecimal baseCalculo = sueldoBase.add(adicional);
-        BigDecimal total = baseCalculo.multiply(factorProporcional);
+        // Fórmula: Total = Sueldo Base + (Años × $5.000) + Plus por Categoría
+        BigDecimal total = sueldoBase.add(montoAntiguedad).add(plusCategoria);
 
         String email = (s.getUsuario() != null && s.getUsuario().getEmail() != null)
                 ? s.getUsuario().getEmail()
@@ -259,8 +259,8 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 rol,
                 anios,
                 sueldoBase,
-                adicional,
-                periodos,
+                montoAntiguedad,
+                plusCategoria,
                 total
         );
     }
