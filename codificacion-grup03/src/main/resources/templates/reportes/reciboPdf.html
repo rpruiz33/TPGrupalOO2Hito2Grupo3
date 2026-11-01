@@ -57,6 +57,10 @@
                 margin: 0 !important;
                 padding: 20px !important;
             }
+
+            .logo-impresion {
+                display: block !important;
+            }
         }
     </style>
 </head>
@@ -151,6 +155,13 @@
                 </a>
             </div>
 
+            <!-- Logo UNLa que aparece abajo al imprimir -->
+            <div class="logo-impresion d-none d-print-block text-center mt-4 pt-3 border-top">
+                <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa" style="height: 48px; object-fit: contain;">
+                <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                    Universidad Nacional de Lanús · Epicentro Gourmet
+                </div>
+            </div>
 
         </div>
 
