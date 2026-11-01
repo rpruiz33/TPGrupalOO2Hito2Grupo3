@@ -1,0 +1,89 @@
+/* ========================================
+   DATOS DEL PEDIDO
+======================================== */
+
+.dato-pedido {
+    height: 100%;
+    padding: 14px;
+    border: 1px solid #e9ecef;
+    border-left: 4px solid #800020;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.dato-pedido small {
+    display: block;
+    margin-bottom: 5px;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.dato-pedido strong {
+    overflow-wrap: anywhere;
+}
+
+/* ========================================
+   TABLA DE DETALLE
+======================================== */
+
+.tabla-detalle thead th {
+    background-color: #f4eaec;
+    color: #600018;
+    white-space: nowrap;
+}
+
+/* ========================================
+   MODAL DE ANULACIÓN
+======================================== */
+
+.modal-anulacion {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.58);
+}
+
+.modal-anulacion[hidden] {
+    display: none !important;
+}
+
+.modal-anulacion-dialogo {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+}
+
+.modal-anulacion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eadde0;
+}
+
+.modal-anulacion-header h2 {
+    margin: 0;
+    color: #800020;
+}
+
+.modal-anulacion-cuerpo {
+    padding: 1.25rem;
+}
+
+#modalAnular textarea {
+    resize: vertical;
+}
+
+body.modal-anulacion-abierto {
+    overflow: hidden;
+}
