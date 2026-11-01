@@ -1,654 +1,621 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Alta de pedido - Epicentro Gourmet</title>
+    <title>Alta de Pedido - Epicentro Gourmet</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/css/vistas.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
 </head>
 
-<body class="login-body">
-<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Ventas', null, null)}"></nav>
+<body>
+    <nav sec:authorize="hasRole('ADMIN')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <nav sec:authorize="hasRole('RESPONSABLE')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
+    <nav sec:authorize="hasRole('CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
+    <nav sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Ventas', 'Empleado', '/empleado/index')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 1000px;">
+        <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">🛒 Alta de Pedido</h1>
+                <p class="text-white-50 mb-0">Registrá una nueva venta seleccionando festival, unidad y platos.</p>
+            </div>
 
-<main class="contenedor mt-2">
-
-    <header class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Alta de Pedido</h1>
-            <p class="text-white-50 mb-0">Registrá una venta seleccionando festival, unidad y platos.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="menu-button" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">← Volver al Menu</a>
+                <a class="menu-button" sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}">← Volver al Menu</a>
+                <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/cajero/index}">← Volver al Menu</a>
+                <a class="menu-button" sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
+                <a class="menu-button" sec:authorize="hasAnyRole('CAJERO', 'ADMIN', 'RESPONSABLE')" th:href="@{/pedidos/historial}">🧾 Historial de pedidos</a>
+            </div>
+        </header>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}">
+            Error al registrar el pedido.
         </div>
-        <div>
-            <a class="menu-button" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}">← Volver al Menu</a>
-            <a class="menu-button" sec:authorize="hasRole('RESPONSABLE')" th:href="@{/responsable/index}">← Volver al Menu</a>
-            <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/cajero/index}">← Volver al Menu</a>
-            <a class="menu-button" sec:authorize="hasRole('COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
-            <a class="menu-button" sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO', 'COCINERO')" th:href="@{/empleado/index}">← Volver al Menu</a>
+
+        <div th:if="${mensaje}" id="mensajeExito" class="alert alert-success text-center shadow-sm mb-4" role="status" th:text="${mensaje}">
+            Pedido registrado correctamente.
         </div>
-        <a class="menu-button" sec:authorize="hasRole('CAJERO')" th:href="@{/pedidos/historial}">🧾 Historial de pedidos</a>
-        <div class="d-flex flex-wrap gap-2"></div>
-    </header>
-
-    <div class="error" role="alert" th:if="${error}" th:text="${error}">
-        Error al registrar el pedido.
-    </div>
-
-    <div class="exito"
-         id="mensajeExito"
-         role="status"
-         th:if="${mensaje}"
-         th:text="${mensaje}">
-        Pedido registrado correctamente.
-    </div>
-
-    <section>
-        <h2 class="h5 fw-bold text-white mb-3">Datos de la venta</h2>
-
         <form id="formularioPedido" th:action="@{/pedidos/alta}" method="post">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-            <div class="mb-3">
-                <label for="fecha" class="text-white fw-medium mb-1">
-                    Fecha de la venta
-                </label>
+                <div class="row g-3">
+            <section class="card menu-card p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
+                    <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                        📍 Configuración de la Venta
+                    </h2>
+                    <span class="text-muted small">Paso 1: Asignación de festival y puesto</span>
+                </div>
 
-                <input type="date"
-                       id="fecha"
-                       name="fecha"
-                       class="form-control"
-                       th:value="${fechaActual}"
-                       th:max="${fechaActual}"
-                       required>
+                <div class="row g-3">
+                    <!-- Fecha -->
+                    <div class="col-12 col-md-4">
+                        <label for="fecha" class="form-label small fw-semibold text-secondary mb-1">
+                            📅 Fecha de la venta
+                        </label>
+                        <input type="date"
+                               id="fecha"
+                               name="fecha"
+                               class="form-control"
+                               th:value="${fechaActual}"
+                               th:max="${fechaActual}"
+                               required>
+                        <small id="avisoFecha" class="text-danger small mt-1 d-none d-block">
+                            ⚠️ Fecha distinta a la actual.
+                        </small>
+                    </div>
 
-                <small id="avisoFecha" class="text-warning mt-2 d-none">
-                    La fecha seleccionada es distinta a la fecha actual.
-                </small>
-            </div>
+                    <!--  Festival -->
+                    <div class="col-12 col-md-4">
+                        <label for="festival" class="form-label small fw-semibold text-secondary mb-1">
+                            🎪 Festival
+                        </label>
+                        <select id="festival"
+                                name="festivalId"
+                                class="form-select"
+                                required
+                                th:disabled="${#lists.size(festivales) == 1}">
+                            <option th:if="${#lists.size(festivales) != 1}" value="">
+                                Selecciona un festival...
+                            </option>
+                            <option th:each="festival : ${festivales}"
+                                    th:value="${festival.id}"
+                                    th:text="${festival.nombre}"
+                                    th:selected="${#lists.size(festivales) == 1}">
+                            </option>
+                        </select>
+                        <input type="hidden"
+                               name="festivalId"
+                               th:if="${#lists.size(festivales) == 1}"
+                               th:value="${festivales[0].id}">
+                    </div>
 
-            <div class="mb-3">
-                <label for="festival" class="text-white fw-medium mb-1">
-                    Festival
-                </label>
+                    <!-- Unidad de venta -->
+                    <div class="col-12 col-md-4">
+                        <label for="unidadVentaId" class="form-label small fw-semibold text-secondary mb-1">
+                            🏪 Unidad de venta
+                        </label>
+                        <select id="unidadVentaId"
+                                name="unidadVentaId"
+                                class="form-select"
+                                required
+                                disabled>
+                            <option value="">Selecciona festival primero...</option>
+                        </select>
+                        <small id="avisoUnidades" class="text-danger small mt-1 d-none d-block"></small>
+                    </div>
+                </div>
+            </section>
+            <!--  Selección y Carga de Platos -->
+            <section class="card menu-card p-4 mb-4">
+                <h2 class="h5 fw-bold pb-2 mb-3 border-bottom" style="color: #800020;">
+                    🍽️ Selección de Platos
+                </h2>
 
-                <select id="festival"
-                        name="festivalId"
-                        class="form-select"
-                        required
-                        th:disabled="${#lists.size(festivales) == 1}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-7">
+                        <label for="platoId" class="form-label small fw-semibold text-secondary mb-1">
+                            Plato disponible
+                        </label>
+                        <select id="platoId" class="form-select" disabled>
+                            <option value="">Selecciona primero una unidad...</option>
+                        </select>
+                        <small id="avisoPlatos" class="text-danger small mt-1 d-none"></small>
+                    </div>
 
-                    <option th:if="${#lists.size(festivales) != 1}"
-                            value="">
-                        Selecciona un festival...
-                    </option>
+                    <div class="col-6 col-md-2">
+                        <label for="cantidad" class="form-label small fw-semibold text-secondary mb-1">
+                            Cantidad
+                        </label>
+                        <input type="number"
+                               id="cantidad"
+                               class="form-control text-center"
+                               min="1"
+                               max="100"
+                               step="1"
+                               value="1"
+                               required>
+                    </div>
 
-                    <option th:each="festival : ${festivales}"
-                            th:value="${festival.id}"
-                            th:text="${festival.nombre}"
-                            th:selected="${#lists.size(festivales) == 1}">
-                    </option>
-                </select>
-
-                <input type="hidden"
-                       name="festivalId"
-                       th:if="${#lists.size(festivales) == 1}"
-                       th:value="${festivales[0].id}">
-            </div>
-
-            <div class="mb-4">
-                <label for="unidadVentaId" class="text-white fw-medium mb-1">
-                    Unidad de venta
-                </label>
-
-                <select id="unidadVentaId"
-                        name="unidadVentaId"
-                        class="form-select"
-                        required
-                        disabled>
-                    <option value="">Selecciona primero un festival...</option>
-                </select>
-
-                <small id="avisoUnidades" class="text-warning mt-2 d-none"></small>
-            </div>
-
-            <h2 class="h5 fw-bold text-white mb-3">Platos del pedido</h2>
-
-            <div class="mb-3">
-                <label for="platoId" class="text-white fw-medium mb-1">
-                    Seleccionar plato
-                </label>
-
-                <select id="platoId" class="form-select" disabled>
-                    <option value="">Selecciona primero una unidad...</option>
-                </select>
-
-                <small id="avisoPlatos" class="text-warning mt-2 d-none"></small>
-            </div>
-
-            <div class="mb-3">
-                <label for="cantidad" class="text-white fw-medium mb-1">
-                    Cantidad
-                </label>
-
-<input type="number" id="cantidad" class="form-control"
-       min="1" max="100" step="1" value="1" required>
-            </div>
-
-            <div class="mb-4">
-                <button type="button"
-                        id="btnAgregarPlato"
-                        class="boton"
-                        disabled>
-                    Agregar plato
-                </button>
-            </div>
-
-            <div class="tabla-scroll mb-3">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Plato</th>
-                            <th>Precio unitario</th>
-                            <th>Cantidad</th>
-                            <th>Subtotal</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tablaItems">
-                        <tr>
-                            <td colspan="5" class="vacio">
-                                Todavía no se agregaron platos.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <section class="resumen">
-                <div class="dato principal">
-                    <span>Total del pedido</span>
-                    <strong id="totalPedido">0.00</strong>
+                    <div class="col-6 col-md-3">
+                        <button type="button"
+                                id="btnAgregarPlato"
+                                class="menu-button menu-button-primary w-100 py-2 justify-content-center"
+                                disabled>
+                            + Agregar plato
+                        </button>
+                    </div>
                 </div>
             </section>
 
-            <div class="acciones-doble mt-4">
-                <button type="button" class="boton" id="btnLimpiar">
-                    Limpiar
-                </button>
+            <!-- Detalle de Ítems y Totalización -->
+            <section class="card menu-card overflow-hidden mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                    <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                        📋 Platos agregados al pedido
+                    </h2>
+                </div>
 
-                <button type="submit"
-                        class="boton"
-                        id="btnRegistrar"
-                        disabled>
-                    Registrar pedido
-                </button>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background-color: #f4eaec; color: #600018;">
+                            <tr>
+                                <th class="ps-4 py-3">Plato</th>
+                                <th class="text-end py-3">Precio unitario</th>
+                                <th class="text-center py-3">Cantidad</th>
+                                <th class="text-end py-3">Subtotal</th>
+                                <th class="text-center pe-4 py-3" style="width: 100px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaItems">
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-secondary">
+                                    <div class="fs-2 mb-2" aria-hidden="true">🍽️</div>
+                                    <strong>Todavía no se agregaron platos al pedido.</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-light border-top">
+                            <tr>
+                                <th colspan="3" class="text-end fw-bold ps-4 py-3 fs-6">Total del pedido:</th>
+                                <th class="text-end py-3 fs-5 fw-bold text-success">
+                                    $ <span id="totalPedido">0.00</span>
+                                </th>
+                                <th class="pe-4 py-3"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
 
-            </div>
+                <!-- Botones de Acción Inferiores -->
+                <div class="card-footer bg-light px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <button type="button" class="menu-button py-2 px-4" id="btnLimpiar">
+                        Limpiar formulario
+                    </button>
+
+                    <button type="submit"
+                            class="menu-button menu-button-primary py-2 px-4 fs-6 fw-bold"
+                            id="btnRegistrar"
+                            disabled>
+                        Confirmar y registrar venta
+                    </button>
+                </div>
+            </section>
 
         </form>
-    </section>
 
-</main>
+    </main>
 
-<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-    const formulario = document.getElementById("formularioPedido");
-    const campoFecha = document.getElementById("fecha");
-    const avisoFecha = document.getElementById("avisoFecha");
-    const festivalSelect = document.getElementById("festival");
-    const unidadSelect = document.getElementById("unidadVentaId");
-    const platoSelect = document.getElementById("platoId");
-    const cantidadInput = document.getElementById("cantidad");
-    const avisoUnidades = document.getElementById("avisoUnidades");
-    const avisoPlatos = document.getElementById("avisoPlatos");
-    const btnAgregar = document.getElementById("btnAgregarPlato");
-    const btnLimpiar = document.getElementById("btnLimpiar");
-    const btnRegistrar = document.getElementById("btnRegistrar");
-    const tablaItems = document.getElementById("tablaItems");
-    const totalPedido = document.getElementById("totalPedido");
+        const formulario = document.getElementById("formularioPedido");
+        const campoFecha = document.getElementById("fecha");
+        const avisoFecha = document.getElementById("avisoFecha");
+        const festivalSelect = document.getElementById("festival");
+        const unidadSelect = document.getElementById("unidadVentaId");
+        const platoSelect = document.getElementById("platoId");
+        const cantidadInput = document.getElementById("cantidad");
+        const avisoUnidades = document.getElementById("avisoUnidades");
+        const avisoPlatos = document.getElementById("avisoPlatos");
+        const btnAgregar = document.getElementById("btnAgregarPlato");
+        const btnLimpiar = document.getElementById("btnLimpiar");
+        const btnRegistrar = document.getElementById("btnRegistrar");
+        const tablaItems = document.getElementById("tablaItems");
+        const totalPedido = document.getElementById("totalPedido");
 
-    const items = new Map();
-    let solicitudUnidades = 0;
-    let solicitudPlatos = 0;
+        const items = new Map();
+        let solicitudUnidades = 0;
+        let solicitudPlatos = 0;
 
-    const fechaActual = campoFecha.value;
+        const fechaActual = campoFecha.value;
 
-    // Ocultar el mensaje de éxito después de 3 segundos.
-    const mensajeExito = document.getElementById("mensajeExito");
-
-    if (mensajeExito) {
-        setTimeout(function () {
-            mensajeExito.style.transition = "opacity 0.5s ease";
-            mensajeExito.style.opacity = "0";
-
+        const mensajeExito = document.getElementById("mensajeExito");
+        if (mensajeExito) {
             setTimeout(function () {
-                mensajeExito.remove();
-            }, 500);
-        }, 3000);
-    }
-
-    function validarFecha() {
-        avisoFecha.classList.toggle(
-            "d-none",
-            campoFecha.value === fechaActual
-        );
-    }
-
-    campoFecha.addEventListener("change", validarFecha);
-
-    function formatoNumero(valor) {
-        return Number(valor).toFixed(2);
-    }
-
-    function actualizarEstadoRegistro() {
-        btnRegistrar.disabled =
-            items.size === 0 ||
-            !festivalSelect.value ||
-            !unidadSelect.value;
-    }
-
-    async function cargarUnidadesPorFestival() {
-        const numeroSolicitud = ++solicitudUnidades;
-        solicitudPlatos++;
-
-        unidadSelect.innerHTML =
-            '<option value="">Cargando unidades...</option>';
-        unidadSelect.disabled = true;
-
-        platoSelect.innerHTML =
-            '<option value="">Selecciona primero una unidad...</option>';
-        platoSelect.disabled = true;
-
-        btnAgregar.disabled = true;
-
-        avisoUnidades.textContent = "";
-        avisoUnidades.classList.add("d-none");
-
-        avisoPlatos.textContent = "";
-        avisoPlatos.classList.add("d-none");
-
-        items.clear();
-        dibujarTabla();
-
-        if (!festivalSelect.value) {
-            unidadSelect.innerHTML =
-                '<option value="">Selecciona un festival...</option>';
-            return;
+                mensajeExito.style.transition = "opacity 0.5s ease";
+                mensajeExito.style.opacity = "0";
+                setTimeout(function () {
+                    mensajeExito.remove();
+                }, 500);
+            }, 3000);
         }
 
-        try {
-            const respuesta = await fetch(
-                `/pedidos/festivales/${encodeURIComponent(festivalSelect.value)}/unidades`
-            );
-
-            if (numeroSolicitud !== solicitudUnidades) return;
-
-            if (!respuesta.ok) {
-                throw new Error("No se pudieron cargar las unidades.");
-            }
-
-            const unidades = await respuesta.json();
-
-            unidadSelect.innerHTML =
-                '<option value="">Selecciona una unidad...</option>';
-
-            unidades.forEach(function (unidad) {
-                const opcion = document.createElement("option");
-                opcion.value = unidad.id;
-                opcion.textContent = unidad.nombreComercial;
-                unidadSelect.appendChild(opcion);
-            });
-
-            if (unidades.length === 0) {
-                unidadSelect.innerHTML =
-                    '<option value="">No hay unidades disponibles</option>';
-
-                avisoUnidades.textContent =
-                    "No hay unidades de venta asignadas a este festival.";
-                avisoUnidades.classList.remove("d-none");
-                return;
-            }
-
-            unidadSelect.disabled = false;
-
-            // Seleccionar automáticamente si existe una sola unidad.
-            if (unidades.length === 1) {
-                unidadSelect.value = String(unidades[0].id);
-                await cargarPlatos();
-            }
-
-        } catch (error) {
-            if (numeroSolicitud !== solicitudUnidades) return;
-
-            console.error(error);
-
-            unidadSelect.innerHTML =
-                '<option value="">Error al cargar las unidades</option>';
-
-            avisoUnidades.textContent =
-                "No se pudieron cargar las unidades. Intenta nuevamente.";
-            avisoUnidades.classList.remove("d-none");
-        }
-    }
-
-    festivalSelect.addEventListener("change", cargarUnidadesPorFestival);
-
-    async function cargarPlatos() {
-        const numeroSolicitud = ++solicitudPlatos;
-
-        items.clear();
-        dibujarTabla();
-
-        platoSelect.disabled = true;
-        btnAgregar.disabled = true;
-
-        avisoPlatos.textContent = "";
-        avisoPlatos.classList.add("d-none");
-
-        if (!unidadSelect.value) {
-            platoSelect.innerHTML =
-                '<option value="">Selecciona una unidad...</option>';
-            return;
+        function validarFecha() {
+            avisoFecha.classList.toggle("d-none", campoFecha.value === fechaActual);
         }
 
-        platoSelect.innerHTML =
-            '<option value="">Cargando platos...</option>';
+        campoFecha.addEventListener("change", validarFecha);
 
-        try {
-            const respuesta = await fetch(
-                `/pedidos/unidades/${encodeURIComponent(unidadSelect.value)}/platos`
-            );
-
-            if (numeroSolicitud !== solicitudPlatos) return;
-
-            if (!respuesta.ok) {
-                throw new Error("No se pudieron consultar los platos.");
-            }
-
-            const platos = await respuesta.json();
-
-            platoSelect.innerHTML =
-                '<option value="">Seleccionar plato...</option>';
-
-            platos.forEach(function (plato) {
-                const opcion = document.createElement("option");
-                opcion.value = plato.id;
-                opcion.textContent = plato.nombre;
-                opcion.dataset.precio = plato.precio;
-                platoSelect.appendChild(opcion);
-            });
-
-            if (platos.length === 0) {
-                platoSelect.innerHTML =
-                    '<option value="">No hay platos asociados a esta unidad</option>';
-
-                avisoPlatos.textContent =
-                    "La unidad seleccionada no tiene platos asociados.";
-                avisoPlatos.classList.remove("d-none");
-                return;
-            }
-
-            platoSelect.disabled = false;
-
-        } catch (error) {
-            if (numeroSolicitud !== solicitudPlatos) return;
-
-            console.error(error);
-
-            platoSelect.innerHTML =
-                '<option value="">Error al cargar los platos</option>';
-
-            avisoPlatos.textContent =
-                "No se pudieron cargar los platos. Intenta nuevamente.";
-            avisoPlatos.classList.remove("d-none");
-        }
-    }
-
-    unidadSelect.addEventListener("change", cargarPlatos);
-
-    platoSelect.addEventListener("change", function () {
-        btnAgregar.disabled = !platoSelect.value;
-    });
-
-    btnAgregar.addEventListener("click", function () {
-        const opcion = platoSelect.selectedOptions[0];
-        const cantidad = Number(cantidadInput.value);
-
-        if (!festivalSelect.value) {
-            alert("Selecciona un festival.");
-            return;
+        function formatoNumero(valor) {
+            return Number(valor).toFixed(2);
         }
 
-        if (!unidadSelect.value) {
-            alert("Selecciona una unidad de venta.");
-            return;
+        function actualizarEstadoRegistro() {
+            btnRegistrar.disabled =
+                items.size === 0 ||
+                !festivalSelect.value ||
+                !unidadSelect.value;
         }
 
-        if (!opcion || !opcion.value) {
-            alert("Selecciona un plato.");
-            return;
-        }
+        async function cargarUnidadesPorFestival() {
+            const numeroSolicitud = ++solicitudUnidades;
+            solicitudPlatos++;
 
-       if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
-    alert("La cantidad debe ser un número entero mayor a cero.");
-    return;
-}
-
-if (cantidad > 100) {
-    alert("La cantidad máxima por plato es de 100 unidades.");
-    return;
-}
-
-        const id = opcion.value;
-        const precio = Number(opcion.dataset.precio);
-
-        if (!Number.isFinite(precio) || precio < 0) {
-            alert("El precio del plato no es válido.");
-            return;
-        }
-
-if (items.has(id)) {
-    const cantidadNueva = items.get(id).cantidad + cantidad;
-
-    if (!Number.isSafeInteger(cantidadNueva)) {
-        alert("La cantidad total del plato es demasiado grande.");
-        return;
-    }
-
-    if (cantidadNueva > 100) {
-        alert("No podés superar las 100 unidades del mismo plato.");
-        return;
-    }
-
-    items.get(id).cantidad = cantidadNueva;
-
-} else {
-    items.set(id, {
-        id: id,
-        nombre: opcion.textContent,
-        precio: precio,
-        cantidad: cantidad
-    });
-}
-
-        dibujarTabla();
-
-        platoSelect.value = "";
-        cantidadInput.value = "1";
-        btnAgregar.disabled = true;
-    });
-
-    function dibujarTabla() {
-        tablaItems.innerHTML = "";
-
-        let total = 0;
-        let indiceFormulario = 0;
-
-        if (items.size === 0) {
-            const fila = document.createElement("tr");
-            const celda = document.createElement("td");
-
-            celda.colSpan = 5;
-            celda.className = "vacio";
-            celda.textContent = "Todavía no se agregaron platos.";
-
-            fila.appendChild(celda);
-            tablaItems.appendChild(fila);
-        }
-
-        items.forEach(function (item, id) {
-            const subtotal = item.precio * item.cantidad;
-            total += subtotal;
-
-            const fila = document.createElement("tr");
-
-            const celdaNombre = document.createElement("td");
-            celdaNombre.textContent = item.nombre;
-            fila.appendChild(celdaNombre);
-
-            const celdaPrecio = document.createElement("td");
-            celdaPrecio.textContent = formatoNumero(item.precio);
-            fila.appendChild(celdaPrecio);
-
-            const celdaCantidad = document.createElement("td");
-            celdaCantidad.textContent = item.cantidad;
-            fila.appendChild(celdaCantidad);
-
-            const celdaSubtotal = document.createElement("td");
-            celdaSubtotal.textContent = formatoNumero(subtotal);
-            fila.appendChild(celdaSubtotal);
-
-            const celdaAccion = document.createElement("td");
-            const botonEliminar = document.createElement("button");
-
-            botonEliminar.type = "button";
-            botonEliminar.className = "boton";
-            botonEliminar.textContent = "Quitar";
-
-            botonEliminar.addEventListener("click", function () {
-                items.delete(id);
-                dibujarTabla();
-            });
-
-            celdaAccion.appendChild(botonEliminar);
-            fila.appendChild(celdaAccion);
-
-            const campoPlato = document.createElement("input");
-            campoPlato.type = "hidden";
-            campoPlato.name = `items[${indiceFormulario}].platoId`;
-            campoPlato.value = item.id;
-
-            const campoCantidad = document.createElement("input");
-            campoCantidad.type = "hidden";
-            campoCantidad.name = `items[${indiceFormulario}].cantidad`;
-            campoCantidad.value = item.cantidad;
-
-            const celdaDatos = document.createElement("td");
-            celdaDatos.hidden = true;
-            celdaDatos.appendChild(campoPlato);
-            celdaDatos.appendChild(campoCantidad);
-            fila.appendChild(celdaDatos);
-
-            indiceFormulario++;
-            tablaItems.appendChild(fila);
-        });
-
-        totalPedido.textContent = formatoNumero(total);
-        actualizarEstadoRegistro();
-    }
-
-    btnLimpiar.addEventListener("click", function () {
-        solicitudUnidades++;
-        solicitudPlatos++;
-
-        // Limpiar los platos agregados y el total.
-        items.clear();
-        dibujarTabla();
-
-        // Restaurar la fecha actual.
-        campoFecha.value = fechaActual;
-        validarFecha();
-
-        // Mantener el festival seleccionado y volver a cargar sus unidades.
-        if (festivalSelect.value) {
-            cargarUnidadesPorFestival();
-        } else {
-            unidadSelect.innerHTML =
-                '<option value="">Selecciona primero un festival...</option>';
+            unidadSelect.innerHTML = '<option value="">Cargando unidades...</option>';
             unidadSelect.disabled = true;
 
-            platoSelect.innerHTML =
-                '<option value="">Selecciona primero una unidad...</option>';
+            platoSelect.innerHTML = '<option value="">Selecciona primero una unidad...</option>';
             platoSelect.disabled = true;
 
             btnAgregar.disabled = true;
+
+            avisoUnidades.textContent = "";
+            avisoUnidades.classList.add("d-none");
+
+            avisoPlatos.textContent = "";
+            avisoPlatos.classList.add("d-none");
+
+            items.clear();
+            dibujarTabla();
+
+            if (!festivalSelect.value) {
+                unidadSelect.innerHTML = '<option value="">Selecciona un festival...</option>';
+                return;
+            }
+
+            try {
+                const respuesta = await fetch(`/pedidos/festivales/${encodeURIComponent(festivalSelect.value)}/unidades`);
+
+                if (numeroSolicitud !== solicitudUnidades) return;
+
+                if (!respuesta.ok) throw new Error("No se pudieron cargar las unidades.");
+
+                const unidades = await respuesta.json();
+
+                unidadSelect.innerHTML = '<option value="">Selecciona una unidad...</option>';
+
+                unidades.forEach(function (unidad) {
+                    const opcion = document.createElement("option");
+                    opcion.value = unidad.id;
+                    opcion.textContent = unidad.nombreComercial;
+                    unidadSelect.appendChild(opcion);
+                });
+
+                if (unidades.length === 0) {
+                    unidadSelect.innerHTML = '<option value="">No hay unidades disponibles</option>';
+                    avisoUnidades.textContent = "No hay unidades de venta asignadas a este festival.";
+                    avisoUnidades.classList.remove("d-none");
+                    return;
+                }
+
+                unidadSelect.disabled = false;
+
+                if (unidades.length === 1) {
+                    unidadSelect.value = String(unidades[0].id);
+                    await cargarPlatos();
+                }
+
+            } catch (error) {
+                if (numeroSolicitud !== solicitudUnidades) return;
+                console.error(error);
+                unidadSelect.innerHTML = '<option value="">Error al cargar las unidades</option>';
+                avisoUnidades.textContent = "No se pudieron cargar las unidades. Intenta nuevamente.";
+                avisoUnidades.classList.remove("d-none");
+            }
         }
 
-        // Restaurar la cantidad.
-        cantidadInput.value = "1";
+        festivalSelect.addEventListener("change", cargarUnidadesPorFestival);
 
-        // Limpiar los avisos.
-        avisoUnidades.textContent = "";
-        avisoUnidades.classList.add("d-none");
+        async function cargarPlatos() {
+            const numeroSolicitud = ++solicitudPlatos;
 
-        avisoPlatos.textContent = "";
-        avisoPlatos.classList.add("d-none");
+            items.clear();
+            dibujarTabla();
 
-        avisoFecha.classList.add("d-none");
+            platoSelect.disabled = true;
+            btnAgregar.disabled = true;
+
+            avisoPlatos.textContent = "";
+            avisoPlatos.classList.add("d-none");
+
+            if (!unidadSelect.value) {
+                platoSelect.innerHTML = '<option value="">Selecciona una unidad...</option>';
+                return;
+            }
+
+            platoSelect.innerHTML = '<option value="">Cargando platos...</option>';
+
+            try {
+                const respuesta = await fetch(`/pedidos/unidades/${encodeURIComponent(unidadSelect.value)}/platos`);
+
+                if (numeroSolicitud !== solicitudPlatos) return;
+
+                if (!respuesta.ok) throw new Error("No se pudieron consultar los platos.");
+
+                const platos = await respuesta.json();
+
+                platoSelect.innerHTML = '<option value="">Seleccionar plato...</option>';
+
+                platos.forEach(function (plato) {
+                    const opcion = document.createElement("option");
+                    opcion.value = plato.id;
+                    opcion.textContent = plato.nombre;
+                    opcion.dataset.precio = plato.precio;
+                    platoSelect.appendChild(opcion);
+                });
+
+                if (platos.length === 0) {
+                    platoSelect.innerHTML = '<option value="">No hay platos asociados a esta unidad</option>';
+                    avisoPlatos.textContent = "La unidad seleccionada no tiene platos asociados.";
+                    avisoPlatos.classList.remove("d-none");
+                    return;
+                }
+
+                platoSelect.disabled = false;
+
+            } catch (error) {
+                if (numeroSolicitud !== solicitudPlatos) return;
+                console.error(error);
+                platoSelect.innerHTML = '<option value="">Error al cargar los platos</option>';
+                avisoPlatos.textContent = "No se pudieron cargar los platos. Intenta nuevamente.";
+                avisoPlatos.classList.remove("d-none");
+            }
+        }
+
+        unidadSelect.addEventListener("change", cargarPlatos);
+
+        platoSelect.addEventListener("change", function () {
+            btnAgregar.disabled = !platoSelect.value;
+        });
+
+        btnAgregar.addEventListener("click", function () {
+            const opcion = platoSelect.selectedOptions[0];
+            const cantidad = Number(cantidadInput.value);
+
+            if (!festivalSelect.value) {
+                alert("Selecciona un festival.");
+                return;
+            }
+
+            if (!unidadSelect.value) {
+                alert("Selecciona una unidad de venta.");
+                return;
+            }
+
+            if (!opcion || !opcion.value) {
+                alert("Selecciona un plato.");
+                return;
+            }
+
+            if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+                alert("La cantidad debe ser un número entero mayor a cero.");
+                return;
+            }
+
+            if (cantidad > 100) {
+                alert("La cantidad máxima por plato es de 100 unidades.");
+                return;
+            }
+
+            const id = opcion.value;
+            const precio = Number(opcion.dataset.precio);
+
+            if (!Number.isFinite(precio) || precio < 0) {
+                alert("El precio del plato no es válido.");
+                return;
+            }
+
+            if (items.has(id)) {
+                const cantidadNueva = items.get(id).cantidad + cantidad;
+                if (!Number.isSafeInteger(cantidadNueva)) {
+                    alert("La cantidad total del plato es demasiado grande.");
+                    return;
+                }
+                if (cantidadNueva > 100) {
+                    alert("No podés superar las 100 unidades del mismo plato.");
+                    return;
+                }
+                items.get(id).cantidad = cantidadNueva;
+            } else {
+                items.set(id, {
+                    id: id,
+                    nombre: opcion.textContent,
+                    precio: precio,
+                    cantidad: cantidad
+                });
+            }
+
+            dibujarTabla();
+            platoSelect.value = "";
+            cantidadInput.value = "1";
+            btnAgregar.disabled = true;
+        });
+
+        function dibujarTabla() {
+            tablaItems.innerHTML = "";
+            let total = 0;
+            let indiceFormulario = 0;
+
+            if (items.size === 0) {
+                const fila = document.createElement("tr");
+                const celda = document.createElement("td");
+                celda.colSpan = 5;
+                celda.className = "text-center py-5 text-secondary";
+                celda.innerHTML = '<div class="fs-2 mb-2" aria-hidden="true">🍽️</div><strong>Todavía no se agregaron platos al pedido.</strong>';
+                fila.appendChild(celda);
+                tablaItems.appendChild(fila);
+            }
+
+            items.forEach(function (item, id) {
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+
+                const fila = document.createElement("tr");
+
+                const celdaNombre = document.createElement("td");
+                celdaNombre.className = "ps-4 py-3 fw-bold text-dark";
+                celdaNombre.textContent = item.nombre;
+                fila.appendChild(celdaNombre);
+
+                const celdaPrecio = document.createElement("td");
+                celdaPrecio.className = "text-end py-3 text-secondary";
+                celdaPrecio.textContent = "$ " + formatoNumero(item.precio);
+                fila.appendChild(celdaPrecio);
+
+                const celdaCantidad = document.createElement("td");
+                celdaCantidad.className = "text-center py-3";
+                celdaCantidad.innerHTML = `<span class="badge bg-light text-dark border px-3 py-1 font-monospace fs-6">${item.cantidad}</span>`;
+                fila.appendChild(celdaCantidad);
+
+                const celdaSubtotal = document.createElement("td");
+                celdaSubtotal.className = "text-end py-3 fw-bold";
+                celdaSubtotal.style.color = "#800020";
+                celdaSubtotal.textContent = "$ " + formatoNumero(subtotal);
+                fila.appendChild(celdaSubtotal);
+
+                const celdaAccion = document.createElement("td");
+                celdaAccion.className = "text-center pe-4 py-3";
+                const botonEliminar = document.createElement("button");
+                botonEliminar.type = "button";
+                botonEliminar.className = "menu-button py-1 px-3 small";
+                botonEliminar.style.fontSize = "0.8rem";
+                botonEliminar.textContent = "Quitar";
+
+                botonEliminar.addEventListener("click", function () {
+                    items.delete(id);
+                    dibujarTabla();
+                });
+
+                celdaAccion.appendChild(botonEliminar);
+                fila.appendChild(celdaAccion);
+
+                const campoPlato = document.createElement("input");
+                campoPlato.type = "hidden";
+                campoPlato.name = `items[${indiceFormulario}].platoId`;
+                campoPlato.value = item.id;
+
+                const campoCantidad = document.createElement("input");
+                campoCantidad.type = "hidden";
+                campoCantidad.name = `items[${indiceFormulario}].cantidad`;
+                campoCantidad.value = item.cantidad;
+
+                const celdaDatos = document.createElement("td");
+                celdaDatos.hidden = true;
+                celdaDatos.appendChild(campoPlato);
+                celdaDatos.appendChild(campoCantidad);
+                fila.appendChild(celdaDatos);
+
+                indiceFormulario++;
+                tablaItems.appendChild(fila);
+            });
+
+            totalPedido.textContent = formatoNumero(total);
+            actualizarEstadoRegistro();
+        }
+
+        btnLimpiar.addEventListener("click", function () {
+            solicitudUnidades++;
+            solicitudPlatos++;
+
+            items.clear();
+            dibujarTabla();
+
+            campoFecha.value = fechaActual;
+            validarFecha();
+
+            if (festivalSelect.value) {
+                cargarUnidadesPorFestival();
+            } else {
+                unidadSelect.innerHTML = '<option value="">Selecciona primero un festival...</option>';
+                unidadSelect.disabled = true;
+
+                platoSelect.innerHTML = '<option value="">Selecciona primero una unidad...</option>';
+                platoSelect.disabled = true;
+
+                btnAgregar.disabled = true;
+            }
+
+            cantidadInput.value = "1";
+            avisoUnidades.textContent = "";
+            avisoUnidades.classList.add("d-none");
+            avisoPlatos.textContent = "";
+            avisoPlatos.classList.add("d-none");
+            avisoFecha.classList.add("d-none");
+        });
+
+        formulario.addEventListener("submit", function (evento) {
+            if (!campoFecha.value) {
+                evento.preventDefault();
+                alert("Selecciona la fecha de venta.");
+                return;
+            }
+
+            if (campoFecha.value !== fechaActual) {
+                evento.preventDefault();
+                avisoFecha.classList.remove("d-none");
+                campoFecha.focus();
+                return;
+            }
+
+            avisoFecha.classList.add("d-none");
+
+            if (!festivalSelect.value) {
+                evento.preventDefault();
+                alert("Selecciona un festival.");
+                return;
+            }
+
+            if (!unidadSelect.value) {
+                evento.preventDefault();
+                alert("Selecciona una unidad de venta.");
+                return;
+            }
+
+            if (items.size === 0) {
+                evento.preventDefault();
+                alert("Agrega al menos un plato al pedido.");
+                return;
+            }
+
+            if (unidadSelect.disabled || platoSelect.disabled) {
+                evento.preventDefault();
+                alert("Espera a que terminen de cargarse las opciones.");
+            }
+        });
+
+        dibujarTabla();
+
+        if (festivalSelect && festivalSelect.value) {
+            cargarUnidadesPorFestival();
+        }
     });
-
-    formulario.addEventListener("submit", function (evento) {
-        if (!campoFecha.value) {
-            evento.preventDefault();
-            alert("Selecciona la fecha de venta.");
-            return;
-        }
-
-        if (campoFecha.value !== fechaActual) {
-            evento.preventDefault();
-            avisoFecha.classList.remove("d-none");
-            campoFecha.focus();
-            return;
-        }
-
-        avisoFecha.classList.add("d-none");
-
-        if (!festivalSelect.value) {
-            evento.preventDefault();
-            alert("Selecciona un festival.");
-            return;
-        }
-
-        if (!unidadSelect.value) {
-            evento.preventDefault();
-            alert("Selecciona una unidad de venta.");
-            return;
-        }
-
-        if (items.size === 0) {
-            evento.preventDefault();
-            alert("Agrega al menos un plato al pedido.");
-            return;
-        }
-
-        if (unidadSelect.disabled || platoSelect.disabled) {
-            evento.preventDefault();
-            alert("Espera a que terminen de cargarse las opciones.");
-        }
-    });
-
-    dibujarTabla();
-
-    // Cargar automáticamente las unidades si ya hay un festival seleccionado.
-    if (festivalSelect && festivalSelect.value) {
-        cargarUnidadesPorFestival();
-    }
-});
-</script>
+    </script>
 
 </body>
 </html>
