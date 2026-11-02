@@ -144,44 +144,20 @@
                                required>
                     </div>
 
-                  <!-- CAMPOS EXCLUSIVOS DE FOOD TRUCK -->
-
-<div id="datosFoodTruck"
-     class="border border-light rounded p-3 mb-3">
-
-    <h3 class="h6 fw-bold text-white mb-3">
-        Datos del Food Truck
-    </h3>
-
-    <div class="mb-3">
-        <label for="patente"
-               class="form-label text-white">
-            Patente
-        </label>
-        <input type="text"
-               id="patente"
-               name="patente"
-               class="form-control"
-               maxlength="20"
-               th:value="${patente}"
-               required>
-    </div>
-
-   <div class="mb-3 d-flex align-items-center gap-2">
-    <input class="form-check-input mt-0"
-           type="checkbox"
-           id="requiereElectricidad"
-           name="requiereElectricidad"
-           value="true"
-           style="position: static; margin: 0; min-width: 1rem; width: 1rem; height: 1rem;"
-           th:checked="${requiereElectricidad == true}">
-    <label class="form-check-label text-white mb-0"
-           for="requiereElectricidad"
-           style="position: static; display: inline;">
-        ¿Requiere conexión eléctrica?
-    </label>
-</div>
-</div>
+                    <div class="mb-3 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0"
+                               type="checkbox"
+                               id="requiereElectricidad"
+                               name="requiereElectricidad"
+                               value="true"
+                               style="position: static; margin: 0; min-width: 1rem; width: 1rem; height: 1rem;"
+                               th:checked="${requiereElectricidad == true}">
+                        <label class="form-check-label text-white mb-0"
+                               for="requiereElectricidad"
+                               style="position: static; display: inline;">
+                            ¿Requiere conexión eléctrica?
+                        </label>
+                    </div>
                 </div>
 
                 <!-- CAMPOS EXCLUSIVOS DE PUESTO DESARMABLE -->
@@ -409,48 +385,47 @@
 
         actualizarTipoUnidad();
 
-     const formulario = document.getElementById("formularioRegistro");
-     const fechaNacimiento = document.getElementById("fechaNacimiento");
-     const fechaIngreso = document.getElementById("fechaIngreso");
+        const formulario = document.getElementById("formularioRegistro");
+        const fechaNacimiento = document.getElementById("fechaNacimiento");
+        const fechaIngreso = document.getElementById("fechaIngreso");
 
-    function validarFormatoFecha(campo) {
-    campo.setCustomValidity("");
+        function validarFormatoFecha(campo) {
+            campo.setCustomValidity("");
 
-    if (!campo.value) {
-        return true;
-    }
+            if (!campo.value) {
+                return true;
+            }
 
-    const anio = campo.value.split("-")[0];
+            const anio = campo.value.split("-")[0];
 
-    if (!/^\d{4}$/.test(anio)) {
-        campo.setCustomValidity(
-            "El año debe tener exactamente 4 dígitos."
-        );
-        return false;
-    }
+            if (!/^\d{4}$/.test(anio)) {
+                campo.setCustomValidity(
+                    "El año debe tener exactamente 4 dígitos."
+                );
+                return false;
+            }
 
-    return true;
-    }
+            return true;
+        }
 
-    fechaNacimiento.addEventListener("change", function () {
-    validarFormatoFecha(fechaNacimiento);
-    });
+        fechaNacimiento.addEventListener("change", function () {
+            validarFormatoFecha(fechaNacimiento);
+        });
 
-    fechaIngreso.addEventListener("change", function () {
-    validarFormatoFecha(fechaIngreso);
-    });
+        fechaIngreso.addEventListener("change", function () {
+            validarFormatoFecha(fechaIngreso);
+        });
 
-    formulario.addEventListener("submit", function (event) {
-    const nacimientoValido = validarFormatoFecha(fechaNacimiento);
-    const ingresoValido = validarFormatoFecha(fechaIngreso);
+        formulario.addEventListener("submit", function (event) {
+            const nacimientoValido = validarFormatoFecha(fechaNacimiento);
+            const ingresoValido = validarFormatoFecha(fechaIngreso);
 
-    if (!nacimientoValido || !ingresoValido) {
-        event.preventDefault();
-        formulario.reportValidity();
-    }
-  });
-</script>
+            if (!nacimientoValido || !ingresoValido) {
+                event.preventDefault();
+                formulario.reportValidity();
+            }
+        });
+    </script>
 
 </body>
 </html>
-
