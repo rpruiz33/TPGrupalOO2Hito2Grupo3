@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.hito2grupo3.entities.CategoriaCocina;
@@ -17,21 +18,7 @@ import com.example.hito2grupo3.repositories.CategoriaCocinaRepository;
 public class DataCarga {
 
     @Bean
-    public CommandLineRunner generarHash(PasswordEncoder passwordEncoder) {
-        return args -> {
-            String password = "Epicentro2026";
-            String hash = passwordEncoder.encode(password);
-
-            System.out.println("--------------------------------");
-            System.out.println("HASH PARA CargaDatos.sql:");
-            System.out.println(hash);
-            System.out.println("--------------------------------");
-
-            System.out.println("Verificación: " + passwordEncoder.matches(password, hash));
-        };
-    }
-
-    @Bean
+    @Order(1)
     public CommandLineRunner inicializarCategoriasCocina(CategoriaCocinaRepository categoriaRepo) {
         return args -> {
             // Lista oficial de 15 categorías de cocina solicitadas
@@ -76,8 +63,22 @@ public class DataCarga {
                     categoriaRepo.save(cat);
                 }
             }
+        };
+    }
 
-            System.out.println(">>> 15 Categorías de Cocina verificadas y activadas con éxito. Total actual: " + categoriaRepo.count());
+    @Bean
+    @Order(2)
+    public CommandLineRunner generarHash(PasswordEncoder passwordEncoder) {
+        return args -> {
+            String password = "Epicentro2026";
+            String hash = passwordEncoder.encode(password);
+
+            System.out.println("--------------------------------");
+            System.out.println("HASH PARA CargaDatos.sql:");
+            System.out.println(hash);
+            System.out.println("--------------------------------");
+            System.out.println("Verificación: " + passwordEncoder.matches(password, hash));
         };
     }
 }
+
