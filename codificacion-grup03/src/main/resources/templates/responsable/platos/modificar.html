@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
@@ -10,14 +11,29 @@
 </head>
 
 <body>
+
     <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+
     <main class="container panel-container mt-4" style="max-width: 720px;">
-        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm" role="status" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="alert alert-danger text-center shadow-sm" role="alert" th:text="${error}"></div>
+
+        <div th:if="${mensaje}"
+             class="alert alert-success text-center shadow-sm"
+             role="status"
+             th:text="${mensaje}">
+        </div>
+
+        <div th:if="${error}"
+             class="alert alert-danger text-center shadow-sm"
+             role="alert"
+             th:text="${error}">
+        </div>
+
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
                 <h1 class="h3 fw-bold mb-1">Modificar plato</h1>
-                <p class="text-white-50 mb-0">Actualizá la información del plato y guardá los cambios.</p>
+                <p class="text-white-50 mb-0">
+                    Actualizá la información del plato y guardá los cambios.
+                </p>
             </div>
 
             <div>
@@ -26,31 +42,57 @@
                 </a>
             </div>
         </section>
+
         <section class="card menu-card p-4 p-md-5">
-            <div class="card border-0 mb-4 bg-light" th:if="${unidadVenta != null}">
+
+            <!-- Unidad de venta -->
+            <div class="card border-0 mb-4 bg-light"
+                 th:if="${unidadVenta != null}">
+
                 <div class="card-body p-3 d-flex align-items-center gap-3">
                     <div>
                         <span class="small text-muted d-block">Unidad de venta</span>
-                        <strong class="text-dark" th:text="${unidadVenta.nombreComercial}">Nombre de la unidad</strong>
+
+                        <strong class="text-dark"
+                                th:text="${unidadVenta.nombreComercial}">
+                            Nombre de la unidad
+                        </strong>
                     </div>
                 </div>
+
             </div>
+
             <h2 class="h5 fw-bold pb-2 mb-4 border-bottom" style="color: #800020;">
                 Información del plato
             </h2>
+
             <form th:action="@{/responsable/platos/modificar/{id}(id=${plato.id})}"
                   th:object="${plato}"
                   method="post">
-                <div class="alert alert-danger shadow-sm mb-3" th:if="${#fields.hasAnyErrors()}">
-                    <div class="fw-bold mb-1">Por favor revise los siguientes errores:</div>
+
+                <!-- Errores de validación -->
+                <div class="alert alert-danger shadow-sm mb-3"
+                     th:if="${#fields.hasAnyErrors()}">
+
+                    <div class="fw-bold mb-1">
+                        Por favor revise los siguientes errores:
+                    </div>
+
                     <ul class="mb-0 ps-3">
-                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+                        <li th:each="err : ${#fields.allErrors()}"
+                            th:text="${err}">
+                        </li>
                     </ul>
+
                 </div>
+
+                <!-- Nombre del plato -->
                 <div class="mb-3">
+
                     <label for="nombre" class="form-label fw-bold">
                         Nombre del plato <span class="text-danger">*</span>
                     </label>
+
                     <input type="text"
                            id="nombre"
                            class="form-control"
@@ -58,19 +100,29 @@
                            th:field="*{nombre}"
                            minlength="2"
                            maxlength="50"
-                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
-                           title="Solo letras y espacios (2 a 50 caracteres)"
+                           pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s,.\-]{2,50}"
+                           title="El nombre solo puede contener letras, números, espacios, comas, puntos y guiones (2 a 50 caracteres)"
                            placeholder="Ej.: Hamburguesa completa"
                            required>
+
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('nombre')}"
                          th:errors="*{nombre}">
                     </div>
+
+                    <div class="form-text text-muted">
+                        Permitidos: letras, números, espacios, comas, puntos y guiones.
+                    </div>
+
                 </div>
+
+                <!-- Precio de venta -->
                 <div class="mb-3">
+
                     <label for="precio" class="form-label fw-bold">
                         Precio de venta ($) <span class="text-danger">*</span>
                     </label>
+
                     <input type="number"
                            id="precio"
                            class="form-control"
@@ -80,24 +132,30 @@
                            step="0.01"
                            placeholder="0.00"
                            required>
+
                     <div class="form-text text-muted">
                         Importe que se cobrará al cliente.
                     </div>
+
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('precio')}"
                          th:errors="*{precio}">
                     </div>
+
                     <div class="text-danger small mt-1"
                          th:if="${#fields.hasErrors('precioMayorACosto')}"
                          th:errors="*{precioMayorACosto}">
                     </div>
+
                 </div>
 
                 <!-- Costo de producción -->
                 <div class="mb-4">
+
                     <label for="costoProduccion" class="form-label fw-bold">
                         Costo de producción ($) <span class="text-danger">*</span>
                     </label>
+
                     <input type="number"
                            id="costoProduccion"
                            class="form-control"
@@ -107,38 +165,56 @@
                            step="0.01"
                            placeholder="0.00"
                            required>
+
                     <div class="form-text text-muted">
                         Costo estimado de elaboración del plato.
                     </div>
+
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('costoProduccion')}"
                          th:errors="*{costoProduccion}">
                     </div>
+
                 </div>
 
-                <!-- Switch de Estado Activo -->
+                <!-- Estado activo -->
                 <div class="border rounded p-3 mb-4 bg-light">
+
                     <div class="form-check form-switch m-0">
+
                         <input class="form-check-input"
                                type="checkbox"
                                role="switch"
                                id="activo"
                                th:field="*{activo}">
-                        <label class="form-check-label fw-bold" for="activo">Plato activo</label>
+
+                        <label class="form-check-label fw-bold" for="activo">
+                            Plato activo
+                        </label>
+
                     </div>
+
                     <small class="text-muted d-block mt-1">
                         Si desactiva esta opción, el plato quedará inactivo y no estará disponible para la venta.
                     </small>
+
                 </div>
 
-                <!-- Botones de Acción -->
+                <!-- Botones de acción -->
                 <div class="d-flex gap-2 pt-3 border-top flex-wrap">
-                    <button type="submit" class="menu-button menu-button-primary py-2" style="flex: 2; min-width: 180px;">
+
+                    <button type="submit"
+                            class="menu-button menu-button-primary py-2"
+                            style="flex: 2; min-width: 180px;">
                         Guardar cambios
                     </button>
-                    <a th:href="@{/responsable/platos}" class="menu-button py-2 text-center" style="flex: 1; min-width: 120px;">
+
+                    <a th:href="@{/responsable/platos}"
+                       class="menu-button py-2 text-center"
+                       style="flex: 1; min-width: 120px;">
                         Cancelar
                     </a>
+
                 </div>
 
             </form>

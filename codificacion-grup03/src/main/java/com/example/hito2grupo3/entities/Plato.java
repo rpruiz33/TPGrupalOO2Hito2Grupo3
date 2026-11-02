@@ -36,7 +36,8 @@ public class Plato {
 
     @NotBlank(message = "El nombre del plato es obligatorio")
     @Size(min = 2, max = 50, message = "El nombre del plato debe tener entre 2 y 50 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.-]+$", message = "El nombre del plato contiene caracteres no permitidos")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.-]+$",message = "El nombre del plato solo puede contener letras, numeros, espacios, comas, puntos y guiones"
+)
     @Column(nullable = false, length = 50)
     private String nombre;
 
