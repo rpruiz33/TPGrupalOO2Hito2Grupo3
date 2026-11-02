@@ -4,6 +4,24 @@ SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
 
+-- Limpieza previa para evitar duplicación de festivales y entidades en cada reinicio
+DELETE FROM items_pedido;
+DELETE FROM pedidos;
+DELETE FROM platos;
+DELETE FROM festival_unidad_venta;
+DELETE FROM unidad_venta_staff;
+DELETE FROM puestos_desarmables;
+DELETE FROM food_trucks;
+DELETE FROM unidades_venta;
+DELETE FROM cajero;
+DELETE FROM cocineros;
+DELETE FROM staff;
+DELETE FROM categorias_cocina;
+DELETE FROM costos;
+DELETE FROM festivales;
+DELETE FROM usuarios;
+DELETE FROM roles;
+
 -- #############################################################################
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################

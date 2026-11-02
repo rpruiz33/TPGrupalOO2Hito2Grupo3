@@ -107,7 +107,8 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
                 .orElseThrow(() -> new IllegalArgumentException("Festival con ID " + festivalId + " no encontrado."));
 
         UnidadVenta unidad = unidadVentaRepository.findById(unidadVentaId)
-                .orElseThrow(() -> new IllegalArgumentException("Unidad de venta con ID " + unidadVentaId + " no encontrada."));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unidad de venta con ID " + unidadVentaId + " no encontrada."));
 
         if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
             throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta.");
@@ -116,18 +117,20 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         // 1. Ingresos por pedidos activos (excluyendo anulados 'R')
         BigDecimal ingresos = pedidoRepository.sumarIngresosPorFestivalYUnidadYFechas(
                 festivalId, unidadVentaId, fechaDesde, fechaHasta);
-        if (ingresos == null) ingresos = BigDecimal.ZERO;
+        if (ingresos == null)
+            ingresos = BigDecimal.ZERO;
 
         // 2. Costos de producción de los platos vendidos en los pedidos activos
         BigDecimal costosPlatos = pedidoRepository.sumarCostosPlatosPorFestivalYUnidadYFechas(
                 festivalId, unidadVentaId, fechaDesde, fechaHasta);
-        if (costosPlatos == null) costosPlatos = BigDecimal.ZERO;
+        if (costosPlatos == null)
+            costosPlatos = BigDecimal.ZERO;
 
         // 3. Sueldos del personal de la unidad según liquidación de haberes
         BigDecimal sueldos = BigDecimal.ZERO;
         try {
-            ILiquidacionService.ResultadoLiquidacion liq =
-                    liquidacionService.liquidarPorUnidad(unidadVentaId, festivalId);
+            ILiquidacionService.ResultadoLiquidacion liq = liquidacionService.liquidarPorUnidad(unidadVentaId,
+                    festivalId);
             if (liq != null && liq.totalGeneral() != null) {
                 sueldos = liq.totalGeneral();
             }
@@ -139,7 +142,8 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         BigDecimal canon = BigDecimal.ZERO;
         try {
             canon = canonService.calcularCanon(unidad);
-            if (canon == null) canon = BigDecimal.ZERO;
+            if (canon == null)
+                canon = BigDecimal.ZERO;
         } catch (Exception ignored) {
             canon = BigDecimal.ZERO;
         }
@@ -153,7 +157,8 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         // 7. Cantidad de pedidos activos
         Long cantidadPedidos = pedidoRepository.contarPedidosPorFestivalYUnidadYFechas(
                 festivalId, unidadVentaId, fechaDesde, fechaHasta);
-        if (cantidadPedidos == null) cantidadPedidos = 0L;
+        if (cantidadPedidos == null)
+            cantidadPedidos = 0L;
 
         String tipoUnidad = "UnidadVenta";
         if (unidad instanceof FoodTruck) {
@@ -178,8 +183,7 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
                 totalCostos,
                 rentabilidadNeta,
                 cantidadPedidos,
-                periodoStr
-        );
+                periodoStr);
     }
 
     @Override
