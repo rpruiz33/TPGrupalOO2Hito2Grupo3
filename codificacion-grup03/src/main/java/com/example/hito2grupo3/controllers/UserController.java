@@ -1,4 +1,3 @@
-
 package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Usuario;
@@ -32,6 +31,7 @@ public class UserController {
             UsuarioRepository usuarioRepository,
             FestivalRepository festivalRepository,
             IRegistroUnidadVentaService registroUnidadVentaService) {
+
         this.usuarioService = usuarioService;
         this.usuarioRepository = usuarioRepository;
         this.festivalRepository = festivalRepository;
@@ -43,6 +43,7 @@ public class UserController {
         model.addAttribute(
                 "festivales",
                 festivalRepository.findAllByOrderByFechaInicioAsc());
+
         return "user/inicio";
     }
 
@@ -51,24 +52,34 @@ public class UserController {
             Model model,
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String logout) {
+
         model.addAttribute("error", error);
         model.addAttribute("logout", logout);
+
         return "user/login";
     }
 
     @GetMapping("/cambiar-password")
     public String mostrarFormularioCambioPassword(
-            Model model, Authentication authentication) {
+            Model model,
+            Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
         String email = authentication.getName();
-        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+
+        Usuario usuario = usuarioRepository
+                .findByEmail(email)
+                .orElse(null);
+
         model.addAttribute("email", email);
+
         model.addAttribute(
                 "esPrimerIngreso",
                 usuario != null && usuario.isDebeCambiarPassword());
+
         return "user/cambiar-password";
     }
 
@@ -79,23 +90,41 @@ public class UserController {
             @RequestParam("confirmarPassword") String confirmarPassword,
             Authentication authentication,
             RedirectAttributes redirectAttrs) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
         String email = authentication.getName();
+
         try {
             usuarioService.cambiarPassword(
-                    email, passwordActual, nuevaPassword, confirmarPassword);
-            redirectAttrs.addFlashAttribute(
-                    "mensaje", "¡Contraseña actualizada exitosamente!");
+                    email,
+                    passwordActual,
+                    nuevaPassword,
+                    confirmarPassword);
 
+            redirectAttrs.addFlashAttribute(
+                    "mensaje",
+                    "¡Contraseña actualizada exitosamente!");
+
+            // Identificar el rol del usuario autenticado.
             boolean esAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
             boolean esResponsable = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"));
 
+            boolean esCajero = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CAJERO"));
+
+            boolean esCocinero = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_COCINERO"));
+
+            boolean esEmpleado = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"));
+
+            // Redirigir al menú correspondiente al rol.
             if (esAdmin) {
                 return "redirect:/admin/dashboard";
             }
@@ -104,14 +133,31 @@ public class UserController {
                 return "redirect:/responsable/index";
             }
 
-            return "redirect:/empleado/index";
+            if (esCajero) {
+                return "redirect:/cajero/index";
+            }
+
+            if (esCocinero || esEmpleado) {
+                return "redirect:/empleado/index";
+            }
+
+            // Si el usuario no tiene ninguno de los roles esperados.
+            return "redirect:/access-denied";
+
         } catch (IllegalArgumentException e) {
-            redirectAttrs.addFlashAttribute("error", e.getMessage());
+
+            redirectAttrs.addFlashAttribute(
+                    "error",
+                    e.getMessage());
+
             return "redirect:/cambiar-password";
+
         } catch (Exception e) {
+
             redirectAttrs.addFlashAttribute(
                     "error",
                     "Ocurrió un error inesperado al cambiar la contraseña.");
+
             return "redirect:/cambiar-password";
         }
     }
@@ -159,8 +205,13 @@ public class UserController {
             redirectAttributes.addFlashAttribute(
                     "mensaje",
                     "¡Registro exitoso! Ya podés iniciar sesión.");
+
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage());
+
             return "redirect:/registro";
         }
 
