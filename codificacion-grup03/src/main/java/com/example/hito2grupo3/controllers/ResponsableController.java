@@ -2,101 +2,71 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.StaffRepository;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.ICanonService;
+import com.example.hito2grupo3.services.IEmpleadoService;
+import com.example.hito2grupo3.services.IUnidadVentaService;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.example.hito2grupo3.services.ICanonService;
+
 @Controller
 @RequestMapping("/responsable")
 public class ResponsableController {
 
-    private final StaffRepository staffRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
+    private final IUnidadVentaService unidadVentaService;
+    private final IEmpleadoService empleadoService;
     private final ICanonService canonService;
 
     public ResponsableController(
-            StaffRepository staffRepository,
-            UnidadVentaRepository unidadVentaRepository,
-        ICanonService canonService) {
-        this.staffRepository = staffRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
+            IUnidadVentaService unidadVentaService,
+            IEmpleadoService empleadoService,
+            ICanonService canonService) {
+        this.unidadVentaService = unidadVentaService;
+        this.empleadoService = empleadoService;
         this.canonService = canonService;
     }
 
     @GetMapping("/index")
-    public String mostrarIndex(
-            Authentication authentication,
-            Model model) {
-
+    public String mostrarIndex(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
-        Staff responsable = staffRepository
-                .findByUsuario_Email(authentication.getName())
-                .orElse(null);
-
+        Staff responsable = empleadoService.buscarPorEmail(authentication.getName());
         if (responsable == null) {
-            model.addAttribute(
-                    "error",
-                    "No se encontró el Responsable asociado a tu usuario.");
-
+            model.addAttribute("error", "No se encontró el Responsable asociado a tu usuario.");
             return "responsable/index";
         }
 
-        model.addAttribute(
-                "nombreResponsable",
-                responsable.getNombre() + " " + responsable.getApellido());
+        model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
+        model.addAttribute("unidadVenta", unidad);
 
-        UnidadVenta unidad = unidadVentaRepository
-                .findByResponsable_Id(responsable.getId())
-                .orElse(null);
-           model.addAttribute("unidadVenta", unidad);
-
-return "responsable/index";
-
+        return "responsable/index";
     }
-     @GetMapping("/canon")
-    public String calcularCanon(
-            Authentication authentication,
-            Model model) {
 
+    @GetMapping("/canon")
+    public String calcularCanon(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
-        Staff responsable = staffRepository
-                .findByUsuario_Email(authentication.getName())
-                .orElse(null);
-
+        Staff responsable = empleadoService.buscarPorEmail(authentication.getName());
         if (responsable == null) {
-            model.addAttribute(
-                    "error",
-                    "No se encontró el Responsable asociado a tu usuario.");
+            model.addAttribute("error", "No se encontró el Responsable asociado a tu usuario.");
             return "responsable/index";
         }
 
-        model.addAttribute(
-                "nombreResponsable",
-                responsable.getNombre() + " " + responsable.getApellido());
-
-        UnidadVenta unidad = unidadVentaRepository
-                .findByResponsable_Id(responsable.getId())
-                .orElse(null);
-
+        model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         model.addAttribute("unidadVenta", unidad);
 
         if (unidad == null) {
-            model.addAttribute(
-                    "error",
-                    "No tenés una unidad de venta asignada.");
+            model.addAttribute("error", "No tenés una unidad de venta asignada.");
         } else {
-            // Se calcula a través del servicio desacoplado
             model.addAttribute("canon", canonService.calcularCanon(unidad));
         }
 

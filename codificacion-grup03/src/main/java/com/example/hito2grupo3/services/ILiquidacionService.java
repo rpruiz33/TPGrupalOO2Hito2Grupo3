@@ -19,6 +19,16 @@ public interface ILiquidacionService {
 
     long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia);
 
+    com.example.hito2grupo3.entities.Festival resolverFestivalPorDefecto(Long festivalId);
+
+    java.util.List<com.example.hito2grupo3.entities.Festival> listarFestivales();
+
+    java.util.List<com.example.hito2grupo3.entities.UnidadVenta> listarTodasLasUnidades();
+
+    ResultadoLiquidacion liquidarSegunRol(String email, Long festivalId, Long unidadId, String codigo, boolean esAdmin, boolean esResponsable);
+
+    java.util.Map<String, Object> obtenerModeloRecibo(Long id, Long festivalId, Long unidadId, String email, boolean esAdmin, boolean esEmpleado);
+
     record ResultadoLiquidacion(
             String unidad,
             long diasFestival,

@@ -159,4 +159,17 @@ public class FestivalServiceImpl implements IFestivalService {
 
         return dto;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnidadVenta> listarTodasUnidades() {
+        return unidadVentaRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Festival> buscarFestivalActivoPorUnidadVenta(Long unidadVentaId, java.time.LocalDate fecha) {
+        return festivalRepository.buscarFestivalActivoPorUnidadVenta(unidadVentaId, fecha);
+    }
 }
+

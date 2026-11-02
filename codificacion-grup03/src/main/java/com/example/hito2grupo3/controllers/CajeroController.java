@@ -2,11 +2,11 @@ package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.entities.CierreCaja;
 import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.ICierreCajaService;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,12 +18,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.springframework.security.core.Authentication;
 
 @Controller
 @RequestMapping("/cajero")
@@ -31,12 +29,9 @@ import org.springframework.security.core.Authentication;
 public class CajeroController {
 
     private final ICierreCajaService cierreCajaService;
-    private final UnidadVentaRepository unidadVentaRepository;
 
-    public CajeroController(ICierreCajaService cierreCajaService,
-                            UnidadVentaRepository unidadVentaRepository) {
+    public CajeroController(ICierreCajaService cierreCajaService) {
         this.cierreCajaService = cierreCajaService;
-        this.unidadVentaRepository = unidadVentaRepository;
     }
 
     @GetMapping("/index")
@@ -63,7 +58,7 @@ public class CajeroController {
             Map<String, Object> resumen = cierreCajaService.obtenerResumenCierre(email);
             model.addAllAttributes(resumen);
 
-            // EXTRAER Y PASAR EXPLÍCITAMENTE LOS IDs AL MODELO PARA EL FORMULARIO
+            // Pasar explícitamente los IDs al modelo para el formulario
             if (resumen != null) {
                 Long cajeroId = (Long) resumen.get("cajeroId");
                 model.addAttribute("cajeroId", cajeroId);
@@ -72,7 +67,7 @@ public class CajeroController {
                 model.addAttribute("unidadVentaId", unidadVentaId);
             }
 
-            // Si se especificaron fechas, validar rango y filtrar el historial
+            // Si se especificaron fechas, filtrar el historial
             if (desde != null && hasta != null) {
                 if (desde.isAfter(hasta)) {
                     model.addAttribute("error", "La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'.");
@@ -100,24 +95,13 @@ public class CajeroController {
             model.addAttribute("unidadVentaId", null);
         }
 
-        // Cargar unidades de venta: el cajero solo debe ver sus unidades asignadas
+        // Cargar unidades de venta delegando al servicio
         try {
             Long cajeroId = (Long) model.getAttribute("cajeroId");
             boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-            List<UnidadVenta> unidades;
-            if (esAdmin) {
-                unidades = unidadVentaRepository.findAll();
-            } else if (cajeroId != null) {
-                unidades = new ArrayList<>(unidadVentaRepository.buscarPorStaffAsignado(cajeroId));
-                if (unidades.isEmpty()) {
-                    unidadVentaRepository.findByResponsable_Id(cajeroId).ifPresent(unidades::add);
-                }
-            } else {
-                unidades = Collections.emptyList();
-            }
-
+            List<UnidadVenta> unidades = cierreCajaService.resolverUnidadesDelCajero(cajeroId, esAdmin);
             model.addAttribute("unidades", unidades);
 
             // Si hay unidades asignadas, fijar la primera si no hay una válida seleccionada
@@ -136,9 +120,9 @@ public class CajeroController {
         return "cajero/cierre-caja";
     }
 
-   /**
+    /**
      * POST /cajero/cierre-caja
-     * Registra un nuevo cierre de caja con validaciones de negocio.
+     * Registra un nuevo cierre de caja delegando validaciones y persistencia al servicio.
      */
     @PostMapping("/cierre-caja")
     public String registrarCierreCaja(
@@ -152,66 +136,26 @@ public class CajeroController {
 
         try {
             String email = principal != null ? principal.getName() : "cajero@epicentro.com";
-            Map<String, Object> resumen = null;
 
-            try {
-                resumen = cierreCajaService.obtenerResumenCierre(email);
-            } catch (Exception ignored) {}
-
-            // 1. Resolver cajeroId si viene nulo
-            if (cajeroId == null && resumen != null) {
-                if (resumen.get("cajeroId") instanceof Long) cajeroId = (Long) resumen.get("cajeroId");
-                else if (resumen.get("cajeroId") != null) cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
+            // Si vienen nulos, resolverlos con el resumen
+            if (cajeroId == null || unidadVentaId == null) {
+                try {
+                    Map<String, Object> resumen = cierreCajaService.obtenerResumenCierre(email);
+                    if (resumen != null) {
+                        if (cajeroId == null && resumen.get("cajeroId") != null) {
+                            cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
+                        }
+                        if (unidadVentaId == null && resumen.get("unidadVentaId") != null) {
+                            unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
+                        }
+                    }
+                } catch (Exception ignored) {}
             }
 
-            if (cajeroId == null) {
-                throw new IllegalArgumentException("No se encontró un ID válido para el cajero actual.");
-            }
-
-            // 2. Resolver unidadVentaId si viene nulo
-            if (unidadVentaId == null && resumen != null && resumen.get("unidadVentaId") != null) {
-                unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
-            }
-
-            if (unidadVentaId == null) {
-                throw new IllegalArgumentException("Debe seleccionar una unidad de venta obligatoriamente.");
-            }
-
-            // Validar que el cajero pertenezca a la unidad de venta si no es admin
             boolean esAdmin = authentication != null && authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-            if (!esAdmin) {
-                final Long finalCajeroId = cajeroId;
-                final Long finalUvId = unidadVentaId;
-                boolean asignado = unidadVentaRepository.buscarPorStaffAsignado(finalCajeroId).stream()
-                        .anyMatch(u -> Objects.equals(u.getId(), finalUvId))
-                        || unidadVentaRepository.findByResponsable_Id(finalCajeroId)
-                        .map(u -> Objects.equals(u.getId(), finalUvId)).orElse(false);
-
-                if (!asignado) {
-                    throw new IllegalArgumentException("No tiene permisos para registrar el cierre de una unidad de venta que no tiene asignada.");
-                }
-            }
-
-            // 3. Validar fecha (no puede ser futura)
-            if (fecha == null) {
-                fecha = LocalDate.now();
-            } else if (fecha.isAfter(LocalDate.now())) {
-                throw new IllegalArgumentException("La fecha de cierre de caja no puede ser una fecha futura.");
-            }
-
-            // 4. Validar monto recaudado (no negativo, máximo 2 decimales)
-            if (montoRecaudado == null) {
-                montoRecaudado = BigDecimal.ZERO;
-            } else if (montoRecaudado.compareTo(BigDecimal.ZERO) < 0) {
-                throw new IllegalArgumentException("El monto recaudado no puede ser un valor negativo.");
-            } else if (montoRecaudado.scale() > 2) {
-                throw new IllegalArgumentException("El monto recaudado no puede tener más de 2 decimales.");
-            }
-
-            // Ejecutar el servicio de guardado
-            cierreCajaService.registrarCierre(cajeroId, unidadVentaId, fecha, montoRecaudado);
+            cierreCajaService.validarYRegistrarCierre(cajeroId, unidadVentaId, fecha, montoRecaudado, esAdmin);
             redirectAttributes.addFlashAttribute("mensaje", "Cierre de caja registrado exitosamente.");
 
         } catch (IllegalArgumentException e) {
@@ -237,16 +181,18 @@ public class CajeroController {
 
         try {
             String email = principal != null ? principal.getName() : "";
-            Map<String, Object> resumen = null;
-            try {
-                resumen = cierreCajaService.obtenerResumenCierre(email);
-            } catch (Exception ignored) {}
-
-            if (cajeroId == null && resumen != null && resumen.get("cajeroId") != null) {
-                cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
-            }
-            if (unidadVentaId == null && resumen != null && resumen.get("unidadVentaId") != null) {
-                unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
+            if (cajeroId == null || unidadVentaId == null) {
+                try {
+                    Map<String, Object> resumen = cierreCajaService.obtenerResumenCierre(email);
+                    if (resumen != null) {
+                        if (cajeroId == null && resumen.get("cajeroId") != null) {
+                            cajeroId = Long.valueOf(resumen.get("cajeroId").toString());
+                        }
+                        if (unidadVentaId == null && resumen.get("unidadVentaId") != null) {
+                            unidadVentaId = Long.valueOf(resumen.get("unidadVentaId").toString());
+                        }
+                    }
+                } catch (Exception ignored) {}
             }
 
             if (cajeroId == null) {

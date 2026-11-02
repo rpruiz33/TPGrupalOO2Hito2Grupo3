@@ -4,16 +4,13 @@ import com.example.hito2grupo3.dto.EmpleadoDTO;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.entities.Usuario;
-import com.example.hito2grupo3.repositories.CategoriaCocinaRepository;
-import com.example.hito2grupo3.repositories.StaffRepository;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
-import com.example.hito2grupo3.repositories.UsuarioRepository;
+import com.example.hito2grupo3.services.ICategoriaCocinaService;
 import com.example.hito2grupo3.services.IEmpleadoService;
+import com.example.hito2grupo3.services.IUnidadVentaService;
 import com.example.hito2grupo3.services.IUsuarioService;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Locale;
 
 @Controller
@@ -33,110 +27,62 @@ public class AdminUsuarioController {
 
     private final IUsuarioService usuarioService;
     private final IEmpleadoService empleadoService;
-    private final UsuarioRepository usuarioRepository;
-    private final StaffRepository staffRepository;
-    private final CategoriaCocinaRepository categoriaCocinaRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
+    private final ICategoriaCocinaService categoriaCocinaService;
+    private final IUnidadVentaService unidadVentaService;
 
     public AdminUsuarioController(
             IUsuarioService usuarioService,
             IEmpleadoService empleadoService,
-            UsuarioRepository usuarioRepository,
-            StaffRepository staffRepository,
-            CategoriaCocinaRepository categoriaCocinaRepository,
-            UnidadVentaRepository unidadVentaRepository) {
+            ICategoriaCocinaService categoriaCocinaService,
+            IUnidadVentaService unidadVentaService) {
 
         this.usuarioService = usuarioService;
         this.empleadoService = empleadoService;
-        this.usuarioRepository = usuarioRepository;
-        this.staffRepository = staffRepository;
-        this.categoriaCocinaRepository = categoriaCocinaRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
+        this.categoriaCocinaService = categoriaCocinaService;
+        this.unidadVentaService = unidadVentaService;
     }
 
-    
+    @GetMapping
+    public String listarUsuarios(
+            Authentication authentication,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String email,
+            @RequestParam(defaultValue = "ACTIVOS") String estado,
+            @RequestParam(required = false) String rol,
+            Model model) {
 
-@GetMapping
-public String listarUsuarios(
-        Authentication authentication,
-        @RequestParam(required = false) String nombre,
-        @RequestParam(required = false) String apellido,
-        @RequestParam(required = false) String dni,
-        @RequestParam(required = false) String email,
-        @RequestParam(defaultValue = "ACTIVOS") String estado,
-        @RequestParam(required = false) String rol,
-        Model model) {
+        nombre = limpiarFiltro(nombre);
+        apellido = limpiarFiltro(apellido);
+        dni = limpiarFiltro(dni);
+        email = limpiarFiltro(email);
 
-    nombre = limpiarFiltro(nombre);
-    apellido = limpiarFiltro(apellido);
-    dni = limpiarFiltro(dni);
-    email = limpiarFiltro(email);
-
-    // Validar el estado recibido
-    if (!List.of("ACTIVOS", "INACTIVOS", "TODOS").contains(estado)) {
-        estado = "ACTIVOS";
-    }
-
-    // Normalizar y validar el rol recibido
-    String rolFiltro = limpiarFiltro(rol);
-
-    if (rolFiltro != null) {
-        rolFiltro = rolFiltro.toUpperCase(Locale.ROOT);
-
-        if (!List.of("EMPLEADO", "CAJERO", "COCINERO").contains(rolFiltro)) {
-            rolFiltro = null;
+        if (!List.of("ACTIVOS", "INACTIVOS", "TODOS").contains(estado)) {
+            estado = "ACTIVOS";
         }
-    }
 
-    if (authentication != null && authentication.isAuthenticated()) {
+        String rolFiltro = limpiarFiltro(rol);
+        if (rolFiltro != null) {
+            rolFiltro = rolFiltro.toUpperCase(Locale.ROOT);
+            if (!List.of("EMPLEADO", "CAJERO", "COCINERO").contains(rolFiltro)) {
+                rolFiltro = null;
+            }
+        }
 
-        Staff responsable = staffRepository
-                .findByUsuario_Email(authentication.getName())
-                .orElse(null);
-
-        if (responsable != null) {
-
-            UnidadVenta unidad = unidadVentaRepository
-                    .findByResponsable_Id(responsable.getId())
-                    .orElse(null);
+        if (authentication != null && authentication.isAuthenticated()) {
+            UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
 
             if (unidad != null) {
-
-                // Filtros de nombre, apellido, DNI y estado
-                List<Staff> empleados =
-                        staffRepository.filtrarPorUnidadYEstado(
-                                unidad.getId(),
-                                nombre,
-                                apellido,
-                                dni,
-                                estado
-                        );
-
-                final String filtroRol = rolFiltro;
-                final String filtroEmail = email == null
-                        ? null
-                        : email.toLowerCase(Locale.ROOT);
-
-                // Aplicar filtros por rol y email
-                empleados = empleados.stream()
-                        .filter(empleado ->
-                                filtroRol == null
-                                || (empleado.getUsuario() != null
-                                    && empleado.getUsuario().getRol() != null
-                                    && empleado.getUsuario().getRol().getNombre() != null
-                                    && filtroRol.equalsIgnoreCase(
-                                            empleado.getUsuario().getRol().getNombre().trim()
-                                    ))
-                        )
-                        .filter(empleado ->
-                                filtroEmail == null
-                                || (empleado.getUsuario() != null
-                                    && empleado.getUsuario().getEmail() != null
-                                    && empleado.getUsuario().getEmail()
-                                            .toLowerCase(Locale.ROOT)
-                                            .contains(filtroEmail))
-                        )
-                        .toList();
+                List<Staff> empleados = empleadoService.filtrarEmpleadosPorUnidad(
+                        unidad.getId(),
+                        nombre,
+                        apellido,
+                        dni,
+                        estado,
+                        rolFiltro,
+                        email
+                );
 
                 model.addAttribute("empleados", empleados);
                 model.addAttribute("unidadVenta", unidad);
@@ -150,32 +96,28 @@ public String listarUsuarios(
                 return "responsable/vistaempleados";
             }
         }
+
+        List<Usuario> usuarios = usuarioService.listarTodos();
+        model.addAttribute("usuarios", usuarios);
+
+        return "responsable/vistausuarios";
     }
-    List<Usuario> usuarios = usuarioRepository.findAll();
-    model.addAttribute("usuarios", usuarios);
-
-    return "responsable/vistausuarios";
-}
-
-
 
     private String limpiarFiltro(String valor) {
         return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
-    // Alta: muestra el formulario completo de empleado con envío automático de credenciales
     @GetMapping("/nuevo")
     public String mostrarFormularioAlta(Model model) {
         EmpleadoDTO nuevoEmpleado = new EmpleadoDTO();
         nuevoEmpleado.setTipo("GENERAL");
 
         model.addAttribute("empleado", nuevoEmpleado);
-        model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+        model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
 
         return "responsable/usuario-form";
     }
 
-    // Guardar nuevo empleado/usuario
     @PostMapping("/guardar")
     public String guardarEmpleado(
             Authentication authentication,
@@ -185,33 +127,15 @@ public String listarUsuarios(
             RedirectAttributes redirectAttrs) {
 
         if (result.hasErrors()) {
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
         }
 
         try {
             Staff nuevoStaff = empleadoService.crearEmpleado(dto);
 
-            // Si el creador es responsable, asociar automáticamente
-            // el empleado a su unidad de venta
-            if (authentication != null
-                    && authentication.isAuthenticated()
-                    && nuevoStaff != null) {
-
-                Staff resp = staffRepository
-                        .findByUsuario_Email(authentication.getName())
-                        .orElse(null);
-
-                if (resp != null) {
-                    UnidadVenta uv = unidadVentaRepository
-                            .findByResponsable_Id(resp.getId())
-                            .orElse(null);
-
-                    if (uv != null) {
-                        uv.getStaffAsignado().add(nuevoStaff);
-                        unidadVentaRepository.save(uv);
-                    }
-                }
+            if (authentication != null && authentication.isAuthenticated() && nuevoStaff != null) {
+                empleadoService.asociarEmpleadoAUnidadDelCreador(authentication.getName(), nuevoStaff);
             }
 
             redirectAttrs.addFlashAttribute(
@@ -221,7 +145,7 @@ public String listarUsuarios(
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
 
         } catch (Exception e) {
@@ -229,68 +153,30 @@ public String listarUsuarios(
                     "error",
                     "Error inesperado al registrar el empleado: " + e.getMessage()
             );
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
         }
 
         return "redirect:/responsable/usuarios";
     }
 
-    // Edición: muestra el formulario completo del empleado
     @GetMapping("/editar/{id}")
-    @Transactional
     public String mostrarFormularioEdicion(
             @PathVariable("id") Long id,
             Model model,
             RedirectAttributes redirectAttrs) {
 
         try {
-            // Resolver staff a partir de usuarioId o staffId
-            Staff staff = null;
-            Usuario usuario = usuarioRepository.findById(id).orElse(null);
-
-            if (usuario != null) {
-
-                staff = staffRepository.findByUsuario_Id(id)
-                        .or(() -> staffRepository.findByUsuario_Email(usuario.getEmail()))
-                        .orElse(null);
-
-                if (staff == null) {
-                    staff = new Staff();
-                    staff.setNombre("");
-                    staff.setApellido("");
-                    staff.setDni("DNI-" + id);
-                    staff.setFechaNacimiento(LocalDate.of(1995, 1, 1));
-                    staff.setFechaIngreso(LocalDate.now());
-                    staff.setSueldo(BigDecimal.ZERO);
-                    staff.setActivo(usuario.isActivo());
-                    staff.setUsuario(usuario);
-
-                    staff = staffRepository.save(staff);
-                }
-
-            } else {
-                staff = staffRepository.findById(id).orElse(null);
-            }
-
-            if (staff == null) {
-                redirectAttrs.addFlashAttribute(
-                        "error",
-                        "No se encontró el usuario o empleado con ID: " + id
-                );
-                return "redirect:/responsable/usuarios";
-            }
+            Staff staff = empleadoService.resolverStaffDesdeId(id);
 
             EmpleadoDTO dto = empleadoService.obtenerDtoPorId(staff.getId());
 
             model.addAttribute("empleado", dto);
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
 
             return "responsable/usuario-form";
 
         } catch (Exception e) {
-            e.printStackTrace();
-
             redirectAttrs.addFlashAttribute(
                     "error",
                     "No se pudo cargar el empleado: " + e.getMessage()
@@ -300,7 +186,6 @@ public String listarUsuarios(
         }
     }
 
-    // Actualizar datos del empleado
     @PostMapping("/actualizar/{id}")
     public String actualizarEmpleado(
             @PathVariable("id") Long id,
@@ -311,19 +196,12 @@ public String listarUsuarios(
 
         if (result.hasErrors()) {
             dto.setId(id);
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
         }
 
         try {
-            Staff staff = staffRepository.findByUsuario_Id(id)
-                    .or(() -> staffRepository.findById(id))
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                     "No se encontró el empleado con ID: " + id
-                            )
-                    );
-
+            Staff staff = empleadoService.resolverStaffDesdeId(id);
             empleadoService.actualizarEmpleado(staff.getId(), dto);
 
             redirectAttrs.addFlashAttribute(
@@ -334,7 +212,7 @@ public String listarUsuarios(
         } catch (IllegalArgumentException e) {
             dto.setId(id);
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
 
         } catch (Exception e) {
@@ -343,72 +221,31 @@ public String listarUsuarios(
                     "error",
                     "Error inesperado al actualizar el empleado: " + e.getMessage()
             );
-            model.addAttribute("categoriasCocina", categoriaCocinaRepository.findAll());
+            model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
         }
 
         return "redirect:/responsable/usuarios";
     }
 
-    // Eliminar: desvincula o da de baja el staff y elimina el usuario
     @GetMapping("/eliminar/{id}")
-    @Transactional
     public String eliminarUsuario(
             @PathVariable("id") Long id,
             RedirectAttributes redirectAttrs) {
 
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-
-        if (usuario == null) {
-            Staff staff = staffRepository.findById(id).orElse(null);
-
-            if (staff != null) {
-                empleadoService.darDeBaja(staff.getId());
-
-                redirectAttrs.addFlashAttribute(
-                        "mensaje",
-                        "Empleado dado de baja exitosamente."
-                );
-
-                return "redirect:/responsable/usuarios";
-            }
-
-            redirectAttrs.addFlashAttribute("error", "El usuario no existe.");
-            return "redirect:/responsable/usuarios";
-        }
-
         try {
-            Optional<Staff> staffOpt = staffRepository.findByUsuario_Id(id)
-                    .or(() -> staffRepository.findByUsuario_Email(usuario.getEmail()));
-
-            if (staffOpt.isPresent()) {
-                Staff staff = staffOpt.get();
-                staff.setUsuario(null);
-                staff.setActivo(false);
-                staffRepository.save(staff);
-            }
-
-            usuarioRepository.delete(usuario);
-
+            empleadoService.eliminarODarDeBajaPorId(id);
             redirectAttrs.addFlashAttribute(
                     "mensaje",
-                    "Usuario eliminado exitosamente."
+                    "Usuario o empleado eliminado / dado de baja exitosamente."
             );
-
         } catch (Exception e) {
-            usuario.setActivo(false);
-            usuarioRepository.save(usuario);
-
-            redirectAttrs.addFlashAttribute(
-                    "mensaje",
-                    "El usuario fue dado de baja exitosamente."
-            );
+            redirectAttrs.addFlashAttribute("error", "Error al procesar la baja: " + e.getMessage());
         }
 
         return "redirect:/responsable/usuarios";
     }
 
-    // Dar de baja lógica: el ID corresponde a staff.id
     @GetMapping("/baja/{id}")
     public String darDeBaja(
             @PathVariable("id") Long id,
@@ -432,7 +269,6 @@ public String listarUsuarios(
         return "redirect:/responsable/usuarios";
     }
 
-    // Dar de alta (reactivar) empleado: el ID corresponde a staff.id
     @GetMapping("/reactivar/{id}")
     public String reactivar(
             @PathVariable("id") Long id,
@@ -456,23 +292,13 @@ public String listarUsuarios(
         return "redirect:/responsable/usuarios";
     }
 
-    // Reenviar credenciales
     @GetMapping("/reenviar/{id}")
     public String reenviarCredenciales(
             @PathVariable("id") Long id,
             RedirectAttributes redirectAttrs) {
 
         try {
-            Long usuarioId = id;
-
-            if (!usuarioRepository.existsById(id)) {
-                Staff s = staffRepository.findById(id).orElse(null);
-
-                if (s != null && s.getUsuario() != null) {
-                    usuarioId = s.getUsuario().getId();
-                }
-            }
-
+            Long usuarioId = empleadoService.resolverUsuarioId(id);
             usuarioService.reenviarCredenciales(usuarioId);
 
             redirectAttrs.addFlashAttribute(

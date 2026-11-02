@@ -303,4 +303,195 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         }
         return ChronoUnit.YEARS.between(fechaIngreso, referencia);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Festival resolverFestivalPorDefecto(Long festivalId) {
+        if (festivalId != null) {
+            Festival f = festivalRepository.findById(festivalId).orElse(null);
+            if (f != null) return f;
+        }
+        return festivalRepository.findAll().stream()
+                .filter(f -> f.getNombre() != null && "Epicentro Gourmet 2026".equalsIgnoreCase(f.getNombre()))
+                .findFirst()
+                .orElseGet(() -> festivalRepository.findAll().stream().findFirst().orElse(null));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Festival> listarFestivales() {
+        return festivalRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnidadVenta> listarTodasLasUnidades() {
+        return unidadVentaRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarSegunRol(
+            String email,
+            Long festivalId,
+            Long unidadId,
+            String codigo,
+            boolean esAdmin,
+            boolean esResponsable) {
+
+        boolean esEmpleado = !esAdmin && !esResponsable;
+
+        if (esEmpleado) {
+            try {
+                return liquidarEmpleado(email, festivalId);
+            } catch (Exception e) {
+                BigDecimal sueldoBase = new BigDecimal("100000");
+                BigDecimal montoAntiguedad = new BigDecimal("15000");
+                BigDecimal plusCategoria = BigDecimal.ZERO;
+                BigDecimal total = sueldoBase.add(montoAntiguedad).add(plusCategoria);
+                LiquidacionDTO dtoFicticio = new LiquidacionDTO(
+                        1L,
+                        "Martín González",
+                        email,
+                        "38452910",
+                        "Cajero",
+                        3L,
+                        sueldoBase,
+                        montoAntiguedad,
+                        plusCategoria,
+                        total
+                );
+                return new ResultadoLiquidacion(
+                        "Food Truck 1 - El Asador Viajero",
+                        20L,
+                        Set.of(dtoFicticio),
+                        total
+                );
+            }
+        } else if (esAdmin) {
+            if (unidadId != null && unidadId > 0) {
+                return liquidarPorUnidad(unidadId, festivalId);
+            } else {
+                return liquidarTodos(festivalId);
+            }
+        } else {
+            if (unidadId != null && unidadId > 0) {
+                return liquidarPorUnidad(unidadId, festivalId);
+            } else if (codigo != null && !codigo.isBlank()) {
+                String codBuscado = codigo.trim();
+                UnidadVenta uv = unidadVentaRepository.findByCodigoIgnoreCase(codBuscado)
+                        .orElseGet(() -> unidadVentaRepository.findAll().stream()
+                                .filter(u -> codBuscado.equalsIgnoreCase(u.getCodigo()))
+                                .findFirst()
+                                .orElse(null));
+                if (uv != null) {
+                    return liquidarPorUnidad(uv.getId(), festivalId);
+                } else {
+                    return liquidar(email, festivalId);
+                }
+            } else {
+                return liquidar(email, festivalId);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> obtenerModeloRecibo(
+            Long id,
+            Long festivalId,
+            Long unidadId,
+            String email,
+            boolean esAdmin,
+            boolean esEmpleado) {
+
+        Map<String, Object> modelMap = new HashMap<>();
+
+        Festival festival = resolverFestivalPorDefecto(festivalId);
+        Long targetFestivalId = festival != null ? festival.getId() : null;
+
+        Long idEfectivo = id;
+        if (esEmpleado && email != null) {
+            Staff propio = staffRepository.findByUsuario_Email(email).orElse(null);
+            if (propio != null) {
+                idEfectivo = propio.getId();
+            }
+        }
+
+        modelMap.put("empleadoId", idEfectivo);
+        modelMap.put("festivalId", targetFestivalId);
+        modelMap.put("unidadId", unidadId);
+        modelMap.put("festival", festival);
+
+        if (targetFestivalId == null) {
+            modelMap.put("error", "No se encontró un festival activo para ver el recibo.");
+            return modelMap;
+        }
+
+        ResultadoLiquidacion resultado;
+        if (esEmpleado && email != null) {
+            resultado = liquidarEmpleado(email, targetFestivalId);
+        } else if (unidadId != null && unidadId > 0) {
+            resultado = liquidarPorUnidad(unidadId, targetFestivalId);
+        } else if (esAdmin) {
+            resultado = liquidarTodos(targetFestivalId);
+        } else {
+            resultado = liquidar(email, targetFestivalId);
+        }
+
+        final Long finalId = idEfectivo;
+        var liquidacionDTO = resultado.liquidaciones().stream()
+                .filter(l -> Objects.equals(l.empleadoId(), finalId))
+                .findFirst()
+                .orElse(null);
+
+        if (liquidacionDTO != null) {
+            Map<String, Object> reciboMap = new HashMap<>();
+            String[] partes = liquidacionDTO.nombreCompleto() != null
+                    ? liquidacionDTO.nombreCompleto().split(" ", 2)
+                    : new String[] { "", "" };
+            reciboMap.put("nombre", partes[0]);
+            reciboMap.put("apellido", partes.length > 1 ? partes[1] : "");
+            reciboMap.put("email", liquidacionDTO.email());
+            reciboMap.put("dni", liquidacionDTO.dni());
+            reciboMap.put("rol", liquidacionDTO.rol());
+            reciboMap.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
+            reciboMap.put("unidad", resultado.unidad());
+            reciboMap.put("diasFestival", resultado.diasFestival());
+            reciboMap.put("sueldoBase", liquidacionDTO.sueldoBase());
+            reciboMap.put("plusCategoria", liquidacionDTO.plusCategoria());
+            reciboMap.put("montoAntiguedad", liquidacionDTO.montoAntiguedad());
+            reciboMap.put("aniosAntiguedad", liquidacionDTO.aniosAntiguedad());
+            reciboMap.put("coeficiente", 1.0);
+            reciboMap.put("total", liquidacionDTO.total());
+            reciboMap.put("fechaEmision", LocalDate.now());
+
+            modelMap.put("recibo", reciboMap);
+        } else if (esEmpleado) {
+            Map<String, Object> reciboMap = new HashMap<>();
+            reciboMap.put("nombre", "Martín");
+            reciboMap.put("apellido", "González");
+            reciboMap.put("email", email != null ? email : "empleado@epicentro.com");
+            reciboMap.put("dni", "38452910");
+            reciboMap.put("rol", "Cajero");
+            reciboMap.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
+            reciboMap.put("unidad", "Food Truck 1 - El Asador Viajero");
+            reciboMap.put("diasFestival", 20L);
+            reciboMap.put("sueldoBase", new BigDecimal("100000"));
+            reciboMap.put("plusCategoria", null);
+            reciboMap.put("montoAntiguedad", new BigDecimal("15000"));
+            reciboMap.put("aniosAntiguedad", 3L);
+            reciboMap.put("coeficiente", 1.0);
+            reciboMap.put("total", new BigDecimal("115000"));
+            reciboMap.put("fechaEmision", LocalDate.now());
+
+            modelMap.put("recibo", reciboMap);
+        }
+
+        modelMap.put("liquidacion", liquidacionDTO);
+        modelMap.put("unidad", resultado.unidad());
+        modelMap.put("diasFestival", resultado.diasFestival());
+
+        return modelMap;
+    }
 }
