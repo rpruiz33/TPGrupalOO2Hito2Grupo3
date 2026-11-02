@@ -51,19 +51,21 @@ public class SecurityConfiguration {
                             "/api/v1/**"
                     ).permitAll();
 
-                    // Acceso a usuarios tanto para administradores como responsables
-                    auth.requestMatchers(
-                            "/admin/usuarios/**",
-                            "/responsable/usuarios/**"
-                    ).hasAnyRole("ADMIN", "RESPONSABLE");
-
                     // Acceso exclusivo para administradores
                     auth.requestMatchers("/admin/**")
                             .hasRole("ADMIN");
 
-                    // Acceso para responsables y administradores
+                    // Acceso para responsables
                     auth.requestMatchers("/responsable/**")
-                            .hasAnyRole("RESPONSABLE", "ADMIN");
+                            .hasRole("RESPONSABLE");
+
+                    // Cambio de contraseña para usuarios autenticados
+                    auth.requestMatchers("/cambiar-password")
+                            .authenticated();
+
+                    // Módulo de empleados y cocineros
+                    auth.requestMatchers("/empleado/**")
+                            .hasAnyRole("EMPLEADO", "COCINERO");
 
                     // Liquidaciones y recibos
                     auth.requestMatchers(
@@ -75,9 +77,11 @@ public class SecurityConfiguration {
                             "ADMIN",
                             "RESPONSABLE",
                             "EMPLEADO",
-                            "CAJERO"
+                            "CAJERO",
+                            "COCINERO"
                     );
-                    // Mi-informacion
+
+                    // Mi información
                     auth.requestMatchers(
                             "/mi-informacion"
                     ).hasAnyRole(
@@ -89,20 +93,17 @@ public class SecurityConfiguration {
 
                     // Acceso al módulo de cajeros
                     auth.requestMatchers("/cajero/**")
-                            .hasAnyRole(
-                                    "ADMIN",
-                                    "EMPLEADO",
-                                    "CAJERO"
-                            );
+                            .hasRole("CAJERO");
 
-                    // Acceso historial pedidos
+                    // Acceso al historial y gestión de pedidos
                     auth.requestMatchers("/pedidos/**")
                             .hasAnyRole(
                                     "RESPONSABLE",
                                     "CAJERO"
                             );
-                    // El resto de las rutas requiere autenticación
-                    auth.anyRequest().authenticated();
+
+                    // Denegar cualquier ruta no declarada
+                    auth.anyRequest().denyAll();
                 })
 
                 .formLogin(login -> {
