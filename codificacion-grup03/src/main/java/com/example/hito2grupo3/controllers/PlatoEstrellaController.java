@@ -5,12 +5,10 @@ import java.util.List;
 
 import com.example.hito2grupo3.dto.PlatoDTO;
 import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.repositories.StaffRepository;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.IFestivalService;
 import com.example.hito2grupo3.services.IPedidoService;
+import com.example.hito2grupo3.services.IUnidadVentaService;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -24,19 +22,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/plato-estrella")
 public class PlatoEstrellaController {
 
-    private final StaffRepository staffRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
-    private final FestivalRepository festivalRepository;
+    private final IUnidadVentaService unidadVentaService;
+    private final IFestivalService festivalService;
     private final IPedidoService pedidoService;
 
     public PlatoEstrellaController(
-            StaffRepository staffRepository,
-            UnidadVentaRepository unidadVentaRepository,
-            FestivalRepository festivalRepository,
+            IUnidadVentaService unidadVentaService,
+            IFestivalService festivalService,
             IPedidoService pedidoService) {
-        this.staffRepository = staffRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
-        this.festivalRepository = festivalRepository;
+        this.unidadVentaService = unidadVentaService;
+        this.festivalService = festivalService;
         this.pedidoService = pedidoService;
     }
 
@@ -49,32 +44,18 @@ public class PlatoEstrellaController {
             return "redirect:/login";
         }
 
-        Staff responsable = staffRepository
-                .findByUsuario_Email(authentication.getName())
-                .orElse(null);
-
-        if (responsable == null) {
-            model.addAttribute(
-                    "error",
-                    "No se encontró el responsable asociado al usuario.");
-            return "responsable/platos/plato-estrella";
-        }
-
-        UnidadVenta unidad = unidadVentaRepository
-                .findByResponsable_Id(responsable.getId())
-                .orElse(null);
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
 
         if (unidad == null) {
             model.addAttribute(
                     "error",
-                    "No tenés una unidad de venta asignada.");
+                    "No tenés una unidad de venta asignada o no se encontró tu usuario como responsable.");
             return "responsable/platos/plato-estrella";
         }
 
-        List<Festival> festivales = festivalRepository
-                .buscarFestivalActivoPorUnidadVenta(
-                        unidad.getId(),
-                        LocalDate.now());
+        List<Festival> festivales = festivalService.buscarFestivalActivoPorUnidadVenta(
+                unidad.getId(),
+                LocalDate.now());
 
         model.addAttribute("unidadVenta", unidad);
         model.addAttribute("festivales", festivales);
@@ -98,32 +79,18 @@ public class PlatoEstrellaController {
             return "redirect:/login";
         }
 
-        Staff responsable = staffRepository
-                .findByUsuario_Email(authentication.getName())
-                .orElse(null);
-
-        if (responsable == null) {
-            model.addAttribute(
-                    "error",
-                    "No se encontró el responsable asociado al usuario.");
-            return "responsable/platos/plato-estrella";
-        }
-
-        UnidadVenta unidad = unidadVentaRepository
-                .findByResponsable_Id(responsable.getId())
-                .orElse(null);
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
 
         if (unidad == null) {
             model.addAttribute(
                     "error",
-                    "No tenés una unidad de venta asignada.");
+                    "No tenés una unidad de venta asignada o no se encontró tu usuario como responsable.");
             return "responsable/platos/plato-estrella";
         }
 
-        List<Festival> festivales = festivalRepository
-                .buscarFestivalActivoPorUnidadVenta(
-                        unidad.getId(),
-                        LocalDate.now());
+        List<Festival> festivales = festivalService.buscarFestivalActivoPorUnidadVenta(
+                unidad.getId(),
+                LocalDate.now());
 
         model.addAttribute("unidadVenta", unidad);
         model.addAttribute("festivales", festivales);

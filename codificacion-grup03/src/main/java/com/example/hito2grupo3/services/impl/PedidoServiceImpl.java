@@ -21,11 +21,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PedidoServiceImpl implements IPedidoService {
@@ -549,5 +554,214 @@ public class PedidoServiceImpl implements IPedidoService {
 
     private boolean esCajero(Staff staff) {
         return "CAJERO".equals(obtenerRol(staff));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Staff obtenerStaffPorEmail(String email) {
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debés iniciar sesión.");
+        }
+        Staff staff = staffRepository.findByUsuario_Email(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "El usuario autenticado no tiene un empleado asociado."));
+        verificarRolPedidos(staff);
+        return staff;
+    }
+
+    private void verificarRolPedidos(Staff staff) {
+        String rol = obtenerRol(staff);
+        if (!"RESPONSABLE".equals(rol) && !"CAJERO".equals(rol)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés autorización para gestionar pedidos.");
+        }
+    }
+
+    private boolean estaVigente(Festival festival, LocalDate fecha) {
+        return festival != null
+                && festival.getFechaInicio() != null
+                && festival.getFechaFin() != null
+                && !fecha.isBefore(festival.getFechaInicio())
+                && !fecha.isAfter(festival.getFechaFin());
+    }
+
+    private boolean tieneAccesoUnidad(UnidadVenta unidad, Staff staff) {
+        String rol = obtenerRol(staff);
+        boolean asignado = unidad.getStaffAsignado() != null
+                && unidad.getStaffAsignado().stream()
+                        .anyMatch(s -> Objects.equals(s.getId(), staff.getId()));
+
+        if ("RESPONSABLE".equals(rol)) {
+            boolean esResponsableDeUnidad = unidad.getResponsable() != null
+                    && Objects.equals(unidad.getResponsable().getId(), staff.getId());
+            return asignado || esResponsableDeUnidad;
+        }
+
+        return "CAJERO".equals(rol) && asignado;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void verificarAccesoUnidad(Long unidadId, Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        String rol = obtenerRol(staff);
+
+        List<UnidadVenta> unidades;
+        if ("RESPONSABLE".equals(rol)) {
+            unidades = unidadVentaRepository.buscarPorStaffAsignadoOResponsable(staff.getId());
+        } else if ("CAJERO".equals(rol)) {
+            unidades = unidadVentaRepository.buscarPorStaffAsignado(staff.getId());
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés autorización para acceder a pedidos.");
+        }
+
+        boolean tieneAcceso = unidades.stream()
+                .anyMatch(unidad -> Objects.equals(unidad.getId(), unidadId));
+
+        if (!tieneAcceso) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés acceso a esta unidad de venta.");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Festival> obtenerFestivalesDisponiblesParaAlta(Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        LocalDate fechaActual = LocalDate.now(ZONA_HORARIA);
+
+        return festivalRepository.findAllByOrderByFechaInicioAsc()
+                .stream()
+                .filter(festival -> estaVigente(festival, fechaActual))
+                .filter(festival -> festivalRepository.obtenerUnidadesPorFestival(festival.getId())
+                        .stream()
+                        .anyMatch(unidad -> tieneAccesoUnidad(unidad, staff)))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnidadVenta> obtenerUnidadesDisponiblesPorFestival(Long festivalId, Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        verificarRolPedidos(staff);
+
+        LocalDate fechaActual = LocalDate.now(ZONA_HORARIA);
+        Festival festival = festivalRepository.findById(festivalId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No existe el festival seleccionado."));
+
+        if (!estaVigente(festival, fechaActual)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "El festival no está vigente.");
+        }
+
+        return festivalRepository.obtenerUnidadesPorFestival(festivalId)
+                .stream()
+                .filter(unidad -> tieneAccesoUnidad(unidad, staff))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PlatoDTO obtenerPlatoEstrellaValidado(Long unidadVentaId, Long festivalId, Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        verificarRolPedidos(staff);
+
+        LocalDate fechaActual = LocalDate.now(ZONA_HORARIA);
+        Festival festival = festivalRepository.findById(festivalId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No existe el festival seleccionado."));
+
+        if (!estaVigente(festival, fechaActual)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "El festival no está vigente.");
+        }
+
+        boolean unidadDelFestival = festivalRepository.obtenerUnidadesPorFestival(festivalId)
+                .stream()
+                .anyMatch(unidad -> Objects.equals(unidad.getId(), unidadVentaId));
+
+        if (!unidadDelFestival) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La unidad de venta no pertenece a este festival.");
+        }
+
+        verificarAccesoUnidad(unidadVentaId, staffId);
+        return obtenerPlatoEstrella(unidadVentaId, festivalId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> obtenerDatosHistorial(Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        String rol = obtenerRol(staff);
+
+        List<UnidadVenta> unidadesVenta;
+        if ("RESPONSABLE".equals(rol)) {
+            unidadesVenta = unidadVentaRepository.buscarPorStaffAsignadoOResponsable(staff.getId());
+        } else if ("CAJERO".equals(rol)) {
+            unidadesVenta = unidadVentaRepository.buscarPorStaffAsignado(staff.getId());
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés autorización para consultar pedidos.");
+        }
+
+        List<Pedido> pedidos = obtenerHistorialPorStaff(staff.getId());
+        Map<Long, Staff> empleadosPorId = new LinkedHashMap<>();
+        for (Pedido pedido : pedidos) {
+            Staff registrador = pedido.getRegistradoPor();
+            if (registrador != null) {
+                empleadosPorId.putIfAbsent(registrador.getId(), registrador);
+            }
+        }
+
+        List<Staff> empleados = new ArrayList<>(empleadosPorId.values());
+        empleados.sort(Comparator.comparing(Staff::getApellido, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(Staff::getNombre, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+        Map<String, Object> modelMap = new HashMap<>();
+        modelMap.put("pedidos", pedidos);
+        modelMap.put("unidadesVenta", unidadesVenta);
+        modelMap.put("empleados", empleados);
+        modelMap.put("rol", rol);
+        return modelMap;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Festival> obtenerFestivalesPorUnidadYStaff(Long unidadId, Long staffId) {
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Staff no encontrado"));
+        String rol = obtenerRol(staff);
+
+        if (!"RESPONSABLE".equals(rol) && !"CAJERO".equals(rol)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tenés autorización para consultar festivales.");
+        }
+
+        verificarAccesoUnidad(unidadId, staffId);
+        LocalDate hoy = LocalDate.now(ZONA_HORARIA);
+
+        return festivalRepository.buscarTodosPorUnidadVenta(unidadId)
+                .stream()
+                .filter(festival -> "RESPONSABLE".equals(rol) || estaVigente(festival, hoy))
+                .toList();
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
+import com.example.hito2grupo3.entities.UnidadVenta;
 
 public interface IFestivalService {
 
@@ -24,5 +25,17 @@ public interface IFestivalService {
     void reactivar(Long id);
 
     void eliminarFestival(Long id);
+
+    /**
+     * Retorna todas las unidades de venta disponibles en el sistema
+     * para ser seleccionadas al crear o editar un festival.
+     */
+    List<UnidadVenta> listarTodasUnidades();
+
+    /**
+     * Busca los festivales activos para una unidad de venta en una fecha determinada.
+     */
+    List<Festival> buscarFestivalActivoPorUnidadVenta(Long unidadVentaId, java.time.LocalDate fecha);
 }
+
 

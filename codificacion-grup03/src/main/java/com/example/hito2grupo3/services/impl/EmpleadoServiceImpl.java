@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmpleadoServiceImpl implements IEmpleadoService {
@@ -22,6 +23,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
     private final RolRepository rolRepository;
     private final CategoriaCocinaRepository categoriaCocinaRepository;
     private final IUsuarioService usuarioService;
+    private final UnidadVentaRepository unidadVentaRepository;
 
     public EmpleadoServiceImpl(StaffRepository staffRepository,
                                CajeroRepository cajeroRepository,
@@ -29,7 +31,8 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
                                UsuarioRepository usuarioRepository,
                                RolRepository rolRepository,
                                CategoriaCocinaRepository categoriaCocinaRepository,
-                               IUsuarioService usuarioService) {
+                               IUsuarioService usuarioService,
+                               UnidadVentaRepository unidadVentaRepository) {
         this.staffRepository = staffRepository;
         this.cajeroRepository = cajeroRepository;
         this.cocineroRepository = cocineroRepository;
@@ -37,6 +40,7 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
         this.rolRepository = rolRepository;
         this.categoriaCocinaRepository = categoriaCocinaRepository;
         this.usuarioService = usuarioService;
+        this.unidadVentaRepository = unidadVentaRepository;
     }
 
     @Override
@@ -286,5 +290,172 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
             throw new IllegalStateException("El empleado no tiene un usuario de acceso vinculado.");
         }
         usuarioService.reenviarCredenciales(staff.getUsuario().getId());
+    }
+
+    // ─── Nuevos métodos agregados para eliminar lógica de los controllers ────
+
+    @Override
+    @Transactional(readOnly = true)
+    public Staff buscarPorEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+        return staffRepository.findByUsuario_Email(email)
+                .or(() -> staffRepository.findAll().stream()
+                        .filter(s -> s.getUsuario() != null
+                                && s.getUsuario().getEmail() != null
+                                && s.getUsuario().getEmail().trim().equalsIgnoreCase(email.trim()))
+                        .findFirst())
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String obtenerNombreCompletoPorEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return "Responsable";
+        }
+        Staff staff = buscarPorEmail(email);
+        if (staff != null && staff.getNombre() != null) {
+            String apellido = staff.getApellido() != null ? " " + staff.getApellido() : "";
+            return staff.getNombre() + apellido;
+        }
+        return "Responsable";
+    }
+
+    @Override
+    @Transactional
+    public Staff resolverStaffDesdeId(Long id) {
+        // Intentar como usuarioId primero
+        Optional<Staff> staffOpt = staffRepository.findByUsuario_Id(id);
+
+        if (staffOpt.isPresent()) {
+            return staffOpt.get();
+        }
+
+        // Intentar directamente como staffId
+        Optional<Staff> staffDirecto = staffRepository.findById(id);
+        if (staffDirecto.isPresent()) {
+            return staffDirecto.get();
+        }
+
+        // Buscar el usuario y crear un Staff vacío vinculado
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+        if (usuario != null) {
+            Staff staff = staffRepository.findByUsuario_Email(usuario.getEmail()).orElse(null);
+            if (staff == null) {
+                staff = new Staff();
+                staff.setNombre("");
+                staff.setApellido("");
+                staff.setDni("DNI-" + id);
+                staff.setFechaNacimiento(LocalDate.of(1995, 1, 1));
+                staff.setFechaIngreso(LocalDate.now());
+                staff.setSueldo(BigDecimal.ZERO);
+                staff.setActivo(usuario.isActivo());
+                staff.setUsuario(usuario);
+                staff = staffRepository.save(staff);
+            }
+            return staff;
+        }
+
+        throw new IllegalArgumentException("No se encontró el usuario o empleado con ID: " + id);
+    }
+
+    @Override
+    @Transactional
+    public void asociarEmpleadoAUnidadDelCreador(String creadorEmail, Staff nuevoStaff) {
+        if (creadorEmail == null || nuevoStaff == null) {
+            return;
+        }
+        Staff creador = staffRepository.findByUsuario_Email(creadorEmail).orElse(null);
+        if (creador == null) {
+            return;
+        }
+        unidadVentaRepository.findByResponsable_Id(creador.getId()).ifPresent(uv -> {
+            uv.getStaffAsignado().add(nuevoStaff);
+            unidadVentaRepository.save(uv);
+        });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long resolverUsuarioId(Long id) {
+        if (usuarioRepository.existsById(id)) {
+            return id;
+        }
+        Staff staff = staffRepository.findById(id).orElse(null);
+        if (staff != null && staff.getUsuario() != null) {
+            return staff.getUsuario().getId();
+        }
+        throw new IllegalArgumentException("No se encontró usuario con ID: " + id);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarODarDeBajaPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            // Intentar por staffId directamente
+            Staff staff = staffRepository.findById(id).orElse(null);
+            if (staff != null) {
+                darDeBaja(staff.getId());
+                return;
+            }
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+
+        try {
+            Optional<Staff> staffOpt = staffRepository.findByUsuario_Id(id)
+                    .or(() -> staffRepository.findByUsuario_Email(usuario.getEmail()));
+
+            if (staffOpt.isPresent()) {
+                Staff staff = staffOpt.get();
+                staff.setUsuario(null);
+                staff.setActivo(false);
+                staffRepository.save(staff);
+            }
+
+            usuarioRepository.delete(usuario);
+        } catch (Exception e) {
+            // Si no se puede eliminar físicamente, baja lógica
+            usuario.setActivo(false);
+            usuarioRepository.save(usuario);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<Staff> filtrarEmpleadosPorUnidad(
+            Long unidadId,
+            String nombre,
+            String apellido,
+            String dni,
+            String estado,
+            String rol,
+            String email) {
+
+        java.util.List<Staff> empleados =
+                staffRepository.filtrarPorUnidadYEstado(unidadId, nombre, apellido, dni, estado);
+
+        final String filtroRol = (rol != null && !rol.isBlank())
+                ? rol.toUpperCase(java.util.Locale.ROOT) : null;
+        final String filtroEmail = (email != null && !email.isBlank())
+                ? email.toLowerCase(java.util.Locale.ROOT) : null;
+
+        return empleados.stream()
+                .filter(s -> filtroRol == null
+                        || (s.getUsuario() != null
+                            && s.getUsuario().getRol() != null
+                            && s.getUsuario().getRol().getNombre() != null
+                            && filtroRol.equalsIgnoreCase(
+                                    s.getUsuario().getRol().getNombre().trim())))
+                .filter(s -> filtroEmail == null
+                        || (s.getUsuario() != null
+                            && s.getUsuario().getEmail() != null
+                            && s.getUsuario().getEmail()
+                                    .toLowerCase(java.util.Locale.ROOT)
+                                    .contains(filtroEmail)))
+                .toList();
     }
 }

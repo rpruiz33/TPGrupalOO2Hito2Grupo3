@@ -1,10 +1,8 @@
 package com.example.hito2grupo3.controllers;
 
-import com.example.hito2grupo3.entities.Usuario;
-import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.repositories.UsuarioRepository;
-import com.example.hito2grupo3.services.IUsuarioService;
+import com.example.hito2grupo3.services.IFestivalService;
 import com.example.hito2grupo3.services.IRegistroUnidadVentaService;
+import com.example.hito2grupo3.services.IUsuarioService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,28 +20,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final IUsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;
-    private final FestivalRepository festivalRepository;
+    private final IFestivalService festivalService;
     private final IRegistroUnidadVentaService registroUnidadVentaService;
 
     public UserController(
             IUsuarioService usuarioService,
-            UsuarioRepository usuarioRepository,
-            FestivalRepository festivalRepository,
+            IFestivalService festivalService,
             IRegistroUnidadVentaService registroUnidadVentaService) {
 
         this.usuarioService = usuarioService;
-        this.usuarioRepository = usuarioRepository;
-        this.festivalRepository = festivalRepository;
+        this.festivalService = festivalService;
         this.registroUnidadVentaService = registroUnidadVentaService;
     }
 
     @GetMapping("/")
     public String inicio(Model model) {
-        model.addAttribute(
-                "festivales",
-                festivalRepository.findAllByOrderByFechaInicioAsc());
-
+        model.addAttribute("festivales", festivalService.listarTodos());
         return "user/inicio";
     }
 
@@ -69,16 +61,8 @@ public class UserController {
         }
 
         String email = authentication.getName();
-
-        Usuario usuario = usuarioRepository
-                .findByEmail(email)
-                .orElse(null);
-
         model.addAttribute("email", email);
-
-        model.addAttribute(
-                "esPrimerIngreso",
-                usuario != null && usuario.isDebeCambiarPassword());
+        model.addAttribute("esPrimerIngreso", usuarioService.debeCambiarPassword(email));
 
         return "user/cambiar-password";
     }
@@ -108,7 +92,6 @@ public class UserController {
                     "mensaje",
                     "¡Contraseña actualizada exitosamente!");
 
-            // Identificar el rol del usuario autenticado.
             boolean esAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -124,7 +107,6 @@ public class UserController {
             boolean esEmpleado = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"));
 
-            // Redirigir al menú correspondiente al rol.
             if (esAdmin) {
                 return "redirect:/admin/dashboard";
             }
@@ -141,23 +123,14 @@ public class UserController {
                 return "redirect:/empleado/index";
             }
 
-            // Si el usuario no tiene ninguno de los roles esperados.
             return "redirect:/access-denied";
 
         } catch (IllegalArgumentException e) {
-
-            redirectAttrs.addFlashAttribute(
-                    "error",
-                    e.getMessage());
-
+            redirectAttrs.addFlashAttribute("error", e.getMessage());
             return "redirect:/cambiar-password";
 
         } catch (Exception e) {
-
-            redirectAttrs.addFlashAttribute(
-                    "error",
-                    "Ocurrió un error inesperado al cambiar la contraseña.");
-
+            redirectAttrs.addFlashAttribute("error", "Ocurrió un error inesperado al cambiar la contraseña.");
             return "redirect:/cambiar-password";
         }
     }
@@ -207,11 +180,7 @@ public class UserController {
                     "¡Registro exitoso! Ya podés iniciar sesión.");
 
         } catch (IllegalArgumentException e) {
-
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    e.getMessage());
-
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/registro";
         }
 

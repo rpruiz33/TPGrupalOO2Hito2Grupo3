@@ -209,4 +209,75 @@ public class CierreCajaServiceImpl implements ICierreCajaService {
 
         return resumen;
     }
+
+    // ─── Nuevos métodos para eliminar lógica de negocio del controller ───────
+
+    @Override
+    @Transactional
+    public CierreCaja validarYRegistrarCierre(
+            Long cajeroId,
+            Long unidadVentaId,
+            LocalDate fecha,
+            BigDecimal montoRecaudado,
+            boolean esAdmin) {
+
+        if (cajeroId == null) {
+            throw new IllegalArgumentException("No se encontró un ID válido para el cajero actual.");
+        }
+        if (unidadVentaId == null) {
+            throw new IllegalArgumentException("Debe seleccionar una unidad de venta obligatoriamente.");
+        }
+
+        // Validar que el cajero pertenezca a la unidad si no es admin
+        if (!esAdmin) {
+            boolean asignado = unidadVentaRepository.buscarPorStaffAsignado(cajeroId)
+                    .stream().anyMatch(u -> Objects.equals(u.getId(), unidadVentaId))
+                    || unidadVentaRepository.findByResponsable_Id(cajeroId)
+                            .map(u -> Objects.equals(u.getId(), unidadVentaId))
+                            .orElse(false);
+
+            if (!asignado) {
+                throw new IllegalArgumentException(
+                        "No tiene permisos para registrar el cierre de una unidad de venta que no tiene asignada.");
+            }
+        }
+
+        // Validar fecha (no puede ser futura)
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        } else if (fecha.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException(
+                    "La fecha de cierre de caja no puede ser una fecha futura.");
+        }
+
+        // Validar monto
+        if (montoRecaudado == null) {
+            montoRecaudado = BigDecimal.ZERO;
+        } else if (montoRecaudado.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "El monto recaudado no puede ser un valor negativo.");
+        } else if (montoRecaudado.scale() > 2) {
+            throw new IllegalArgumentException(
+                    "El monto recaudado no puede tener más de 2 decimales.");
+        }
+
+        return registrarCierre(cajeroId, unidadVentaId, fecha, montoRecaudado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<UnidadVenta> resolverUnidadesDelCajero(Long cajeroId, boolean esAdmin) {
+        if (esAdmin) {
+            return unidadVentaRepository.findAll();
+        }
+        if (cajeroId == null) {
+            return Collections.emptyList();
+        }
+        java.util.List<UnidadVenta> unidades =
+                new java.util.ArrayList<>(unidadVentaRepository.buscarPorStaffAsignado(cajeroId));
+        if (unidades.isEmpty()) {
+            unidadVentaRepository.findByResponsable_Id(cajeroId).ifPresent(unidades::add);
+        }
+        return unidades;
+    }
 }
