@@ -67,7 +67,9 @@ public class PedidoServiceImpl implements IPedidoService {
                         new IllegalArgumentException(
                                 "No existe la unidad de venta seleccionada."));
 
-        return unidad.getPlatosOfrecidos();
+        return unidad.getPlatosOfrecidos().stream()
+                .filter(Plato::isActivo)
+                .toList();
     }
 
     // ==========================================
@@ -182,28 +184,37 @@ public class PedidoServiceImpl implements IPedidoService {
         pedido.setFechaRegistro(LocalDateTime.now(ZONA_HORARIA));
         pedido.setRegistradoPor(staff);
 
-       for (ItemPedidoDTO itemDTO : datos.getItems()) {
+        for (ItemPedidoDTO itemDTO : datos.getItems()) {
 
-    if (itemDTO == null
-            || itemDTO.getPlatoId() == null
-            || itemDTO.getCantidad() == null
-            || itemDTO.getCantidad() < 1) {
+            if (itemDTO == null
+                    || itemDTO.getPlatoId() == null
+                    || itemDTO.getCantidad() == null
+                    || itemDTO.getCantidad() < 1) {
 
-        throw new IllegalArgumentException(
-                "Cada plato debe tener un identificador y una cantidad válida.");
-    }
+                throw new IllegalArgumentException(
+                        "Cada plato debe tener un identificador y una cantidad válida.");
+            }
 
-    if (itemDTO.getCantidad() > 100) {
-        throw new IllegalArgumentException(
-                "La cantidad máxima por plato es de 100 unidades.");
-    }
+            if (itemDTO.getCantidad() > 100) {
+                throw new IllegalArgumentException(
+                        "La cantidad máxima por plato es de 100 unidades.");
+            }
 
+            // Buscar el plato seleccionado.
             Plato plato = platoRepository
                     .findById(itemDTO.getPlatoId())
                     .orElseThrow(() ->
                             new IllegalArgumentException(
                                     "Uno de los platos seleccionados no existe."));
 
+            // Verificar que el plato esté activo.
+            if (!plato.isActivo()) {
+                throw new IllegalArgumentException(
+                        "El plato " + plato.getNombre()
+                                + " está inactivo y no puede incluirse en un pedido.");
+            }
+
+            // Verificar que el plato pertenezca a la unidad de venta.
             boolean platoHabilitado = unidad.getPlatosOfrecidos()
                     .stream()
                     .anyMatch(p ->
@@ -215,6 +226,7 @@ public class PedidoServiceImpl implements IPedidoService {
                                 + " no está asociado a la unidad de venta.");
             }
 
+            // Crear el ítem del pedido.
             ItemPedido item = new ItemPedido();
             item.setPedido(pedido);
             item.setPlato(plato);
@@ -224,6 +236,7 @@ public class PedidoServiceImpl implements IPedidoService {
             pedido.agregarItem(item);
         }
 
+        // Guardar el pedido con todos sus ítems.
         return pedidoRepository.save(pedido);
     }
 
