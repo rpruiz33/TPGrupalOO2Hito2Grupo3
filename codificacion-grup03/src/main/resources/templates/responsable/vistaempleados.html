@@ -146,21 +146,26 @@
                             </td>
 
                             <td>
+                                <!-- Responsable -->
+                                <span th:if="${empleado.usuario != null and empleado.usuario.rol != null and (empleado.usuario.rol.nombre == 'RESPONSABLE' or empleado.usuario.rol.nombre == 'ROLE_RESPONSABLE')}"
+                                    class="badge" style="background-color: #800020; color: white;">
+                                    Responsable
+                                </span>
                                 <!-- Cajero -->
-                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cajero)}"
+                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cajero) and !(empleado.usuario != null and empleado.usuario.rol != null and (empleado.usuario.rol.nombre == 'RESPONSABLE' or empleado.usuario.rol.nombre == 'ROLE_RESPONSABLE'))}"
                                     class="badge bg-primary">
                                     Cajero (Caja <span
                                         th:text="${empleado.numeroCaja != null ? empleado.numeroCaja : 'N/D'}"></span>)
                                 </span>
                                 <!-- Cocinero -->
-                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cocinero)}"
+                                <span th:if="${empleado instanceof T(com.example.hito2grupo3.entities.Cocinero) and !(empleado.usuario != null and empleado.usuario.rol != null and (empleado.usuario.rol.nombre == 'RESPONSABLE' or empleado.usuario.rol.nombre == 'ROLE_RESPONSABLE'))}"
                                     class="badge bg-warning text-dark">
                                     Cocinero <span th:if="${empleado.categoriaCocina != null}"
                                         th:text="'(' + ${empleado.categoriaCocina.nombre} + ')'"></span>
                                 </span>
                                 <!-- Staff General -->
                                 <span
-                                    th:if="${!(empleado instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(empleado instanceof T(com.example.hito2grupo3.entities.Cocinero))}"
+                                    th:if="${!(empleado instanceof T(com.example.hito2grupo3.entities.Cajero)) and !(empleado instanceof T(com.example.hito2grupo3.entities.Cocinero)) and !(empleado.usuario != null and empleado.usuario.rol != null and (empleado.usuario.rol.nombre == 'RESPONSABLE' or empleado.usuario.rol.nombre == 'ROLE_RESPONSABLE'))}"
                                     class="badge bg-secondary">
                                     Staff General
                                 </span>

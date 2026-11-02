@@ -190,7 +190,7 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Esteban',   'Morales',   '28541236', '1981-03-14', '2016-01-10', 195000.00, NULL, NULL, NULL, 'Pizzas',       1, 22000.00, 'Pizzero U1',                'FT-0000101'),
 
 -- U2: PD-0000101
-('C', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, 'Manana', 4,   9000.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
+('E', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Camila',    'Alvarez',   '39542109', '1996-05-18', '2023-02-01', 120000.00, 'Tarde',  5,   6500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Martin',    'Roldan',    '31876543', '1985-12-03', '2019-04-12', 160000.00, 'Noche',  6,  13500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('K', 'Valentina', 'Romero',    '37456981', '1993-07-25', '2021-11-20', 140000.00, NULL, NULL, NULL, 'Parrilla',     1, 11000.00, 'Parrillero Especialista U2', 'PD-0000101'),
@@ -354,6 +354,7 @@ SELECT s.id, t.turno, t.num_caja, t.plus_adicional
 FROM tmp_empleados t
 JOIN staff s ON s.dni = t.dni
 WHERE t.tipo = 'C'
+  AND t.dni != '33412876'
   AND NOT EXISTS (SELECT 1 FROM cajero c WHERE c.id = s.id);
 
 -- Registrar a Alejandro como cajero, vinculado a cajero@epicentro.com

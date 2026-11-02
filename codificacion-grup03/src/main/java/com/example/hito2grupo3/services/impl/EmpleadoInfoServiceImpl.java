@@ -39,10 +39,12 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
                         "No se encontró un empleado asociado al usuario " + email
                                 + ". Contactá con el administrador."));
 
-        boolean esCajero = staff instanceof Cajero;
-        boolean esCocinero = staff instanceof Cocinero;
+        boolean esResponsable = esResponsable(staff);
+        boolean esAdmin = esAdmin(staff);
+        boolean esCajero = !esResponsable && !esAdmin && (staff instanceof Cajero);
+        boolean esCocinero = !esResponsable && !esAdmin && (staff instanceof Cocinero);
 
-        String rol = resolverRol(staff, esCajero, esCocinero);
+        String rol = resolverRol(staff, esResponsable, esAdmin, esCajero, esCocinero);
         String antiguedad = calcularAntiguedad(staff.getFechaIngreso());
 
         Map<String, Object> empleadoMap = new HashMap<>();
@@ -198,18 +200,45 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
         }
     }
 
-    private String resolverRol(Staff staff, boolean esCajero, boolean esCocinero) {
+    private boolean esResponsable(Staff staff) {
+        if (staff.getUsuario() != null && staff.getUsuario().getRol() != null) {
+            String nombreRol = staff.getUsuario().getRol().getNombre().replace("ROLE_", "").trim().toUpperCase();
+            if ("RESPONSABLE".equals(nombreRol)) {
+                return true;
+            }
+        }
+        return unidadVentaRepository.findByResponsable_Id(staff.getId()).isPresent();
+    }
+
+    private boolean esAdmin(Staff staff) {
+        if (staff.getUsuario() != null && staff.getUsuario().getRol() != null) {
+            String nombreRol = staff.getUsuario().getRol().getNombre().replace("ROLE_", "").trim().toUpperCase();
+            return "ADMIN".equals(nombreRol);
+        }
+        return false;
+    }
+
+    private String resolverRol(Staff staff, boolean esResponsable, boolean esAdmin, boolean esCajero, boolean esCocinero) {
+        if (esResponsable) {
+            return "Responsable";
+        }
+        if (esAdmin) {
+            return "Administrador";
+        }
         if (esCajero) {
             return "Cajero";
         }
         if (esCocinero) {
-            Cocinero cocinero = (Cocinero) staff;
-            if (cocinero.getCategoriaCocina() != null) {
+            if (staff instanceof Cocinero cocinero && cocinero.getCategoriaCocina() != null) {
                 return cocinero.getCategoriaCocina().getNombre();
             }
+            return "Cocinero";
         }
         if (staff.getUsuario() != null && staff.getUsuario().getRol() != null) {
-            return staff.getUsuario().getRol().getNombre();
+            String nombre = staff.getUsuario().getRol().getNombre().replace("ROLE_", "").trim();
+            if (!nombre.isEmpty()) {
+                return nombre.substring(0, 1).toUpperCase() + nombre.substring(1).toLowerCase();
+            }
         }
         return "Staff General";
     }

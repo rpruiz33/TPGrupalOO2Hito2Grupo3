@@ -63,6 +63,10 @@ public class SecurityConfiguration {
                     auth.requestMatchers("/cambiar-password")
                             .authenticated();
 
+                    // Volver al menú según rol del usuario autenticado
+                    auth.requestMatchers("/empleado/volver-al-menu")
+                            .authenticated();
+
                     // Módulo de empleados y cocineros
                     auth.requestMatchers("/empleado/**")
                             .hasAnyRole("EMPLEADO", "COCINERO");
@@ -85,6 +89,7 @@ public class SecurityConfiguration {
                     auth.requestMatchers(
                             "/mi-informacion"
                     ).hasAnyRole(
+                            "ADMIN",
                             "RESPONSABLE",
                             "EMPLEADO",
                             "CAJERO",
