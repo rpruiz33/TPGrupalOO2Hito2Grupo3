@@ -109,6 +109,22 @@ CREATE TEMPORARY TABLE tmp_categorias (
 );
 
 INSERT INTO tmp_categorias (nombre, plus_fijo) VALUES
+('Chef Principal', 150000.00),
+('Subchef / Segundo de Cocina', 130000.00),
+('Parrillero Especialista', 120000.00),
+('Asador Criollo', 115000.00),
+('Cocinero Principal', 110000.00),
+('Maestro Pizzero', 100000.00),
+('Minutero', 95000.00),
+('Pastelero y Repostero', 90000.00),
+('Cocinero de Sándwiches Gourmet', 85000.00),
+('Sushiman y Especialidades', 125000.00),
+('Cocinero Ayudante', 80000.00),
+('Ayudante de Cocina', 70000.00),
+('Comis de Cuisine', 65000.00),
+('Auxiliar de Despacho y Montaje', 55000.00),
+('Bachero / Lavaplatos', 50000.00),
+-- Compatibilidad con staff pre-cargado
 ('Parrillero Especialista U1', 15000.00), ('Minutero U1', 10000.00), ('Pizzero U1', 12000.00),
 ('Parrillero Especialista U2', 14000.00), ('Minutero U2', 11000.00), ('Pizzero U2', 13000.00),
 ('Parrillero Especialista U3', 16000.00), ('Minutero U3', 10500.00), ('Pizzero U3', 12500.00),
@@ -246,10 +262,12 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Walter',    'Farías',    '33521478', '1988-03-02', '2019-01-22', 170000.00, NULL, NULL, NULL, 'Tamales',        1, 16500.00, 'Pizzero U10',              'PD-0000105');
 
 -- 2.3 CATEGORÍAS DE COCINA
-INSERT INTO categorias_cocina (nombre, plus_fijo)
-SELECT t.nombre, t.plus_fijo
+INSERT INTO categorias_cocina (nombre, plus_fijo, activo)
+SELECT t.nombre, t.plus_fijo, 1
 FROM tmp_categorias t
 WHERE NOT EXISTS (SELECT 1 FROM categorias_cocina c WHERE c.nombre = t.nombre);
+
+UPDATE categorias_cocina SET activo = 1 WHERE activo IS NULL OR activo = 0;
 
 -- 2.3.1 CREACIÓN DE USUARIOS PARA CADA EMPLEADO DEL STAFF
 INSERT INTO usuarios (email, password_hash, rol_id, debe_cambiar_password, activo)

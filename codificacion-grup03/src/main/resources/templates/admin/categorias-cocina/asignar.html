@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Cocineros - Epicentro Gourmet</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
+</head>
+
+<body>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+
+    <main class="container panel-container mt-4" style="max-width: 950px;">
+
+        <!-- Mensajes de feedback -->
+        <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm mb-4" role="status" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
+
+        <!-- Encabezado -->
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">
+                    👨‍🍳 Asignar Cocineros: <span class="text-warning" th:text="${categoria.nombre}">Categoría</span>
+                </h1>
+                <p class="text-white-50 mb-0">
+                    Plus salarial fijo de esta categoría:
+                    <strong class="text-white" th:text="${categoria.plusFijo != null ? '$ ' + #numbers.formatDecimal(categoria.plusFijo, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">$ 0,00</strong>
+                </p>
+            </div>
+
+            <div>
+                <a th:href="@{/admin/categorias-cocina}" class="menu-button">
+                    ← Volver a Categorías
+                </a>
+            </div>
+        </section>
+
+        <!-- Formulario de Asignación -->
+        <section class="card menu-card p-3 mb-4">
+            <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
+                <h2 class="h6 fw-bold m-0" style="color: #800020;">
+                    ➕ Asignar Cocinero a esta Categoría
+                </h2>
+                <span class="text-muted small">Seleccioná un cocinero del staff</span>
+            </div>
+
+            <form th:action="@{'/admin/categorias-cocina/' + ${categoria.id} + '/asignar'}" method="post">
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-9">
+                        <label for="cocineroId" class="form-label small fw-semibold text-secondary mb-1">
+                            Cocinero del Staff <span class="text-danger">*</span>
+                        </label>
+                        <select id="cocineroId" name="cocineroId" class="form-select control-epicentro" required>
+                            <option value="">-- Seleccionar Cocinero --</option>
+                            <option th:each="c : ${todosCocineros}"
+                                    th:value="${c.id}"
+                                    th:text="${c.nombre + ' ' + c.apellido + ' (DNI: ' + c.dni + ')' + (c.categoriaCocina != null ? ' [Cat. actual: ' + c.categoriaCocina.nombre + ']' : ' [Sin categoría]')}"
+                                    th:selected="${c.categoriaCocina != null and c.categoriaCocina.id == categoria.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <button type="submit"
+                                class="menu-button menu-button-primary w-100 py-1 small justify-content-center"
+                                style="font-size: 0.85rem; height: 38px;">
+                            ➕ Asignar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tabla de Cocineros con esta Categoría -->
+        <section class="card menu-card overflow-hidden">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    Cocineros actualmente asignados a esta categoría
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${cocinerosAsignados != null ? #lists.size(cocinerosAsignados) + ' cocinero(s)' : '0 cocinero(s)'}">
+                    0 cocineros
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-4">Cocinero</th>
+                            <th>DNI</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Especialidad</th>
+                            <th class="text-center pe-4" style="width: 150px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cocinero : ${cocinerosAsignados}">
+                            <td class="ps-4 fw-bold text-dark">
+                                <span th:text="${cocinero.nombre + ' ' + cocinero.apellido}">Nombre y Apellido</span>
+                            </td>
+                            <td class="font-monospace text-secondary" th:text="${cocinero.dni}">12345678</td>
+                            <td th:text="${cocinero.fechaIngreso != null ? #temporals.format(cocinero.fechaIngreso, 'dd/MM/yyyy') : '-'}">01/01/2020</td>
+                            <td class="text-muted" th:text="${cocinero.especialidad != null ? cocinero.especialidad : 'General'}">General</td>
+                            <td class="text-center pe-4">
+                                <form th:action="@{'/admin/categorias-cocina/' + ${categoria.id} + '/desasignar/' + ${cocinero.id}}"
+                                      method="post"
+                                      onsubmit="return confirm('¿Deseás quitar a este cocinero de la categoría?');"
+                                      class="d-inline">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Quitar cocinero de esta categoría">
+                                        ❌ Quitar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${cocinerosAsignados == null or #lists.isEmpty(cocinerosAsignados)}">
+                            <td colspan="5" class="text-center py-5 text-secondary">
+                                <div class="fs-2 mb-2" aria-hidden="true">👨‍🍳</div>
+                                <strong>No hay cocineros asignados a esta categoría actualmente.</strong>
+                                <p class="mb-0 mt-1 small">
+                                    Usá el formulario superior para asignar cocineros del staff a este rol.
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

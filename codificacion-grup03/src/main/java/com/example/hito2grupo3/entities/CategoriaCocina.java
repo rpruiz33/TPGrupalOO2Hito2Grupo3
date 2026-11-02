@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -17,6 +18,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "categorias_cocina")
 public class CategoriaCocina {
@@ -34,6 +36,9 @@ public class CategoriaCocina {
     @Digits(integer = 10, fraction = 2, message = "El plus solo puede tener hasta 2 decimales")
     private BigDecimal plusFijo;
 
+    @jakarta.persistence.Column(name = "activo", nullable = false, columnDefinition = "boolean default true")
+    private boolean activo = true;
+
     public CategoriaCocina() {
     }
 
@@ -41,6 +46,14 @@ public class CategoriaCocina {
         this.id = id;
         this.nombre = nombre;
         this.plusFijo = plusFijo;
+        this.activo = true;
+    }
+
+    public CategoriaCocina(Long id, String nombre, BigDecimal plusFijo, boolean activo) {
+        this.id = id;
+        this.nombre = nombre;
+        this.plusFijo = plusFijo;
+        this.activo = activo;
     }
 
 
