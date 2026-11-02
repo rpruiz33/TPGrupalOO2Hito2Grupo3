@@ -4,9 +4,25 @@ import com.example.hito2grupo3.entities.CategoriaCocina;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CategoriaCocinaRepository extends JpaRepository<CategoriaCocina, Long> {
+
     Optional<CategoriaCocina> findByNombre(String nombre);
+
+    Optional<CategoriaCocina> findByNombreIgnoreCase(String nombre);
+
+    List<CategoriaCocina> findByActivoTrue();
+
+    Optional<CategoriaCocina> findByIdAndActivoTrue(Long id);
+
+    boolean existsByNombreIgnoreCase(String nombre);
+
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
+
+    boolean existsByNombreIgnoreCaseAndActivoTrue(String nombre);
+
+    boolean existsByNombreIgnoreCaseAndActivoTrueAndIdNot(String nombre, Long id);
 }
