@@ -12,11 +12,11 @@
 <body>
 
     <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
-    <main class="container panel-container mt-4" style="max-width: 1100px;">
+    <main class="container panel-container mt-4" style="max-width: 1150px;">
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
                 <h1 class="h3 fw-bold mb-1">📈 Rentabilidad Neta</h1>
-                <p class="text-white-50 mb-0">Balance financiero de ingresos, costos y márgenes de ganancia.</p>
+                <p class="text-white-50 mb-0">Ganancia neta: (Pedidos totales - Costos de platos) descontando sueldos y canon.</p>
             </div>
 
             <div class="d-flex flex-wrap gap-2">
@@ -33,26 +33,26 @@
         <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
         <div th:if="${mensaje}" class="alert alert-success text-center shadow-sm mb-4" role="status" th:text="${mensaje}"></div>
 
-     
+        <!-- Filtros de Consulta -->
         <section class="card menu-card p-3 mb-4">
             <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
                 <h2 class="h6 fw-bold m-0" style="color: #800020;">
                     🔍 Filtros de Consulta
                 </h2>
-                <span class="text-muted small">Ajustá festival</span>
+                <span class="text-muted small">Filtrar por festival, unidad y rango de fechas</span>
             </div>
 
             <form th:action="@{/reportes/rentabilidad}" method="get">
                 <div class="row g-2 align-items-end">
 
-                    
-                    <div class="col-12 col-lg-6" th:if="${festivales != null and !festivales.isEmpty()}">
+                    <!-- Selector Festival -->
+                    <div class="col-12 col-md-4 col-lg-3" th:if="${festivales != null and !festivales.isEmpty()}">
                         <label for="festivalId" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
                         <select id="festivalId" name="festivalId" class="form-select control-epicentro">
                             <option value="">-- Seleccione Festival --</option>
                             <option th:each="f : ${festivales}"
                                     th:value="${f.id}"
-                                    th:text="${f.nombre + ' (' + f.fechaInicio + ' al ' + f.fechaFin + ')'}"
+                                    th:text="${f.nombre}"
                                     th:selected="${festivalId != null and festivalId == f.id}"
                                     th:data-inicio="${f.fechaInicio}"
                                     th:data-fin="${f.fechaFin}">
@@ -60,17 +60,39 @@
                         </select>
                     </div>
 
-          
+                    <!-- Selector Unidad de Venta -->
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <label for="unidadVentaId" class="form-label small fw-semibold text-secondary mb-1">Unidad de Venta</label>
+                        <select id="unidadVentaId" name="unidadVentaId" class="form-select control-epicentro">
+                            <option value="">-- Todas las Unidades --</option>
+                            <option th:each="u : ${unidades}"
+                                    th:value="${u.id}"
+                                    th:text="${u.nombreComercial + ' (' + u.codigo + ')'}"
+                                    th:selected="${unidadVentaId != null and unidadVentaId == u.id}">
+                            </option>
+                        </select>
+                    </div>
 
-                    
-                 
+                    <!-- Fecha Desde -->
+                    <div class="col-6 col-md-2 col-lg-2">
+                        <label for="fechaDesde" class="form-label small fw-semibold text-secondary mb-1">Desde</label>
+                        <input type="date" id="fechaDesde" name="fechaDesde" class="form-control control-epicentro"
+                               th:value="${fechaDesde != null ? #temporals.format(fechaDesde, 'yyyy-MM-dd') : ''}">
+                    </div>
 
-                    
-                    <div class="col-12 col-sm-2 col-lg-2">
+                    <!-- Fecha Hasta -->
+                    <div class="col-6 col-md-2 col-lg-2">
+                        <label for="fechaHasta" class="form-label small fw-semibold text-secondary mb-1">Hasta</label>
+                        <input type="date" id="fechaHasta" name="fechaHasta" class="form-control control-epicentro"
+                               th:value="${fechaHasta != null ? #temporals.format(fechaHasta, 'yyyy-MM-dd') : ''}">
+                    </div>
+
+                    <!-- Botón Buscar -->
+                    <div class="col-12 col-md-12 col-lg-2">
                         <button type="submit" 
                                 class="menu-button menu-button-primary w-100 py-1 small justify-content-center" 
-                                style="font-size: 0.85rem; height: 31px;">
-                            Buscar
+                                style="font-size: 0.85rem; height: 38px;">
+                            🔍 Filtrar
                         </button>
                     </div>
 
@@ -78,29 +100,37 @@
             </form>
         </section>
         
+        <!-- Tarjetas KPIs -->
         <section class="row g-3 justify-content-center mb-4">
 
-           
             <div class="col-md-4">
                 <div class="card menu-card p-3 text-center h-100">
-                    <span class="text-muted small fw-semibold">Total Ingresos</span>
+                    <span class="text-muted small fw-semibold">Ingresos Totales (Pedidos)</span>
                     <strong class="fs-4 text-success my-1"
                             th:text="${totalIngresos != null ? '$ ' + #numbers.formatDecimal(totalIngresos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
                         $ 0,00
                     </strong>
-                    <span class="text-secondary small">Facturación bruta acumulada</span>
+                    <span class="text-secondary small">Ventas brutas de pedidos activos</span>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card menu-card p-3 text-center h-100">
-                    <span class="text-muted small fw-semibold">Costos / Gastos</span>
+                    <span class="text-muted small fw-semibold">Costos Totales Descontados</span>
                     <strong class="fs-4 text-danger my-1"
                             th:text="${totalCostos != null ? '$ ' + #numbers.formatDecimal(totalCostos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
                         $ 0,00
                     </strong>
-                    <span class="text-secondary small">Costos de producción y cánones</span>
+                    <div class="text-secondary small d-flex justify-content-center gap-2 flex-wrap">
+                        <span title="Costo producción platos">🍲 Platos: <strong th:text="${totalCostosPlatos != null ? '$ ' + #numbers.formatDecimal(totalCostosPlatos, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$ 0</strong></span>
+                        <span>•</span>
+                        <span title="Sueldos liquidados">👥 Sueldos: <strong th:text="${totalSueldos != null ? '$ ' + #numbers.formatDecimal(totalSueldos, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$ 0</strong></span>
+                        <span>•</span>
+                        <span title="Canon de unidad">🎪 Canon: <strong th:text="${totalCanon != null ? '$ ' + #numbers.formatDecimal(totalCanon, 1, 'POINT', 0, 'COMMA') : '$ 0'}">$ 0</strong></span>
+                    </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card menu-card p-3 text-center h-100">
                     <span class="text-muted small fw-semibold">Rentabilidad Neta</span>
@@ -109,14 +139,87 @@
                             th:text="${rentabilidadNeta != null ? '$ ' + #numbers.formatDecimal(rentabilidadNeta, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
                         $ 0,00
                     </strong>
-                    <span class="text-secondary small">Margen de ganancia neto</span>
+                    <span class="text-secondary small">(Pedidos - Platos) - Sueldos - Canon</span>
                 </div>
             </div>
 
         </section>
 
-        
-        <section class="card menu-card overflow-hidden mb-4" th:if="${ranking != null}">
+        <!-- Tabla Detallada de Rentabilidad Neta por Unidad -->
+        <section class="card menu-card overflow-hidden mb-4" th:if="${detalles != null and !detalles.isEmpty()}">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+                <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                    📊 Balance Financiero y Rentabilidad por Unidad
+                </h2>
+                <span class="text-secondary small fw-semibold"
+                      th:text="${#lists.size(detalles) + ' unidad(es)'}">
+                    0 unidad(es)
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #f4eaec; color: #600018;">
+                        <tr>
+                            <th class="ps-3">Unidad de Venta</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Pedidos Totales</th>
+                            <th class="text-end">Costos Platos</th>
+                            <th class="text-end">Sueldos</th>
+                            <th class="text-end">Canon</th>
+                            <th class="text-end">Total Costos</th>
+                            <th class="text-end pe-3">Rentabilidad Neta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="d : ${detalles}">
+                            <td class="ps-3">
+                                <div class="fw-bold text-dark" th:text="${d.nombreUnidad}">Nombre Unidad</div>
+                                <small class="text-secondary font-monospace" th:text="${d.codigoUnidad}">FT-0000001</small>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary px-2 py-1" th:text="${d.tipoUnidad}">FoodTruck</span>
+                            </td>
+
+                            <td class="text-end text-success fw-semibold"
+                                th:text="${d.totalIngresos != null ? '$ ' + #numbers.formatDecimal(d.totalIngresos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+
+                            <td class="text-end text-muted"
+                                th:text="${d.costosPlatos != null ? '$ ' + #numbers.formatDecimal(d.costosPlatos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+
+                            <td class="text-end text-muted"
+                                th:text="${d.sueldos != null ? '$ ' + #numbers.formatDecimal(d.sueldos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+
+                            <td class="text-end text-muted"
+                                th:text="${d.canon != null ? '$ ' + #numbers.formatDecimal(d.canon, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+
+                            <td class="text-end text-danger fw-semibold"
+                                th:text="${d.totalCostos != null ? '$ ' + #numbers.formatDecimal(d.totalCostos, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+
+                            <td class="text-end pe-3 fw-bold"
+                                th:classappend="${d.rentabilidadNeta >= 0} ? 'text-success' : 'text-danger'"
+                                th:text="${d.rentabilidadNeta != null ? '$ ' + #numbers.formatDecimal(d.rentabilidadNeta, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
+                                $ 0,00
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Ranking de Unidades por Recaudación -->
+        <section class="card menu-card overflow-hidden mb-4" th:if="${ranking != null and !ranking.isEmpty()}">
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h2 class="h5 fw-bold m-0" style="color: #800020;">
@@ -160,15 +263,6 @@
                                 $ 0,00
                             </td>
                         </tr>
-                        <tr th:if="${ranking.isEmpty()}">
-                            <td colspan="5" class="text-center py-5 text-secondary">
-                                <div class="fs-2 mb-2" aria-hidden="true">📊</div>
-                                <strong>No hay unidades para mostrar en este festival o rango de fechas.</strong>
-                                <p class="mb-0 mt-1 small">
-                                    Ajustá los filtros de búsqueda para visualizar resultados.
-                                </p>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -180,10 +274,10 @@
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const select = document.getElementById('festivalId');
+            const selectFestival = document.getElementById('festivalId');
             const fechaDesde = document.getElementById('fechaDesde');
             const fechaHasta = document.getElementById('fechaHasta');
-            if (!select || !fechaDesde || !fechaHasta) return;
+            if (!selectFestival || !fechaDesde || !fechaHasta) return;
 
             function fechasDeOpcion(opcion) {
                 return {
@@ -192,23 +286,12 @@
                 };
             }
 
-            
-            const opcionActual = select.options[select.selectedIndex];
-            if (opcionActual && opcionActual.value) {
-                const f = fechasDeOpcion(opcionActual);
-                if (!fechaDesde.value) fechaDesde.value = f.inicio;
-                if (!fechaHasta.value) fechaHasta.value = f.fin;
-            }
-
-            select.addEventListener('change', function () {
-                const opcion = select.options[select.selectedIndex];
+            selectFestival.addEventListener('change', function () {
+                const opcion = selectFestival.options[selectFestival.selectedIndex];
                 if (opcion && opcion.value) {
                     const f = fechasDeOpcion(opcion);
-                    fechaDesde.value = f.inicio;
-                    fechaHasta.value = f.fin;
-                } else {
-                    fechaDesde.value = '';
-                    fechaHasta.value = '';
+                    if (f.inicio) fechaDesde.value = f.inicio;
+                    if (f.fin) fechaHasta.value = f.fin;
                 }
             });
         });

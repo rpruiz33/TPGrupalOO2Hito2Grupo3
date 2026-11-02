@@ -1,4 +1,4 @@
-use ghsicilianotfi;
+-- use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
 SET SQL_SAFE_UPDATES = 0;
@@ -9,7 +9,7 @@ START TRANSACTION;
 -- #############################################################################
 INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
  --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
-SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
+SET @hash_pw = '$2a$10$ifwD1XTWxZ/iYc7vwRBd1OAMvONu5MPmnxXAvVE9kAmVmN96xsdnK';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
@@ -530,11 +530,12 @@ JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
 CROSS JOIN tmp_dias d
 WHERE fuv.festival_id = @festival_id;
 
--- 3.5 Items: 2 platos distintos por pedido, cantidad 1 a 4
+-- 3.5 Items: 2 platos distintos por pedido con volumen de festival (15 a 30 por plato)
+-- para que el margen bruto supere sueldos y canon y la rentabilidad neta sea positiva
 INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
 SELECT p.id,
        pl.id,
-       1 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + mp.idx) % 4),
+       15 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + mp.idx) % 15),
        pl.precio
 FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id

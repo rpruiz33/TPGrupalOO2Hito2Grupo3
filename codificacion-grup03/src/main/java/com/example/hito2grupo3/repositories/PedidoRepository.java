@@ -138,7 +138,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
 
     // ============================
-    // INGRESOS POR FESTIVAL Y FECHAS
+    // INGRESOS Y COSTOS POR FESTIVAL, UNIDAD Y FECHAS
     // ============================
 
     @Query("""
@@ -152,6 +152,67 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             """)
     BigDecimal sumarIngresosPorFestivalYFechas(
             @Param("festivalId") Long festivalId,
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta);
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.festival.id = :festivalId
+              AND p.unidadVenta.id = :unidadVentaId
+              AND p.estado = 'A'
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
+              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
+            """)
+    BigDecimal sumarIngresosPorFestivalYUnidadYFechas(
+            @Param("festivalId") Long festivalId,
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta);
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.plato.costoProduccion), 0)
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.festival.id = :festivalId
+              AND p.estado = 'A'
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
+              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
+            """)
+    BigDecimal sumarCostosPlatosPorFestivalYFechas(
+            @Param("festivalId") Long festivalId,
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta);
+
+    @Query("""
+            SELECT COALESCE(SUM(ip.cantidad * ip.plato.costoProduccion), 0)
+            FROM Pedido p
+            JOIN p.items ip
+            WHERE p.festival.id = :festivalId
+              AND p.unidadVenta.id = :unidadVentaId
+              AND p.estado = 'A'
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
+              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
+            """)
+    BigDecimal sumarCostosPlatosPorFestivalYUnidadYFechas(
+            @Param("festivalId") Long festivalId,
+            @Param("unidadVentaId") Long unidadVentaId,
+            @Param("fechaDesde") LocalDate fechaDesde,
+            @Param("fechaHasta") LocalDate fechaHasta);
+
+    @Query("""
+            SELECT COUNT(DISTINCT p.id)
+            FROM Pedido p
+            WHERE p.festival.id = :festivalId
+              AND p.unidadVenta.id = :unidadVentaId
+              AND p.estado = 'A'
+              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
+              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
+            """)
+    Long contarPedidosPorFestivalYUnidadYFechas(
+            @Param("festivalId") Long festivalId,
+            @Param("unidadVentaId") Long unidadVentaId,
             @Param("fechaDesde") LocalDate fechaDesde,
             @Param("fechaHasta") LocalDate fechaHasta);
 

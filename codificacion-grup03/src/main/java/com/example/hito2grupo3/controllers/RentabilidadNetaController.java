@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.hito2grupo3.entities.Festival;
+import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.IRentabilidadNetaService;
 
 @Controller
@@ -30,38 +31,63 @@ public class RentabilidadNetaController {
     // 1. Vista estándar del festival completo
     @GetMapping("/admin/reportes/rentabilidad-neta/festival/{festivalId}")
     public String verRentabilidadNetaPorFestival(@PathVariable Long festivalId, Model model) {
-        return cargarReporte(festivalId, null, null, model);
+        return cargarReporte(festivalId, null, null, null, model);
     }
 
-    // 2. Filtrado entre fechas
+    // 2. Filtrado entre fechas y unidad opcional
     @GetMapping("/admin/reportes/rentabilidad-neta/festival/{festivalId}/filtrar")
     public String verRentabilidadNetaEntreFechas(
             @PathVariable Long festivalId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Long unidadVentaId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
             Model model) {
-        return cargarReporte(festivalId, fechaDesde, fechaHasta, model);
+        return cargarReporte(festivalId, unidadVentaId, fechaDesde, fechaHasta, model);
     }
 
     // 3. Acción del formulario: todos los parámetros son opcionales
     @GetMapping("/reportes/rentabilidad")
     public String calcularRentabilidad(
             @RequestParam(required = false) Long festivalId,
+            @RequestParam(required = false) Long unidadVentaId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
             Model model) {
-        return cargarReporte(festivalId, fechaDesde, fechaHasta, model);
+        return cargarReporte(festivalId, unidadVentaId, fechaDesde, fechaHasta, model);
+    }
+
+    // 4. Punto 6 del TP: Cálculo de rentabilidad neta de una unidad en un festival
+    @GetMapping("/admin/reportes/rentabilidad-neta/festival/{festivalId}/unidad/{unidadVentaId}")
+    public String verRentabilidadNetaPorUnidad(
+            @PathVariable Long festivalId,
+            @PathVariable Long unidadVentaId,
+            Model model) {
+        return cargarReporte(festivalId, unidadVentaId, null, null, model);
+    }
+
+    // 5. Punto 7 del TP: Cálculo de rentabilidad neta para un festival y una unidad entre dos fechas
+    @GetMapping("/admin/reportes/rentabilidad-neta/festival/{festivalId}/unidad/{unidadVentaId}/filtrar")
+    public String verRentabilidadNetaUnidadEntreFechas(
+            @PathVariable Long festivalId,
+            @PathVariable Long unidadVentaId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            Model model) {
+        return cargarReporte(festivalId, unidadVentaId, fechaDesde, fechaHasta, model);
     }
 
     /**
-     * Lógica común: siempre carga festivales, ranking y KPIs con datos reales.
-     * - Sin festival: usa el que está en curso, o el más reciente.
-     * - Sin fechas: usa las del festival.
+     * Lógica común: carga festivales, unidades, ranking y KPIs con datos financieros reales.
+     * Descuenta obligatoriamente:
+     * - Costos de platos (producción)
+     * - Sueldos del personal asignado
+     * - Canon de la unidad de venta
      */
-    private String cargarReporte(Long festivalId, LocalDate desde, LocalDate hasta, Model model) {
+    private String cargarReporte(Long festivalId, Long unidadVentaId, LocalDate desde, LocalDate hasta, Model model) {
         model.addAttribute("esAdministrador", true);
         model.addAttribute("ranking", Collections.emptyList());
         model.addAttribute("detalles", Collections.emptyList());
+        model.addAttribute("unidades", Collections.emptyList());
 
         List<Festival> festivales;
         try {
@@ -85,6 +111,16 @@ public class RentabilidadNetaController {
             id = defecto.getId();
         }
 
+        // Cargar unidades del festival seleccionado
+        List<UnidadVenta> unidadesFestival = Collections.emptyList();
+        if (id != null) {
+            try {
+                unidadesFestival = r.listarUnidadesPorFestival(id);
+            } catch (Exception ignored) {
+            }
+        }
+        model.addAttribute("unidades", unidadesFestival);
+
         // 2) Fechas por defecto: las del festival
         final Long idFinal = id;
         Festival fest = festivales.stream()
@@ -97,6 +133,7 @@ public class RentabilidadNetaController {
         }
 
         model.addAttribute("festivalId", id);
+        model.addAttribute("unidadVentaId", unidadVentaId);
         model.addAttribute("fechaDesde", desde);
         model.addAttribute("fechaHasta", hasta);
 
@@ -122,15 +159,16 @@ public class RentabilidadNetaController {
             }
         }
 
-        // 3) Calcular siempre
+        // 3) Calcular rentabilidad neta real (con pedidos - costoPlatos - sueldos - canon)
         try {
             model.addAttribute("ranking", r.obtenerRankingUnidades(id));
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data =
-                    (Map<String, Object>) r.obtenerReporteVentaEntreFechas(id, desde, hasta);
+            Map<String, Object> data = r.obtenerReporteRentabilidad(id, unidadVentaId, desde, hasta);
             if (data != null) {
                 model.addAttribute("totalIngresos", data.get("totalIngresos"));
+                model.addAttribute("totalCostosPlatos", data.get("totalCostosPlatos"));
+                model.addAttribute("totalSueldos", data.get("totalSueldos"));
+                model.addAttribute("totalCanon", data.get("totalCanon"));
                 model.addAttribute("totalCostos", data.get("totalCostos"));
                 model.addAttribute("rentabilidadNeta", data.get("rentabilidadNeta"));
                 model.addAttribute("detalles", data.get("detalles"));
