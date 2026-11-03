@@ -1,46 +1,196 @@
-### TP Grupal OO2 — Hito 2 — Grupo 03
+# TP Grupal OO2 - Hito 2 - Grupo 03
 
-### Sistema de Gestión de Festivales Gastronómicos
+## Sistema de Gestión de Festivales Gastronómicos
 
-Aplicación web para la gestión de festivales gastronómicos, sus unidades de venta y el personal asociado. El sistema permite administrar la información del festival y las unidades participantes, contemplando distintos tipos de unidades de venta y los roles de los usuarios.
+Aplicación web para la gestión de festivales gastronómicos, sus unidades de venta y el personal asociado. El sistema permite administrar la información de los festivales y de las unidades participantes, contemplando distintos tipos de unidades de venta, pedidos, caja, reportes y roles de usuario.
 
-Integrantes: 
+## Integrantes
 
-Roberto Andrés Ruiz Pereira --> Usuario de GitHub: @rpruiz33
+| Integrante | Usuario de GitHub |
+| --- | --- |
+| Roberto Andrés Ruiz Pereira | [@rpruiz33](https://github.com/rpruiz33) |
+| Federico Matías Salvatierra | [@Fsalvatierra](https://github.com/Fsalvatierra) |
+| Leonel Alejandro Soloaga | [@Le0oneL](https://github.com/Le0oneL) |
+| Ana Belén Vázquez | [@anavazquez141](https://github.com/anavazquez141) |
 
-Federico Matías Salvatierra --> Usuario de GitHub: @Fsalvatierra
+## Tecnologías utilizadas
 
-Leonel Alejandro Soloaga --> Usuario de GitHub: @Le0oneL
+- Java 21 como entorno de desarrollo. El proyecto está configurado en Maven con `java.version` 17 y puede ejecutarse con JDK 17 o 21.
+- Spring Boot.
+- Spring MVC y Thymeleaf para la interfaz web.
+- Spring Security para la autenticación y autorización por roles.
+- Spring Data JPA e Hibernate para la persistencia.
+- MySQL como base de datos.
+- Maven para la gestión del proyecto y sus dependencias.
+- Visual Studio Code como entorno de desarrollo.
 
-Ana Belén Vázquez --> Usuario de GitHub: @anavazquez141
+## Diagrama de clases
 
-### Tecnologías utilizadas
+Enlace: pendiente de agregar.
 
-Lenguaje: Java 21
+## Pull requests
 
-Framework: Spring Boot
+Las funcionalidades y cambios del proyecto fueron integrados mediante las siguientes 58 pull requests mergeadas:
 
-Base de datos: MySQL
+| Pull request | Funcionalidad |
+| --- | --- |
+| [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga |
+| [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) | Baja lógica de unidades de venta |
+| [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) | ABM de festivales y baja lógica |
+| [#80](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/80) | Actualización funcional |
+| [#79](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/79) | Reversión de cambios de festivales |
+| [#78](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/78) | Reversión de cambios de festivales |
+| [#77](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/77) | Reversión de cambios de festivales |
+| [#76](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/76) | Cambios de ABM de festivales |
+| [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) | Historial de asignaciones |
+| [#74](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/74) | Separación de lógica de negocio de los controladores |
+| [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) | Validación de cánones |
+| [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) | ABM de categorías de cocina |
+| [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) | Validación de pedidos |
+| [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) | Modificación de unidad de venta |
+| [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68) | Modificación de unidad de venta |
+| [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) | Historial de pedidos con filtros |
+| [#66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66) | Validaciones frontend y backend |
+| [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65) | ABM de festivales |
+| [#64](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/64) | Validaciones de liquidación |
+| [#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63) | Dashboard del empleado |
+| [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) | Reporte de cánones |
+| [#59](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/59) | Corrección de redirección del responsable |
+| [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) | Cálculo de canon en el perfil del responsable |
+| [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) | Plato estrella |
+| [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) | Filtro de empleados |
+| [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) | Modificación e inhabilitación de platos |
+| [#54](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/54) | Baja lógica de empleados |
+| [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52) | Gestión de platos |
+| [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) | Gestión de festivales y unidades de venta |
+| [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) | Gestión del responsable |
+| [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) | Cierre de caja |
+| [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44) | Gestión de platos |
+| [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) | Reporte de recaudación |
+| [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) | Rentabilidad neta |
+| [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) | Funcionalidad de cajero |
+| [#39](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/39) | Ajustes de liquidación |
+| [#38](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/38) | Cambios generales |
+| [#37](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/37) | Ajustes de información |
+| [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) | Alta de pedidos |
+| [#34](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/34) | Reporte de recaudación y unificación de estilos |
+| [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) | Registro de unidad de venta y responsable |
+| [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) | Liquidaciones |
+| [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) | Contraseña y registro |
+| [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30) | Servicios, vistas y entidades de liquidación |
+| [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29) | Liquidaciones |
+| [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27) | Alta de pedidos |
+| [#26](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/26) | Creación de alta de pedidos |
+| [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) | Alta de usuarios desde administración |
+| [#23](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/23) | Primera vista del índice de administración |
+| [#22](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/22) | Correcciones de entidades |
+| [#21](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/21) | Entidades, relaciones y UML |
+| [#17](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/17) | Corrección del README |
+| [#16](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/16) | Actualización de desarrollo |
+| [#14](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/14) | Actualización de desarrollo |
+| [#10](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/10) | Prueba de funcionalidad |
+| [#9](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/9) | Notificaciones de correo para eventos |
+| [#5](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/5) | Diseño UML |
+| [#2](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/2) | Prueba inicial |
 
-IDE: Visual Studio Code
+Ver todas las pull requests en el [repositorio de GitHub](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls).
 
-### Diagrama de clases
-
-Enlace: ----
-
-### Requisitos previos
+## Requisitos previos
 
 Antes de ejecutar la aplicación, se debe contar con:
 
-JDK 17 o 21.
+- JDK 17 o 21.
+- MySQL instalado y en funcionamiento.
+- Maven, o utilizar el Maven Wrapper incluido (`mvnw`).
+- Acceso al repositorio del proyecto.
 
-MySQL instalado y en funcionamiento.
+## Configuración
 
-Acceso al repositorio del proyecto.
+La aplicación obtiene la configuración sensible desde variables de entorno o desde un archivo `.env` ubicado en la carpeta `codificacion-grup03/`. No se deben subir credenciales reales al repositorio.
 
-Las herramientas necesarias para ejecutar aplicaciones Java y Maven.
+Crear el archivo `codificacion-grup03/.env` con una configuración similar a la siguiente:
 
-### Configuración y ejecución
+```properties
+DB_URL=jdbc:mysql://localhost:3306/festivales
+DB_USERNAME=root
+DB_PASSWORD=tu_clave
+MAIL_USERNAME=tu_correo@gmail.com
+MAIL_PASSWORD=tu_clave_de_aplicacion
+```
 
+La base de datos `festivales` debe existir previamente en MySQL. Al iniciar, Hibernate actualiza el esquema y la aplicación carga los datos de `src/main/resources/CargaDatos.sql`.
 
-### Casos de uso implementados y responsables
+## Ejecución
+
+Desde la carpeta del proyecto Java:
+
+```bash
+cd codificacion-grup03
+./mvnw spring-boot:run
+```
+
+En Windows se puede utilizar:
+
+```bat
+mvnw.cmd spring-boot:run
+```
+
+También es posible construir el proyecto y ejecutar el archivo generado:
+
+```bash
+./mvnw clean package
+java -jar target/demo-0.0.1-SNAPSHOT.jar
+```
+
+Una vez iniciada la aplicación, ingresar desde el navegador a:
+
+```text
+http://localhost:8080
+```
+
+## Casos de uso implementados
+
+- Inicio de sesión, registro y gestión de contraseñas.
+- Administración de usuarios y roles.
+- Administración de festivales.
+- Alta, modificación y consulta de unidades de venta.
+- Gestión de categorías de cocina y platos.
+- Asignación y consulta del personal de las unidades de venta.
+- Gestión de pedidos y consulta del historial.
+- Operaciones de cajero y cierre de caja.
+- Liquidación de haberes.
+- Consulta de reportes de ventas, recaudación, mayores cánones y rentabilidad neta.
+- Envío de correos electrónicos para las funcionalidades que lo requieren.
+
+## Roles principales
+
+- **Administrador:** gestiona usuarios, festivales, unidades de venta y categorías.
+- **Responsable:** administra la información de su unidad, empleados y platos.
+- **Empleado:** consulta su información y participa en la operatoria asignada.
+- **Cajero:** registra operaciones de caja y realiza cierres.
+- **Usuario:** accede a las funcionalidades generales habilitadas para su cuenta.
+
+## Casos de uso y responsables
+
+La implementación fue realizada por el Grupo 03. La asignación individual de cada caso de uso queda pendiente de completar según la distribución acordada por el equipo.
+
+| Caso de uso | Responsable |
+| --- | --- |
+| Autenticación, registro y contraseña | Grupo 03 |
+| Gestión de usuarios y roles | Grupo 03 |
+| Gestión de festivales | Grupo 03 |
+| Gestión de unidades de venta | Grupo 03 |
+| Gestión de personal y asignaciones | Grupo 03 |
+| Gestión de categorías y platos | Grupo 03 |
+| Gestión de pedidos | Grupo 03 |
+| Caja y cierre de caja | Grupo 03 |
+| Liquidaciones | Grupo 03 |
+| Reportes y rentabilidad | Grupo 03 |
+
+## Estructura principal
+
+- `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
+- `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
+- `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
+- `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.
+- `src/main/resources/application.yml`: configuración de base de datos, correo, JPA y Thymeleaf.
