@@ -4,10 +4,7 @@ import java.util.List;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
-<<<<<<< HEAD
 import com.example.hito2grupo3.entities.UnidadVenta;
-=======
->>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
 
 public interface IFestivalService {
 
@@ -28,22 +25,7 @@ public interface IFestivalService {
     void reactivar(Long id);
 
     void eliminarFestival(Long id);
-<<<<<<< HEAD
 
-    /**
-     * Retorna todas las unidades de venta disponibles en el sistema
-     * para ser seleccionadas al crear o editar un festival.
-     */
-    List<UnidadVenta> listarTodasUnidades();
-
-    /**
-     * Busca los festivales activos para una unidad de venta en una fecha determinada.
-     */
-    List<Festival> buscarFestivalActivoPorUnidadVenta(Long unidadVentaId, java.time.LocalDate fecha);
+    List<Festival> buscarFestivalesActivosPorUnidadVenta(Long id);
 }
 
-
-=======
-}
-
->>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)

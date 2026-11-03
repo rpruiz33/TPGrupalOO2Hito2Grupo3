@@ -17,22 +17,6 @@ import com.example.hito2grupo3.entities.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-<<<<<<< HEAD
-    // ============================
-    // HISTORIAL DE PEDIDOS
-    // ============================
-=======
-    boolean existsByFestival_Id(Long festivalId);
-
-    @Query("SELECT COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0) FROM ItemPedido ip")
-    BigDecimal calcularRecaudacionTotal();
->>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
-
-    /**
-     * Obtiene todos los pedidos de una unidad de venta,
-     * tanto activos como anulados.
-     * Incluye sus datos relacionados para mostrar el historial.
-     */
     @Query("""
             SELECT DISTINCT p
             FROM Pedido p

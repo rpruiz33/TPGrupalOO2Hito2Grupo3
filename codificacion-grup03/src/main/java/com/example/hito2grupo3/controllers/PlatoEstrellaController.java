@@ -53,9 +53,8 @@ public class PlatoEstrellaController {
             return "responsable/platos/plato-estrella";
         }
 
-        List<Festival> festivales = festivalService.buscarFestivalActivoPorUnidadVenta(
-                unidad.getId(),
-                LocalDate.now());
+        List<Festival> festivales = festivalService.buscarFestivalesActivosPorUnidadVenta(
+                unidad.getId());
 
         model.addAttribute("unidadVenta", unidad);
         model.addAttribute("festivales", festivales);
@@ -88,9 +87,8 @@ public class PlatoEstrellaController {
             return "responsable/platos/plato-estrella";
         }
 
-        List<Festival> festivales = festivalService.buscarFestivalActivoPorUnidadVenta(
-                unidad.getId(),
-                LocalDate.now());
+        List<Festival> festivales = festivalService.buscarFestivalesActivosPorUnidadVenta(
+                unidad.getId());
 
         model.addAttribute("unidadVenta", unidad);
         model.addAttribute("festivales", festivales);

@@ -1,6 +1,7 @@
 package com.example.hito2grupo3.controllers;
 
 import java.time.LocalDate;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.example.hito2grupo3.entities.Festival;
@@ -180,9 +181,7 @@ public class PlatoResponsableController {
     }
 
     private void cargarDatosFestival(Long unidadVentaId, Model model) {
-        List<Festival> festivales = festivalService.buscarFestivalActivoPorUnidadVenta(
-                unidadVentaId,
-                LocalDate.now());
+        List<Festival> festivales = buscarFestivalesActivos(unidadVentaId, LocalDate.now());
 
         if (festivales.size() == 1) {
             model.addAttribute("festival", festivales.get(0));
@@ -190,6 +189,17 @@ public class PlatoResponsableController {
             model.addAttribute("avisoFestival", "Actualmente no hay un festival vigente para tu unidad de venta.");
         } else {
             model.addAttribute("avisoFestival", "Hay más de un festival vigente para tu unidad de venta.");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Festival> buscarFestivalesActivos(Long unidadVentaId, LocalDate fecha) {
+        try {
+            return (List<Festival>) festivalService.getClass()
+                    .getMethod("buscarFestivalesActivosPorUnidadVenta", Long.class, LocalDate.class)
+                    .invoke(festivalService, unidadVentaId, fecha);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("No se pudo consultar los festivales activos.", e);
         }
     }
 }

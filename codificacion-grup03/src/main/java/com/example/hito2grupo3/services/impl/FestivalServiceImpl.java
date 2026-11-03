@@ -39,6 +39,17 @@ public class FestivalServiceImpl implements IFestivalService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Festival> buscarFestivalesActivosPorUnidadVenta(Long unidadVentaId) {
+        return festivalRepository.findAllByOrderByFechaInicioAsc().stream()
+                .filter(Festival::isActivo)
+                .filter(festival -> festival.getUnidadesVentaHabilitadas() != null
+                        && festival.getUnidadesVentaHabilitadas().stream()
+                                .anyMatch(unidadVenta -> unidadVentaId.equals(unidadVenta.getId())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<FestivalDTO> listarTodosDTO() {
         return festivalRepository.findAllByOrderByFechaInicioAsc().stream()
                 .map(this::convertirADTO)
@@ -159,21 +170,4 @@ public class FestivalServiceImpl implements IFestivalService {
 
         return dto;
     }
-<<<<<<< HEAD
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<UnidadVenta> listarTodasUnidades() {
-        return unidadVentaRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Festival> buscarFestivalActivoPorUnidadVenta(Long unidadVentaId, java.time.LocalDate fecha) {
-        return festivalRepository.buscarFestivalActivoPorUnidadVenta(unidadVentaId, fecha);
-    }
 }
-
-=======
-}
->>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
