@@ -23,6 +23,9 @@ public abstract class UnidadVenta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "activo", nullable = false, columnDefinition = "boolean default true")
+    private boolean activo = true;
+
     @jakarta.validation.constraints.NotNull(message = "El código de la unidad de venta es obligatorio")
     @jakarta.validation.constraints.Size(
         min = LONGITUD_CODIGO,

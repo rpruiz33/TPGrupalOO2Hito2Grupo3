@@ -45,7 +45,7 @@ public class AdminDashboardServiceImpl implements IAdminDashboardService {
         kpis.put("festivalesCount", festivalRepository.count());
         kpis.put("usuariosCount", usuarioRepository.count());
         kpis.put("recaudacionMensual", calcularRecaudacionMensual());
-        kpis.put("unidadesCount", unidadVentaRepository.count());
+        kpis.put("unidadesCount", unidadVentaRepository.countByActivoTrue());
         kpis.put("staffCount", staffRepository.count());
         kpis.put("primerFestivalId", resolverPrimerFestivalId());
 

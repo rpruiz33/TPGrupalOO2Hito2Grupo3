@@ -126,5 +126,20 @@ public class UnidadVentaServiceImpl implements IUnidadVentaService {
     public List<UnidadVenta> listarTodas() {
         return unidadVentaRepository.findAll();
     }
+
+    @Override
+    @Transactional
+    public void darDeBaja(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El ID de la unidad es obligatorio.");
+        }
+
+        int filasActualizadas = unidadVentaRepository.darDeBaja(id);
+
+        if (filasActualizadas == 0) {
+            throw new IllegalArgumentException(
+                    "No se encontró una unidad activa con el ID: " + id);
+        }
+    }
 }
 

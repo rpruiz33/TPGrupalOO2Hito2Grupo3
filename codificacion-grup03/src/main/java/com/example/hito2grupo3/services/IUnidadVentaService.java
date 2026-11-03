@@ -71,4 +71,6 @@ public interface IUnidadVentaService {
      * Obtiene el listado completo de unidades de venta.
      */
     List<UnidadVenta> listarTodas();
+
+    void darDeBaja(Long id);
 }

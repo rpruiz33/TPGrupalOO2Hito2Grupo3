@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.hito2grupo3.entities.UnidadVenta;
 
 public interface UnidadVentaRepository
@@ -41,4 +42,10 @@ List<UnidadVenta> buscarPorStaffAsignadoOResponsable(
     List<UnidadVenta> findByCodigoStartingWith(String prefijo);
 
     Optional<UnidadVenta> findByResponsable_Id(long responsableId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE UnidadVenta u SET u.activo = false WHERE u.id = :id AND u.activo = true")
+    int darDeBaja(@Param("id") Long id);
+    long countByActivoTrue();
 }

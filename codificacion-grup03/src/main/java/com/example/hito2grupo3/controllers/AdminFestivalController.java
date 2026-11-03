@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
+import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IFestivalService;
 
@@ -188,7 +189,10 @@ public class AdminFestivalController {
         try {
             Festival festival = festivalService.buscarPorId(id);
             model.addAttribute("festival", festival);
-            model.addAttribute("unidades", festival.getUnidadesVentaHabilitadas());
+            model.addAttribute("unidades",
+                    festival.getUnidadesVentaHabilitadas().stream()
+                            .filter(UnidadVenta::isActivo)
+                            .toList());
             return "admin/unidades-festivales";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el festival indicado.");
