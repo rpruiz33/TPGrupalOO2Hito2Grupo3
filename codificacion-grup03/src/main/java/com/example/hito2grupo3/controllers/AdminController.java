@@ -38,6 +38,7 @@ public class AdminController {
         model.addAllAttributes(adminDashboardService.obtenerKpisDashboard());
         return "admin/dashboard";
     }
+<<<<<<< HEAD
 
     @GetMapping("/unidades/{id}/editar")
     public String mostrarFormularioEdicion(
@@ -102,3 +103,7 @@ public class AdminController {
         return "redirect:/admin/festivales";
     }
 }
+=======
+}
+
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)

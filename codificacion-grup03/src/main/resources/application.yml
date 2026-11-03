@@ -5,8 +5,13 @@ spring:
 
   datasource:
     url: ${DB_URL}
+<<<<<<< HEAD
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+=======
+    username: ${USERNAME}
+    password: ${PASSWORD}
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

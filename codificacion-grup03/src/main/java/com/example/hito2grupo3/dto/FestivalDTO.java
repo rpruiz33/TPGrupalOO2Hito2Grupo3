@@ -7,10 +7,15 @@ import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+<<<<<<< HEAD
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+=======
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +31,12 @@ public class FestivalDTO {
     private Long id;
 
     @NotBlank(message = "El nombre del festival es obligatorio")
+<<<<<<< HEAD
     @Size(min = 3, max = 50, message = "El nombre del festival debe tener entre 3 y 50 caracteres")
     @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.-]+$", message = "El nombre del festival contiene caracteres no permitidos")
+=======
+    @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
     private String nombre;
 
     @NotNull(message = "La fecha de inicio es obligatoria")
@@ -48,6 +57,7 @@ public class FestivalDTO {
 
     private long diasDuracion;
 
+<<<<<<< HEAD
     @AssertTrue(message = "La fecha de inicio debe ser anterior o igual a la fecha de finalización")
     public boolean isRangoFechasValido() {
         if (fechaInicio == null || fechaFin == null) {
@@ -59,16 +69,24 @@ public class FestivalDTO {
     public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
         this.nombre = nombre != null ? nombre.trim() : null;
+=======
+    public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
+        this.id = id;
+        this.nombre = nombre;
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.activo = true;
         calcularEstadoYDuracion();
     }
 
+<<<<<<< HEAD
     public void setNombre(String nombre) {
         this.nombre = nombre != null ? nombre.trim() : null;
     }
 
+=======
+>>>>>>> 743b9b9 (ABM FESTIVAL BAJA LOGICA)
     public void calcularEstadoYDuracion() {
         if (fechaInicio != null && fechaFin != null) {
             this.diasDuracion = ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
