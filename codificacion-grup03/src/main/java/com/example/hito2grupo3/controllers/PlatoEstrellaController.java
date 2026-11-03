@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/plato-estrella")
+@RequestMapping("/responsable/plato-estrella")
 public class PlatoEstrellaController {
 
     private final IUnidadVentaService unidadVentaService;

@@ -58,7 +58,8 @@ public class SecurityConfiguration {
                     // Acceso para responsables
                     auth.requestMatchers("/responsable/**")
                             .hasRole("RESPONSABLE");
-
+                    auth.requestMatchers("/plato-estrella")
+                            .hasRole("RESPONSABLE");
                     // Cambio de contraseña para usuarios autenticados
                     auth.requestMatchers("/cambiar-password")
                             .authenticated();
