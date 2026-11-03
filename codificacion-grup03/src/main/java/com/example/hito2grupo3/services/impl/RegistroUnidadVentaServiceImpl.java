@@ -151,13 +151,15 @@ public class RegistroUnidadVentaServiceImpl
                     "El nombre comercial debe tener entre 2 y 50 caracteres.");
         }
 
-        // Validar DNI: 7 u 8 dígitos numéricos
+        // Validación adicional de carga: verifica que el DNI tenga entre 7 y 8 dígitos
+        // numéricos y que no se encuentre registrado previamente.
         if (!dni.matches("^[0-9]{7,8}$")) {
             throw new IllegalArgumentException(
                     "El DNI debe contener 7 u 8 dígitos numéricos, sin puntos ni letras.");
         }
 
-        // Validar formato básico del email
+        // Validación adicional de carga: verifica que el email tenga un formato válido
+        // y que no esté asociado a otro usuario registrado.
         if (!email.matches(
                 "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             throw new IllegalArgumentException(
