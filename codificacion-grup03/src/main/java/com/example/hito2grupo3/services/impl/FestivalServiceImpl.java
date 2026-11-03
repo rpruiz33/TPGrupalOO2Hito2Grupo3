@@ -3,6 +3,7 @@ package com.example.hito2grupo3.services.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -143,6 +144,13 @@ public class FestivalServiceImpl implements IFestivalService {
     }
 
     private void validarFechas(FestivalDTO dto) {
+        LocalDate hoy = LocalDate.now();
+        if (dto.getFechaInicio() != null && dto.getFechaInicio().isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a hoy.");
+        }
+        if (dto.getFechaFin() != null && dto.getFechaFin().isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de finalización no puede ser anterior a hoy.");
+        }
         if (dto.getFechaInicio() != null && dto.getFechaFin() != null) {
             if (dto.getFechaFin().isBefore(dto.getFechaInicio())) {
                 throw new IllegalArgumentException("La fecha de finalización no puede ser anterior a la fecha de inicio.");

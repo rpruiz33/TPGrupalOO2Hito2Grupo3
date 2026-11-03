@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${festival.id == null ? 'Nuevo Festival' : 'Editar Festival'} + ' - Epicentro Gourmet'">Formulario Festival</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
     <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
 </head>
 <body>
@@ -25,28 +26,35 @@
                 <span th:unless="${festival.id == null}">Actualizá el nombre, las fechas y las unidades de venta habilitadas.</span>
             </p>
         </div>
-        <a th:href="@{/admin/festivales}" class="btn btn-secondary">← Volver a festivales</a>
+        <a th:href="@{/admin/festivales}" class="menu-button">← Volver al Menu</a>
     </div>
     <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
     <div class="card card-custom p-4 p-md-5 shadow">
         <form th:action="${formAction}" th:object="${festival}" method="post">
             <input type="hidden" th:field="*{id}" th:if="${festival.id != null}"/>
+            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                <strong>Revisá los datos ingresados:</strong>
+                <ul class="mb-0"><li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li></ul>
+            </div>
             <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">1. Información General del Evento</h5>
             <div class="mb-3">
                 <label for="nombre" class="form-label fw-bold">Nombre del Festival</label>
-                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" minlength="3" maxlength="50" required>
+                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" minlength="3" maxlength="100" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]+$" required>
+                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
             </div>
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
                     <label for="fechaInicio" class="form-label fw-bold">Fecha de Inicio</label>
-                    <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}" required>
+                    <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}" th:min="${fechaMinima}" required>
+                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaInicio')}" th:errors="*{fechaInicio}"></div>
                 </div>
                 <div class="col-md-6">
                     <label for="fechaFin" class="form-label fw-bold">Fecha de Finalización</label>
-                    <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" required>
+                    <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" th:min="${fechaMinima}" required>
+                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaFin')}" th:errors="*{fechaFin}"></div>
                 </div>
             </div>
-            <div class="mb-4 text-danger" th:if="${error}" th:text="${error}"></div>
+            <div class="mb-4 text-danger" th:if="${#fields.hasErrors('rangoFechasValido')}" th:errors="*{rangoFechasValido}"></div>
             <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">2. Unidades de Venta Habilitadas</h5>
             <p class="text-muted small mb-3">Seleccioná las unidades de venta autorizadas a operar en esta edición.</p>
             <div th:if="${#lists.isEmpty(todasUnidades)}" class="alert alert-warning small">No hay unidades de venta registradas.</div>

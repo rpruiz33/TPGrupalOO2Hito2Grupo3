@@ -9,6 +9,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,13 +28,16 @@ public class FestivalDTO {
 
     @NotBlank(message = "El nombre del festival es obligatorio")
     @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.-]+$", message = "El nombre contiene caracteres no permitidos")
     private String nombre;
 
     @NotNull(message = "La fecha de inicio es obligatoria")
+    @FutureOrPresent(message = "La fecha de inicio no puede ser anterior a hoy")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaInicio;
 
     @NotNull(message = "La fecha de fin es obligatoria")
+    @FutureOrPresent(message = "La fecha de finalización no puede ser anterior a hoy")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaFin;
 
@@ -44,6 +50,14 @@ public class FestivalDTO {
     private String estado;
 
     private long diasDuracion;
+
+    @AssertTrue(message = "La fecha de inicio debe ser anterior o igual a la fecha de finalización")
+    public boolean isRangoFechasValido() {
+        if (fechaInicio == null || fechaFin == null) {
+            return true;
+        }
+        return !fechaInicio.isAfter(fechaFin);
+    }
 
     public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
