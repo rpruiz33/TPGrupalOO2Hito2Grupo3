@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
@@ -11,16 +12,20 @@
 </head>
 
 <body>
-    <nav
-        th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}">
+
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}">
     </nav>
+
     <main class="container panel-container mt-4" style="max-width: 1100px;">
+
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
                 <h1 class="h3 fw-bold mb-1" th:text="${festival.nombre}">
                     Nombre del festival
                 </h1>
-                <p class="text-white-50 mb-0">Unidades de venta gastronómicas habilitadas para esta edición.</p>
+                <p class="text-white-50 mb-0">
+                    Unidades de venta gastronómicas habilitadas para esta edición.
+                </p>
             </div>
 
             <div>
@@ -32,68 +37,115 @@
 
         <section class="card menu-card overflow-hidden">
 
-            <div
-                class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h2 class="h5 fw-bold m-0" style="color: #800020;">
                     🏪 Unidades asignadas
                 </h2>
+
                 <span class="text-secondary small fw-semibold"
-                    th:text="${unidades != null ? #sets.size(unidades) + ' unidad(es)' : '0 unidades'}">
+                      th:text="${unidades != null ? #sets.size(unidades) + ' unidad(es)' : '0 unidades'}">
                     0 unidades
                 </span>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+
                     <thead style="background-color: #f4eaec; color: #600018;">
                         <tr>
                             <th class="ps-3">Código</th>
                             <th>Nombre comercial</th>
                             <th>Superficie (m²)</th>
                             <th class="pe-3">Responsable</th>
-                            <th>Acciones</th>
+                            <th>Estado</th>
+                            <th class="text-center pe-3">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        <tr th:each="unidad : ${unidades}">
-                            <td class="ps-3 fw-bold text-dark" th:text="${unidad.codigo}">Código</td>
 
-                            <td class="fw-semibold" th:text="${unidad.nombreComercial}">Nombre comercial</td>
+                        <tr th:each="unidad : ${unidades}">
+
+                            <td class="ps-3 fw-bold text-dark"
+                                th:text="${unidad.codigo}">
+                                Código
+                            </td>
+
+                            <td class="fw-semibold"
+                                th:text="${unidad.nombreComercial}">
+                                Nombre comercial
+                            </td>
 
                             <td>
                                 <span class="badge bg-light text-dark border px-2 py-1"
-                                    th:text="${unidad.superficieM2} + ' m²'">0 m²</span>
+                                      th:text="${unidad.superficieM2} + ' m²'">
+                                    0 m²
+                                </span>
                             </td>
 
                             <td class="pe-3">
-                                <span th:if="${unidad.responsable != null}" class="fw-semibold text-dark"
-                                    th:text="${unidad.responsable.nombre + ' ' + unidad.responsable.apellido}">
+                                <span th:if="${unidad.responsable != null}"
+                                      class="fw-semibold text-dark"
+                                      th:text="${unidad.responsable.nombre + ' ' + unidad.responsable.apellido}">
                                     Responsable
                                 </span>
-                                <span th:unless="${unidad.responsable != null}" class="text-muted fst-italic">
+
+                                <span th:unless="${unidad.responsable != null}"
+                                      class="text-muted fst-italic">
                                     Sin responsable
                                 </span>
                             </td>
 
                             <td>
-                                <a th:href="@{/admin/unidades/{id}/editar(id=${unidad.id}, festivalId=${festival.id})}"
-                                    class="btn btn-sm btn-modificar">
-                                    Modificar
-                                </a>
+                                <span class="badge bg-success">
+                                    ✓ Activa
+                                </span>
                             </td>
+
+                            <td class="text-center text-nowrap pe-3">
+                                <div class="d-flex flex-wrap justify-content-center gap-1">
+
+                                    <a th:href="@{/admin/unidades/{id}/editar(id=${unidad.id}, festivalId=${festival.id})}"
+                                       class="menu-button py-1 px-2"
+                                       title="Modificar unidad de venta">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/admin/unidades/{id}/baja(id=${unidad.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('¿Estás seguro de dar de baja esta unidad de venta?');">
+
+                                        <input type="hidden"
+                                               name="festivalId"
+                                               th:value="${festival.id}">
+
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm py-1 px-2"
+                                                title="Dar de baja unidad de venta">
+                                            Dar de baja
+                                        </button>
+
+                                    </form>
+
+                                </div>
+                            </td>
+
                         </tr>
 
                         <tr th:if="${unidades == null or #sets.isEmpty(unidades)}">
-                            <td colspan="5" class="text-center py-5 text-secondary">
+                            <td colspan="6" class="text-center py-5 text-secondary">
                                 <div class="fs-2 mb-2" aria-hidden="true">🏪</div>
-                                <strong>Este festival no tiene unidades de venta asociadas.</strong>
+
+                                <strong>
+                                    Este festival no tiene unidades de venta asociadas.
+                                </strong>
+
                                 <p class="mb-0 mt-1 small">
-                                    Podés asignarle puestos gastronómicos o food trucks desde la administración de
-                                    festivales.
+                                    Podés asignarle puestos gastronómicos o food trucks desde la administración de festivales.
                                 </p>
                             </td>
                         </tr>
+
                     </tbody>
                 </table>
             </div>
@@ -105,5 +157,4 @@
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 </body>
-
 </html>

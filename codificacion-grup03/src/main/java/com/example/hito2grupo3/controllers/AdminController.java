@@ -38,5 +38,89 @@ public class AdminController {
         model.addAllAttributes(adminDashboardService.obtenerKpisDashboard());
         return "admin/dashboard";
     }
-}
 
+    @GetMapping("/unidades/{id}/editar")
+    public String mostrarFormularioEdicion(
+            @PathVariable Long id,
+            @RequestParam Long festivalId,
+            Model model) {
+
+        UnidadVenta unidad = unidadVentaService.buscarPorId(id);
+
+        if (unidad == null) {
+            return "redirect:/admin/festivales";
+        }
+
+        model.addAttribute("unidad", unidad);
+        model.addAttribute("esFoodTruck", unidad instanceof FoodTruck);
+        model.addAttribute("festivalId", festivalId);
+
+        return "admin/modificar-unidad";
+    }
+
+    @PostMapping("/unidades/{id}/editar")
+    public String modificarUnidad(
+            @PathVariable Long id,
+            @RequestParam String nombreComercial,
+            @RequestParam BigDecimal superficieM2,
+            @RequestParam(required = false) String patente,
+            @RequestParam(required = false) Boolean requiereElectricidad,
+            @RequestParam(required = false) Integer cantidadCarpas,
+            @RequestParam(required = false) Integer tiempoMontajeMin,
+            @RequestParam(required = false) Long festivalId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            modificarUnidadVentaService.modificar(
+                    id,
+                    nombreComercial,
+                    superficieM2,
+                    patente,
+                    requiereElectricidad,
+                    cantidadCarpas,
+                    tiempoMontajeMin);
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "La unidad de venta se modificó correctamente.");
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+            if (festivalId != null) {
+                return "redirect:/admin/unidades/" + id
+                        + "/editar?festivalId=" + festivalId;
+            }
+
+            return "redirect:/admin/festivales";
+        }
+
+        if (festivalId != null) {
+            return "redirect:/admin/festivales/" + festivalId;
+        }
+
+        return "redirect:/admin/festivales";
+    }
+
+    @PostMapping("/unidades/{id}/baja")
+    public String darDeBajaUnidad(
+            @PathVariable Long id,
+            @RequestParam Long festivalId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            unidadVentaService.darDeBaja(id);
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "La unidad de venta se dio de baja correctamente.");
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage());
+        }
+
+        return "redirect:/admin/festivales/" + festivalId;
+    }
+}
