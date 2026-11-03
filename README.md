@@ -32,66 +32,66 @@ Enlace: pendiente de agregar.
 
 Las funcionalidades y cambios del proyecto fueron integrados mediante las siguientes 58 pull requests mergeadas:
 
-| Pull request | Funcionalidad |
-| --- | --- |
-| [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga |
-| [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) | Baja lógica de unidades de venta |
-| [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) | ABM de festivales y baja lógica |
-| [#80](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/80) | Actualización funcional |
-| [#79](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/79) | Reversión de cambios de festivales |
-| [#78](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/78) | Reversión de cambios de festivales |
-| [#77](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/77) | Reversión de cambios de festivales |
-| [#76](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/76) | Cambios de ABM de festivales |
-| [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) | Historial de asignaciones |
-| [#74](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/74) | Separación de lógica de negocio de los controladores |
-| [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) | Validación de cánones |
-| [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) | ABM de categorías de cocina |
-| [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) | Validación de pedidos |
-| [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) | Modificación de unidad de venta |
-| [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68) | Modificación de unidad de venta |
-| [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) | Historial de pedidos con filtros |
-| [#66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66) | Validaciones frontend y backend |
-| [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65) | ABM de festivales |
-| [#64](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/64) | Validaciones de liquidación |
-| [#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63) | Dashboard del empleado |
-| [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) | Reporte de cánones |
-| [#59](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/59) | Corrección de redirección del responsable |
-| [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) | Cálculo de canon en el perfil del responsable |
-| [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) | Plato estrella |
-| [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) | Filtro de empleados |
-| [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) | Modificación e inhabilitación de platos |
-| [#54](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/54) | Baja lógica de empleados |
-| [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52) | Gestión de platos |
-| [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) | Gestión de festivales y unidades de venta |
-| [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) | Gestión del responsable |
-| [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) | Cierre de caja |
-| [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44) | Gestión de platos |
-| [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) | Reporte de recaudación |
-| [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) | Rentabilidad neta |
-| [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) | Funcionalidad de cajero |
-| [#39](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/39) | Ajustes de liquidación |
-| [#38](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/38) | Cambios generales |
-| [#37](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/37) | Ajustes de información |
-| [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) | Alta de pedidos |
-| [#34](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/34) | Reporte de recaudación y unificación de estilos |
-| [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) | Registro de unidad de venta y responsable |
-| [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) | Liquidaciones |
-| [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) | Contraseña y registro |
-| [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30) | Servicios, vistas y entidades de liquidación |
-| [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29) | Liquidaciones |
-| [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27) | Alta de pedidos |
-| [#26](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/26) | Creación de alta de pedidos |
-| [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) | Alta de usuarios desde administración |
-| [#23](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/23) | Primera vista del índice de administración |
-| [#22](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/22) | Correcciones de entidades |
-| [#21](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/21) | Entidades, relaciones y UML |
-| [#17](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/17) | Corrección del README |
-| [#16](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/16) | Actualización de desarrollo |
-| [#14](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/14) | Actualización de desarrollo |
-| [#10](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/10) | Prueba de funcionalidad |
-| [#9](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/9) | Notificaciones de correo para eventos |
-| [#5](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/5) | Diseño UML |
-| [#2](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/2) | Prueba inicial |
+| Pull request | Funcionalidad | Realizado por |
+| --- | --- | --- |
+| [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga | Ana Belén Vázquez |
+| [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) | Baja lógica de unidades de venta | Ana Belén Vázquez |
+| [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) | ABM de festivales y baja lógica | Roberto Andrés Ruiz Pereira |
+| [#80](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/80) | Actualización funcional | Roberto Andrés Ruiz Pereira |
+| [#79](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/79) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#78](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/78) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#77](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/77) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#76](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/76) | Cambios de ABM de festivales | Roberto Andrés Ruiz Pereira |
+| [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) | Historial de asignaciones | Federico Matías Salvatierra |
+| [#74](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/74) | Separación de lógica de negocio de los controladores | Roberto Andrés Ruiz Pereira |
+| [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) | Validación de cánones | Federico Matías Salvatierra |
+| [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) | ABM de categorías de cocina | Roberto Andrés Ruiz Pereira |
+| [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) | Validación de pedidos | Leonel Alejandro Soloaga |
+| [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) | Modificación de unidad de venta | Ana Belén Vázquez |
+| [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68) | Modificación de unidad de venta | Ana Belén Vázquez |
+| [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) | Historial de pedidos con filtros | Leonel Alejandro Soloaga |
+| [#66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66) | Validaciones frontend y backend | Roberto Andrés Ruiz Pereira |
+| [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65) | ABM de festivales | Roberto Andrés Ruiz Pereira |
+| [#64](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/64) | Validaciones de liquidación | Roberto Andrés Ruiz Pereira |
+| [#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63) | Dashboard del empleado | Leonel Alejandro Soloaga |
+| [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) | Reporte de cánones | Ana Belén Vázquez |
+| [#59](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/59) | Corrección de redirección del responsable | Ana Belén Vázquez |
+| [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) | Cálculo de canon en el perfil del responsable | Federico Matías Salvatierra |
+| [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) | Plato estrella | Leonel Alejandro Soloaga |
+| [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) | Filtro de empleados | Leonel Alejandro Soloaga |
+| [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) | Modificación e inhabilitación de platos | Leonel Alejandro Soloaga |
+| [#54](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/54) | Baja lógica de empleados | Roberto Andrés Ruiz Pereira |
+| [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52) | Gestión de platos | Leonel Alejandro Soloaga |
+| [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) | Gestión de festivales y unidades de venta | Federico Matías Salvatierra |
+| [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) | Gestión del responsable | Federico Matías Salvatierra |
+| [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) | Cierre de caja | Roberto Andrés Ruiz Pereira |
+| [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44) | Gestión de platos | Leonel Alejandro Soloaga |
+| [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) | Reporte de recaudación | Roberto Andrés Ruiz Pereira |
+| [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) | Rentabilidad neta | Roberto Andrés Ruiz Pereira |
+| [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) | Funcionalidad de cajero | Leonel Alejandro Soloaga |
+| [#39](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/39) | Ajustes de liquidación | Roberto Andrés Ruiz Pereira |
+| [#38](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/38) | Cambios generales | Roberto Andrés Ruiz Pereira |
+| [#37](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/37) | Ajustes de información | Roberto Andrés Ruiz Pereira |
+| [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) | Alta de pedidos | Leonel Alejandro Soloaga |
+| [#34](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/34) | Reporte de recaudación y unificación de estilos | Federico Matías Salvatierra |
+| [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) | Registro de unidad de venta y responsable | Ana Belén Vázquez |
+| [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) | Liquidaciones | Roberto Andrés Ruiz Pereira |
+| [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) | Contraseña y registro | Roberto Andrés Ruiz Pereira |
+| [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30) | Servicios, vistas y entidades de liquidación | Roberto Andrés Ruiz Pereira |
+| [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29) | Liquidaciones | Roberto Andrés Ruiz Pereira |
+| [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27) | Alta de pedidos | Leonel Alejandro Soloaga |
+| [#26](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/26) | Creación de alta de pedidos | Leonel Alejandro Soloaga |
+| [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) | Alta de usuarios desde administración | Federico Matías Salvatierra |
+| [#23](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/23) | Primera vista del índice de administración | Federico Matías Salvatierra |
+| [#22](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/22) | Correcciones de entidades | Roberto Andrés Ruiz Pereira |
+| [#21](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/21) | Entidades, relaciones y UML | Roberto Andrés Ruiz Pereira |
+| [#17](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/17) | Corrección del README | Roberto Andrés Ruiz Pereira |
+| [#16](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/16) | Actualización de desarrollo | Roberto Andrés Ruiz Pereira |
+| [#14](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/14) | Actualización de desarrollo | Roberto Andrés Ruiz Pereira |
+| [#10](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/10) | Prueba de funcionalidad | Roberto Andrés Ruiz Pereira |
+| [#9](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/9) | Notificaciones de correo para eventos | Roberto Andrés Ruiz Pereira |
+| [#5](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/5) | Diseño UML | Leonel Alejandro Soloaga |
+| [#2](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/2) | Prueba inicial | Federico Matías Salvatierra |
 
 Ver todas las pull requests en el [repositorio de GitHub](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls).
 
@@ -172,20 +172,22 @@ http://localhost:8080
 
 ## Casos de uso y responsables
 
-La implementación fue realizada por el Grupo 03. La asignación individual de cada caso de uso queda pendiente de completar según la distribución acordada por el equipo.
+La asignación se realizó tomando como referencia los autores de las pull requests relacionadas con cada funcionalidad. Algunos casos de uso tienen más de un responsable porque fueron desarrollados en distintas etapas.
 
 | Caso de uso | Responsable |
 | --- | --- |
-| Autenticación, registro y contraseña | Grupo 03 |
-| Gestión de usuarios y roles | Grupo 03 |
-| Gestión de festivales | Grupo 03 |
-| Gestión de unidades de venta | Grupo 03 |
-| Gestión de personal y asignaciones | Grupo 03 |
-| Gestión de categorías y platos | Grupo 03 |
-| Gestión de pedidos | Grupo 03 |
-| Caja y cierre de caja | Grupo 03 |
-| Liquidaciones | Grupo 03 |
-| Reportes y rentabilidad | Grupo 03 |
+| Autenticación, registro y contraseña | Roberto Andrés Ruiz Pereira |
+| Gestión de usuarios y roles | Federico Matías Salvatierra; Roberto Andrés Ruiz Pereira |
+| Gestión de festivales | Roberto Andrés Ruiz Pereira |
+| Gestión de unidades de venta | Ana Belén Vázquez; Federico Matías Salvatierra |
+| Gestión de personal y asignaciones | Federico Matías Salvatierra; Leonel Alejandro Soloaga; Roberto Andrés Ruiz Pereira |
+| Gestión de categorías de cocina | Roberto Andrés Ruiz Pereira |
+| Gestión de platos | Leonel Alejandro Soloaga |
+| Gestión de pedidos | Leonel Alejandro Soloaga |
+| Caja y cierre de caja | Leonel Alejandro Soloaga; Roberto Andrés Ruiz Pereira |
+| Liquidaciones | Roberto Andrés Ruiz Pereira |
+| Reportes de ventas, recaudación y cánones | Roberto Andrés Ruiz Pereira; Federico Matías Salvatierra; Ana Belén Vázquez |
+| Rentabilidad neta | Roberto Andrés Ruiz Pereira |
 
 ## Estructura principal
 
