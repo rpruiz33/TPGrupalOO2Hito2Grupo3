@@ -1,65 +1,111 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Epicentro Gourmet</title>
+
     <link rel="stylesheet" th:href="@{/css/vistas.css}">
     <link rel="stylesheet" th:href="@{/css/inicio.css}">
 </head>
 <body>
 
     <header class="inicio-header">
-        <div class="contenedor">
+
+        <nav class="menu">
+
+            <a class="btn-registro" th:href="@{/registro}">
+                Registrar unidad de venta
+            </a>
+
+            <a class="btn-login" th:href="@{/login}">
+                Iniciar sesión
+            </a>
+
+        </nav>
+
+        <div class="header-contenido">
+
+            <div class="logo-decorativo">♨</div>
+
             <h1>Epicentro Gourmet</h1>
+
             <p>Sabores, encuentros y experiencias gastronómicas.</p>
 
-            <nav class="menu">
-                <a th:href="@{/login}">Iniciar sesión</a>
-                <a th:href="@{/registro}">Registrar unidad de venta</a>
-            </nav>
         </div>
+
+        <div class="linea-dorada"></div>
+
     </header>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="inicio-main">
+
         <div class="contenedor">
+
             <section class="festivales">
+
                 <h2>Conocé nuestros festivales</h2>
 
+                <div class="decoracion-titulo">✦</div>
+
+                <!-- CUANDO NO HAY FESTIVALES -->
                 <p class="vacio"
                    th:if="${#lists.isEmpty(festivales)}">
                     Actualmente no hay festivales cargados.
                 </p>
 
+                <!-- TARJETAS DE FESTIVALES -->
                 <div class="festivales-grid"
                      th:unless="${#lists.isEmpty(festivales)}">
 
                     <article class="festival-card"
                              th:each="festival : ${festivales}">
 
+                        <div class="festival-icono">♨</div>
+
                         <h3 th:text="${festival.nombre}">
                             Nombre del festival
                         </h3>
 
-                        <p>
-                            <strong>Fecha de inicio:</strong>
-                            <span th:text="${festival.fechaInicio}"></span>
-                        </p>
+                        <div class="separador-card"></div>
 
-                        <p>
-                            <strong>Fecha de finalización:</strong>
-                            <span th:text="${festival.fechaFin}"></span>
-                        </p>
+                        <div class="festival-fechas">
+
+                            <p>
+                                <strong>Fecha de inicio</strong>
+                                <span th:text="${festival.fechaInicio}"></span>
+                            </p>
+
+                            <p>
+                                <strong>Fecha de finalización</strong>
+                                <span th:text="${festival.fechaFin}"></span>
+                            </p>
+
+                        </div>
+
                     </article>
 
                 </div>
+
             </section>
+
         </div>
+
     </main>
 
+    <!-- PIE DE PÁGINA -->
     <footer class="inicio-footer">
+
+        <div class="footer-decoracion">
+            <span></span>
+            <strong>♨</strong>
+            <span></span>
+        </div>
+
         <p>Epicentro Gourmet · Universidad Nacional de Lanús</p>
+
     </footer>
 
 </body>

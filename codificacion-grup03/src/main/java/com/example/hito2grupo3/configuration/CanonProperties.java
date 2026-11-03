@@ -3,12 +3,6 @@ package com.example.hito2grupo3.configuration;
 import java.math.BigDecimal;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Valores para el cálculo del canon de unidades de venta.
- * Evita valores hardcodeados en el código de negocio (nota 4 del enunciado del TP).
- * Se configuran en application.yml bajo el prefijo "canon".
- * Habilitado con @ConfigurationPropertiesScan en la clase main.
- */
 @ConfigurationProperties(prefix = "canon")
 public record CanonProperties(
         BigDecimal costoPorM2,

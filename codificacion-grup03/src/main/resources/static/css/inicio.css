@@ -1,191 +1,324 @@
 
 /* ==========================================================================
-   1. PÁGINA PRINCIPAL - EPICENTRO GOURMET
+   1. ESTILOS GENERALES
    ========================================================================== */
 
-.inicio-header {
-    background-color: #800020;
-    color: #ffffff;
-    text-align: center;
+body {
     margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Georgia, 'Times New Roman', serif;
+    background-color: #4a0013;
 }
 
-.inicio-header .contenedor {
-    max-width: 1100px;
-    padding: 42px 20px;
-    margin: 0 auto;
-}
-
-.inicio-header h1 {
-    color: #ffffff;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 12px;
-}
-
-.inicio-header p {
-    color: #e0e0e0;
-    font-size: 1.1rem;
-    margin: 0;
+* {
+    box-sizing: border-box;
 }
 
 /* ==========================================================================
-   2. NAVEGACIÓN Y BOTONES
+   2. ENCABEZADO
+   ========================================================================== */
+
+.inicio-header {
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    padding: 35px 5% 55px;
+    text-align: center;
+    color: #fff8ed;
+
+    background:
+        radial-gradient(ellipse at 50% 100%, #70001e 0%, transparent 65%),
+        linear-gradient(125deg, #39000f, #650019 55%, #30000c);
+}
+
+/* Decoración del encabezado */
+
+.inicio-header::before {
+    content: "";
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border: 1px solid rgba(214, 163, 84, 0.12);
+    border-radius: 50%;
+    top: -280px;
+    left: -100px;
+}
+
+.inicio-header::after {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    border: 1px solid rgba(214, 163, 84, 0.12);
+    border-radius: 50%;
+    bottom: -280px;
+    right: -80px;
+}
+
+/* ==========================================================================
+   3. BOTONES SUPERIORES
    ========================================================================== */
 
 .inicio-header nav.menu {
+    position: relative;
+    z-index: 2;
+    max-width: 1450px;
+    margin: 0 auto;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 14px;
-    margin-top: 26px;
+    gap: 15px;
 }
 
 .inicio-header nav.menu a {
     display: inline-block;
-    width: auto;
-    padding: 12px 22px;
-    border: 2px solid #ffffff;
-    border-radius: 8px;
-    background-color: transparent;
-    color: #ffffff;
+    padding: 13px 25px;
+    border: 2px solid #d6a354;
+    border-radius: 10px;
+    background-color: #fff8ed;
+    color: #800020;
     text-decoration: none;
+    font-family: inherit;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.3s ease;
 }
 
 .inicio-header nav.menu a:hover {
-    background-color: #ffffff;
-    color: #800020;
-    transform: translateY(-2px);
-}
-
-/* Destacar el registro de unidades de venta */
-.inicio-header nav.menu a:last-child {
-    background-color: #ffffff;
-    color: #800020;
-}
-
-.inicio-header nav.menu a:last-child:hover {
-    background-color: #f5e8cf;
-    border-color: #f5e8cf;
+    background-color: #d6a354;
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* ==========================================================================
-   3. CONTENIDO PRINCIPAL
+   4. TÍTULO Y DESCRIPCIÓN
+   ========================================================================== */
+
+.header-contenido {
+    position: relative;
+    z-index: 1;
+    padding-top: 10px;
+}
+
+.logo-decorativo {
+    color: #d6a354;
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+}
+
+.inicio-header h1 {
+    color: #fff8ed;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    font-style: italic;
+    margin: 0 0 12px;
+    letter-spacing: -1px;
+}
+
+.inicio-header p {
+    color: #f0d9d0;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.linea-dorada {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(
+        90deg,
+        #a66b28,
+        #f0d08a,
+        #a66b28
+    );
+}
+
+/* ==========================================================================
+   5. CONTENIDO PRINCIPAL
    ========================================================================== */
 
 .inicio-main {
     flex: 1;
-    background-color: #800020;
     color: #ffffff;
+    background:
+        radial-gradient(ellipse at center, #71001d 0%, transparent 75%),
+        linear-gradient(135deg, #450010, #650019, #3d000e);
 }
 
 .inicio-main .contenedor {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 42px 24px 54px;
+    padding: 40px 25px 55px;
 }
 
 .festivales h2 {
-    color: #ffffff;
+    color: #fff8ed;
     text-align: center;
-    font-size: 1.8rem;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
     font-weight: 700;
-    margin: 0 0 32px;
+    margin: 0;
+}
+
+.decoracion-titulo {
+    text-align: center;
+    color: #d6a354;
+    font-size: 1.5rem;
+    margin: 10px 0 30px;
 }
 
 /* ==========================================================================
-   4. TARJETAS DE FESTIVALES
+   6. TARJETAS DE FESTIVALES
    ========================================================================== */
 
 .festivales-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
 }
 
 .festival-card {
-    background-color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #fffaf3, #f4e9df);
     color: #333333;
-    padding: 26px;
-    border: 1px solid #e5e5e5;
-    border-top: 5px solid #d6a354;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.16);
+    padding: 25px 28px;
+    border: 1px solid #d6a354;
+    border-top: 7px solid #d6a354;
+    border-radius: 18px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.22);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .festival-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+    transform: translateY(-7px);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.32);
+}
+
+.festival-icono {
+    color: #c18a40;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 5px;
 }
 
 .festival-card h3 {
     color: #800020;
-    font-size: 1.2rem;
+    text-align: center;
+    font-size: 1.35rem;
     font-weight: 700;
     line-height: 1.4;
-    margin: 0 0 20px;
+    margin: 0 0 15px;
 }
 
-.festival-card p {
-    color: #555555;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 12px 0;
-    overflow-wrap: anywhere;
-}
-
-.festival-card strong {
-    color: #5e0016;
-    font-weight: 700;
+.separador-card {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #d6a354,
+        transparent
+    );
+    margin-bottom: 12px;
 }
 
 /* ==========================================================================
-   5. MENSAJE CUANDO NO HAY FESTIVALES
+   7. FECHAS
+   ========================================================================== */
+
+.festival-fechas p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 5px;
+    border-bottom: 1px solid #ead8c8;
+    margin: 0;
+}
+
+.festival-fechas strong {
+    color: #5e0016;
+    font-size: 0.9rem;
+}
+
+.festival-fechas span {
+    color: #444444;
+    font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   8. MENSAJE SIN FESTIVALES
    ========================================================================== */
 
 .festivales .vacio {
-    background-color: rgba(255, 255, 255, 0.10);
-    color: #ffffff;
-    border: 1px dashed rgba(255, 255, 255, 0.55);
-    border-radius: 10px;
-    padding: 28px 20px;
+    max-width: 700px;
+    margin: 35px auto;
+    padding: 25px;
     text-align: center;
+    color: #fff8ed;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px dashed #d6a354;
+    border-radius: 12px;
 }
 
 /* ==========================================================================
-   6. PIE DE PÁGINA
+   9. FOOTER
    ========================================================================== */
 
 .inicio-footer {
-    background-color: #5e0016;
-    color: #e0e0e0;
+    background: linear-gradient(90deg, #39000f, #650019, #39000f);
+    color: #fff8ed;
     text-align: center;
-    padding: 20px;
-    margin-top: auto;
+    padding: 15px 20px 20px;
+    border-top: 4px solid #d6a354;
+}
+
+.footer-decoracion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.footer-decoracion span {
+    width: 120px;
+    height: 2px;
+    background: #d6a354;
+}
+
+.footer-decoracion strong {
+    color: #d6a354;
+    font-size: 1.5rem;
 }
 
 .inicio-footer p {
-    color: #e0e0e0;
+    color: #f0d9d0;
     font-size: 0.9rem;
     margin: 0;
 }
 
 /* ==========================================================================
-   7. DISEÑO RESPONSIVE
+   10. RESPONSIVE
    ========================================================================== */
 
 @media (max-width: 768px) {
-    .inicio-header .contenedor {
-        padding: 34px 18px;
+
+    .inicio-header {
+        padding: 25px 20px 40px;
+    }
+
+    .header-contenido {
+        padding-top: 35px;
     }
 
     .inicio-header h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
 
     .inicio-header p {
@@ -193,27 +326,31 @@
     }
 
     .inicio-main .contenedor {
-        padding: 32px 18px 40px;
-    }
-
-    .festivales h2 {
-        font-size: 1.5rem;
+        padding: 35px 20px;
     }
 
     .festivales-grid {
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 }
 
 @media (max-width: 480px) {
+
     .inicio-header nav.menu {
         flex-direction: column;
         align-items: stretch;
     }
 
     .inicio-header nav.menu a {
-        width: 100%;
+        text-align: center;
+    }
+
+    .header-contenido {
+        padding-top: 30px;
+    }
+
+    .inicio-header h1 {
+        font-size: 2rem;
     }
 
     .festivales-grid {
@@ -221,10 +358,15 @@
     }
 
     .festival-card {
-        padding: 22px;
+        padding: 23px 20px;
     }
 
-    .inicio-footer {
-        padding: 18px 12px;
+    .festival-fechas p {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .footer-decoracion span {
+        width: 65px;
     }
 }
