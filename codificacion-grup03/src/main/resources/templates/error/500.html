@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Denegado (403)</title>
+    <title>Error del Servidor (500)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -29,7 +29,7 @@
         .error-code {
             font-size: 72px;
             font-weight: 800;
-            color: #ef4444;
+            color: #dc2626;
             line-height: 1;
             margin-bottom: 12px;
         }
@@ -73,16 +73,12 @@
 <body>
 
 <div class="error-card">
-    <div class="error-code">403</div>
-    <h1 class="error-title">Acceso Denegado</h1>
-    <p class="error-desc" th:text="${message != null && !message.isEmpty() ? message : 'No tienes los permisos o el rol necesario para acceder a este recurso.'}">
-        No tienes los permisos o el rol necesario para acceder a este recurso.
+    <div class="error-code">500</div>
+    <h1 class="error-title">Error Interno del Servidor</h1>
+    <p class="error-desc">
+        Ocurrió un problema inesperado al procesar la solicitud.
     </p>
 
-    <div class="actions">
-        <a href="javascript:history.back()" class="btn btn-secondary">Regresar</a>
-        <a href="/" class="btn btn-primary">Ir al Inicio</a>
-    </div>
 </div>
 
 </body>
