@@ -20,7 +20,15 @@
     <header class="panel-header text-center text-white mb-4">
         <h1 class="fw-bold mb-1">Epicentro Gourmet</h1>
         <h2 class="text-white-50 mb-2">Panel del Personal</h2>
-        <p class="unit-info mb-0">Gestión de actividades y consultas personales.</p>
+<p class="unit-info mb-1">
+    Unidad de venta: <strong th:text="${unidadAsignada != null ? unidadAsignada.nombreComercial: 'Sin asignar'}">
+        Sin asignar
+    </strong>
+</p>
+
+<p class="unit-info mb-0">
+    Gestión de actividades y consultas personales.
+</p>
     </header>
 
     <div th:if="${mensaje}"

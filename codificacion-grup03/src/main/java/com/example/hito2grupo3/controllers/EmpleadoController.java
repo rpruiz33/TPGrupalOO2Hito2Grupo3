@@ -19,10 +19,31 @@ public class EmpleadoController {
         this.empleadoInfoService = empleadoInfoService;
     }
 
-    @GetMapping("/empleado/index")
-    public String mostrarIndex() {
-        return "empleado/index";
+@GetMapping("/empleado/index")
+public String mostrarIndex(
+        Principal principal,
+        Authentication authentication,
+        Model model) {
+
+    if (principal == null || authentication == null) {
+        return "redirect:/login";
     }
+
+    try {
+        Map<String, Object> dashboardData =
+                empleadoInfoService.obtenerDashboardEmpleado(principal.getName());
+
+        model.addAllAttributes(dashboardData);
+
+    } catch (Exception e) {
+        model.addAttribute(
+                "error",
+                "No se pudo cargar la información del personal."
+        );
+    }
+
+    return "empleado/index";
+}
 
     @GetMapping("/mi-informacion")
     public String mostrarDashboard(

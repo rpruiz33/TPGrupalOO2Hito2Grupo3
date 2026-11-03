@@ -3,6 +3,7 @@ package com.example.hito2grupo3.controllers;
 import com.example.hito2grupo3.entities.CierreCaja;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.ICierreCajaService;
+import com.example.hito2grupo3.services.IEmpleadoInfoService;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,22 +24,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+
+
 @Controller
 @RequestMapping("/cajero")
 @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO', 'CAJERO')")
 public class CajeroController {
 
-    private final ICierreCajaService cierreCajaService;
+private final ICierreCajaService cierreCajaService;
+private final IEmpleadoInfoService empleadoInfoService;
 
-    public CajeroController(ICierreCajaService cierreCajaService) {
-        this.cierreCajaService = cierreCajaService;
+public CajeroController(
+        ICierreCajaService cierreCajaService,
+        IEmpleadoInfoService empleadoInfoService) {
+    this.cierreCajaService = cierreCajaService;
+    this.empleadoInfoService = empleadoInfoService;
+}
+
+@GetMapping("/index")
+public String mostrarIndex(Model model, Principal principal) {
+
+    model.addAttribute("esCajero", true);
+
+    if (principal == null) {
+        return "redirect:/login";
     }
 
-    @GetMapping("/index")
-    public String mostrarIndex(Model model, Principal principal) {
-        model.addAttribute("esCajero", true);
-        return "cajero/Cajero-index";
+    try {
+        Map<String, Object> dashboardData =
+                empleadoInfoService.obtenerDashboardEmpleado(principal.getName());
+
+        model.addAttribute("unidadVenta", dashboardData.get("unidadAsignada"));
+
+    } catch (Exception e) {
+        model.addAttribute("unidadVenta", null);
+        model.addAttribute(
+                "error",
+                "No se pudo cargar la información de la unidad de venta."
+        );
     }
+
+    return "cajero/Cajero-index";
+}
 
     /**
      * GET /cajero/cierre-caja
