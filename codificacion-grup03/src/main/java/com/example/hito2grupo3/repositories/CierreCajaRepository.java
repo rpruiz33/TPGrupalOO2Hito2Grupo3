@@ -24,6 +24,8 @@ public interface CierreCajaRepository extends JpaRepository<CierreCaja, Long> {
 
     Optional<CierreCaja> findByCajeroIdAndFecha(Long cajeroId, LocalDate fecha);
 
+    Optional<CierreCaja> findByCajeroIdAndUnidadVentaIdAndFecha(Long cajeroId, Long unidadVentaId, LocalDate fecha);
+
     @Query("SELECT COALESCE(SUM(cc.montoRecaudado), 0) FROM CierreCaja cc WHERE cc.cajero.id = :cajeroId")
     BigDecimal sumarRecaudacionPorCajero(@Param("cajeroId") Long cajeroId);
 

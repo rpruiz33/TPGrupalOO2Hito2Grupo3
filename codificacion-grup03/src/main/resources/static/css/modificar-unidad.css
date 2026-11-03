@@ -1,0 +1,115 @@
+/* Encabezado del panel de administración */
+.admin-header {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+/* Formulario de modificación de unidades de venta */
+
+.form-card {
+    max-width: 760px;
+    padding: 28px;
+    background-color: #ffffff;
+    border: 2px solid #222222;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+.form-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e5dadd;
+}
+
+.form-icon {
+    font-size: 2rem;
+}
+
+.form-card-header h3 {
+    color: #800020;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.form-card-header p,
+.form-text {
+    color: #666666;
+    font-size: 0.88rem;
+}
+
+.form-label {
+    color: #333333;
+    font-weight: 600;
+}
+
+.form-control {
+    border: 1px solid #b9a3a8;
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.form-control:focus,
+.form-check-input:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.18);
+}
+
+.form-control[readonly] {
+    background-color: #f1edef;
+    color: #666666;
+}
+
+.section-title {
+    margin-bottom: 18px;
+    color: #800020;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.form-divider {
+    margin: 25px 0;
+    border-color: #d7c4c9;
+}
+
+.form-check-input:checked {
+    background-color: #800020;
+    border-color: #800020;
+}
+
+.form-note {
+    margin-top: 24px;
+    padding: 13px 15px;
+    background-color: #f8f0f2;
+    border-left: 4px solid #800020;
+    border-radius: 5px;
+    color: #514348;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+    .form-card {
+        padding: 20px 16px;
+    }
+
+    .form-card-header h3 {
+        font-size: 1.15rem;
+    }
+}
+/* Botón Modificar en color bordó */
+a.btn-modificar,
+a.btn-modificar:focus,
+a.btn-modificar:active {
+    background-color: #800020 !important;
+    border: 1px solid #800020 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+a.btn-modificar:hover {
+    background-color: #600018 !important;
+    border-color: #600018 !important;
+    color: #ffffff !important;
+}

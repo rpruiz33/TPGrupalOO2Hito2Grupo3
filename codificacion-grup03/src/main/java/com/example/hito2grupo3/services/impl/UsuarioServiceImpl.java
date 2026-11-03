@@ -45,6 +45,28 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public java.util.List<Usuario> listarTodos() {
+        return usuarioRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario buscarPorEmail(String email) {
+        if (email == null) {
+            return null;
+        }
+        return usuarioRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean debeCambiarPassword(String email) {
+        Usuario usuario = buscarPorEmail(email);
+        return usuario != null && usuario.isDebeCambiarPassword();
+    }
+
+    @Override
     @Transactional
     public void reenviarCredenciales(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)

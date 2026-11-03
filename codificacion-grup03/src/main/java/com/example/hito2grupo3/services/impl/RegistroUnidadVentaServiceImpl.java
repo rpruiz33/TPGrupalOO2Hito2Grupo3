@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.hito2grupo3.services.ICanonService;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.FoodTruck;
 import com.example.hito2grupo3.entities.PuestoDesarmable;
@@ -36,20 +36,22 @@ public class RegistroUnidadVentaServiceImpl
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
     private final FestivalRepository festivalRepository;
-
+    private final ICanonService canonService;
     public RegistroUnidadVentaServiceImpl(
             UsuarioRepository usuarioRepository,
             StaffRepository staffRepository,
             UnidadVentaRepository unidadVentaRepository,
             RolRepository rolRepository,
             FestivalRepository festivalRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            ICanonService canonService) {
         this.usuarioRepository = usuarioRepository;
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
         this.rolRepository = rolRepository;
         this.festivalRepository = festivalRepository;
         this.passwordEncoder = passwordEncoder;
+        this.canonService = canonService;
     }
 
     private String generarCodigo(String tipoUnidad) {
@@ -133,10 +135,26 @@ public class RegistroUnidadVentaServiceImpl
                     "Completá todos los campos obligatorios.");
         }
 
-        // Validar DNI: exactamente 8 dígitos numéricos
-        if (!dni.matches("[0-9]{8}")) {
+        // Validar longitudes y caracteres en nombres y apellidos
+        if (nombre.length() < 2 || nombre.length() > 50 || !nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
             throw new IllegalArgumentException(
-                    "El DNI debe contener exactamente 8 dígitos numéricos, sin puntos ni espacios.");
+                    "El nombre solo debe contener letras y espacios (entre 2 y 50 caracteres).");
+        }
+
+        if (apellido.length() < 2 || apellido.length() > 50 || !apellido.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
+            throw new IllegalArgumentException(
+                    "El apellido solo debe contener letras y espacios (entre 2 y 50 caracteres).");
+        }
+
+        if (nombreComercial.length() < 2 || nombreComercial.length() > 50) {
+            throw new IllegalArgumentException(
+                    "El nombre comercial debe tener entre 2 y 50 caracteres.");
+        }
+
+        // Validar DNI: 7 u 8 dígitos numéricos
+        if (!dni.matches("^[0-9]{7,8}$")) {
+            throw new IllegalArgumentException(
+                    "El DNI debe contener 7 u 8 dígitos numéricos, sin puntos ni letras.");
         }
 
         // Validar formato básico del email
@@ -263,6 +281,16 @@ public class RegistroUnidadVentaServiceImpl
         unidad.setNombreComercial(nombreComercial);
         unidad.setSuperficieM2(superficieM2);
         unidad.setResponsable(responsable);
+        
+ // Validar que el canon calculado sea mayor que cero
+ BigDecimal canonCalculado = canonService.calcularCanon(unidad);
+
+ if (canonCalculado == null ||
+         canonCalculado.compareTo(BigDecimal.ZERO) <= 0) {
+     throw new IllegalArgumentException(
+             "No se puede registrar la unidad de venta porque el canon debe ser mayor que cero.");
+ }
+
 
         // Guardar la unidad de venta
         unidadVentaRepository.save(unidad);

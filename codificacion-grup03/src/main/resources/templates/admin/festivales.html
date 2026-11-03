@@ -1,130 +1,66 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Festivales - Epicentro Gourmet</title>
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" th:href="@{/css/admin-style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
 </head>
+
 <body>
-
-<nav class="navbar navbar-dark admin-header px-4 py-2">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">
-            Epicentro Gourmet - Admin
-        </a>
-        <form th:action="@{/logout}" method="post" class="m-0">
-            <button type="submit" class="btn btn-outline-custom btn-sm">
-                Cerrar Sesión
-            </button>
-        </form>
-    </div>
-</nav>
-
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
-            ← Volver al panel
-        </a>
-        <a th:href="@{/admin/festivales/nuevo}" class="btn btn-light fw-bold shadow-sm">
-            + Registrar Nuevo Festival
-        </a>
-    </div>
-
-    <!-- Mensajes de notificación -->
-    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-        <span th:text="${mensaje}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <div class="mb-4">
-        <h2 class="fw-bold mb-1">Gestión de Festivales (ABM)</h2>
-        <p class="text-white-50">Administrá las ediciones temáticas anuales, sus fechas de vigencia y puestos habilitados.</p>
-    </div>
-
-    <div th:if="${#lists.isEmpty(festivales)}" class="alert alert-info">
-        No hay festivales registrados actualmente. Podés registrar el primero haciendo clic en "Registrar Nuevo Festival".
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 col-lg-4 mb-4" th:each="festival : ${festivales}">
-            <div class="card card-custom h-100 d-flex flex-column justify-content-between">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="badge"
-                              th:classappend="${!festival.activo ? 'bg-danger' : (festival.estado == 'En curso' ? 'bg-success' : (festival.estado == 'Próximo' ? 'bg-primary' : 'bg-secondary'))}"
-                              th:text="${festival.estado}">
-                            Estado
-                        </span>
-                        <span class="text-muted small" th:if="${festival.diasDuracion > 0}"
-                              th:text="${festival.diasDuracion} + ' días'">
-                        </span>
-                    </div>
-
-                    <h4 class="fw-bold mb-2 text-dark"
-                        th:classappend="${!festival.activo ? 'text-decoration-line-through text-muted' : ''}"
-                        th:text="${festival.nombre}">
-                        Nombre del festival
-                    </h4>
-
-                    <div class="mb-3 small text-muted">
-                        <div>
-                            <strong>Inicio:</strong> 
-                            <span th:text="${festival.fechaInicio != null ? #temporals.format(festival.fechaInicio, 'dd/MM/yyyy') : '-'}">01/01/2026</span>
-                        </div>
-                        <div>
-                            <strong>Fin:</strong> 
-                            <span th:text="${festival.fechaFin != null ? #temporals.format(festival.fechaFin, 'dd/MM/yyyy') : '-'}">10/01/2026</span>
-                        </div>
-                        <div class="mt-2 text-dark">
-                            <strong>Unidades habilitadas:</strong>
-                            <span class="badge bg-light text-dark border" th:text="${festival.cantidadUnidades}">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-footer bg-transparent border-top p-3 d-flex flex-column gap-2">
-                    <a class="btn btn-outline-primary btn-sm w-100"
-                       th:href="@{/admin/festivales/{id}(id=${festival.id})}">
-                        Ver Unidades de Venta
-                    </a>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-outline-secondary btn-sm flex-fill"
-                           th:href="@{/admin/festivales/editar/{id}(id=${festival.id})}">
-                            Editar
-                        </a>
-
-                        <!-- Botón Dar de baja si está activo -->
-                        <form th:if="${festival.activo}"
-                              th:action="@{/admin/festivales/baja/{id}(id=${festival.id})}" method="post"
-                              class="m-0 flex-fill"
-                              onsubmit="return confirm('¿Está seguro de que desea dar de baja este festival?');">
-                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                                Dar de baja
-                            </button>
-                        </form>
-
-                        <!-- Botón Reactivar si está dado de baja -->
-                        <form th:unless="${festival.activo}"
-                              th:action="@{/admin/festivales/reactivar/{id}(id=${festival.id})}" method="post"
-                              class="m-0 flex-fill"
-                              onsubmit="return confirm('¿Desea reactivar este festival?');">
-                            <button type="submit" class="btn btn-success btn-sm w-100">
-                                Reactivar
-                            </button>
-                        </form>
-                    </div>
-                </div>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <main class="container panel-container mt-4" style="max-width: 1100px;">
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1">🎪 Festivales registrados</h1>
+                <p class="text-white-50 mb-0">Seleccioná un festival para consultar sus unidades de venta asociadas.</p>
             </div>
-        </div>
-    </div>
-</div>
 
-<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+            <div>
+                <a th:href="@{/admin/dashboard}" class="menu-button">
+                    ← Volver al Menu
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${#lists.isEmpty(festivales)}" class="card menu-card p-5 text-center text-secondary">
+            <div class="fs-1 mb-2" aria-hidden="true">🎪</div>
+            <strong class="fs-5">No hay festivales registrados.</strong>
+            <p class="mb-0 mt-1 small">
+                Actualmente no se encuentran festivales cargados en el sistema.
+            </p>
+        </div>
+        <section class="row g-4" th:unless="${#lists.isEmpty(festivales)}">
+
+            <div class="col-md-6 col-lg-4" th:each="festival : ${festivales}">
+                <article class="card menu-card h-100">
+                    <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="fs-2 mb-2" aria-hidden="true">🍽️</div>
+                            <h2 class="h5 fw-bold mb-2 text-dark" th:text="${festival.nombre}">
+                                Nombre del festival
+                            </h2>
+                            <p class="text-secondary small mb-3">
+                                Consultá las unidades de venta y puestos gastronómicos asignados a esta edición.
+                            </p>
+                        </div>
+                        <div>
+                            <a class="menu-button w-100"
+                               th:href="@{/admin/festivales/{id}(id=${festival.id})}">
+                                Ver unidades de venta
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
 </body>
 </html>

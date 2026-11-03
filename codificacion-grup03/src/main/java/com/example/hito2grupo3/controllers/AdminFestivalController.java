@@ -13,7 +13,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IFestivalService;
 
 import jakarta.validation.Valid;
@@ -23,12 +22,9 @@ import jakarta.validation.Valid;
 public class AdminFestivalController {
 
     private final IFestivalService festivalService;
-    private final UnidadVentaRepository unidadVentaRepository;
 
-    public AdminFestivalController(IFestivalService festivalService,
-                                   UnidadVentaRepository unidadVentaRepository) {
+    public AdminFestivalController(IFestivalService festivalService) {
         this.festivalService = festivalService;
-        this.unidadVentaRepository = unidadVentaRepository;
     }
 
     // Listado de festivales
@@ -43,7 +39,7 @@ public class AdminFestivalController {
     public String mostrarFormularioNuevo(Model model) {
         FestivalDTO dto = new FestivalDTO();
         model.addAttribute("festival", dto);
-        model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+        model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
         return "admin/festival-form";
     }
 
@@ -54,7 +50,7 @@ public class AdminFestivalController {
                                   Model model,
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
             return "admin/festival-form";
         }
 
@@ -64,7 +60,7 @@ public class AdminFestivalController {
             return "redirect:/admin/festivales";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
             return "admin/festival-form";
         }
     }
@@ -77,7 +73,7 @@ public class AdminFestivalController {
         try {
             FestivalDTO dto = festivalService.obtenerDtoPorId(id);
             model.addAttribute("festival", dto);
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
             return "admin/festival-form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el festival solicitado: " + e.getMessage());
@@ -94,7 +90,7 @@ public class AdminFestivalController {
                                      RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             festivalDTO.setId(id);
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
             return "admin/festival-form";
         }
 
@@ -105,7 +101,7 @@ public class AdminFestivalController {
         } catch (IllegalArgumentException e) {
             festivalDTO.setId(id);
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", festivalService.listarTodasUnidades());
             return "admin/festival-form";
         }
     }

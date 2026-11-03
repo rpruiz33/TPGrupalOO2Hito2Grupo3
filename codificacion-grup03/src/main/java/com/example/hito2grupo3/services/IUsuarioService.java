@@ -6,7 +6,14 @@ public interface IUsuarioService {
 
     Usuario crearUsuario(Usuario usuario);
 
+    java.util.List<Usuario> listarTodos();
+
+    Usuario buscarPorEmail(String email);
+
+    boolean debeCambiarPassword(String email);
+
     void reenviarCredenciales(Long usuarioId);
 
     void cambiarPassword(String email, String passwordActual, String nuevaPassword, String confirmarPassword);
 }
+

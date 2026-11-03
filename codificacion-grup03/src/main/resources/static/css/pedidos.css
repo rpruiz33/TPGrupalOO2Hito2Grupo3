@@ -1,0 +1,179 @@
+/* ========================================
+   DATOS DEL PEDIDO
+======================================== */
+
+.dato-pedido {
+    height: 100%;
+    padding: 14px;
+    border: 1px solid #e9ecef;
+    border-left: 4px solid #800020;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.dato-pedido small {
+    display: block;
+    margin-bottom: 5px;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.dato-pedido strong {
+    overflow-wrap: anywhere;
+}
+
+/* ========================================
+   TABLA DE DETALLE
+======================================== */
+
+.tabla-detalle thead th {
+    background-color: #f4eaec;
+    color: #600018;
+    white-space: nowrap;
+}
+
+/* ========================================
+   MODAL DE ANULACIÓN
+======================================== */
+
+.modal-anulacion {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.58);
+}
+
+.modal-anulacion[hidden] {
+    display: none !important;
+}
+
+.modal-anulacion-dialogo {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+}
+
+.modal-anulacion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eadde0;
+}
+
+.modal-anulacion-header h2 {
+    margin: 0;
+    color: #800020;
+}
+
+.modal-anulacion-cuerpo {
+    padding: 1.25rem;
+}
+
+#modalAnular textarea {
+    resize: vertical;
+}
+
+body.modal-anulacion-abierto {
+    overflow: hidden;
+}
+/* ========================================
+   MODAL NATIVO DE ANULACIÓN - HISTORIAL
+======================================== */
+
+dialog#modalAnular:not([open]) {
+    display: none !important;
+}
+
+dialog#modalAnular {
+    width: min(90%, 500px);
+    max-width: 500px;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    background-color: #fff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+}
+
+dialog#modalAnular::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+dialog#modalAnular .modal-contenido {
+    padding: 24px;
+}
+
+dialog#modalAnular textarea {
+    resize: vertical;
+}
+#festival,
+#unidadVentaId,
+#filtroUnidad,
+#filtroFestival,
+#filtroEmpleado {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.55rem 2.5rem 0.55rem 0.85rem;
+    border: 1px solid #d9c5cb;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #343a40;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto al seleccionar */
+#festival:focus,
+#unidadVentaId:focus,
+#filtroUnidad:focus,
+#filtroFestival:focus,
+#filtroEmpleado:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.12);
+    outline: none;
+}
+
+/* Opciones */
+#festival option,
+#unidadVentaId option,
+#filtroUnidad option,
+#filtroFestival option,
+#filtroEmpleado option {
+    color: #343a40;
+    background-color: #fff;
+}
+
+/* Deshabilitado */
+#unidadVentaId:disabled {
+    background-color: #f1f1f1;
+    color: #888;
+    cursor: not-allowed;
+}
+#festival,
+#unidadVentaId,
+#platoId,
+#filtroUnidad,
+#filtroFestival,
+#filtroEmpleado {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.55rem 2.5rem 0.55rem 0.85rem;
+    border: 1px solid #d9c5cb;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #343a40;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}

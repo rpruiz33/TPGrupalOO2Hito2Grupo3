@@ -20,8 +20,9 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
       data-locations: classpath:CargaDatos.sql
+      continue-on-error: true
 
   thymeleaf:
     cache: false

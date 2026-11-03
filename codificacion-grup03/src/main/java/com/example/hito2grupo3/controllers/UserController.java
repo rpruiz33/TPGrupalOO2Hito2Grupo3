@@ -1,11 +1,8 @@
-
 package com.example.hito2grupo3.controllers;
 
-import com.example.hito2grupo3.entities.Usuario;
-import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.repositories.UsuarioRepository;
-import com.example.hito2grupo3.services.IUsuarioService;
+import com.example.hito2grupo3.services.IFestivalService;
 import com.example.hito2grupo3.services.IRegistroUnidadVentaService;
+import com.example.hito2grupo3.services.IUsuarioService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,26 +20,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final IUsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;
-    private final FestivalRepository festivalRepository;
+    private final IFestivalService festivalService;
     private final IRegistroUnidadVentaService registroUnidadVentaService;
 
     public UserController(
             IUsuarioService usuarioService,
-            UsuarioRepository usuarioRepository,
-            FestivalRepository festivalRepository,
+            IFestivalService festivalService,
             IRegistroUnidadVentaService registroUnidadVentaService) {
+
         this.usuarioService = usuarioService;
-        this.usuarioRepository = usuarioRepository;
-        this.festivalRepository = festivalRepository;
+        this.festivalService = festivalService;
         this.registroUnidadVentaService = registroUnidadVentaService;
     }
 
     @GetMapping("/")
     public String inicio(Model model) {
-        model.addAttribute(
-                "festivales",
-                festivalRepository.findAllByOrderByFechaInicioAsc());
+        model.addAttribute("festivales", festivalService.listarTodos());
         return "user/inicio";
     }
 
@@ -51,24 +44,26 @@ public class UserController {
             Model model,
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String logout) {
+
         model.addAttribute("error", error);
         model.addAttribute("logout", logout);
+
         return "user/login";
     }
 
     @GetMapping("/cambiar-password")
     public String mostrarFormularioCambioPassword(
-            Model model, Authentication authentication) {
+            Model model,
+            Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
         String email = authentication.getName();
-        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
         model.addAttribute("email", email);
-        model.addAttribute(
-                "esPrimerIngreso",
-                usuario != null && usuario.isDebeCambiarPassword());
+        model.addAttribute("esPrimerIngreso", usuarioService.debeCambiarPassword(email));
+
         return "user/cambiar-password";
     }
 
@@ -79,22 +74,38 @@ public class UserController {
             @RequestParam("confirmarPassword") String confirmarPassword,
             Authentication authentication,
             RedirectAttributes redirectAttrs) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
 
         String email = authentication.getName();
+
         try {
             usuarioService.cambiarPassword(
-                    email, passwordActual, nuevaPassword, confirmarPassword);
+                    email,
+                    passwordActual,
+                    nuevaPassword,
+                    confirmarPassword);
+
             redirectAttrs.addFlashAttribute(
-                    "mensaje", "¡Contraseña actualizada exitosamente!");
+                    "mensaje",
+                    "¡Contraseña actualizada exitosamente!");
 
             boolean esAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
             boolean esResponsable = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"));
+
+            boolean esCajero = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CAJERO"));
+
+            boolean esCocinero = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_COCINERO"));
+
+            boolean esEmpleado = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLEADO"));
 
             if (esAdmin) {
                 return "redirect:/admin/dashboard";
@@ -104,14 +115,22 @@ public class UserController {
                 return "redirect:/responsable/index";
             }
 
-            return "redirect:/empleado/index";
+            if (esCajero) {
+                return "redirect:/cajero/index";
+            }
+
+            if (esCocinero || esEmpleado) {
+                return "redirect:/empleado/index";
+            }
+
+            return "redirect:/access-denied";
+
         } catch (IllegalArgumentException e) {
             redirectAttrs.addFlashAttribute("error", e.getMessage());
             return "redirect:/cambiar-password";
+
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute(
-                    "error",
-                    "Ocurrió un error inesperado al cambiar la contraseña.");
+            redirectAttrs.addFlashAttribute("error", "Ocurrió un error inesperado al cambiar la contraseña.");
             return "redirect:/cambiar-password";
         }
     }
@@ -159,6 +178,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute(
                     "mensaje",
                     "¡Registro exitoso! Ya podés iniciar sesión.");
+
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/registro";

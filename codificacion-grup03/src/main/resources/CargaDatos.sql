@@ -1,15 +1,33 @@
-use ghsicilianotfi;
+-- use ghsicilianotfi;
 SET FOREIGN_KEY_CHECKS = 0;
 
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
+
+-- Limpieza previa para evitar duplicación de festivales y entidades en cada reinicio
+DELETE FROM items_pedido;
+DELETE FROM pedidos;
+DELETE FROM platos;
+DELETE FROM festival_unidad_venta;
+DELETE FROM unidad_venta_staff;
+DELETE FROM puestos_desarmables;
+DELETE FROM food_trucks;
+DELETE FROM unidades_venta;
+DELETE FROM cajero;
+DELETE FROM cocineros;
+DELETE FROM staff;
+DELETE FROM categorias_cocina;
+DELETE FROM costos;
+DELETE FROM festivales;
+DELETE FROM usuarios;
+DELETE FROM roles;
 
 -- #############################################################################
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
 INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMPLEADO'), (4, 'CAJERO'), (5, 'COCINERO');
  --- Cambiar el hash de la Clave que te genera DataCarga (Pase la clave por el grupo) 
-SET @hash_pw = '$2a$10$hcci4nXZCsU/oO2nIHxgvObLc5ludU8h8IUeD2TbpravRjRmzjg0u';
+SET @hash_pw = '$2a$10$ifwD1XTWxZ/iYc7vwRBd1OAMvONu5MPmnxXAvVE9kAmVmN96xsdnK';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
@@ -22,14 +40,36 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- #############################################################################
 
 -- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
-INSERT INTO festivales (nombre, fecha_inicio, fecha_fin) VALUES 
--- Active: Empezó hace 10 días y termina en 15 días
-('Epicentro Gourmet UNLa (Edicion Actual)',   DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY)),
+INSERT INTO festivales (
+    nombre,
+    fecha_inicio,
+    fecha_fin,
+    activo
+) VALUES
 
--- Finalizados: Pasados respecto al día de ejecución
-('Epicentro Gourmet UNLa (Edicion Anterior)', DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY)),
-('Epicentro Gourmet UNLa (Edicion Anual)',    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY), DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY));
+-- Festival actual
+(
+    'Epicentro Gourmet UNLa (Edicion Actual)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY),
+    DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY),
+    TRUE
+),
 
+-- Festival anterior
+(
+    'Epicentro Gourmet UNLa (Edicion Anterior)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY),
+    DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY),
+    TRUE
+),
+
+-- Festival anual
+(
+    'Epicentro Gourmet UNLa (Edicion Anual)',
+    DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY),
+    DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY),
+    TRUE
+);
 -- Asignamos los IDs de los festivales
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
 SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);
@@ -69,6 +109,22 @@ CREATE TEMPORARY TABLE tmp_categorias (
 );
 
 INSERT INTO tmp_categorias (nombre, plus_fijo) VALUES
+('Chef Principal', 150000.00),
+('Subchef / Segundo de Cocina', 130000.00),
+('Parrillero Especialista', 120000.00),
+('Asador Criollo', 115000.00),
+('Cocinero Principal', 110000.00),
+('Maestro Pizzero', 100000.00),
+('Minutero', 95000.00),
+('Pastelero y Repostero', 90000.00),
+('Cocinero de Sándwiches Gourmet', 85000.00),
+('Sushiman y Especialidades', 125000.00),
+('Cocinero Ayudante', 80000.00),
+('Ayudante de Cocina', 70000.00),
+('Comis de Cuisine', 65000.00),
+('Auxiliar de Despacho y Montaje', 55000.00),
+('Bachero / Lavaplatos', 50000.00),
+-- Compatibilidad con staff pre-cargado
 ('Parrillero Especialista U1', 15000.00), ('Minutero U1', 10000.00), ('Pizzero U1', 12000.00),
 ('Parrillero Especialista U2', 14000.00), ('Minutero U2', 11000.00), ('Pizzero U2', 13000.00),
 ('Parrillero Especialista U3', 16000.00), ('Minutero U3', 10500.00), ('Pizzero U3', 12500.00),
@@ -134,7 +190,7 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Esteban',   'Morales',   '28541236', '1981-03-14', '2016-01-10', 195000.00, NULL, NULL, NULL, 'Pizzas',       1, 22000.00, 'Pizzero U1',                'FT-0000101'),
 
 -- U2: PD-0000101
-('C', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, 'Manana', 4,   9000.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
+('E', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Camila',    'Alvarez',   '39542109', '1996-05-18', '2023-02-01', 120000.00, 'Tarde',  5,   6500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Martin',    'Roldan',    '31876543', '1985-12-03', '2019-04-12', 160000.00, 'Noche',  6,  13500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('K', 'Valentina', 'Romero',    '37456981', '1993-07-25', '2021-11-20', 140000.00, NULL, NULL, NULL, 'Parrilla',     1, 11000.00, 'Parrillero Especialista U2', 'PD-0000101'),
@@ -206,10 +262,12 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Walter',    'Farías',    '33521478', '1988-03-02', '2019-01-22', 170000.00, NULL, NULL, NULL, 'Tamales',        1, 16500.00, 'Pizzero U10',              'PD-0000105');
 
 -- 2.3 CATEGORÍAS DE COCINA
-INSERT INTO categorias_cocina (nombre, plus_fijo)
-SELECT t.nombre, t.plus_fijo
+INSERT INTO categorias_cocina (nombre, plus_fijo, activo)
+SELECT t.nombre, t.plus_fijo, 1
 FROM tmp_categorias t
 WHERE NOT EXISTS (SELECT 1 FROM categorias_cocina c WHERE c.nombre = t.nombre);
+
+UPDATE categorias_cocina SET activo = 1 WHERE activo IS NULL OR activo = 0;
 
 -- 2.3.1 CREACIÓN DE USUARIOS PARA CADA EMPLEADO DEL STAFF
 INSERT INTO usuarios (email, password_hash, rol_id, debe_cambiar_password, activo)
@@ -296,6 +354,7 @@ SELECT s.id, t.turno, t.num_caja, t.plus_adicional
 FROM tmp_empleados t
 JOIN staff s ON s.dni = t.dni
 WHERE t.tipo = 'C'
+  AND t.dni != '33412876'
   AND NOT EXISTS (SELECT 1 FROM cajero c WHERE c.id = s.id);
 
 -- Registrar a Alejandro como cajero, vinculado a cajero@epicentro.com
@@ -376,6 +435,38 @@ WHERE @festival_id IS NOT NULL
     SELECT 1 FROM festival_unidad_venta fuv
     WHERE fuv.festival_id = @festival_id AND fuv.unidad_venta_id = uv.id
 );
+
+-- 2.8.1 Asignaciones históricas de Alejandro Ramirez
+INSERT INTO asignaciones_staff (
+    staff_id,
+    unidad_venta_id,
+    festival_id,
+    fecha_inicio,
+    fecha_fin
+)
+SELECT
+    s.id,
+    uv.id,
+    f.id,
+    f.fecha_inicio,
+    f.fecha_fin
+FROM staff s
+JOIN unidades_venta uv
+    ON uv.codigo = 'FT-0000101'
+JOIN festivales f
+    ON f.id IN (
+        @festival_id,
+        @festival_anterior_id,
+        @festival_anual_id
+    )
+WHERE s.dni = '43987651'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM asignaciones_staff a
+      WHERE a.staff_id = s.id
+        AND a.unidad_venta_id = uv.id
+        AND a.festival_id = f.id
+  );
 
 DROP TEMPORARY TABLE IF EXISTS tmp_empleados;
 DROP TEMPORARY TABLE IF EXISTS tmp_unidades;
@@ -481,19 +572,39 @@ CREATE TEMPORARY TABLE tmp_dias (d INT);
 INSERT INTO tmp_dias VALUES
 (0),(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY), @festival_id, uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY),
+    @festival_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_ADD(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY), INTERVAL d.d DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 JOIN tmp_menu_unidad mu ON mu.codigo = uv.codigo
 CROSS JOIN tmp_dias d
 WHERE fuv.festival_id = @festival_id;
 
--- 3.5 Items: 2 platos distintos por pedido, cantidad 1 a 4
+-- 3.5 Items: 2 platos distintos por pedido con volumen de festival (15 a 30 por plato)
+-- para que el margen bruto supere sueldos y canon y la rentabilidad neta sea positiva
 INSERT INTO items_pedido (pedido_id, plato_id, cantidad, precio_unitario)
 SELECT p.id,
        pl.id,
-       1 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + mp.idx) % 4),
+       15 + ((DATEDIFF(p.fecha_transaccion, DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) + mp.idx) % 15),
        pl.precio
 FROM pedidos p
 JOIN unidades_venta uv ON uv.id = p.unidad_venta_id
@@ -539,6 +650,7 @@ SET @recaudado = (
     FROM items_pedido ip
     JOIN pedidos p ON p.id = ip.pedido_id
     WHERE p.festival_id = @festival_id
+      AND p.estado = 'A'
 );
 
 SET @objetivo = (@costos_fest + IF(@incluir_sueldos = 1, @costo_staff, 0)) * @margen;
@@ -558,7 +670,8 @@ SELECT @costos_fest AS costos_festival,
        @factor      AS factor_aplicado,
        (SELECT SUM(ip.cantidad * ip.precio_unitario)
           FROM items_pedido ip JOIN pedidos p ON p.id = ip.pedido_id
-         WHERE p.festival_id = @festival_id) AS recaudado_despues;
+         WHERE p.festival_id = @festival_id
+            AND p.estado = 'A') AS recaudado_despues;
 -- #############################################################################
 -- PARTE 4: PEDIDOS E ITEMS PARA LOS FESTIVALES PASADOS
 -- Anual (hace ~1 año): recaudacion media-baja (15 dias, cantidad 1-2)
@@ -631,10 +744,27 @@ INSERT INTO tmp_mp_ant VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
-       @festival_anterior_id,
-       uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
+    @festival_anterior_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_SUB(CURRENT_DATE(), INTERVAL (60 - d.d) DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 CROSS JOIN tmp_dias_ant d
@@ -703,10 +833,27 @@ INSERT INTO tmp_mp_anu VALUES
 ('T',6,7,'Cerveza Artesanal Tirada 500ml'),
 ('T',7,7,'Agua Mineral 500ml');
 
-INSERT INTO pedidos (fecha_transaccion, festival_id, unidad_venta_id)
-SELECT DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
-       @festival_anual_id,
-       uv.id
+INSERT INTO pedidos (
+    fecha_transaccion, festival_id, unidad_venta_id,
+    estado, fecha_registro, registrado_por_id
+)
+SELECT
+    DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
+    @festival_anual_id,
+    uv.id,
+    'A',
+    TIMESTAMP(
+        DATE_SUB(CURRENT_DATE(), INTERVAL (365 - d.d) DAY),
+        '12:00:00'
+    ),
+    (
+        SELECT uvs.staff_id
+        FROM unidad_venta_staff uvs
+        JOIN staff s ON s.id = uvs.staff_id
+        WHERE uvs.unidad_venta_id = uv.id
+        ORDER BY s.id
+        LIMIT 1
+    )
 FROM festival_unidad_venta fuv
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
 CROSS JOIN tmp_dias_anu d
@@ -753,7 +900,7 @@ SELECT f.nombre AS festival, uv.codigo, uv.nombre_comercial,
 FROM festivales f
 JOIN festival_unidad_venta fuv ON fuv.festival_id = f.id
 JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
-LEFT JOIN pedidos p ON p.unidad_venta_id = uv.id AND p.festival_id = f.id
+LEFT JOIN pedidos p ON p.unidad_venta_id = uv.id AND p.festival_id = f.id AND p.estado = 'A'
 LEFT JOIN items_pedido ip ON ip.pedido_id = p.id
 GROUP BY f.nombre, uv.codigo, uv.nombre_comercial
 ORDER BY uv.codigo;

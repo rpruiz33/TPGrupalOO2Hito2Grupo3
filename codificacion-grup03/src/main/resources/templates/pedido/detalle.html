@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle del pedido - Epicentro Gourmet</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}">
+    <link rel="stylesheet" th:href="@{/css/pedidos.css}">
+</head>
+
+<body>
+
+<nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Pedidos', null, null)}"></nav>
+
+<main class="container panel-container mt-4" style="max-width: 1200px;">
+
+    <!-- Encabezado -->
+    <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+        <div>
+            <h1 class="h3 fw-bold mb-1">
+                Detalle del pedido
+                <span th:text="'N.º ' + ${pedido.id}"></span>
+            </h1>
+            <p class="text-white-50 mb-0">
+                Información completa del pedido registrado.
+            </p>
+        </div>
+   </section>
+
+    <!-- Mensajes -->
+    <div th:if="${mensaje}"
+         class="alert alert-success text-center shadow-sm"
+         role="status"
+         th:text="${mensaje}"></div>
+
+    <div th:if="${error}"
+         class="alert alert-danger text-center shadow-sm"
+         role="alert"
+         th:text="${error}"></div>
+
+    <!-- Información general -->
+    <section class="card menu-card p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
+            Información general
+        </h2>
+
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Festival</small>
+                    <strong th:text="${pedido.festival != null ? pedido.festival.nombre : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Unidad de venta</small>
+                    <strong th:text="${pedido.unidadVenta != null ? pedido.unidadVenta.nombreComercial : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Fecha del pedido</small>
+                    <strong th:text="${pedido.fechaTransaccion != null
+                        ? #temporals.format(pedido.fechaTransaccion, 'dd/MM/yyyy')
+                        : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Fecha y hora de registro</small>
+                    <strong th:text="${pedido.fechaRegistro != null
+                        ? #temporals.format(pedido.fechaRegistro, 'dd/MM/yyyy HH:mm')
+                        : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Registrado por</small>
+                    <strong th:text="${pedido.registradoPor != null
+                        ? pedido.registradoPor.nombre + ' ' + pedido.registradoPor.apellido
+                        : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="dato-pedido">
+                    <small>Estado</small>
+                    <strong th:if="${pedido.estado == 'A'}" class="text-success">Activo</strong>
+                    <strong th:if="${pedido.estado == 'R'}" class="text-danger">Anulado</strong>
+                    <strong th:if="${pedido.estado != 'A' and pedido.estado != 'R'}" class="text-secondary">Desconocido</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Información de anulación -->
+    <section th:if="${pedido.estado == 'R'}" class="card menu-card border-danger p-4 mb-4">
+        <h2 class="h5 fw-bold mb-3 pb-2 border-bottom text-danger">
+            Información de anulación
+        </h2>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="dato-pedido">
+                    <small>Fecha y hora de anulación</small>
+                    <strong th:text="${pedido.fechaAnulacion != null
+                        ? #temporals.format(pedido.fechaAnulacion, 'dd/MM/yyyy HH:mm')
+                        : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="dato-pedido">
+                    <small>Anulado por</small>
+                    <strong th:text="${pedido.anuladoPor != null
+                        ? pedido.anuladoPor.nombre + ' ' + pedido.anuladoPor.apellido
+                        : '-'}"></strong>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="dato-pedido">
+                    <small>Motivo de anulación</small>
+                    <strong th:text="${pedido.motivoAnulacion != null
+                        ? pedido.motivoAnulacion
+                        : '-'}"></strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos del pedido -->
+    <section class="card menu-card overflow-hidden mb-4">
+        <div class="px-4 py-3 border-bottom bg-light">
+            <h2 class="h5 fw-bold m-0" style="color: #800020;">
+                Productos del pedido
+            </h2>
+        </div>
+
+        <div class="p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle tabla-detalle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-end">Precio unitario</th>
+                        <th class="text-center">Cantidad</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="item : ${pedido.items}">
+                        <td class="fw-semibold" th:text="${item.plato != null ? item.plato.nombre : '-'}"></td>
+
+                        <td class="text-end"
+                            th:text="${item.precioUnitario != null
+                                ? '$ ' + #numbers.formatDecimal(item.precioUnitario, 1, 'POINT', 2, 'COMMA')
+                                : '-'}"></td>
+
+                        <td class="text-center" th:text="${item.cantidad}"></td>
+
+                        <td class="text-end fw-semibold"
+                            th:text="${'$ ' + #numbers.formatDecimal(item.calcularSubtotal(), 1, 'POINT', 2, 'COMMA')}"></td>
+                    </tr>
+
+                    <tr th:if="${pedido.items == null or #lists.isEmpty(pedido.items)}">
+                        <td colspan="4" class="text-center py-4 text-secondary">
+                            El pedido no tiene productos registrados.
+                        </td>
+                    </tr>
+                    </tbody>
+
+                    <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total del pedido</th>
+                        <th class="text-end fs-5" style="color: #800020;"
+                            th:text="${'$ ' + #numbers.formatDecimal(pedido.calcularTotal(), 1, 'POINT', 2, 'COMMA')}"></th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Acciones -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <a th:href="@{/pedidos/historial}" class="menu-button">
+            ← Volver al historial
+        </a>
+
+        <button th:if="${pedido.estado == 'A'}"
+                type="button"
+                id="btnAnular"
+                class="btn btn-outline-danger">
+            Anular pedido
+        </button>
+    </div>
+
+</main>
+
+<!-- Modal de anulación: se muestra y oculta con JavaScript propio. -->
+<div id="modalAnular" class="modal-anulacion" hidden aria-hidden="true">
+    <div class="modal-anulacion-dialogo" role="dialog" aria-modal="true"
+         aria-labelledby="tituloModalAnular">
+        <div class="modal-anulacion-header">
+            <h2 class="h5 fw-bold" id="tituloModalAnular">Anular pedido</h2>
+            <button type="button" class="btn-close" data-cerrar-modal
+                    aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-anulacion-cuerpo">
+            <p class="text-secondary">
+                Vas a anular el pedido N.º
+                <strong th:text="${pedido.id}"></strong>.
+                Esta acción no se puede deshacer.
+            </p>
+
+            <form id="formAnular" method="post"
+                  th:action="@{/pedidos/{id}/anular(id=${pedido.id})}">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <label for="motivo" class="form-label fw-semibold">
+                    Motivo de anulación
+                </label>
+
+                <textarea id="motivo"
+                          name="motivo"
+                          class="form-control"
+                          rows="4"
+                          maxlength="500"
+                          required
+                          placeholder="Indicá el motivo de la anulación..."></textarea>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <button type="button" class="btn btn-secondary" data-cerrar-modal>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        Confirmar anulación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const botonAbrir = document.getElementById('btnAnular');
+        const modal = document.getElementById('modalAnular');
+        const formulario = document.getElementById('formAnular');
+        const motivo = document.getElementById('motivo');
+
+        if (!botonAbrir || !modal || !formulario || !motivo) {
+            return;
+        }
+
+        function abrirModal() {
+            modal.hidden = false;
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-anulacion-abierto');
+            motivo.value = '';
+            window.setTimeout(function () {
+                motivo.focus();
+            }, 0);
+        }
+
+        function cerrarModal() {
+            modal.hidden = true;
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-anulacion-abierto');
+            botonAbrir.focus();
+        }
+
+        botonAbrir.addEventListener('click', abrirModal);
+
+        modal.addEventListener('click', function (evento) {
+            if (evento.target.closest('[data-cerrar-modal]')) {
+                cerrarModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (evento) {
+            if (evento.key === 'Escape' && !modal.hidden) {
+                cerrarModal();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,13 +1,11 @@
 package com.example.hito2grupo3.controllers;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,33 +20,27 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
 import com.example.hito2grupo3.dto.PlatoDTO;
-import com.example.hito2grupo3.entities.Plato;
+import com.example.hito2grupo3.entities.Festival;
+import com.example.hito2grupo3.entities.Pedido;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
-import com.example.hito2grupo3.repositories.FestivalRepository;
-import com.example.hito2grupo3.repositories.StaffRepository;
-import com.example.hito2grupo3.repositories.UnidadVentaRepository;
+import com.example.hito2grupo3.services.IPedidoService;
 
 @Controller
 @RequestMapping("/pedidos")
 public class PedidoController {
 
-    private final FestivalRepository festivalRepository;
-    private final UnidadVentaRepository unidadVentaRepository;
-    private final StaffRepository staffRepository;
-    private final ApplicationContext applicationContext;
+    private static final ZoneId ZONA_HORARIA = ZoneId.of("America/Argentina/Buenos_Aires");
 
-    public PedidoController(
-            FestivalRepository festivalRepository,
-            UnidadVentaRepository unidadVentaRepository,
-            StaffRepository staffRepository,
-            ApplicationContext applicationContext) {
+    private final IPedidoService pedidoService;
 
-        this.festivalRepository = festivalRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
-        this.staffRepository = staffRepository;
-        this.applicationContext = applicationContext;
+    public PedidoController(IPedidoService pedidoService) {
+        this.pedidoService = pedidoService;
     }
+
+    // ============================
+    // ALTA DE PEDIDOS
+    // ============================
 
     @GetMapping("/alta")
     public String mostrarFormularioAlta(
@@ -59,17 +51,13 @@ public class PedidoController {
             return "redirect:/login";
         }
 
-        Staff staff = obtenerStaffAutenticado(principal);
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        LocalDate fechaActual = LocalDate.now(ZONA_HORARIA);
 
-        LocalDate fechaActual = LocalDate.now(
-                ZoneId.of("America/Argentina/Buenos_Aires"));
+        List<Festival> festivalesDisponibles =
+                pedidoService.obtenerFestivalesDisponiblesParaAlta(staff.getId());
 
-        model.addAttribute(
-                "festivales",
-                festivalRepository.buscarActivosPorStaff(
-                        staff.getId(),
-                        fechaActual));
-
+        model.addAttribute("festivales", festivalesDisponibles);
         model.addAttribute("unidadesVenta", List.of());
         model.addAttribute("platos", List.of());
         model.addAttribute("fechaActual", fechaActual);
@@ -77,163 +65,25 @@ public class PedidoController {
         return "pedido/alta";
     }
 
-    @GetMapping("/festivales/{id}/unidades")
-    @ResponseBody
-    public ResponseEntity<List<UnidadRespuesta>> obtenerUnidadesPorFestival(
-            @PathVariable Long id,
-            Principal principal) {
-
-        Staff staff = obtenerStaffAutenticado(principal);
-
-        LocalDate fechaActual = LocalDate.now(
-                ZoneId.of("America/Argentina/Buenos_Aires"));
-
-        boolean festivalDisponible = festivalRepository
-                .buscarActivosPorStaff(staff.getId(), fechaActual)
-                .stream()
-                .anyMatch(festival -> festival.getId().equals(id));
-
-        if (!festivalDisponible) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "No tenés acceso a este festival.");
-        }
-
-        List<UnidadRespuesta> unidades = festivalRepository
-                .obtenerUnidadesPorFestival(id)
-                .stream()
-                .filter(unidad -> tieneStaffAsignado(unidad, staff))
-                .map(this::toRespuesta)
-                .toList();
-
-        return ResponseEntity.ok(unidades);
-    }
-
-
-        private boolean tieneStaffAsignado(UnidadVenta unidad, Staff staff) {
-                return unidad.getStaffAsignado() != null
-                && unidad.getStaffAsignado().stream()
-                .anyMatch(s -> s.getId() == staff.getId());
-        }
-    private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
-        return new UnidadRespuesta(
-                unidad.getId(),
-                unidad.getNombreComercial());
-    }
-
-    @GetMapping("/unidades/{id}/platos")
-    @ResponseBody
-    public ResponseEntity<List<PlatoRespuesta>> obtenerPlatos(
-            @PathVariable Long id,
-            Principal principal) {
-
-        Staff staff = obtenerStaffAutenticado(principal);
-
-        boolean unidadAsignada = unidadVentaRepository
-                .buscarPorStaffAsignado(staff.getId())
-                .stream()
-                .anyMatch(unidad -> unidad.getId().equals(id));
-
-        if (!unidadAsignada) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "No tenés acceso a los platos de esta unidad de venta.");
-        }
-
-        List<?> platosPorUnidad = invocarServicio(
-                "obtenerPlatosPorUnidad",
-                id);
-
-        List<PlatoRespuesta> platos = platosPorUnidad
-                .stream()
-                .map(plato -> {
-                    Plato p = (Plato) plato;
-
-                    return new PlatoRespuesta(
-                            p.getId(),
-                            p.getNombre(),
-                            p.getPrecio());
-                })
-                .toList();
-
-        return ResponseEntity.ok(platos);
-    }
-
-    /**
-     * Obtiene el plato estrella de una unidad de venta en un festival.
-     */
-    @GetMapping("/unidades/{unidadVentaId}/festivales/{festivalId}/plato-estrella")
-    @ResponseBody
-    public ResponseEntity<PlatoDTO> obtenerPlatoEstrella(
-            @PathVariable Long unidadVentaId,
-            @PathVariable Long festivalId,
-            Principal principal) {
-
-        Staff staff = obtenerStaffAutenticado(principal);
-
-        LocalDate fechaActual = LocalDate.now(
-                ZoneId.of("America/Argentina/Buenos_Aires"));
-
-        // Verificar que el festival esté disponible para el empleado.
-        boolean festivalDisponible = festivalRepository
-                .buscarActivosPorStaff(staff.getId(), fechaActual)
-                .stream()
-                .anyMatch(festival -> festival.getId().equals(festivalId));
-
-        if (!festivalDisponible) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "No tenés acceso a este festival.");
-        }
-
-        // Verificar que la unidad esté habilitada para ese festival.
-        boolean unidadDelFestival = festivalRepository
-                .obtenerUnidadesPorFestival(festivalId)
-                .stream()
-                .anyMatch(unidad -> unidad.getId().equals(unidadVentaId));
-
-        if (!unidadDelFestival) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "La unidad de venta no pertenece a este festival.");
-        }
-
-        // Verificar que el empleado esté asignado a la unidad.
-        boolean unidadAsignada = unidadVentaRepository
-                .buscarPorStaffAsignado(staff.getId())
-                .stream()
-                .anyMatch(unidad -> unidad.getId().equals(unidadVentaId));
-
-        if (!unidadAsignada) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "No tenés acceso a esta unidad de venta.");
-        }
-
-        // Consultar el plato estrella mediante el servicio.
-        PlatoDTO platoEstrella = invocarServicio(
-                "obtenerPlatoEstrella",
-                new Object[]{unidadVentaId, festivalId});
-
-        if (platoEstrella == null) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(platoEstrella);
-    }
-
     @PostMapping("/alta")
     public String registrarPedido(
-            @ModelAttribute PedidoAltaDTO datos,
+            @jakarta.validation.Valid @ModelAttribute("datos") PedidoAltaDTO datos,
+            org.springframework.validation.BindingResult bindingResult,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
-        try {
-            Staff staff = obtenerStaffAutenticado(principal);
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getAllErrors().stream()
+                    .map(org.springframework.context.support.DefaultMessageSourceResolvable::getDefaultMessage)
+                    .findFirst()
+                    .orElse("Datos del pedido inválidos.");
+            redirectAttributes.addFlashAttribute("error", errorMsg);
+            return "redirect:/pedidos/alta";
+        }
 
-            invocarServicio(
-                    "registrarPedido",
-                    new Object[]{datos, staff.getId()});
+        try {
+            Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+            pedidoService.registrarPedido(datos, staff.getId());
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
@@ -242,34 +92,173 @@ public class PedidoController {
             return "redirect:/pedidos/alta";
 
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    e.getMessage());
-
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/pedidos/alta";
 
         } catch (ResponseStatusException e) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    e.getReason());
-
+            redirectAttributes.addFlashAttribute("error", e.getReason());
             return "redirect:/pedidos/alta";
         }
     }
 
-    private Staff obtenerStaffAutenticado(Principal principal) {
+    // ============================
+    // UNIDADES POR FESTIVAL
+    // ============================
 
-        if (principal == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Debés iniciar sesión.");
+    @GetMapping("/festivales/{id}/unidades")
+    @ResponseBody
+    public ResponseEntity<List<UnidadRespuesta>> obtenerUnidadesPorFestival(
+            @PathVariable Long id,
+            Principal principal) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        List<UnidadVenta> unidades = pedidoService.obtenerUnidadesDisponiblesPorFestival(id, staff.getId());
+
+        List<UnidadRespuesta> respuesta = unidades.stream()
+                .map(this::toRespuesta)
+                .toList();
+
+        return ResponseEntity.ok(respuesta);
+    }
+
+    // ============================
+    // PLATOS POR UNIDAD
+    // ============================
+
+    @GetMapping("/unidades/{id}/platos")
+    @ResponseBody
+    public ResponseEntity<List<PlatoRespuesta>> obtenerPlatos(
+            @PathVariable Long id,
+            Principal principal) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        pedidoService.verificarAccesoUnidad(id, staff.getId());
+
+        List<PlatoRespuesta> platos = pedidoService
+                .obtenerPlatosPorUnidad(id)
+                .stream()
+                .map(plato -> new PlatoRespuesta(
+                        plato.getId(),
+                        plato.getNombre(),
+                        plato.getPrecio()))
+                .toList();
+
+        return ResponseEntity.ok(platos);
+    }
+
+    // ============================
+    // PLATO ESTRELLA
+    // ============================
+
+    @GetMapping("/unidades/{unidadVentaId}/festivales/{festivalId}/plato-estrella")
+    @ResponseBody
+    public ResponseEntity<PlatoDTO> obtenerPlatoEstrella(
+            @PathVariable Long unidadVentaId,
+            @PathVariable Long festivalId,
+            Principal principal) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        PlatoDTO platoEstrella = pedidoService.obtenerPlatoEstrellaValidado(unidadVentaId, festivalId, staff.getId());
+
+        if (platoEstrella == null) {
+            return ResponseEntity.noContent().build();
         }
 
-        return staffRepository
-                .findByUsuario_Email(principal.getName())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "El usuario autenticado no tiene un empleado asociado."));
+        return ResponseEntity.ok(platoEstrella);
+    }
+
+    // ============================
+    // HISTORIAL DE PEDIDOS
+    // ============================
+
+    @GetMapping("/historial")
+    public String mostrarHistorial(
+            Model model,
+            Principal principal) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        Map<String, Object> datosHistorial = pedidoService.obtenerDatosHistorial(staff.getId());
+        model.addAllAttributes(datosHistorial);
+
+        return "pedido/historial";
+    }
+
+    // ============================
+    // FESTIVALES POR UNIDAD
+    // ============================
+
+    @GetMapping("/unidades/{id}/festivales")
+    @ResponseBody
+    public ResponseEntity<List<FestivalRespuesta>> obtenerFestivalesPorUnidad(
+            @PathVariable Long id,
+            Principal principal) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        List<Festival> festivales = pedidoService.obtenerFestivalesPorUnidadYStaff(id, staff.getId());
+
+        List<FestivalRespuesta> respuesta = festivales.stream()
+                .map(festival -> new FestivalRespuesta(
+                        festival.getId(),
+                        festival.getNombre(),
+                        festival.getFechaInicio(),
+                        festival.getFechaFin()))
+                .toList();
+
+        return ResponseEntity.ok(respuesta);
+    }
+
+    // ============================
+    // ANULAR PEDIDO
+    // ============================
+
+    @PostMapping("/{id}/anular")
+    public String anularPedido(
+            @PathVariable Long id,
+            @ModelAttribute("motivo") String motivo,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+            pedidoService.anularPedido(id, staff.getId(), motivo);
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "El pedido fue anulado correctamente.");
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+        } catch (ResponseStatusException e) {
+            redirectAttributes.addFlashAttribute("error", e.getReason());
+        }
+
+        return "redirect:/pedidos/historial";
+    }
+
+    // ============================
+    // DETALLE DEL PEDIDO
+    // ============================
+
+    @GetMapping("/{id}")
+    public String mostrarDetallePedido(
+            @PathVariable Long id,
+            Principal principal,
+            Model model) {
+
+        Staff staff = pedidoService.obtenerStaffPorEmail(principal.getName());
+        Pedido pedido = pedidoService.obtenerPedidoPorStaff(id, staff.getId());
+        model.addAttribute("pedido", pedido);
+
+        return "pedido/detalle";
+    }
+
+    // ============================
+    // RESPUESTAS DTO
+    // ============================
+
+    private UnidadRespuesta toRespuesta(UnidadVenta unidad) {
+        return new UnidadRespuesta(unidad.getId(), unidad.getNombreComercial());
     }
 
     public record PlatoRespuesta(
@@ -283,41 +272,10 @@ public class PedidoController {
             String nombreComercial) {
     }
 
-    /**
-     * Invoca un método del servicio usando sus argumentos.
-     * Permite invocar métodos con uno o varios parámetros.
-     */
-    @SuppressWarnings("unchecked")
-    private <T> T invocarServicio(String metodo, Object... argumentos) {
-
-        Object servicio = applicationContext.getBean("pedidoServiceImpl");
-
-        try {
-            Class<?>[] tipos = new Class<?>[argumentos.length];
-
-            for (int i = 0; i < argumentos.length; i++) {
-                tipos[i] = argumentos[i] instanceof Long
-                        ? Long.class
-                        : argumentos[i].getClass();
-            }
-
-            return (T) servicio.getClass()
-                    .getMethod(metodo, tipos)
-                    .invoke(servicio, argumentos);
-
-        } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof IllegalArgumentException ex) {
-                throw ex;
-            }
-
-            throw new IllegalStateException(
-                    "No se pudo ejecutar el servicio de pedidos",
-                    e.getCause());
-
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                    "No se pudo ejecutar el servicio de pedidos",
-                    e);
-        }
+    public record FestivalRespuesta(
+            Long id,
+            String nombre,
+            LocalDate fechaInicio,
+            LocalDate fechaFin) {
     }
 }

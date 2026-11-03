@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Categoría de Cocina' : 'Nueva Categoría de Cocina'} + ' - Epicentro Gourmet'"></title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/panel-base.css}"/>
+</head>
+
+<body>
+    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+
+    <main class="container panel-container mt-4" style="max-width: 750px;">
+
+        <!-- Mensajes de error general -->
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
+
+        <!-- Encabezado -->
+        <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
+            <div>
+                <h1 class="h3 fw-bold mb-1" th:text="${esEdicion ? '✏️ Editar Categoría de Cocina' : '➕ Nueva Categoría de Cocina'}"></h1>
+                <p class="text-white-50 mb-0" th:text="${esEdicion ? 'Modificá los datos del rol culinario y su plus salarial.' : 'Registrá una nueva categoría culinaria con su correspondiente plus fijo.'}"></p>
+            </div>
+
+            <div>
+                <a th:href="@{/admin/categorias-cocina}" class="menu-button">
+                    ← Volver a Categorías
+                </a>
+            </div>
+        </section>
+
+        <!-- Tarjeta del Formulario -->
+        <section class="card menu-card p-4 shadow-sm">
+            <!-- Formulario de Alta -->
+            <form th:if="${!esEdicion}"
+                  th:action="@{/admin/categorias-cocina/guardar}"
+                  th:object="${categoria}"
+                  method="post">
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label fw-semibold text-secondary">
+                        Nombre de la Categoría <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           id="nombre"
+                           class="form-control control-epicentro"
+                           th:field="*{nombre}"
+                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                           placeholder="Ej: Parrillero Especialista, Minutero, Pizzero..."
+                           maxlength="50"
+                           required autofocus />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    <small class="form-text text-muted">Nombre distintivo del rol en cocina (entre 2 y 50 caracteres).</small>
+                </div>
+
+                <div class="mb-4">
+                    <label for="plusFijo" class="form-label fw-semibold text-secondary">
+                        Plus Salarial Fijo ($) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light fw-bold text-secondary">$</span>
+                        <input type="number"
+                               id="plusFijo"
+                               class="form-control control-epicentro"
+                               th:field="*{plusFijo}"
+                               th:classappend="${#fields.hasErrors('plusFijo')} ? 'is-invalid' : ''"
+                               placeholder="0.00"
+                               step="0.01"
+                               min="0"
+                               required />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('plusFijo')}" th:errors="*{plusFijo}"></div>
+                    </div>
+                    <small class="form-text text-muted">Monto adicional que se suma al sueldo base en la liquidación de haberes.</small>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <a th:href="@{/admin/categorias-cocina}" class="menu-button">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="menu-button menu-button-primary">
+                        ➕ Crear Categoría
+                    </button>
+                </div>
+            </form>
+
+            <!-- Formulario de Edición -->
+            <form th:if="${esEdicion}"
+                  th:action="@{'/admin/categorias-cocina/editar/' + ${categoria.id}}"
+                  th:object="${categoria}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="mb-3">
+                    <label for="nombreEdicion" class="form-label fw-semibold text-secondary">
+                        Nombre de la Categoría <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           id="nombreEdicion"
+                           class="form-control control-epicentro"
+                           th:field="*{nombre}"
+                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                           placeholder="Ej: Parrillero Especialista, Minutero, Pizzero..."
+                           maxlength="50"
+                           required autofocus />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="plusFijoEdicion" class="form-label fw-semibold text-secondary">
+                        Plus Salarial Fijo ($) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light fw-bold text-secondary">$</span>
+                        <input type="number"
+                               id="plusFijoEdicion"
+                               class="form-control control-epicentro"
+                               th:field="*{plusFijo}"
+                               th:classappend="${#fields.hasErrors('plusFijo')} ? 'is-invalid' : ''"
+                               placeholder="0.00"
+                               step="0.01"
+                               min="0"
+                               required />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('plusFijo')}" th:errors="*{plusFijo}"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <a th:href="@{/admin/categorias-cocina}" class="menu-button">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="menu-button menu-button-primary">
+                        💾 Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
