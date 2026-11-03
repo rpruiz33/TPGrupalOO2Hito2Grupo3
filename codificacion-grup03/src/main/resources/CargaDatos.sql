@@ -436,6 +436,38 @@ WHERE @festival_id IS NOT NULL
     WHERE fuv.festival_id = @festival_id AND fuv.unidad_venta_id = uv.id
 );
 
+-- 2.8.1 Asignaciones históricas de Alejandro Ramirez
+INSERT INTO asignaciones_staff (
+    staff_id,
+    unidad_venta_id,
+    festival_id,
+    fecha_inicio,
+    fecha_fin
+)
+SELECT
+    s.id,
+    uv.id,
+    f.id,
+    f.fecha_inicio,
+    f.fecha_fin
+FROM staff s
+JOIN unidades_venta uv
+    ON uv.codigo = 'FT-0000101'
+JOIN festivales f
+    ON f.id IN (
+        @festival_id,
+        @festival_anterior_id,
+        @festival_anual_id
+    )
+WHERE s.dni = '43987651'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM asignaciones_staff a
+      WHERE a.staff_id = s.id
+        AND a.unidad_venta_id = uv.id
+        AND a.festival_id = f.id
+  );
+
 DROP TEMPORARY TABLE IF EXISTS tmp_empleados;
 DROP TEMPORARY TABLE IF EXISTS tmp_unidades;
 DROP TEMPORARY TABLE IF EXISTS tmp_categorias;

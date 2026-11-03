@@ -64,12 +64,16 @@ public class SecurityConfiguration {
                             .authenticated();
 
                     // Volver al menú según rol del usuario autenticado
-                    auth.requestMatchers("/empleado/volver-al-menu")
-                            .authenticated();
+auth.requestMatchers("/empleado/volver-al-menu")
+        .authenticated();
 
-                    // Módulo de empleados y cocineros
-                    auth.requestMatchers("/empleado/**")
-                            .hasAnyRole("EMPLEADO", "COCINERO");
+// Historial de asignaciones: empleados, cajeros y cocineros
+auth.requestMatchers("/empleado/historial-asignaciones")
+        .hasAnyRole("EMPLEADO", "CAJERO", "COCINERO");
+
+// Módulo de empleados y cocineros
+auth.requestMatchers("/empleado/**")
+        .hasAnyRole("EMPLEADO", "COCINERO");
 
                     // Liquidaciones y recibos
                     auth.requestMatchers(

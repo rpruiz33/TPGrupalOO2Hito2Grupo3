@@ -10,7 +10,10 @@ import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IEmpleadoInfoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.hito2grupo3.dto.AsignacionStaffDTO;
+import com.example.hito2grupo3.entities.AsignacionStaff;
+import com.example.hito2grupo3.repositories.AsignacionStaffRepository;
+import java.util.List;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
@@ -23,13 +26,17 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
 
     private final StaffRepository staffRepository;
     private final UnidadVentaRepository unidadVentaRepository;
+    private final AsignacionStaffRepository asignacionStaffRepository;
 
     public EmpleadoInfoServiceImpl(
-            StaffRepository staffRepository,
-            UnidadVentaRepository unidadVentaRepository) {
-        this.staffRepository = staffRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
-    }
+        StaffRepository staffRepository,
+        UnidadVentaRepository unidadVentaRepository,
+        AsignacionStaffRepository asignacionStaffRepository) {
+
+    this.staffRepository = staffRepository;
+    this.unidadVentaRepository = unidadVentaRepository;
+    this.asignacionStaffRepository = asignacionStaffRepository;
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -112,42 +119,59 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
             modelMap.put("asignacionActual", asignacionVacia());
             modelMap.put("unidadAsignada", null);
             modelMap.put("festivalesAsignados", Collections.emptyList());
+            modelMap.put("historialAsignaciones", Collections.emptyList());
+           
             return modelMap;
         }
 
         LocalDate hoy = LocalDate.now();
-        UnidadVenta unidadVigente = unidadVentaRepository.findAll()
-                .stream()
-                .filter(u -> estaAsignadoAUnidad(u, staff))
-                .filter(u -> tieneFestivalVigente(u, hoy))
-                .findFirst()
-                .orElse(null);
+      UnidadVenta unidadVigente = unidadVentaRepository.findAll()
+        .stream()
+        .filter(u -> estaAsignadoAUnidad(u, staff))
+        .findFirst()
+        .orElse(null);
+          if (unidadVigente != null) {
+    var festivalesVigentes = unidadVigente.getFestivales().stream()
+            .filter(f -> esFestivalVigente(f, hoy))
+            .toList();
 
-        if (unidadVigente != null) {
-            var festivalesVigentes = unidadVigente.getFestivales().stream()
-                    .filter(f -> esFestivalVigente(f, hoy))
-                    .toList();
+    modelMap.put("unidadAsignada", unidadVigente);
+    modelMap.put("festivalesAsignados", festivalesVigentes);
 
-            modelMap.put("unidadAsignada", unidadVigente);
-            modelMap.put("festivalesAsignados", festivalesVigentes);
+    Map<String, Object> asignacion = new HashMap<>();
+    asignacion.put("unidad", unidadVigente.getNombreComercial());
+    asignacion.put("festival", festivalesVigentes.isEmpty()
+            ? "Sin festival vigente"
+            : festivalesVigentes.get(0).getNombre());
 
-            Map<String, Object> asignacion = new HashMap<>();
-            asignacion.put("unidad", unidadVigente.getNombreComercial());
-            asignacion.put("festival", festivalesVigentes.isEmpty()
-                    ? "Sin festival vigente"
-                    : festivalesVigentes.get(0).getNombre());
-            modelMap.put("asignacionActual", asignacion);
-        } else {
-            modelMap.put("unidadAsignada", null);
-            modelMap.put("festivalesAsignados", Collections.emptyList());
-            modelMap.put("asignacionActual", asignacionVacia());
-        }
+    modelMap.put("asignacionActual", asignacion);
+} else {
+    modelMap.put("unidadAsignada", null);
+    modelMap.put("festivalesAsignados", Collections.emptyList());
+    modelMap.put("asignacionActual", asignacionVacia());
+}
+
+// El historial se carga siempre
+modelMap.put("historialAsignaciones", obtenerHistorialAsignaciones(staff));
+        
 
         return modelMap;
-    }
+}
+    private List<AsignacionStaffDTO> obtenerHistorialAsignaciones(Staff staff) {
 
+    return asignacionStaffRepository
+            .findByStaff_IdOrderByFechaInicioDesc(staff.getId())
+            .stream()
+            .map(asignacion -> new AsignacionStaffDTO(
+                    asignacion.getFestival().getNombre(),
+                    asignacion.getUnidadVenta().getNombreComercial(),
+                    asignacion.getFechaInicio(),
+                    asignacion.getFechaFin()
+            ))
+            .toList();
+}
     // ─── Métodos auxiliares privados ─────────────────────────────────────────
-
+     
     private boolean estaAsignadoAUnidad(UnidadVenta unidad, Staff staff) {
         boolean esResponsable = unidad.getResponsable() != null
                 && Objects.equals(unidad.getResponsable().getId(), staff.getId());
@@ -249,4 +273,15 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
         asignacion.put("festival", "Sin festival vigente");
         return asignacion;
     }
+   
+    @Override
+@Transactional(readOnly = true)
+public List<AsignacionStaffDTO> obtenerHistorialAsignaciones(String email) {
+
+    Staff staff = staffRepository.findByUsuario_Email(email)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "No se encontró un empleado asociado al usuario " + email));
+
+    return obtenerHistorialAsignaciones(staff);
+}
 }
