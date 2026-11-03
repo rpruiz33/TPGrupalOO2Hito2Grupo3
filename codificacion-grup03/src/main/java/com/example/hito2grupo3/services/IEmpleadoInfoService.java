@@ -1,5 +1,6 @@
 package com.example.hito2grupo3.services;
-
+import com.example.hito2grupo3.dto.AsignacionStaffDTO;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,5 +38,7 @@ public interface IEmpleadoInfoService {
      * Construye todos los atributos necesarios para el dashboard /mi-informacion del empleado.
      */
     Map<String, Object> obtenerDashboardEmpleado(String email);
+
+    List<AsignacionStaffDTO> obtenerHistorialAsignaciones(String email);
 }
 

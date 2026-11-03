@@ -24,24 +24,27 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
     private final CategoriaCocinaRepository categoriaCocinaRepository;
     private final IUsuarioService usuarioService;
     private final UnidadVentaRepository unidadVentaRepository;
-
-    public EmpleadoServiceImpl(StaffRepository staffRepository,
-                               CajeroRepository cajeroRepository,
-                               CocineroRepository cocineroRepository,
-                               UsuarioRepository usuarioRepository,
-                               RolRepository rolRepository,
-                               CategoriaCocinaRepository categoriaCocinaRepository,
-                               IUsuarioService usuarioService,
-                               UnidadVentaRepository unidadVentaRepository) {
-        this.staffRepository = staffRepository;
-        this.cajeroRepository = cajeroRepository;
-        this.cocineroRepository = cocineroRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.rolRepository = rolRepository;
-        this.categoriaCocinaRepository = categoriaCocinaRepository;
-        this.usuarioService = usuarioService;
-        this.unidadVentaRepository = unidadVentaRepository;
-    }
+    private final AsignacionStaffRepository asignacionStaffRepository;
+   
+public EmpleadoServiceImpl(StaffRepository staffRepository,
+                           CajeroRepository cajeroRepository,
+                           CocineroRepository cocineroRepository,
+                           UsuarioRepository usuarioRepository,
+                           RolRepository rolRepository,
+                           CategoriaCocinaRepository categoriaCocinaRepository,
+                           IUsuarioService usuarioService,
+                           UnidadVentaRepository unidadVentaRepository,
+                           AsignacionStaffRepository asignacionStaffRepository) {
+    this.staffRepository = staffRepository;
+    this.cajeroRepository = cajeroRepository;
+    this.cocineroRepository = cocineroRepository;
+    this.usuarioRepository = usuarioRepository;
+    this.rolRepository = rolRepository;
+    this.categoriaCocinaRepository = categoriaCocinaRepository;
+    this.usuarioService = usuarioService;
+    this.unidadVentaRepository = unidadVentaRepository;
+    this.asignacionStaffRepository = asignacionStaffRepository;
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -362,20 +365,41 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
     }
 
     @Override
-    @Transactional
-    public void asociarEmpleadoAUnidadDelCreador(String creadorEmail, Staff nuevoStaff) {
-        if (creadorEmail == null || nuevoStaff == null) {
-            return;
-        }
-        Staff creador = staffRepository.findByUsuario_Email(creadorEmail).orElse(null);
-        if (creador == null) {
-            return;
-        }
-        unidadVentaRepository.findByResponsable_Id(creador.getId()).ifPresent(uv -> {
-            uv.getStaffAsignado().add(nuevoStaff);
-            unidadVentaRepository.save(uv);
-        });
+@Transactional
+public void asociarEmpleadoAUnidadDelCreador(String creadorEmail, Staff nuevoStaff) {
+    if (creadorEmail == null || nuevoStaff == null) {
+        return;
     }
+
+    Staff creador = staffRepository.findByUsuario_Email(creadorEmail).orElse(null);
+
+    if (creador == null) {
+        return;
+    }
+
+    unidadVentaRepository.findByResponsable_Id(creador.getId()).ifPresent(uv -> {
+
+        // Asociar el empleado a la unidad
+        uv.getStaffAsignado().add(nuevoStaff);
+        unidadVentaRepository.save(uv);
+       // ----------------------------
+        System.out.println("UNIDAD ENCONTRADA: " + uv.getId());
+System.out.println("EMPLEADO: " + nuevoStaff.getId());
+System.out.println("CANTIDAD DE FESTIVALES: " + uv.getFestivales().size());
+        // Registrar una asignación por cada festival de la unidad
+        for (Festival festival : uv.getFestivales()) {
+
+            AsignacionStaff asignacion = new AsignacionStaff();
+            asignacion.setStaff(nuevoStaff);
+            asignacion.setUnidadVenta(uv);
+            asignacion.setFestival(festival);
+            asignacion.setFechaInicio(festival.getFechaInicio());
+            asignacion.setFechaFin(festival.getFechaFin());
+
+            asignacionStaffRepository.save(asignacion);
+        }
+    });
+}
 
     @Override
     @Transactional(readOnly = true)

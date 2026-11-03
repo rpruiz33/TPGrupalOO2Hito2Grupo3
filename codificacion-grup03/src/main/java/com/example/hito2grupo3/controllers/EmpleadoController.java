@@ -6,7 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import com.example.hito2grupo3.dto.AsignacionStaffDTO;
+import java.util.List;
 import java.security.Principal;
 import java.util.Map;
 
@@ -103,4 +104,37 @@ public String mostrarIndex(
 
         return "redirect:/access-denied";
     }
+
+    @GetMapping("/empleado/historial-asignaciones")
+public String mostrarHistorial(
+        Principal principal,
+        Authentication authentication,
+        Model model) {
+
+    if (principal == null || authentication == null) {
+        return "redirect:/login";
+    }
+
+    boolean esEmpleadoAutorizado =
+            tieneRol(authentication, "ROLE_EMPLEADO")
+            || tieneRol(authentication, "ROLE_CAJERO")
+            || tieneRol(authentication, "ROLE_COCINERO");
+
+    if (!esEmpleadoAutorizado) {
+        return "redirect:/access-denied";
+    }
+
+    try {
+        List<AsignacionStaffDTO> historial =
+                empleadoInfoService.obtenerHistorialAsignaciones(principal.getName());
+
+        model.addAttribute("historialAsignaciones", historial);
+
+    } catch (Exception e) {
+        model.addAttribute("error", "No se pudo cargar el historial de asignaciones.");
+    }
+
+    return "historial-asignaciones";
+}
+    
 }
