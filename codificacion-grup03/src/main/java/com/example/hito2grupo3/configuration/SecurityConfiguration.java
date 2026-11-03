@@ -37,7 +37,7 @@ public class SecurityConfiguration {
 
                     // Rutas públicas
                     auth.requestMatchers(
-                            "/", "/login", "/registro", "/error"
+                            "/", "/login", "/registro", "/error", "/acceso-denegado"
                     ).permitAll();
 
                     // Recursos estáticos
@@ -60,21 +60,22 @@ public class SecurityConfiguration {
                             .hasRole("RESPONSABLE");
                     auth.requestMatchers("/plato-estrella")
                             .hasRole("RESPONSABLE");
+
                     // Cambio de contraseña para usuarios autenticados
                     auth.requestMatchers("/cambiar-password")
                             .authenticated();
 
                     // Volver al menú según rol del usuario autenticado
-auth.requestMatchers("/empleado/volver-al-menu")
-        .authenticated();
+                    auth.requestMatchers("/empleado/volver-al-menu")
+                            .authenticated();
 
-// Historial de asignaciones: empleados, cajeros y cocineros
-auth.requestMatchers("/empleado/historial-asignaciones")
-        .hasAnyRole("EMPLEADO", "CAJERO", "COCINERO");
+                    // Historial de asignaciones: empleados, cajeros y cocineros
+                    auth.requestMatchers("/empleado/historial-asignaciones")
+                            .hasAnyRole("EMPLEADO", "CAJERO", "COCINERO");
 
-// Módulo de empleados y cocineros
-auth.requestMatchers("/empleado/**")
-        .hasAnyRole("EMPLEADO", "COCINERO");
+                    // Módulo de empleados y cocineros
+                    auth.requestMatchers("/empleado/**")
+                            .hasAnyRole("EMPLEADO", "COCINERO");
 
                     // Liquidaciones y recibos
                     auth.requestMatchers(
@@ -181,6 +182,10 @@ auth.requestMatchers("/empleado/**")
                     logout.logoutSuccessUrl("/login?logout=true");
                     logout.permitAll();
                 })
+
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/acceso-denegado")
+                )
 
                 .build();
     }
