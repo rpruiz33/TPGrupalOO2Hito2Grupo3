@@ -1,6 +1,7 @@
 package com.example.hito2grupo3.services;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
@@ -27,5 +28,7 @@ public interface IFestivalService {
     void eliminarFestival(Long id);
 
     List<Festival> buscarFestivalesActivosPorUnidadVenta(Long id);
+
+    List<Festival> buscarFestivalesActivosPorUnidadVenta(Long id, LocalDate fecha);
 }
 

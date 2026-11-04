@@ -4,24 +4,6 @@ SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_SAFE_UPDATES = 0;
 START TRANSACTION;
 
--- Limpieza previa para evitar duplicación de festivales y entidades en cada reinicio
-DELETE FROM items_pedido;
-DELETE FROM pedidos;
-DELETE FROM platos;
-DELETE FROM festival_unidad_venta;
-DELETE FROM unidad_venta_staff;
-DELETE FROM puestos_desarmables;
-DELETE FROM food_trucks;
-DELETE FROM unidades_venta;
-DELETE FROM cajero;
-DELETE FROM cocineros;
-DELETE FROM staff;
-DELETE FROM categorias_cocina;
-DELETE FROM costos;
-DELETE FROM festivales;
-DELETE FROM usuarios;
-DELETE FROM roles;
-
 -- #############################################################################
 -- PARTE 1: ROLES Y USUARIOS
 -- #############################################################################
@@ -31,10 +13,11 @@ SET @hash_pw = '$2a$10$ifwD1XTWxZ/iYc7vwRBd1OAMvONu5MPmnxXAvVE9kAmVmN96xsdnK';
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 3),
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 3), -- se ajusta a CAJERO si está vinculado a la tabla cajero
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
 (4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
-(5, 0, 'responsable@epicentro.com',  @hash_pw, 2);
+(5, 0, 'responsable@epicentro.com',  @hash_pw, 2),
+(6, 0, 'cocinero@epicentro.com',     @hash_pw, 5);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
@@ -109,32 +92,18 @@ CREATE TEMPORARY TABLE tmp_categorias (
 );
 
 INSERT INTO tmp_categorias (nombre, plus_fijo) VALUES
-('Chef Principal', 150000.00),
-('Subchef / Segundo de Cocina', 130000.00),
-('Parrillero Especialista', 120000.00),
-('Asador Criollo', 115000.00),
-('Cocinero Principal', 110000.00),
-('Maestro Pizzero', 100000.00),
-('Minutero', 95000.00),
-('Pastelero y Repostero', 90000.00),
-('Cocinero de Sándwiches Gourmet', 85000.00),
-('Sushiman y Especialidades', 125000.00),
-('Cocinero Ayudante', 80000.00),
-('Ayudante de Cocina', 70000.00),
-('Comis de Cuisine', 65000.00),
-('Auxiliar de Despacho y Montaje', 55000.00),
-('Bachero / Lavaplatos', 50000.00),
--- Compatibilidad con staff pre-cargado
-('Parrillero Especialista U1', 15000.00), ('Minutero U1', 10000.00), ('Pizzero U1', 12000.00),
-('Parrillero Especialista U2', 14000.00), ('Minutero U2', 11000.00), ('Pizzero U2', 13000.00),
-('Parrillero Especialista U3', 16000.00), ('Minutero U3', 10500.00), ('Pizzero U3', 12500.00),
-('Parrillero Especialista U4', 15500.00), ('Minutero U4', 9500.00),  ('Pizzero U4', 14000.00),
-('Parrillero Especialista U5', 17000.00), ('Minutero U5', 12000.00), ('Pizzero U5', 13500.00),
-('Parrillero Especialista U6', 16500.00), ('Minutero U6', 11500.00), ('Pizzero U6', 11000.00),
-('Parrillero Especialista U7', 14500.00), ('Minutero U7', 10000.00), ('Pizzero U7', 15000.00),
-('Parrillero Especialista U8', 18000.00), ('Minutero U8', 13000.00), ('Pizzero U8', 14500.00),
-('Parrillero Especialista U9', 17500.00), ('Minutero U9', 12500.00), ('Pizzero U9', 13000.00),
-('Parrillero Especialista U10', 19000.00), ('Minutero U10', 14000.00), ('Pizzero U10', 16000.00);
+-- Tres categorías y pluses establecidos por la cátedra
+('Cocinero', 150000.00),
+('Cocinero Ayudante', 100000.00),
+('Lavaplatos', 50000.00),
+
+-- Cinco especialidades adicionales solicitadas para el proyecto.
+-- Se consideran especialidades dentro del rol Cocinero y conservan su plus.
+('Parrillero', 150000.00),
+('Minutero', 150000.00),
+('Pizzero', 150000.00),
+('Pastelero', 150000.00),
+('Sushiman', 150000.00);
 
 DROP TEMPORARY TABLE IF EXISTS tmp_unidades;
 CREATE TEMPORARY TABLE tmp_unidades (
@@ -185,81 +154,81 @@ INSERT INTO tmp_empleados VALUES
 ('C', 'Carlos',    'Benitez',   '34125890', '1988-04-12', '2024-05-01', 180000.00, 'Manana', 1,  12000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Mariana',   'Gomez',     '36781245', '1992-08-19', '2022-03-15', 145000.00, 'Tarde',  2,   8500.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Lucas',     'Fernandez', '30456123', '1984-11-05', '2017-06-10', 165000.00, 'Noche',  3,  15000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
-('K', 'Gonzalo',   'Perez',     '32987410', '1987-01-22', '2023-09-01', 175000.00, NULL, NULL, NULL, 'Carnes Rojas', 1, 16000.00, 'Parrillero Especialista U1', 'FT-0000101'),
-('K', 'Sofia',     'Navarro',   '38123654', '1994-06-30', '2020-02-15', 130000.00, NULL, NULL, NULL, 'Minutas',      1,  9500.00, 'Minutero U1',               'FT-0000101'),
-('K', 'Esteban',   'Morales',   '28541236', '1981-03-14', '2016-01-10', 195000.00, NULL, NULL, NULL, 'Pizzas',       1, 22000.00, 'Pizzero U1',                'FT-0000101'),
+('K', 'Gonzalo',   'Perez',     '32987410', '1987-01-22', '2023-09-01', 175000.00, NULL, NULL, NULL, 'Carnes Rojas', 1, 16000.00, 'Parrillero', 'FT-0000101'),
+('K', 'Sofia',     'Navarro',   '38123654', '1994-06-30', '2020-02-15', 130000.00, NULL, NULL, NULL, 'Minutas',      1,  9500.00, 'Minutero',               'FT-0000101'),
+('K', 'Esteban',   'Morales',   '28541236', '1981-03-14', '2016-01-10', 195000.00, NULL, NULL, NULL, 'Pizzas',       1, 22000.00, 'Pizzero',                'FT-0000101'),
 
 -- U2: PD-0000101
 ('E', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Camila',    'Alvarez',   '39542109', '1996-05-18', '2023-02-01', 120000.00, 'Tarde',  5,   6500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Martin',    'Roldan',    '31876543', '1985-12-03', '2019-04-12', 160000.00, 'Noche',  6,  13500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
-('K', 'Valentina', 'Romero',    '37456981', '1993-07-25', '2021-11-20', 140000.00, NULL, NULL, NULL, 'Parrilla',     1, 11000.00, 'Parrillero Especialista U2', 'PD-0000101'),
-('K', 'Nicolas',   'Gutierrez', '35678432', '1990-09-14', '2017-08-05', 170000.00, NULL, NULL, NULL, 'Gourmet',      1, 18000.00, 'Minutero U2',               'PD-0000101'),
-('K', 'Andrea',    'Dominguez', '27981452', '1980-02-28', '2016-03-01', 190000.00, NULL, NULL, NULL, 'Pasteleria',   1, 24000.00, 'Pizzero U2',                'PD-0000101'),
+('K', 'Valentina', 'Romero',    '37456981', '1993-07-25', '2021-11-20', 140000.00, NULL, NULL, NULL, 'Parrilla',     1, 11000.00, 'Parrillero', 'PD-0000101'),
+('K', 'Nicolas',   'Gutierrez', '35678432', '1990-09-14', '2017-08-05', 170000.00, NULL, NULL, NULL, 'Gourmet',      1, 18000.00, 'Minutero',               'PD-0000101'),
+('K', 'Andrea',    'Dominguez', '27981452', '1980-02-28', '2016-03-01', 190000.00, NULL, NULL, NULL, 'Pasteleria',   1, 24000.00, 'Pastelero',                'PD-0000101'),
 
 -- U3: FT-0000102
 ('C', 'Marcos',    'Diaz',      '32145698', '1986-07-15', '2018-05-10', 165000.00, 'Manana', 7,  14000.00, NULL, NULL, NULL, NULL, 'FT-0000102'),
 ('C', 'Florencia', 'Acosta',    '40125896', '1997-03-22', '2025-01-15', 110000.00, 'Tarde',  8,   5000.00, NULL, NULL, NULL, NULL, 'FT-0000102'),
 ('C', 'Ignacio',   'Paz',       '36258974', '1991-11-04', '2022-07-01', 135000.00, 'Noche',  9,   8000.00, NULL, NULL, NULL, NULL, 'FT-0000102'),
-('K', 'Ramiro',    'Silva',     '29365412', '1982-09-18', '2017-04-12', 185000.00, NULL, NULL, NULL, 'Brasas',       1, 20000.00, 'Parrillero Especialista U3', 'FT-0000102'),
-('K', 'Carla',     'Mendoza',   '38452147', '1994-12-08', '2020-09-10', 145000.00, NULL, NULL, NULL, 'Minutas',      1, 12000.00, 'Minutero U3',               'FT-0000102'),
-('K', 'Gaston',    'Herrera',   '34789512', '1989-06-30', '2019-02-20', 160000.00, NULL, NULL, NULL, 'Pizzas',       1, 15000.00, 'Pizzero U3',                'FT-0000102'),
+('K', 'Ramiro',    'Silva',     '29365412', '1982-09-18', '2017-04-12', 185000.00, NULL, NULL, NULL, 'Brasas',       1, 20000.00, 'Parrillero', 'FT-0000102'),
+('K', 'Carla',     'Mendoza',   '38452147', '1994-12-08', '2020-09-10', 145000.00, NULL, NULL, NULL, 'Minutas',      1, 12000.00, 'Minutero',               'FT-0000102'),
+('K', 'Gaston',    'Herrera',   '34789512', '1989-06-30', '2019-02-20', 160000.00, NULL, NULL, NULL, 'Pizzas',       1, 15000.00, 'Pizzero',                'FT-0000102'),
 
 -- U4: PD-0000102
 ('C', 'Laura',     'Blanco',    '35478912', '1990-05-14', '2019-10-01', 155000.00, 'Manana', 10, 11000.00, NULL, NULL, NULL, NULL, 'PD-0000102'),
 ('C', 'Tomas',     'Ibarra',    '41258963', '1998-08-25', '2024-09-01', 105000.00, 'Tarde',  11,  4500.00, NULL, NULL, NULL, NULL, 'PD-0000102'),
 ('C', 'Belen',     'Suarez',    '33698521', '1988-02-17', '2018-03-15', 160000.00, 'Noche',  12, 13000.00, NULL, NULL, NULL, NULL, 'PD-0000102'),
-('K', 'Federico',  'Quiroga',   '30874521', '1984-10-11', '2016-08-20', 190000.00, NULL, NULL, NULL, 'Pastas',       1, 21000.00, 'Parrillero Especialista U4', 'PD-0000102'),
-('K', 'Agustina',  'Vidal',     '37145289', '1993-01-09', '2021-04-05', 135000.00, NULL, NULL, NULL, 'Dulces',       1,  9000.00, 'Minutero U4',               'PD-0000102'),
-('K', 'Emiliano',  'Sosa',      '27541289', '1979-11-29', '2016-02-10', 200000.00, NULL, NULL, NULL, 'Panaderia',    1, 23000.00, 'Pizzero U4',                'PD-0000102'),
+('K', 'Federico',  'Quiroga',   '30874521', '1984-10-11', '2016-08-20', 190000.00, NULL, NULL, NULL, 'Pastas',       1, 21000.00, 'Parrillero', 'PD-0000102'),
+('K', 'Agustina',  'Vidal',     '37145289', '1993-01-09', '2021-04-05', 135000.00, NULL, NULL, NULL, 'Dulces',       1,  9000.00, 'Minutero',               'PD-0000102'),
+('K', 'Emiliano',  'Sosa',      '27541289', '1979-11-29', '2016-02-10', 200000.00, NULL, NULL, NULL, 'Panaderia',    1, 23000.00, 'Pastelero',                'PD-0000102'),
 
 -- U5: FT-0000103
 ('C', 'Sergio',    'Ramos',     '31258741', '1985-04-03', '2017-09-12', 170000.00, 'Manana', 13, 16000.00, NULL, NULL, NULL, NULL, 'FT-0000103'),
 ('C', 'Paula',     'Cardozo',   '39874563', '1996-12-14', '2023-05-18', 125000.00, 'Tarde',  14,  7000.00, NULL, NULL, NULL, NULL, 'FT-0000103'),
 ('C', 'Joaquin',   'Medina',    '34896523', '1989-10-21', '2020-01-10', 140000.00, 'Noche',  15,  9500.00, NULL, NULL, NULL, NULL, 'FT-0000103'),
-('K', 'Claudio',   'Cabrera',   '28745698', '1981-08-16', '2016-05-01', 195000.00, NULL, NULL, NULL, 'Hamburguesas', 1, 22000.00, 'Parrillero Especialista U5', 'FT-0000103'),
-('K', 'Romina',    'Flores',    '36541278', '1992-03-05', '2022-08-14', 130000.00, NULL, NULL, NULL, 'Frituras',     1, 10000.00, 'Minutero U5',               'FT-0000103'),
-('K', 'Hernan',    'Castillo',  '33125874', '1987-07-28', '2019-11-03', 165000.00, NULL, NULL, NULL, 'Salsas',       1, 14000.00, 'Pizzero U5',                'FT-0000103'),
+('K', 'Claudio',   'Cabrera',   '28745698', '1981-08-16', '2016-05-01', 195000.00, NULL, NULL, NULL, 'Hamburguesas', 1, 22000.00, 'Parrillero', 'FT-0000103'),
+('K', 'Romina',    'Flores',    '36541278', '1992-03-05', '2022-08-14', 130000.00, NULL, NULL, NULL, 'Frituras',     1, 10000.00, 'Minutero',               'FT-0000103'),
+('K', 'Hernan',    'Castillo',  '33125874', '1987-07-28', '2019-11-03', 165000.00, NULL, NULL, NULL, 'Salsas',       1, 14000.00, 'Pizzero',                'FT-0000103'),
 
 -- U6: PD-0000103
 ('C', 'Pablo',     'Castro',    '36985214', '1992-06-18', '2021-03-10', 145000.00, 'Manana', 16,  8500.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
 ('C', 'Valeria',   'Gimenez',   '42145896', '2000-01-20', '2025-06-01',  95000.00, 'Tarde',  17,  3500.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
 ('C', 'Esteban',   'Molina',    '30985214', '1984-05-12', '2017-02-14', 170000.00, 'Noche',  18, 15000.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
-('K', 'Mauricio',  'Duarte',    '32456987', '1986-11-23', '2018-09-01', 180000.00, NULL, NULL, NULL, 'Cordero',      1, 19000.00, 'Parrillero Especialista U6', 'PD-0000103'),
-('K', 'Luciana',   'Godoy',     '38965412', '1995-04-17', '2023-10-15', 120000.00, NULL, NULL, NULL, 'Guarniciones', 1,  8000.00, 'Minutero U6',               'PD-0000103'),
-('K', 'Julian',    'Ferreyra',  '26985412', '1978-08-30', '2016-04-01', 200000.00, NULL, NULL, NULL, 'Ahumados',     1, 25000.00, 'Pizzero U6',                'PD-0000103'),
+('K', 'Mauricio',  'Duarte',    '32456987', '1986-11-23', '2018-09-01', 180000.00, NULL, NULL, NULL, 'Cordero',      1, 19000.00, 'Parrillero', 'PD-0000103'),
+('K', 'Luciana',   'Godoy',     '38965412', '1995-04-17', '2023-10-15', 120000.00, NULL, NULL, NULL, 'Guarniciones', 1,  8000.00, 'Minutero',               'PD-0000103'),
+('K', 'Julian',    'Ferreyra',  '26985412', '1978-08-30', '2016-04-01', 200000.00, NULL, NULL, NULL, 'Ahumados',     1, 25000.00, 'Pizzero',                'PD-0000103'),
 
 -- U7: FT-0000104
 ('C', 'Daniel',    'Rios',      '29874512', '1983-02-27', '2016-07-10', 175000.00, 'Manana', 19, 17000.00, NULL, NULL, NULL, NULL, 'FT-0000104'),
 ('C', 'Micaela',   'Ponce',     '41789654', '1999-09-08', '2024-11-01', 100000.00, 'Tarde',  20,  4000.00, NULL, NULL, NULL, NULL, 'FT-0000104'),
 ('C', 'Adrian',    'Vargas',    '35124578', '1990-03-19', '2020-06-12', 150000.00, 'Noche',  21, 10500.00, NULL, NULL, NULL, NULL, 'FT-0000104'),
-('K', 'Jorge',     'Ortega',    '31896547', '1985-12-11', '2017-08-15', 185000.00, NULL, NULL, NULL, 'Tacos',        1, 17500.00, 'Parrillero Especialista U7', 'FT-0000104'),
-('K', 'Gisela',    'Aguirre',   '37854123', '1993-10-02', '2022-01-20', 135000.00, NULL, NULL, NULL, 'Salsas Mex',   1, 11000.00, 'Minutero U7',               'FT-0000104'),
-('K', 'Rodrigo',   'Benitez',   '34258963', '1989-01-14', '2019-05-18', 160000.00, NULL, NULL, NULL, 'Tortillas',    1, 13000.00, 'Pizzero U7',                'FT-0000104'),
+('K', 'Jorge',     'Ortega',    '31896547', '1985-12-11', '2017-08-15', 185000.00, NULL, NULL, NULL, 'Tacos',        1, 17500.00, 'Parrillero', 'FT-0000104'),
+('K', 'Gisela',    'Aguirre',   '37854123', '1993-10-02', '2022-01-20', 135000.00, NULL, NULL, NULL, 'Salsas Mex',   1, 11000.00, 'Minutero',               'FT-0000104'),
+('K', 'Rodrigo',   'Benitez',   '34258963', '1989-01-14', '2019-05-18', 160000.00, NULL, NULL, NULL, 'Tortillas',    1, 13000.00, 'Pizzero',                'FT-0000104'),
 
 -- U8: PD-0000104
 ('C', 'Lucas',     'Ortiz',     '37894561', '1993-08-04', '2021-09-01', 140000.00, 'Manana', 22,  8000.00, NULL, NULL, NULL, NULL, 'PD-0000104'),
 ('C', 'Brenda',    'Peralta',   '40896523', '1998-04-19', '2023-04-15', 115000.00, 'Tarde',  23,  6000.00, NULL, NULL, NULL, NULL, 'PD-0000104'),
 ('C', 'Gustavo',   'Franco',    '28965412', '1982-01-07', '2016-09-20', 180000.00, 'Noche',  24, 18000.00, NULL, NULL, NULL, NULL, 'PD-0000104'),
-('K', 'Mariano',   'Nieto',     '33852147', '1988-06-25', '2018-07-12', 170000.00, NULL, NULL, NULL, 'Pastas Caseras',1, 16000.00, 'Parrillero Especialista U8', 'PD-0000104'),
-('K', 'Natalia',   'Campos',    '36412589', '1991-12-18', '2020-10-05', 145000.00, NULL, NULL, NULL, 'Rellenos',     1, 12500.00, 'Minutero U8',               'PD-0000104'),
-('K', 'Cristian',  'Barrios',   '30258963', '1983-10-15', '2017-01-10', 190000.00, NULL, NULL, NULL, 'Salsas Ita',   1, 20500.00, 'Pizzero U8',                'PD-0000104'),
+('K', 'Mariano',   'Nieto',     '33852147', '1988-06-25', '2018-07-12', 170000.00, NULL, NULL, NULL, 'Pastas Caseras',1, 16000.00, 'Parrillero', 'PD-0000104'),
+('K', 'Natalia',   'Campos',    '36412589', '1991-12-18', '2020-10-05', 145000.00, NULL, NULL, NULL, 'Rellenos',     1, 12500.00, 'Minutero',               'PD-0000104'),
+('K', 'Cristian',  'Barrios',   '30258963', '1983-10-15', '2017-01-10', 190000.00, NULL, NULL, NULL, 'Salsas Ita',   1, 20500.00, 'Pizzero',                'PD-0000104'),
 
 -- U9: FT-0000105
 ('C', 'Matias',    'Luna',      '30147852', '1983-07-22', '2017-03-01', 175000.00, 'Manana', 25, 16500.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
 ('C', 'Daniela',   'Rojas',     '42896541', '2001-02-14', '2025-08-01',  92000.00, 'Tarde',  26,  3000.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
 ('C', 'Federico',  'Maldonado', '35896541', '1991-05-09', '2020-04-18', 150000.00, 'Noche',  27, 10000.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
-('K', 'Leandro',   'Santillan', '32896541', '1987-09-30', '2018-06-25', 180000.00, NULL, NULL, NULL, 'Trucha Ahumada',1, 18500.00, 'Parrillero Especialista U9', 'FT-0000105'),
-('K', 'Sabrina',   'Ibanez',    '37965412', '1994-01-26', '2022-09-10', 135000.00, NULL, NULL, NULL, 'Ciervo',       1, 11500.00, 'Minutero U9',               'FT-0000105'),
-('K', 'Guillermo', 'Paz',       '27896541', '1980-04-12', '2016-01-15', 200000.00, NULL, NULL, NULL, 'Quesos',       1, 24500.00, 'Pizzero U9',                'FT-0000105'),
+('K', 'Leandro',   'Santillan', '32896541', '1987-09-30', '2018-06-25', 180000.00, NULL, NULL, NULL, 'Trucha Ahumada',1, 18500.00, 'Parrillero', 'FT-0000105'),
+('K', 'Sabrina',   'Ibanez',    '37965412', '1994-01-26', '2022-09-10', 135000.00, NULL, NULL, NULL, 'Ciervo',       1, 11500.00, 'Minutero',               'FT-0000105'),
+('K', 'Guillermo', 'Paz',       '27896541', '1980-04-12', '2016-01-15', 200000.00, NULL, NULL, NULL, 'Quesos',       1, 24500.00, 'Pizzero',                'FT-0000105'),
 
 -- U10: PD-0000105
 ('C', 'Damian',    'Vega',      '38521479', '1994-11-16', '2021-02-01', 145000.00, 'Manana', 28,  9000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
 ('C', 'Florencia', 'Lucero',    '43125896', '2002-06-03', '2025-05-10',  90000.00, 'Tarde',  29,  3000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
 ('C', 'Manuel',    'Bustos',    '31524789', '1985-08-28', '2018-11-20', 165000.00, 'Noche',  30, 14000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
-('K', 'Oscar',     'Gallardo',  '29521478', '1982-10-05', '2016-10-01', 195000.00, NULL, NULL, NULL, 'Empanada Salteña',1, 22500.00, 'Parrillero Especialista U10','PD-0000105'),
-('K', 'Melisa',    'Carrizo',   '36987451', '1992-04-11', '2020-07-15', 140000.00, NULL, NULL, NULL, 'Locro',          1, 13500.00, 'Minutero U10',             'PD-0000105'),
-('K', 'Walter',    'Farías',    '33521478', '1988-03-02', '2019-01-22', 170000.00, NULL, NULL, NULL, 'Tamales',        1, 16500.00, 'Pizzero U10',              'PD-0000105');
+('K', 'Oscar',     'Gallardo',  '29521478', '1982-10-05', '2016-10-01', 195000.00, NULL, NULL, NULL, 'Empanada Salteña',1, 22500.00, 'Parrillero','PD-0000105'),
+('K', 'Melisa',    'Carrizo',   '36987451', '1992-04-11', '2020-07-15', 140000.00, NULL, NULL, NULL, 'Locro',          1, 13500.00, 'Minutero',             'PD-0000105'),
+('K', 'Walter',    'Farías',    '33521478', '1988-03-02', '2019-01-22', 170000.00, NULL, NULL, NULL, 'Tamales',        1, 16500.00, 'Pizzero',              'PD-0000105');
 
 -- 2.3 CATEGORÍAS DE COCINA
 INSERT INTO categorias_cocina (nombre, plus_fijo, activo)
@@ -348,6 +317,22 @@ WHERE NOT EXISTS (
     WHERE dni = '43987651'
 );
 
+-- Crear el empleado asociado a cocinero@epicentro.com
+INSERT INTO staff (nombre, apellido, dni, fecha_nacimiento, fecha_ingreso, sueldo, usuario_id)
+SELECT
+    'Mateo',
+    'Sanchez',
+    '44987652',
+    '1997-09-18',
+    '2025-03-01',
+    150000.00,
+    u.id
+FROM usuarios u
+WHERE u.email = 'cocinero@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM staff s WHERE s.dni = '44987652'
+  );
+
 -- 2.5 CAJEROS Y COCINEROS
 INSERT INTO cajero (id, turno, numero_caja, plus_oadicional)
 SELECT s.id, t.turno, t.num_caja, t.plus_adicional
@@ -378,12 +363,58 @@ JOIN categorias_cocina c ON c.nombre = t.cat_nombre
 WHERE t.tipo = 'K'
   AND NOT EXISTS (SELECT 1 FROM cocineros k WHERE k.id = s.id);
 
+-- Registrar a Mateo Sanchez como cocinero con la categoría de la cátedra
+INSERT INTO cocineros (id, especialidad, libreta_sanitaria, bono_peligrosidad, categoria_cocina_id)
+SELECT s.id, 'Cocina general', 1, 0.00, c.id
+FROM staff s
+JOIN usuarios u ON u.id = s.usuario_id
+JOIN categorias_cocina c ON c.nombre = 'Cocinero'
+WHERE s.dni = '44987652'
+  AND u.email = 'cocinero@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM cocineros k WHERE k.id = s.id
+  );
+
+-- 2.5.1 ACTUALIZAR LOS ROLES SEGÚN EL TIPO REAL DE EMPLEADO
+-- Los registros de la tabla cajero deben usar el rol CAJERO (id 4).
+UPDATE usuarios u
+JOIN staff s ON s.usuario_id = u.id
+JOIN cajero c ON c.id = s.id
+SET u.rol_id = 4;
+
+-- Los registros de la tabla cocineros deben usar el rol COCINERO (id 5).
+UPDATE usuarios u
+JOIN staff s ON s.usuario_id = u.id
+JOIN cocineros co ON co.id = s.id
+SET u.rol_id = 5;
+
+-- El usuario vinculado a la unidad como responsable conserva el rol RESPONSABLE (id 2).
+UPDATE usuarios
+SET rol_id = 2
+WHERE email = 'responsable@epicentro.com';
+
 -- 2.6 UNIDADES DE VENTA
 INSERT INTO unidades_venta (codigo, nombre_comercial, superficie_m2, responsable_id)
 SELECT u.codigo, u.nombre_comercial, u.superficie, s.id
 FROM tmp_unidades u
 JOIN staff s ON s.dni = u.dni_responsable
 WHERE NOT EXISTS (SELECT 1 FROM unidades_venta uv WHERE uv.codigo = u.codigo);
+
+-- Reconciliar los roles de todas las cuentas vinculadas a empleados.
+-- Se conserva ADMIN; el subtipo determina CAJERO o COCINERO;
+-- el responsable de una unidad recibe RESPONSABLE; el resto, EMPLEADO.
+UPDATE usuarios u
+JOIN staff s ON s.usuario_id = u.id
+LEFT JOIN cajero cj ON cj.id = s.id
+LEFT JOIN cocineros co ON co.id = s.id
+LEFT JOIN unidades_venta uv ON uv.responsable_id = s.id
+SET u.rol_id = CASE
+    WHEN u.rol_id = 1 THEN 1
+    WHEN cj.id IS NOT NULL THEN 4
+    WHEN co.id IS NOT NULL THEN 5
+    WHEN uv.id IS NOT NULL THEN 2
+    ELSE 3
+END;
 
 -- 2.7 FOOD TRUCKS Y PUESTOS DESARMABLES
 INSERT INTO food_trucks (id, patente, requiere_electricidad)
@@ -410,6 +441,20 @@ WHERE NOT EXISTS (
     SELECT 1 FROM unidad_venta_staff uvs
     WHERE uvs.unidad_venta_id = uv.id AND uvs.staff_id = s.id
 );
+
+-- Asignar a Mateo Sanchez (cocinero@epicentro.com) a La Trinchera Gourmet
+INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
+SELECT uv.id, s.id
+FROM unidades_venta uv
+JOIN staff s ON s.dni = '44987652'
+JOIN usuarios u ON u.id = s.usuario_id
+WHERE uv.codigo = 'FT-0000101'
+  AND u.email = 'cocinero@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM unidad_venta_staff uvs
+      WHERE uvs.unidad_venta_id = uv.id
+        AND uvs.staff_id = s.id
+  );
 
 -- Asignar a Alejandro Ramirez a la unidad La Trinchera Gourmet
 INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
@@ -907,3 +952,4 @@ ORDER BY uv.codigo;
 
 COMMIT;
 SET SQL_SAFE_UPDATES = 1;
+SET FOREIGN_KEY_CHECKS = 1;

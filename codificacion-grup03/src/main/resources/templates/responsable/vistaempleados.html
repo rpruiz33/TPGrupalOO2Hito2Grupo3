@@ -195,31 +195,49 @@
 
                             <td class="text-center text-nowrap pe-3">
                                 <div class="d-flex flex-wrap justify-content-center gap-1">
-                                    <a th:href="@{/responsable/usuarios/editar/{id}(id=${empleado.usuario != null ? empleado.usuario.id : empleado.id})}"
+                                    <a th:href="@{/responsable/usuarios/editar/{id}(id=${empleado.id})}"
                                         class="menu-button py-1 px-2" title="Editar empleado y usuario">
                                         Editar
                                     </a>
 
-                                    <a th:if="${empleado.usuario != null}"
-                                        th:href="@{/responsable/usuarios/reenviar/{id}(id=${empleado.usuario.id})}"
-                                        class="menu-button py-1 px-2" title="Reenviar credenciales por mail"
-                                        onclick="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
-                                        Reenviar mail
-                                    </a>
+<form th:if="${empleado.usuario != null}"
+      th:action="@{/responsable/usuarios/reenviar/{id}(id=${empleado.id})}"
+      method="post"
+      class="d-inline"
+      onsubmit="return confirm('¿Desea generar una nueva contraseña temporal y enviarla por mail a este empleado?');">
 
-                                    <a th:if="${empleado.activo}"
-                                        th:href="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
-                                        class="btn btn-outline-danger btn-sm py-1 px-2" title="Dar de baja lógica"
-                                        onclick="return confirm('¿Está seguro de dar de baja a este empleado?');">
-                                        Dar de baja
-                                    </a>
+    <button type="submit"
+            class="menu-button py-1 px-2"
+            title="Reenviar credenciales por mail">
+        Reenviar mail
+    </button>
+</form>
 
-                                    <a th:unless="${empleado.activo}"
-                                        th:href="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
-                                        class="btn btn-outline-success btn-sm py-1 px-2" title="Dar de alta al empleado"
-                                        onclick="return confirm('¿Desea dar de alta a este empleado? Se enviará una nueva contraseña por mail.');">
-                                        ↑ Dar de alta
-                                    </a>
+<form th:if="${empleado.activo}"
+      th:action="@{/responsable/usuarios/baja/{id}(id=${empleado.id})}"
+      method="post"
+      class="d-inline"
+      onsubmit="return confirm('¿Está seguro de dar de baja a este empleado?');">
+
+    <button type="submit"
+            class="btn btn-outline-danger btn-sm py-1 px-2"
+            title="Dar de baja lógica">
+        Dar de baja
+    </button>
+</form>
+
+<form th:unless="${empleado.activo}"
+      th:action="@{/responsable/usuarios/reactivar/{id}(id=${empleado.id})}"
+      method="post"
+      class="d-inline"
+      onsubmit="return confirm('¿Desea dar de alta a este empleado?');">
+
+    <button type="submit"
+            class="btn btn-outline-success btn-sm py-1 px-2"
+            title="Dar de alta al empleado">
+        ↑ Dar de alta
+    </button>
+</form>
                                 </div>
                             </td>
                         </tr>

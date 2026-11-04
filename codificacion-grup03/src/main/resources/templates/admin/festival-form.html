@@ -45,12 +45,38 @@
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
                     <label for="fechaInicio" class="form-label fw-bold">Fecha de Inicio</label>
-                    <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}" th:min="${fechaMinima}" required>
+                    <input th:if="${festival.id == null}"
+       type="date"
+       class="form-control"
+       id="fechaInicio"
+       th:field="*{fechaInicio}"
+       th:min="${fechaMinima}"
+       required>
+
+<input th:unless="${festival.id == null}"
+       type="date"
+       class="form-control"
+       id="fechaInicio"
+       th:field="*{fechaInicio}"
+       required>
                     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaInicio')}" th:errors="*{fechaInicio}"></div>
                 </div>
                 <div class="col-md-6">
                     <label for="fechaFin" class="form-label fw-bold">Fecha de Finalización</label>
-                    <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" th:min="${fechaMinima}" required>
+                    <input th:if="${festival.id == null}"
+       type="date"
+       class="form-control"
+       id="fechaFin"
+       th:field="*{fechaFin}"
+       th:min="${fechaMinima}"
+       required>
+
+<input th:unless="${festival.id == null}"
+       type="date"
+       class="form-control"
+       id="fechaFin"
+       th:field="*{fechaFin}"
+       required>
                     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaFin')}" th:errors="*{fechaFin}"></div>
                 </div>
             </div>

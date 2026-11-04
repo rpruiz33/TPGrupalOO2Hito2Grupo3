@@ -325,6 +325,17 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
         }
         return "Responsable";
     }
+@Override
+@Transactional(readOnly = true)
+public Optional<Staff> buscarStaffExistenteDesdeId(Long id) {
+
+    if (id == null) {
+        return Optional.empty();
+    }
+
+    // Busca exclusivamente por ID de Staff.
+    return staffRepository.findById(id);
+}
 
     @Override
     @Transactional

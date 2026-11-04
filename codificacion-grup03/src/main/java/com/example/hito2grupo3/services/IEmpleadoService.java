@@ -4,6 +4,7 @@ import com.example.hito2grupo3.dto.EmpleadoDTO;
 import com.example.hito2grupo3.entities.Staff;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IEmpleadoService {
 
@@ -44,6 +45,12 @@ public interface IEmpleadoService {
      * @throws IllegalArgumentException si no existe ni usuario ni staff con ese ID
      */
     Staff resolverStaffDesdeId(Long id);
+    /**
+/**
+ * Busca un Staff existente por su ID.
+ * No crea registros si no encuentra coincidencias.
+ */
+Optional<Staff> buscarStaffExistenteDesdeId(Long id);
 
     /**
      * Dado el Staff del creador (responsable), asocia el nuevoStaff
@@ -62,7 +69,7 @@ public interface IEmpleadoService {
 
     /**
      * Elimina o da de baja al usuario y su staff asociado según el ID provisto.
-     * El ID puede ser de un Usuario o de un Staff.
+     * El ID puede ser de un Usuario o de un Staff. no reversible
      */
     void eliminarODarDeBajaPorId(Long id);
 
