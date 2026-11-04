@@ -49,9 +49,9 @@ public class AdminFestivalController {
         model.addAttribute("festival", dto);
         model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "festival",
             new BeanPropertyBindingResult(dto, "festival"));
-        model.addAttribute("formAction", "/admin/festivales/guardar");
-        model.addAttribute("fechaMinima", LocalDate.now());
-        model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+model.addAttribute("formAction", "/admin/festivales/guardar");
+model.addAttribute("fechaMinima", LocalDate.now());
+model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
         return "admin/festival-form";
     }
 
@@ -92,7 +92,7 @@ public class AdminFestivalController {
                 model.addAttribute(BindingResult.MODEL_KEY_PREFIX + "festival",
                     new BeanPropertyBindingResult(dto, "festival"));
             model.addAttribute("formAction", "/admin/festivales/editar/" + id);
-            model.addAttribute("fechaMinima", LocalDate.now());
+            
             model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
             return "admin/festival-form";
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class AdminFestivalController {
             festivalDTO.setId(id);
             model.addAttribute("formAction", "/admin/festivales/editar/" + id);
             model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
-            model.addAttribute("fechaMinima", LocalDate.now());
+            
             return "admin/festival-form";
         }
 

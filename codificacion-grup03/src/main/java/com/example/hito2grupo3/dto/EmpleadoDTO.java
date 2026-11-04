@@ -53,7 +53,6 @@ public class EmpleadoDTO {
     private LocalDate fechaNacimiento;
 
     @NotNull(message = "La fecha de ingreso es obligatoria")
-    @PastOrPresent(message = "La fecha de ingreso no puede ser una fecha futura")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaIngreso;
 
@@ -89,22 +88,27 @@ public class EmpleadoDTO {
 
     private boolean activo = true;
 
-    // Validaciones de dominio cruzadas
-    @AssertTrue(message = "El empleado debe tener al menos 18 años de edad")
-    public boolean isMayorDeEdad() {
-        if (fechaNacimiento == null) {
-            return true;
-        }
-        return !fechaNacimiento.plusYears(18).isAfter(LocalDate.now());
+// Validaciones para fechas 
+@AssertTrue(message = "El empleado debe tener entre 18 y 100 años de edad")
+public boolean isMayorDeEdad() {
+    if (fechaNacimiento == null) {
+        return true;
     }
 
-    @AssertTrue(message = "La fecha de ingreso no puede ser anterior a la fecha de nacimiento")
-    public boolean isFechaIngresoValida() {
-        if (fechaNacimiento == null || fechaIngreso == null) {
-            return true;
-        }
-        return !fechaIngreso.isBefore(fechaNacimiento);
+    LocalDate hoy = LocalDate.now();
+
+    return !fechaNacimiento.isAfter(hoy.minusYears(18))
+            && !fechaNacimiento.isBefore(hoy.minusYears(100));
+}
+
+@AssertTrue(message = "La fecha de ingreso no puede ser anterior a la fecha de nacimiento")
+public boolean isFechaIngresoValida() {
+    if (fechaNacimiento == null || fechaIngreso == null) {
+        return true;
     }
+
+    return !fechaIngreso.isBefore(fechaNacimiento);
+}
 
     public void setNombre(String nombre) {
         this.nombre = nombre != null ? nombre.trim() : null;

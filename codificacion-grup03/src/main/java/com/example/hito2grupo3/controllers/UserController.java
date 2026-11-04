@@ -123,7 +123,7 @@ public class UserController {
                 return "redirect:/empleado/index";
             }
 
-            return "redirect:/access-denied";
+            return "redirect:/acceso-denegado";
 
         } catch (IllegalArgumentException e) {
             redirectAttrs.addFlashAttribute("error", e.getMessage());

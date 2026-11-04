@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.FutureOrPresent;
+
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -32,12 +32,10 @@ public class FestivalDTO {
     private String nombre;
 
     @NotNull(message = "La fecha de inicio es obligatoria")
-    @FutureOrPresent(message = "La fecha de inicio no puede ser anterior a hoy")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaInicio;
 
     @NotNull(message = "La fecha de fin es obligatoria")
-    @FutureOrPresent(message = "La fecha de finalización no puede ser anterior a hoy")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaFin;
 

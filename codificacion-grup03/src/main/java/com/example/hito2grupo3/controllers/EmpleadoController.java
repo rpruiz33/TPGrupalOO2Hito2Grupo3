@@ -102,7 +102,8 @@ public String mostrarIndex(
             return "redirect:/empleado/index";
         }
 
-        return "redirect:/access-denied";
+        return "redirect:/acceso-denegado";
+       
     }
 
     @GetMapping("/empleado/historial-asignaciones")
@@ -121,7 +122,7 @@ public String mostrarHistorial(
             || tieneRol(authentication, "ROLE_COCINERO");
 
     if (!esEmpleadoAutorizado) {
-        return "redirect:/access-denied";
+        return "redirect:/acceso-denegado";
     }
 
     try {

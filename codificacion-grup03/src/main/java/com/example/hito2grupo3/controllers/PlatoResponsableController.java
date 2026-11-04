@@ -1,7 +1,6 @@
 package com.example.hito2grupo3.controllers;
 
 import java.time.LocalDate;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.example.hito2grupo3.entities.Festival;
@@ -49,6 +48,7 @@ public class PlatoResponsableController {
         }
 
         UnidadVenta unidad = platoService.obtenerUnidadDelResponsable(authentication.getName());
+
         if (unidad == null) {
             model.addAttribute("error", "No tenés una unidad de venta asignada como Responsable.");
             return "responsable/platos/nuevo";
@@ -73,6 +73,7 @@ public class PlatoResponsableController {
         }
 
         UnidadVenta unidad = platoService.obtenerUnidadDelResponsable(authentication.getName());
+
         if (unidad == null) {
             model.addAttribute("error", "No tenés una unidad de venta asignada como Responsable.");
             return "responsable/platos/nuevo";
@@ -86,12 +87,19 @@ public class PlatoResponsableController {
 
         try {
             platoService.crearPlato(plato, unidad.getId());
-            redirectAttributes.addFlashAttribute("mensaje", "El plato se guardó correctamente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "El plato se guardó correctamente."
+            );
+
             return "redirect:/responsable/platos/nuevo";
+
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("unidadVenta", unidad);
             cargarDatosFestival(unidad.getId(), model);
+
             return "responsable/platos/nuevo";
         }
     }
@@ -106,6 +114,7 @@ public class PlatoResponsableController {
         }
 
         UnidadVenta unidad = platoService.obtenerUnidadDelResponsable(authentication.getName());
+
         if (unidad == null) {
             model.addAttribute("error", "No tenés una unidad de venta asignada como Responsable.");
             return "responsable/platos/lista";
@@ -129,18 +138,27 @@ public class PlatoResponsableController {
         }
 
         UnidadVenta unidad = platoService.obtenerUnidadDelResponsable(authentication.getName());
+
         if (unidad == null) {
-            redirectAttributes.addFlashAttribute("error", "No tenés una unidad de venta asignada como Responsable.");
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No tenés una unidad de venta asignada como Responsable."
+            );
+
             return "redirect:/responsable/platos";
         }
 
         try {
             Plato plato = platoService.buscarPorIdYUnidad(id, unidad.getId());
+
             model.addAttribute("plato", plato);
             model.addAttribute("unidadVenta", unidad);
+
             return "responsable/platos/modificar";
+
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+
             return "redirect:/responsable/platos";
         }
     }
@@ -159,8 +177,13 @@ public class PlatoResponsableController {
         }
 
         UnidadVenta unidad = platoService.obtenerUnidadDelResponsable(authentication.getName());
+
         if (unidad == null) {
-            redirectAttributes.addFlashAttribute("error", "No tenés una unidad de venta asignada como Responsable.");
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No tenés una unidad de venta asignada como Responsable."
+            );
+
             return "redirect:/responsable/platos";
         }
 
@@ -171,35 +194,44 @@ public class PlatoResponsableController {
 
         try {
             platoService.actualizarPlato(id, datosFormulario, unidad.getId());
-            redirectAttributes.addFlashAttribute("mensaje", "El plato se modificó correctamente.");
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "El plato se modificó correctamente."
+            );
+
             return "redirect:/responsable/platos";
+
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("unidadVenta", unidad);
+
             return "responsable/platos/modificar";
         }
     }
 
     private void cargarDatosFestival(Long unidadVentaId, Model model) {
-        List<Festival> festivales = buscarFestivalesActivos(unidadVentaId, LocalDate.now());
+
+        List<Festival> festivales =
+                festivalService.buscarFestivalesActivosPorUnidadVenta(
+                        unidadVentaId,
+                        LocalDate.now()
+                );
 
         if (festivales.size() == 1) {
             model.addAttribute("festival", festivales.get(0));
-        } else if (festivales.isEmpty()) {
-            model.addAttribute("avisoFestival", "Actualmente no hay un festival vigente para tu unidad de venta.");
-        } else {
-            model.addAttribute("avisoFestival", "Hay más de un festival vigente para tu unidad de venta.");
-        }
-    }
 
-    @SuppressWarnings("unchecked")
-    private List<Festival> buscarFestivalesActivos(Long unidadVentaId, LocalDate fecha) {
-        try {
-            return (List<Festival>) festivalService.getClass()
-                    .getMethod("buscarFestivalesActivosPorUnidadVenta", Long.class, LocalDate.class)
-                    .invoke(festivalService, unidadVentaId, fecha);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("No se pudo consultar los festivales activos.", e);
+        } else if (festivales.isEmpty()) {
+            model.addAttribute(
+                    "avisoFestival",
+                    "Actualmente no hay un festival vigente para tu unidad de venta."
+            );
+
+        } else {
+            model.addAttribute(
+                    "avisoFestival",
+                    "Hay más de un festival vigente para tu unidad de venta."
+            );
         }
     }
 }
