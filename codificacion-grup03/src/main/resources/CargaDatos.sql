@@ -11,7 +11,7 @@ INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMP
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 3), -- se ajusta a CAJERO si está vinculado a la tabla cajero
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 3), -- el rol definitivo se determina según su responsabilidad y subtipo
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
 (4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
 (5, 0, 'responsable@epicentro.com',  @hash_pw, 2),
@@ -408,9 +408,9 @@ LEFT JOIN cocineros co ON co.id = s.id
 LEFT JOIN unidades_venta uv ON uv.responsable_id = s.id
 SET u.rol_id = CASE
     WHEN u.rol_id = 1 THEN 1
+    WHEN uv.id IS NOT NULL THEN 2
     WHEN cj.id IS NOT NULL THEN 4
     WHEN co.id IS NOT NULL THEN 5
-    WHEN uv.id IS NOT NULL THEN 2
     ELSE 3
 END;
 
@@ -478,38 +478,6 @@ WHERE @festival_id IS NOT NULL
     SELECT 1 FROM festival_unidad_venta fuv
     WHERE fuv.festival_id = @festival_id AND fuv.unidad_venta_id = uv.id
 );
-
--- 2.8.1 Asignaciones históricas de Alejandro Ramirez
-INSERT INTO asignaciones_staff (
-    staff_id,
-    unidad_venta_id,
-    festival_id,
-    fecha_inicio,
-    fecha_fin
-)
-SELECT
-    s.id,
-    uv.id,
-    f.id,
-    f.fecha_inicio,
-    f.fecha_fin
-FROM staff s
-JOIN unidades_venta uv
-    ON uv.codigo = 'FT-0000101'
-JOIN festivales f
-    ON f.id IN (
-        @festival_id,
-        @festival_anterior_id,
-        @festival_anual_id
-    )
-WHERE s.dni = '43987651'
-  AND NOT EXISTS (
-      SELECT 1
-      FROM asignaciones_staff a
-      WHERE a.staff_id = s.id
-        AND a.unidad_venta_id = uv.id
-        AND a.festival_id = f.id
-  );
 
 DROP TEMPORARY TABLE IF EXISTS tmp_empleados;
 DROP TEMPORARY TABLE IF EXISTS tmp_unidades;
@@ -745,6 +713,41 @@ WHERE fuv.festival_id = @festival_id
       WHERE fuv2.festival_id = @festival_anual_id AND fuv2.unidad_venta_id = uv.id
   );
 
+-- 4.1.1 Generar asignaciones para todo el personal de cada unidad y festival.
+-- El período comienza en la fecha más tardía entre el inicio del festival
+-- y la fecha de ingreso del empleado. Se excluye al personal que ingresó
+-- después de la finalización del festival.
+INSERT INTO asignaciones_staff (
+    staff_id,
+    unidad_venta_id,
+    festival_id,
+    fecha_inicio,
+    fecha_fin
+)
+SELECT
+    s.id,
+    uv.id,
+    f.id,
+    GREATEST(f.fecha_inicio, COALESCE(s.fecha_ingreso, f.fecha_inicio)),
+    f.fecha_fin
+FROM unidad_venta_staff uvs
+JOIN staff s
+    ON s.id = uvs.staff_id
+JOIN unidades_venta uv
+    ON uv.id = uvs.unidad_venta_id
+JOIN festival_unidad_venta fuv
+    ON fuv.unidad_venta_id = uv.id
+JOIN festivales f
+    ON f.id = fuv.festival_id
+WHERE f.fecha_fin >= COALESCE(s.fecha_ingreso, f.fecha_inicio)
+  AND NOT EXISTS (
+      SELECT 1
+      FROM asignaciones_staff a
+      WHERE a.staff_id = s.id
+        AND a.unidad_venta_id = uv.id
+        AND a.festival_id = f.id
+  );
+
 -- 4.2 Pedidos festival anterior (20 dias desde hace 60 dias)
 DROP TEMPORARY TABLE IF EXISTS tmp_dias_ant;
 CREATE TEMPORARY TABLE tmp_dias_ant (d INT);
@@ -947,6 +950,18 @@ LEFT JOIN pedidos p ON p.unidad_venta_id = uv.id AND p.festival_id = f.id AND p.
 LEFT JOIN items_pedido ip ON ip.pedido_id = p.id
 GROUP BY f.nombre, uv.codigo, uv.nombre_comercial
 ORDER BY uv.codigo;
+
+SELECT f.nombre AS festival,
+       uv.codigo,
+       COUNT(a.id) AS asignaciones_generadas
+FROM festivales f
+JOIN festival_unidad_venta fuv ON fuv.festival_id = f.id
+JOIN unidades_venta uv ON uv.id = fuv.unidad_venta_id
+LEFT JOIN asignaciones_staff a
+       ON a.festival_id = f.id
+      AND a.unidad_venta_id = uv.id
+GROUP BY f.id, f.nombre, f.fecha_inicio, uv.id, uv.codigo
+ORDER BY f.fecha_inicio, uv.codigo;
 
 COMMIT;
 SET SQL_SAFE_UPDATES = 1;

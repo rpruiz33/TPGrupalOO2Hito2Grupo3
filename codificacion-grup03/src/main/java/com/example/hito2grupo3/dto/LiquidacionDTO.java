@@ -1,16 +1,13 @@
+
 package com.example.hito2grupo3.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
- * DTO de liquidación de haberes (no persistente).
- *
- * Fórmula:
- *   total = sueldoBase + montoAntiguedad + plusCategoria
- *
- * Donde:
- *   montoAntiguedad = aniosAntiguedad × $5.000
- *   plusCategoria   = $150.000 (Cocinero) | $100.000 (Ayudante) | $50.000 (Lavaplatos) | $0 (Cajero)
+ * DTO de liquidación de haberes.
+ * Representa una liquidación de un empleado para una unidad
+ * y un período determinado.
  */
 public record LiquidacionDTO(
         Long empleadoId,
@@ -20,16 +17,101 @@ public record LiquidacionDTO(
         String rol,
         long aniosAntiguedad,
         BigDecimal sueldoBase,
-        BigDecimal montoAntiguedad,   // aniosAntiguedad × $5.000
-        BigDecimal plusCategoria,      // plus según rol en cocina (0 para Cajero)
-        BigDecimal total) {
+        BigDecimal montoAntiguedad,
+        BigDecimal plusCategoria,
+        BigDecimal total,
+        Long unidadId,
+        String unidad,
+        LocalDate periodoInicio,
+        LocalDate periodoFin,
+        long diasTrabajados,
+        BigDecimal factorAplicado,
+        Long liquidacionId) {
 
-    /** Alias de compatibilidad: devuelve plusCategoria (para cajero devuelve montoAntiguedad). */
-    public BigDecimal adicional() {
-        return plusCategoria != null ? plusCategoria : montoAntiguedad;
+    /**
+     * Constructor compatible con la versión mensual anterior.
+     */
+    public LiquidacionDTO(
+            Long empleadoId,
+            String nombreCompleto,
+            String email,
+            String dni,
+            String rol,
+            long aniosAntiguedad,
+            BigDecimal sueldoBase,
+            BigDecimal montoAntiguedad,
+            BigDecimal plusCategoria,
+            BigDecimal total,
+            Long unidadId,
+            String unidad,
+            LocalDate periodoInicio,
+            LocalDate periodoFin,
+            long diasTrabajados,
+            BigDecimal factorAplicado) {
+
+        this(
+                empleadoId,
+                nombreCompleto,
+                email,
+                dni,
+                rol,
+                aniosAntiguedad,
+                sueldoBase,
+                montoAntiguedad,
+                plusCategoria,
+                total,
+                unidadId,
+                unidad,
+                periodoInicio,
+                periodoFin,
+                diasTrabajados,
+                factorAplicado,
+                null
+        );
     }
 
-    /** Alias de compatibilidad (ya no se usa factor de períodos). */
+    /**
+     * Constructor compatible con la versión original.
+     */
+    public LiquidacionDTO(
+            Long empleadoId,
+            String nombreCompleto,
+            String email,
+            String dni,
+            String rol,
+            long aniosAntiguedad,
+            BigDecimal sueldoBase,
+            BigDecimal montoAntiguedad,
+            BigDecimal plusCategoria,
+            BigDecimal total) {
+
+        this(
+                empleadoId,
+                nombreCompleto,
+                email,
+                dni,
+                rol,
+                aniosAntiguedad,
+                sueldoBase,
+                montoAntiguedad,
+                plusCategoria,
+                total,
+                null,
+                null,
+                null,
+                null,
+                0,
+                null,
+                null
+        );
+    }
+
+    public BigDecimal adicional() {
+        return plusCategoria != null
+                ? plusCategoria
+                : montoAntiguedad;
+    }
+
     public int periodos() {
         return 1;
     }
