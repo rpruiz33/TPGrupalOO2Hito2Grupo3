@@ -58,7 +58,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         Festival festival = buscarFestival(festivalId);
         UnidadVenta unidad = buscarUnidadDelResponsable(emailResponsable);
 
-        return calcularLiquidacion(unidad, festival);
+        return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
     }
 
     /**
@@ -75,7 +75,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "La unidad de venta seleccionada no existe."));
 
-        return calcularLiquidacion(unidad, festival);
+            return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
     }
 
     /**
@@ -187,6 +187,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                     .findFirst()
                     .orElse(null);
         }
+        final String emailLimpio = emailEmpleado.trim();
 
         if (empleado == null) {
             throw new IllegalArgumentException(
@@ -512,7 +513,22 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             baseLiquidable = sueldoBase.add(montoAntiguedad);
 
         } else {
-            return null;
+            // Personal genérico (Staff / Responsable / Empleado que no es Cocinero ni Cajero)
+            plusCategoria = BigDecimal.ZERO;
+            montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
+                    .multiply(BigDecimal.valueOf(anios));
+            if (s.getUsuario() != null && s.getUsuario().getRol() != null && s.getUsuario().getRol().getNombre() != null) {
+                String nomRol = s.getUsuario().getRol().getNombre().replace("ROLE_", "").trim();
+                rol = switch (nomRol.toUpperCase(Locale.ROOT)) {
+                    case "RESPONSABLE" -> "Responsable";
+                    case "ADMIN" -> "Administrador";
+                    case "CAJERO" -> "Cajero";
+                    case "COCINERO" -> "Cocinero";
+                    default -> "Empleado";
+                };
+            } else {
+                rol = "Empleado";
+            }
         }
 
         BigDecimal total = baseLiquidable
@@ -613,6 +629,15 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     @Transactional(readOnly = true)
     public List<UnidadVenta> listarTodasLasUnidades() {
         return unidadVentaRepository.findAll();
+    }
+
+    private void validarPeriodo(Festival festival, LocalDate desde, LocalDate hasta) {
+        if (desde == null || hasta == null || desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("El período consultado no es válido.");
+        }
+        if (desde.isBefore(festival.getFechaInicio()) || hasta.isAfter(festival.getFechaFin())) {
+            throw new IllegalArgumentException("El período consultado debe estar dentro del festival.");
+        }
     }
 
     @Override
@@ -884,6 +909,19 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         }
 
         return resultado;
+    }
+
+    private UnidadVenta buscarUnidadDelResponsable(String emailResponsable) {
+        if (emailResponsable == null) {
+            throw new IllegalArgumentException("Usuario no autenticado.");
+        }
+        return unidadVentaRepository.findAll().stream()
+                .filter(u -> u.getResponsable() != null
+                        && u.getResponsable().getUsuario() != null
+                        && emailResponsable.equalsIgnoreCase(u.getResponsable().getUsuario().getEmail()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró una unidad de venta a cargo del usuario: " + emailResponsable));
     }
 
     @Override

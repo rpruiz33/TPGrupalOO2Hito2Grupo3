@@ -11,7 +11,7 @@
 
 <body>
 
-    <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    <nav th:replace="~{fragments/header :: app-navbar(${esResponsable ? 'Epicentro Gourmet - Responsable' : 'Epicentro Gourmet - Admin'}, ${esResponsable ? 'Responsable' : 'Administrador'}, ${esResponsable ? '/responsable/index' : '/admin/dashboard'})}"></nav>
     <main class="container panel-container mt-4" style="max-width: 1150px;">
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
@@ -23,7 +23,7 @@
                 <a href="javascript:window.print();" class="menu-button">
                     🖨️ Imprimir PDF
                 </a>
-                <a th:href="@{/admin/dashboard}" class="menu-button">
+                <a th:href="${esResponsable ? '/responsable/index' : '/admin/dashboard'}" class="menu-button">
                     ← Volver al Menu
                 </a>
             </div>
@@ -42,7 +42,7 @@
                 <span class="text-muted small">Filtrar por festival, unidad y rango de fechas</span>
             </div>
 
-            <form th:action="@{/reportes/rentabilidad}" method="get">
+            <form th:action="${esResponsable ? '/responsable/reportes/rentabilidad' : '/reportes/rentabilidad'}" method="get">
                 <div class="row g-2 align-items-end">
 
                     <!-- Selector Festival -->
@@ -61,7 +61,7 @@
                     </div>
 
                     <!-- Selector Unidad de Venta -->
-                    <div class="col-12 col-md-4 col-lg-3">
+                    <div class="col-12 col-md-4 col-lg-3" th:if="${esAdministrador}">
                         <label for="unidadVentaId" class="form-label small fw-semibold text-secondary mb-1">Unidad de Venta</label>
                         <select id="unidadVentaId" name="unidadVentaId" class="form-select control-epicentro">
                             <option value="">-- Todas las Unidades --</option>

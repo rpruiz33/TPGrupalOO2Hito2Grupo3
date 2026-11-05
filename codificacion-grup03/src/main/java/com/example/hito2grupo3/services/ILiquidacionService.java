@@ -20,6 +20,9 @@ public interface ILiquidacionService {
             Long unidadId,
             Long festivalId);
 
+    ResultadoLiquidacion liquidarPorUnidadEntreFechas(Long unidadId, Long festivalId,
+                                                       LocalDate fechaDesde, LocalDate fechaHasta);
+
     ResultadoLiquidacion liquidarTodos(Long festivalId);
 
     ResultadoLiquidacion liquidarEmpleado(

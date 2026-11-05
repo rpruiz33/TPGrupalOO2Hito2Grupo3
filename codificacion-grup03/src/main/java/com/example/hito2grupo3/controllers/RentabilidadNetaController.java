@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.IRentabilidadNetaService;
+import com.example.hito2grupo3.services.IUnidadVentaService;
 
 @Controller
 public class RentabilidadNetaController {
@@ -23,9 +24,12 @@ public class RentabilidadNetaController {
     private static final String VISTA_RENTABILIDAD = "reportes/rentabilidadNeta";
 
     private final IRentabilidadNetaService r;
+    private final IUnidadVentaService unidadVentaService;
 
-    public RentabilidadNetaController(IRentabilidadNetaService rentabilidadNetaService) {
+    public RentabilidadNetaController(IRentabilidadNetaService rentabilidadNetaService,
+                                      IUnidadVentaService unidadVentaService) {
         this.r = rentabilidadNetaService;
+        this.unidadVentaService = unidadVentaService;
     }
 
     // 1. Vista estándar del festival completo
@@ -56,6 +60,24 @@ public class RentabilidadNetaController {
         return cargarReporte(festivalId, unidadVentaId, fechaDesde, fechaHasta, model);
     }
 
+    @GetMapping("/responsable/reportes/rentabilidad")
+    public String calcularRentabilidadResponsable(
+            @RequestParam(required = false) Long festivalId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            org.springframework.security.core.Authentication authentication,
+            Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
+        if (unidad == null) {
+            model.addAttribute("error", "No tenés una unidad de venta asignada.");
+            return VISTA_RENTABILIDAD;
+        }
+        return cargarReporte(festivalId, unidad.getId(), fechaDesde, fechaHasta, model, false);
+    }
+
     // 4. Punto 6 del TP: Cálculo de rentabilidad neta de una unidad en un festival
     @GetMapping("/admin/reportes/rentabilidad-neta/festival/{festivalId}/unidad/{unidadVentaId}")
     public String verRentabilidadNetaPorUnidad(
@@ -84,7 +106,13 @@ public class RentabilidadNetaController {
      * - Canon de la unidad de venta
      */
     private String cargarReporte(Long festivalId, Long unidadVentaId, LocalDate desde, LocalDate hasta, Model model) {
-        model.addAttribute("esAdministrador", true);
+        return cargarReporte(festivalId, unidadVentaId, desde, hasta, model, true);
+    }
+
+    private String cargarReporte(Long festivalId, Long unidadVentaId, LocalDate desde, LocalDate hasta,
+                                 Model model, boolean esAdministrador) {
+        model.addAttribute("esAdministrador", esAdministrador);
+        model.addAttribute("esResponsable", !esAdministrador);
         model.addAttribute("ranking", Collections.emptyList());
         model.addAttribute("detalles", Collections.emptyList());
         model.addAttribute("unidades", Collections.emptyList());
@@ -161,7 +189,9 @@ public class RentabilidadNetaController {
 
         // 3) Calcular rentabilidad neta real (con pedidos - costoPlatos - sueldos - canon)
         try {
-            model.addAttribute("ranking", r.obtenerRankingUnidades(id));
+            if (esAdministrador) {
+                model.addAttribute("ranking", r.obtenerRankingUnidades(id));
+            }
 
             Map<String, Object> data = r.obtenerReporteRentabilidad(id, unidadVentaId, desde, hasta);
             if (data != null) {

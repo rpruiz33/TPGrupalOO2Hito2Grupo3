@@ -303,13 +303,7 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
         if (email == null || email.isBlank()) {
             return null;
         }
-        return staffRepository.findByUsuario_Email(email)
-                .or(() -> staffRepository.findAll().stream()
-                        .filter(s -> s.getUsuario() != null
-                                && s.getUsuario().getEmail() != null
-                                && s.getUsuario().getEmail().trim().equalsIgnoreCase(email.trim()))
-                        .findFirst())
-                .orElse(null);
+        return staffRepository.findByUsuario_Email(email.trim()).orElse(null);
     }
 
     @Override
