@@ -10,8 +10,17 @@
 </head>
 
 <body>
-    <nav th:if="${esResponsable}" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
-    <nav th:unless="${esResponsable}" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+
+    <!-- Navegación exclusiva para Responsable -->
+    <th:block th:if="${esResponsable}">
+        <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', null, '/responsable/index')}"></nav>
+    </th:block>
+
+    <!-- Navegación exclusiva para Administrador -->
+    <th:block th:unless="${esResponsable}">
+        <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    </th:block>
+
     <main class="container panel-container mt-4" style="max-width: 1100px;">
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
@@ -21,11 +30,13 @@
 
             <div>
                 <a th:href="${esResponsable ? '/responsable/index' : '/admin/dashboard'}" class="menu-button">
-                    ← Volver al Menu
+                    ← Volver al Menú
                 </a>
             </div>
         </section>
+
         <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
+
         <section class="card menu-card p-3 mb-4 d-print-none" th:if="${esResponsable}">
             <form th:action="@{/responsable/reportes/recaudacion}" method="get" class="row g-2 align-items-end">
                 <div class="col-12 col-md-8">
@@ -46,6 +57,7 @@
                 Unidad consultada: <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
             </div>
         </section>
+
         <section class="row g-3 justify-content-center mb-4">
             <div class="col-sm-6">
                 <div class="card menu-card p-3 text-center h-100">
@@ -67,11 +79,9 @@
                     <span class="text-secondary small">Transacciones confirmadas</span>
                 </div>
             </div>
-
         </section>
 
         <section class="card menu-card overflow-hidden">
-
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom bg-light">
                 <h2 class="h5 fw-bold m-0" style="color: #800020;">
                     🏪 Desglose por Unidad de Venta
@@ -117,7 +127,6 @@
                     </tbody>
                 </table>
             </div>
-
         </section>
 
     </main>
@@ -126,5 +135,3 @@
 
 </body>
 </html>
-    
-   
