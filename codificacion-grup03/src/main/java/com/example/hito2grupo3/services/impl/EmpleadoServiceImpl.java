@@ -375,41 +375,69 @@ public Optional<Staff> buscarStaffExistenteDesdeId(Long id) {
         throw new IllegalArgumentException("No se encontró el usuario o empleado con ID: " + id);
     }
 
-    @Override
+@Override
 @Transactional
-public void asociarEmpleadoAUnidadDelCreador(String creadorEmail, Staff nuevoStaff) {
+public void asociarEmpleadoAUnidadDelCreador(
+        String creadorEmail,
+        Staff nuevoStaff) {
+
     if (creadorEmail == null || nuevoStaff == null) {
         return;
     }
 
-    Staff creador = staffRepository.findByUsuario_Email(creadorEmail).orElse(null);
+    Staff creador = staffRepository
+            .findByUsuario_Email(creadorEmail)
+            .orElse(null);
 
     if (creador == null) {
         return;
     }
 
-    unidadVentaRepository.findByResponsable_Id(creador.getId()).ifPresent(uv -> {
+    unidadVentaRepository.findByResponsable_Id(creador.getId())
+            .ifPresent(unidad -> {
 
-        // Asociar el empleado a la unidad
-        uv.getStaffAsignado().add(nuevoStaff);
-        unidadVentaRepository.save(uv);
-       // ----------------------------
-        System.out.println("UNIDAD ENCONTRADA: " + uv.getId());
-System.out.println("EMPLEADO: " + nuevoStaff.getId());
-System.out.println("CANTIDAD DE FESTIVALES: " + uv.getFestivales().size());
-        // Registrar una asignación por cada festival de la unidad
-        for (Festival festival : uv.getFestivales()) {
+                // Asociar el empleado a la unidad.
+                unidad.getStaffAsignado().add(nuevoStaff);
+                unidadVentaRepository.save(unidad);
 
-            AsignacionStaff asignacion = new AsignacionStaff();
-            asignacion.setStaff(nuevoStaff);
-            asignacion.setUnidadVenta(uv);
-            asignacion.setFestival(festival);
-            asignacion.setFechaInicio(festival.getFechaInicio());
-            asignacion.setFechaFin(festival.getFechaFin());
+                // Registrar una asignación por cada festival.
+                for (Festival festival : unidad.getFestivales()) {
 
-            asignacionStaffRepository.save(asignacion);
-        }
-    });
+                    LocalDate inicioFestival = festival.getFechaInicio();
+                    LocalDate finFestival = festival.getFechaFin();
+                    LocalDate fechaIngreso = nuevoStaff.getFechaIngreso();
+
+                    if (inicioFestival == null
+                            || finFestival == null
+                            || fechaIngreso == null) {
+                        continue;
+                    }
+
+                    // El empleado no puede comenzar antes del festival
+                    // ni antes de su fecha de ingreso.
+                    LocalDate fechaInicioAsignacion =
+                            fechaIngreso.isAfter(inicioFestival)
+                                    ? fechaIngreso
+                                    : inicioFestival;
+
+                    LocalDate fechaFinAsignacion = finFestival;
+
+                    // No registrar períodos inválidos.
+                    if (fechaFinAsignacion.isBefore(fechaInicioAsignacion)) {
+                        continue;
+                    }
+
+                    AsignacionStaff asignacion = new AsignacionStaff();
+
+                    asignacion.setStaff(nuevoStaff);
+                    asignacion.setUnidadVenta(unidad);
+                    asignacion.setFestival(festival);
+                    asignacion.setFechaInicio(fechaInicioAsignacion);
+                    asignacion.setFechaFin(fechaFinAsignacion);
+
+                    asignacionStaffRepository.save(asignacion);
+                }
+            });
 }
 
     @Override
