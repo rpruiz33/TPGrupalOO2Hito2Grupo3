@@ -61,8 +61,9 @@
     <!-- Opciones del panel -->
     <section>
         
-        <!-- Bloque principal de 5 tarjetas -->
         <div class="row g-4 justify-content-center mb-4">
+
+            <!-- Fila 1: Operación principal -->
 
             <!-- Empleados -->
             <div class="col-md-6 col-lg-4">
@@ -132,6 +133,9 @@
                 </article>
             </div>
 
+
+            <!-- Fila 2: Cuenta del usuario (Información y Seguridad centrados) -->
+
             <!-- Información Personal -->
             <div class="col-md-6 col-lg-4">
                 <article class="card menu-card h-100">
@@ -172,46 +176,69 @@
                 </article>
             </div>
 
-        </div>
 
-        <!-- Tarjeta de Liquidación y reportes (Recaudación) abajo y centrada -->
-        <div class="row justify-content-center">
+            <!-- Fila 3: Liquidaciones y Reportes -->
+
+            <!-- Liquidación de Haberes -->
             <div class="col-md-6 col-lg-4">
                 <article class="card menu-card h-100">
                     <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
                         <div>
-                            <div class="fs-1 mb-2" aria-hidden="true">📊</div>
-                            <h2 class="h5 fw-bold mb-2">Liquidación y reportes</h2>
+                            <div class="fs-1 mb-2" aria-hidden="true">📄</div>
+                            <h2 class="h5 fw-bold mb-2">Liquidación de Haberes</h2>
                             <p class="text-secondary small mb-3">
-                                Consultá liquidaciones, rentabilidad y recaudación de tu unidad.
+                                Calculá sueldos, comisiones y generá recibos del personal de tu unidad.
                             </p>
-
-                            <div class="mb-3 text-start" th:if="${festivales != null and !festivales.isEmpty()}">
-                                <label for="festivalSelectPanel" class="form-label small fw-semibold text-secondary mb-1">
-                                    Festival:
-                                </label>
-                                <select id="festivalSelectPanel" class="form-select control-epicentro form-select-sm">
-                                    <option th:each="f : ${festivales}"
-                                            th:value="${f.id}"
-                                            th:text="${f.nombre}">
-                                    </option>
-                                </select>
-                            </div>
                         </div>
-                        <div class="d-flex flex-column gap-2">
-                            <a id="btnLiquidacion" th:href="@{/liquidacion}" class="menu-button menu-button-primary w-100">
-                                📄 Liquidación
-                            </a>
-                            <a id="btnRentabilidad" th:href="@{/responsable/reportes/rentabilidad}" class="menu-button w-100">
-                                📈 Rentabilidad
-                            </a>
-                            <a id="btnRecaudacion" th:href="@{/responsable/reportes/recaudacion}" class="menu-button w-100">
-                                📊 Recaudación
+                        <div>
+                            <a id="btnLiquidacion" th:href="@{/liquidacion}" class="menu-button w-100">
+                                Liquidar Haberes
                             </a>
                         </div>
                     </div>
                 </article>
             </div>
+
+            <!-- Rentabilidad Neta -->
+            <div class="col-md-6 col-lg-4">
+                <article class="card menu-card h-100">
+                    <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="fs-1 mb-2" aria-hidden="true">💹</div>
+                            <h2 class="h5 fw-bold mb-2">Rentabilidad Neta</h2>
+                            <p class="text-secondary small mb-3">
+                                Evaluá los márgenes netos de tu unidad descontando costos y cánones.
+                            </p>
+                        </div>
+                        <div>
+                            <a id="btnRentabilidad" th:href="@{/responsable/reportes/rentabilidad}" class="menu-button w-100">
+                                Ver Rentabilidad
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Recaudación -->
+            <div class="col-md-6 col-lg-4">
+                <article class="card menu-card h-100">
+                    <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="fs-1 mb-2" aria-hidden="true">📊</div>
+                            <h2 class="h5 fw-bold mb-2">Reporte de Recaudación</h2>
+                            <p class="text-secondary small mb-3">
+                                Analizá el total facturado por tu unidad, métodos de pago y detalle de ventas.
+                            </p>
+                        </div>
+                        <div>
+                            <a id="btnRecaudacion" th:href="@{/responsable/reportes/recaudacion}" class="menu-button w-100">
+                                Ver Recaudación
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
         </div>
 
     </section>
@@ -220,33 +247,6 @@
 
 <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener("DOMContentLoaded", function () {
-        const festivalSelect = document.getElementById("festivalSelectPanel");
-        if (!festivalSelect) return;
-
-        const urlLiq = /*[[@{/liquidacion}]]*/ '/liquidacion';
-        const urlRent = /*[[@{/responsable/reportes/rentabilidad}]]*/ '/responsable/reportes/rentabilidad';
-        const urlRec = /*[[@{/responsable/reportes/recaudacion}]]*/ '/responsable/reportes/recaudacion';
-
-        function actualizarEnlacesFestival() {
-            const id = festivalSelect.value;
-            const param = id ? "?festivalId=" + encodeURIComponent(id) : "";
-            const btnLiq = document.getElementById("btnLiquidacion");
-            const btnRent = document.getElementById("btnRentabilidad");
-            const btnRec = document.getElementById("btnRecaudacion");
-
-            if (btnLiq) btnLiq.href = urlLiq + param;
-            if (btnRent) btnRent.href = urlRent + param;
-            if (btnRec) btnRec.href = urlRec + param;
-        }
-
-        festivalSelect.addEventListener("change", actualizarEnlacesFestival);
-        actualizarEnlacesFestival();
-    });
-    /*]]>*/
-</script>
 
 </body>
 </html>

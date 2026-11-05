@@ -64,7 +64,15 @@ public class ResponsableReporteController {
             model.addAttribute("reporte", reporteVentaService.obtenerTotalesFestivalYUnidad(id, unidad.getId()));
             model.addAttribute("ranking", reporteVentaService.obtenerRankingFestivalYUnidad(id, unidad.getId()));
         } catch (RuntimeException ex) {
-            model.addAttribute("error", ex.getMessage());
+            // Sin pedidos para esta unidad/festival: mostrar vacío en lugar de error 500
+            Festival fest = festivales.stream()
+                    .filter(f -> f.getId().equals(id))
+                    .findFirst().orElse(null);
+            String nombreFest = fest != null ? fest.getNombre() : "Festival";
+            model.addAttribute("reporte",
+                    new com.example.hito2grupo3.dto.ReporteVentaDTO(id, nombreFest,
+                            java.math.BigDecimal.ZERO, 0L));
+            model.addAttribute("ranking", Collections.emptyList());
         }
 
         return "reportes/ReporteRecaudacion";

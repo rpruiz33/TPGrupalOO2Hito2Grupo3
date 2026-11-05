@@ -37,11 +37,12 @@
 
         <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
 
+        <!-- Selector de festival para Responsable -->
         <section class="card menu-card p-3 mb-4 d-print-none" th:if="${esResponsable}">
             <form th:action="@{/responsable/reportes/recaudacion}" method="get" class="row g-2 align-items-end">
                 <div class="col-12 col-md-8">
-                    <label for="festivalId" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
-                    <select id="festivalId" name="festivalId" class="form-select control-epicentro" required>
+                    <label for="festivalIdResp" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
+                    <select id="festivalIdResp" name="festivalId" class="form-select control-epicentro" required>
                         <option value="">Seleccioná un festival</option>
                         <option th:each="festival : ${festivales}"
                                 th:value="${festival.id}"
@@ -56,6 +57,29 @@
             <div class="text-secondary small mt-2" th:if="${unidadVenta != null}">
                 Unidad consultada: <strong th:text="${unidadVenta.nombreComercial}">Mi unidad</strong>
             </div>
+        </section>
+
+        <!-- Selector de festival para Admin -->
+        <section class="card menu-card p-3 mb-4 d-print-none" th:unless="${esResponsable}">
+            <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+                <h2 class="h6 fw-bold m-0" style="color: #800020;">🔍 Filtrar por Festival</h2>
+                <span class="text-muted small">Reporte global de todas las unidades</span>
+            </div>
+            <form th:action="@{/admin/reportes/recaudacion}" method="get" class="row g-2 align-items-end">
+                <div class="col-12 col-md-8">
+                    <label for="festivalIdAdmin" class="form-label small fw-semibold text-secondary mb-1">Festival</label>
+                    <select id="festivalIdAdmin" name="festivalId" class="form-select control-epicentro" required>
+                        <option value="">-- Seleccioná un festival --</option>
+                        <option th:each="festival : ${festivales}"
+                                th:value="${festival.id}"
+                                th:text="${festival.nombre}"
+                                th:selected="${festivalId != null and festivalId == festival.id}"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <button type="submit" class="menu-button menu-button-primary w-100">Ver Recaudación</button>
+                </div>
+            </form>
         </section>
 
         <section class="row g-3 justify-content-center mb-4">
