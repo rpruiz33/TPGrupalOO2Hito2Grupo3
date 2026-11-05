@@ -129,11 +129,11 @@
                             <td>Sueldo base</td>
                             <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$ 60.000</td>
                         </tr>
-                        <tr th:if="${recibo.plusCategoria != null}">
+                        <tr th:if="${recibo.plusCategoria != null and recibo.plusCategoria.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                             <td>Plus por categoría</td>
                             <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria, 1, 'POINT', 0, 'COMMA')}">$ 15.000</td>
                         </tr>
-                        <tr th:if="${recibo.montoAntiguedad != null}">
+                        <tr th:if="${recibo.montoAntiguedad != null and recibo.montoAntiguedad.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
                             <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
                             <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad, 1, 'POINT', 0, 'COMMA')}">$ 10.000</td>
                         </tr>
@@ -150,7 +150,7 @@
                 <button type="button" class="menu-button" onclick="window.print()">
                     🖨️ Imprimir PDF
                 </button>
-                <a class="menu-button" th:href="@{/liquidacion}">
+                <a class="menu-button" th:href="@{/liquidacion(festivalId=${festivalId}, unidadId=${unidadId})}">
                     ← Volver
                 </a>
             </div>

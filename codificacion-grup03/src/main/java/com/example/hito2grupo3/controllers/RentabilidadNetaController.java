@@ -67,6 +67,9 @@ public class RentabilidadNetaController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
             org.springframework.security.core.Authentication authentication,
             Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         if (unidad == null) {
             model.addAttribute("error", "No tenés una unidad de venta asignada.");

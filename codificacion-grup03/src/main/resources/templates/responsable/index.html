@@ -77,19 +77,31 @@
                         <div>
                             <div class="menu-icon" aria-hidden="true">📊</div>
                             <h3 class="fw-bold">Liquidación y reportes</h3>
-                            <p class="text-secondary">
-                                Calculá la liquidación del personal y la rentabilidad de tu unidad.
+                            <p class="text-secondary small mb-2">
+                                Consultá liquidaciones, rentabilidad y recaudación de tu unidad.
                             </p>
+
+                            <div class="mb-3 text-start" th:if="${festivales != null and !festivales.isEmpty()}">
+                                <label for="festivalSelectPanel" class="form-label small fw-semibold text-secondary mb-1">
+                                    Festival:
+                                </label>
+                                <select id="festivalSelectPanel" class="form-select control-epicentro form-select-sm">
+                                    <option th:each="f : ${festivales}"
+                                            th:value="${f.id}"
+                                            th:text="${f.nombre}">
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                         <div class="d-flex flex-column gap-2 mt-2">
-                            <a th:href="@{/liquidacion}" class="menu-button menu-button-primary w-100">
-                                Liquidación
+                            <a id="btnLiquidacion" th:href="@{/liquidacion}" class="menu-button menu-button-primary w-100">
+                                📄 Liquidación
                             </a>
-                            <a th:href="@{/responsable/reportes/rentabilidad}" class="menu-button w-100">
-                                Rentabilidad
+                            <a id="btnRentabilidad" th:href="@{/responsable/reportes/rentabilidad}" class="menu-button w-100">
+                                📈 Rentabilidad
                             </a>
-                            <a th:href="@{/responsable/reportes/recaudacion}" class="menu-button w-100">
-                                Recaudación
+                            <a id="btnRecaudacion" th:href="@{/responsable/reportes/recaudacion}" class="menu-button w-100">
+                                📊 Recaudación
                             </a>
                         </div>
                     </div>
@@ -267,6 +279,33 @@
 
 <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener("DOMContentLoaded", function () {
+        const festivalSelect = document.getElementById("festivalSelectPanel");
+        if (!festivalSelect) return;
+
+        const urlLiq = /*[[@{/liquidacion}]]*/ '/liquidacion';
+        const urlRent = /*[[@{/responsable/reportes/rentabilidad}]]*/ '/responsable/reportes/rentabilidad';
+        const urlRec = /*[[@{/responsable/reportes/recaudacion}]]*/ '/responsable/reportes/recaudacion';
+
+        function actualizarEnlacesFestival() {
+            const id = festivalSelect.value;
+            const param = id ? "?festivalId=" + encodeURIComponent(id) : "";
+            const btnLiq = document.getElementById("btnLiquidacion");
+            const btnRent = document.getElementById("btnRentabilidad");
+            const btnRec = document.getElementById("btnRecaudacion");
+
+            if (btnLiq) btnLiq.href = urlLiq + param;
+            if (btnRent) btnRent.href = urlRent + param;
+            if (btnRec) btnRec.href = urlRec + param;
+        }
+
+        festivalSelect.addEventListener("change", actualizarEnlacesFestival);
+        actualizarEnlacesFestival();
+    });
+    /*]]>*/
+</script>
 
 </body>
 </html>

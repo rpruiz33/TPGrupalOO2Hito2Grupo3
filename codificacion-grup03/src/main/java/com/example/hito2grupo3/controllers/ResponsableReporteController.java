@@ -35,6 +35,10 @@ public class ResponsableReporteController {
     public String recaudacion(@RequestParam(required = false) Long festivalId,
                               Authentication authentication,
                               Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         List<Festival> festivales = rentabilidadNetaService.listarFestivales();
 
@@ -67,6 +71,9 @@ public class ResponsableReporteController {
     }
 
     private Long seleccionarFestivalPorDefecto(List<Festival> festivales) {
+        if (festivales == null || festivales.isEmpty()) {
+            return null;
+        }
         LocalDate hoy = LocalDate.now();
         Festival festival = festivales.stream()
                 .filter(f -> f.getFechaInicio() != null && f.getFechaFin() != null
@@ -75,7 +82,7 @@ public class ResponsableReporteController {
                 .orElseGet(() -> festivales.stream()
                     .filter(f -> f.getFechaInicio() != null)
                     .max((first, second) -> first.getFechaInicio().compareTo(second.getFechaInicio()))
-                .orElse(null));
+                .orElse(festivales.get(0)));
         return festival != null ? festival.getId() : null;
     }
 }

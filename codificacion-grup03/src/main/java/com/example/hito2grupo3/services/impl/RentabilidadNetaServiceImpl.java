@@ -134,10 +134,18 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
 
         ILiquidacionService.ResultadoLiquidacion liq = liquidacionService.liquidarPorUnidadEntreFechas(
                 unidadVentaId, festivalId, desde, hasta);
-        BigDecimal sueldos = liq.totalGeneral();
+        BigDecimal sueldos = (liq != null && liq.totalGeneral() != null)
+                ? liq.totalGeneral()
+                : BigDecimal.ZERO;
 
-        // 4. Canon obligatorio de la unidad de venta
+        // 4. Canon obligatorio de la unidad de venta proporcional al período consultado
         BigDecimal canonCompleto = canonService.calcularCanon(unidad);
+        if (canonCompleto == null) {
+            throw new IllegalStateException("No se pudo calcular el canon para la unidad: " + unidad.getNombreComercial());
+        }
+        if (diasFestival <= 0) {
+            throw new IllegalArgumentException("La duración del festival debe ser mayor a 0 días.");
+        }
         BigDecimal canon = canonCompleto.multiply(BigDecimal.valueOf(diasPeriodo))
                 .divide(BigDecimal.valueOf(diasFestival), 2, java.math.RoundingMode.HALF_UP);
 

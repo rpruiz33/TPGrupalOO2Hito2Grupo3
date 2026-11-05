@@ -68,6 +68,7 @@ public class ResponsableController {
         model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         model.addAttribute("unidadVenta", unidad);
+        model.addAttribute("festivales", liquidacionService.listarFestivales());
 
         if (unidad == null) {
             model.addAttribute("error", "No tenés una unidad de venta asignada.");

@@ -25,6 +25,7 @@
                 </a>
             </div>
         </section>
+        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-4" role="alert" th:text="${error}"></div>
         <section class="card menu-card p-3 mb-4 d-print-none" th:if="${esResponsable}">
             <form th:action="@{/responsable/reportes/recaudacion}" method="get" class="row g-2 align-items-end">
                 <div class="col-12 col-md-8">

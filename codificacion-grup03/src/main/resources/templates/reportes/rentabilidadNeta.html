@@ -23,7 +23,7 @@
                 <a href="javascript:window.print();" class="menu-button">
                     🖨️ Imprimir PDF
                 </a>
-                <a th:href="@{/admin/dashboard}" class="menu-button">
+                <a th:href="${esResponsable ? '/responsable/index' : '/admin/dashboard'}" class="menu-button">
                     ← Volver al Menu
                 </a>
             </div>

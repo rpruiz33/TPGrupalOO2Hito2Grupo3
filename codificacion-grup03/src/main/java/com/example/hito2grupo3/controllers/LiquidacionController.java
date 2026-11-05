@@ -103,6 +103,7 @@ public class LiquidacionController {
         boolean esEmpleado = !esAdmin && !esResponsable;
 
         model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("esResponsable", esResponsable);
         model.addAttribute("esEmpleado", esEmpleado);
 
         try {

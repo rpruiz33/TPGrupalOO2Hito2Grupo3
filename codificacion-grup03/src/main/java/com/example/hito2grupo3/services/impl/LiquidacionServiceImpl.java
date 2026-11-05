@@ -128,18 +128,23 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
 
+        if (emailEmpleado == null || emailEmpleado.isBlank()) {
+            throw new IllegalArgumentException("El email del empleado es obligatorio.");
+        }
+        final String emailLimpio = emailEmpleado.trim();
+
         // Solo se admite coincidencia exacta por email del usuario vinculado al Staff.
-        // No hay búsqueda por nombre ni "primer staff disponible": si no existe, se rechaza.
-        Staff empleado = staffRepository.findByUsuario_Email(emailEmpleado)
+        // No hay búsqueda alternativa por coincidencia parcial del nombre ni fallback a otro staff.
+        Staff empleado = staffRepository.findByUsuario_Email(emailLimpio)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró un empleado asociado al usuario: " + emailEmpleado));
+                        "No se encontró un empleado asociado al usuario: " + emailLimpio));
 
         // Buscar unidad a la que pertenece
         final Long empId = empleado.getId();
         UnidadVenta unidad = unidadVentaRepository.findAll().stream()
                 .filter(u -> (u.getResponsable() != null && Objects.equals(u.getResponsable().getId(), empId))
                         || (u.getStaffAsignado() != null && u.getStaffAsignado().stream()
-                                .anyMatch(s -> Objects.equals(s.getId(), empId))))
+                                .anyMatch(s -> s != null && Objects.equals(s.getId(), empId))))
                 .findFirst()
                 .orElse(null);
 
@@ -150,9 +155,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         int periodos = calcularPeriodos(dias);
         BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
 
-        LiquidacionDTO dto = armarLiquidacionEmpleado(empleado, festival, sueldoBase, factorProporcional, periodos, emailEmpleado);
+        LiquidacionDTO dto = armarLiquidacionEmpleado(empleado, festival, sueldoBase, factorProporcional, periodos, emailLimpio);
         if (dto == null) {
-            throw new IllegalArgumentException("El empleado no cuenta con un tipo de puesto liquidable (Cajero o Cocinero).");
+            throw new IllegalArgumentException("No se pudo generar la liquidación para el empleado.");
         }
 
         Set<LiquidacionDTO> conjunto = new LinkedHashSet<>();
@@ -213,26 +218,49 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     private LiquidacionDTO armarLiquidacionEmpleado(Staff s, Festival festival, BigDecimal sueldoBase,
                                                    BigDecimal factorProporcional, int periodos, String emailOverride) {
+        if (s == null) {
+            return null;
+        }
+
         long anios = aniosAntiguedad(s.getFechaIngreso(), festival.getFechaInicio());
-        BigDecimal montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
-                .multiply(BigDecimal.valueOf(anios));
+        BigDecimal montoAntiguedad;
         BigDecimal plusCategoria;
         String rol;
 
         if (s instanceof Cocinero c) {
             plusCategoria = resolverPlusCocina(c);
+            montoAntiguedad = BigDecimal.ZERO;
+            anios = 0;
             rol = (c.getCategoriaCocina() != null && c.getCategoriaCocina().getNombre() != null)
                     ? c.getCategoriaCocina().getNombre()
                     : "Cocinero";
         } else if (s instanceof Cajero) {
             plusCategoria = BigDecimal.ZERO;
+            montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
+                    .multiply(BigDecimal.valueOf(anios));
             rol = "Cajero";
         } else {
+            // Personal genérico (Staff / Responsable / Empleado que no es Cocinero ni Cajero)
             plusCategoria = BigDecimal.ZERO;
-            rol = "Empleado";
+            montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
+                    .multiply(BigDecimal.valueOf(anios));
+            if (s.getUsuario() != null && s.getUsuario().getRol() != null && s.getUsuario().getRol().getNombre() != null) {
+                String nomRol = s.getUsuario().getRol().getNombre().replace("ROLE_", "").trim();
+                rol = switch (nomRol.toUpperCase(Locale.ROOT)) {
+                    case "RESPONSABLE" -> "Responsable";
+                    case "ADMIN" -> "Administrador";
+                    case "CAJERO" -> "Cajero";
+                    case "COCINERO" -> "Cocinero";
+                    default -> "Empleado";
+                };
+            } else {
+                rol = "Empleado";
+            }
         }
 
-        BigDecimal sueldo = s.getSueldo() != null ? s.getSueldo() : sueldoBase;
+        BigDecimal sueldo = (s.getSueldo() != null && s.getSueldo().compareTo(BigDecimal.ZERO) > 0)
+                ? s.getSueldo()
+                : sueldoBase;
         BigDecimal total = sueldo.add(montoAntiguedad).add(plusCategoria).multiply(factorProporcional);
         BigDecimal sueldoLiquidado = sueldo.multiply(factorProporcional);
         BigDecimal antiguedadLiquidada = montoAntiguedad.multiply(factorProporcional);
@@ -448,7 +476,8 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             reciboMap.put("plusCategoria", liquidacionDTO.plusCategoria());
             reciboMap.put("montoAntiguedad", liquidacionDTO.montoAntiguedad());
             reciboMap.put("aniosAntiguedad", liquidacionDTO.aniosAntiguedad());
-            reciboMap.put("coeficiente", 1.0);
+            BigDecimal factorProporcional = calcularFactorProporcional(resultado.diasFestival());
+            reciboMap.put("coeficiente", factorProporcional);
             reciboMap.put("total", liquidacionDTO.total());
             reciboMap.put("fechaEmision", LocalDate.now());
 
