@@ -25,7 +25,21 @@ public class ReporteVentaServiceImpl implements IReporteVentaService {
     }
 
     @Override
+    public ReporteVentaDTO obtenerTotalesFestivalYUnidad(Long festivalId, Long unidadVentaId) {
+        ReporteVentaDTO reporte = pedidoRepository.obtenerReporteVentaPorFestivalYUnidad(festivalId, unidadVentaId);
+        if (reporte == null || reporte.getFestivalId() == null) {
+            throw new RuntimeException("Festival no encontrado para la unidad seleccionada.");
+        }
+        return reporte;
+    }
+
+    @Override
     public List<RankingUnidadDTO> obtenerRankingFestival(Long festivalId) {
         return pedidoRepository.obtenerRankingPorFestival(festivalId);
+    }
+
+    @Override
+    public List<RankingUnidadDTO> obtenerRankingFestivalYUnidad(Long festivalId, Long unidadVentaId) {
+        return pedidoRepository.obtenerRankingPorFestivalYUnidad(festivalId, unidadVentaId);
     }
 }

@@ -127,26 +127,19 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
             costosPlatos = BigDecimal.ZERO;
 
         // 3. Sueldos del personal de la unidad según liquidación de haberes
-        BigDecimal sueldos = BigDecimal.ZERO;
-        try {
-            ILiquidacionService.ResultadoLiquidacion liq = liquidacionService.liquidarPorUnidad(unidadVentaId,
-                    festivalId);
-            if (liq != null && liq.totalGeneral() != null) {
-                sueldos = liq.totalGeneral();
-            }
-        } catch (Exception ignored) {
-            sueldos = BigDecimal.ZERO;
-        }
+        LocalDate desde = fechaDesde != null ? fechaDesde : festival.getFechaInicio();
+        LocalDate hasta = fechaHasta != null ? fechaHasta : festival.getFechaFin();
+        long diasPeriodo = liquidacionService.diasDelFestival(desde, hasta);
+        long diasFestival = liquidacionService.diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
+
+        ILiquidacionService.ResultadoLiquidacion liq = liquidacionService.liquidarPorUnidadEntreFechas(
+                unidadVentaId, festivalId, desde, hasta);
+        BigDecimal sueldos = liq.totalGeneral();
 
         // 4. Canon obligatorio de la unidad de venta
-        BigDecimal canon = BigDecimal.ZERO;
-        try {
-            canon = canonService.calcularCanon(unidad);
-            if (canon == null)
-                canon = BigDecimal.ZERO;
-        } catch (Exception ignored) {
-            canon = BigDecimal.ZERO;
-        }
+        BigDecimal canonCompleto = canonService.calcularCanon(unidad);
+        BigDecimal canon = canonCompleto.multiply(BigDecimal.valueOf(diasPeriodo))
+                .divide(BigDecimal.valueOf(diasFestival), 2, java.math.RoundingMode.HALF_UP);
 
         // 5. Total de costos = Costos de platos + Sueldos + Canon
         BigDecimal totalCostos = costosPlatos.add(sueldos).add(canon);

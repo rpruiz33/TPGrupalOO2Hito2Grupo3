@@ -5,6 +5,7 @@ import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.ICanonService;
 import com.example.hito2grupo3.services.IEmpleadoService;
 import com.example.hito2grupo3.services.IUnidadVentaService;
+import com.example.hito2grupo3.services.ILiquidacionService;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -19,14 +20,17 @@ public class ResponsableController {
     private final IUnidadVentaService unidadVentaService;
     private final IEmpleadoService empleadoService;
     private final ICanonService canonService;
+    private final ILiquidacionService liquidacionService;
 
     public ResponsableController(
             IUnidadVentaService unidadVentaService,
             IEmpleadoService empleadoService,
-            ICanonService canonService) {
+            ICanonService canonService,
+            ILiquidacionService liquidacionService) {
         this.unidadVentaService = unidadVentaService;
         this.empleadoService = empleadoService;
         this.canonService = canonService;
+        this.liquidacionService = liquidacionService;
     }
 
     @GetMapping("/index")
@@ -44,6 +48,7 @@ public class ResponsableController {
         model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         model.addAttribute("unidadVenta", unidad);
+        model.addAttribute("festivales", liquidacionService.listarFestivales());
 
         return "responsable/index";
     }

@@ -9,5 +9,9 @@ public interface IReporteVentaService {
 
     ReporteVentaDTO obtenerTotalesFestival(Long festivalId);
 
+    ReporteVentaDTO obtenerTotalesFestivalYUnidad(Long festivalId, Long unidadVentaId);
+
     List<RankingUnidadDTO> obtenerRankingFestival(Long festivalId);
+
+    List<RankingUnidadDTO> obtenerRankingFestivalYUnidad(Long festivalId, Long unidadVentaId);
 }

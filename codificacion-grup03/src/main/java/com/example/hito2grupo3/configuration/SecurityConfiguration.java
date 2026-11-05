@@ -57,6 +57,8 @@ public class SecurityConfiguration {
                         // Acceso al reporte de rentabilidad neta
                         auth.requestMatchers("/reportes/rentabilidad/**")
                                 .hasRole("ADMIN");
+                            auth.requestMatchers("/responsable/reportes/**")
+                                    .hasRole("RESPONSABLE");
 
                     // Acceso para responsables
                     auth.requestMatchers("/responsable/**")
