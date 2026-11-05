@@ -44,11 +44,26 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                         && emailResponsable != null
                         && emailResponsable.equals(u.getResponsable().getUsuario().getEmail()))
                 .findFirst()
-                .orElseGet(() -> unidadVentaRepository.findAll().stream().findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("No hay unidades de venta registradas.")));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró una unidad de venta a cargo del usuario: " + emailResponsable));
 
-        return calcularLiquidacion(unidad, festival);
+        return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
     }
+
+        @Override
+        @Transactional(readOnly = true)
+        public ResultadoLiquidacion liquidarPorUnidadEntreFechas(Long unidadId, Long festivalId,
+                                       LocalDate fechaDesde, LocalDate fechaHasta) {
+        Festival festival = festivalRepository.findById(festivalId)
+            .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
+        UnidadVenta unidad = unidadVentaRepository.findById(unidadId)
+            .orElseThrow(() -> new IllegalArgumentException("La unidad de venta seleccionada no existe."));
+
+        LocalDate desde = fechaDesde != null ? fechaDesde : festival.getFechaInicio();
+        LocalDate hasta = fechaHasta != null ? fechaHasta : festival.getFechaFin();
+        validarPeriodo(festival, desde, hasta);
+        return calcularLiquidacion(unidad, festival, desde, hasta);
+        }
 
     @Override
     @Transactional(readOnly = true)
@@ -59,7 +74,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         UnidadVenta unidad = unidadVentaRepository.findById(unidadId)
                 .orElseThrow(() -> new IllegalArgumentException("La unidad de venta seleccionada no existe."));
 
-        return calcularLiquidacion(unidad, festival);
+            return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
     }
 
     @Override
@@ -113,40 +128,11 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("El festival seleccionado no existe."));
 
+        // Solo se admite coincidencia exacta por email del usuario vinculado al Staff.
+        // No hay búsqueda por nombre ni "primer staff disponible": si no existe, se rechaza.
         Staff empleado = staffRepository.findByUsuario_Email(emailEmpleado)
-                .orElse(null);
-
-        // Si no se encontró por email en StaffRepository, buscar por email en responsable o asignados
-        if (empleado == null) {
-            empleado = unidadVentaRepository.findAll().stream()
-                    .flatMap(uv -> {
-                        List<Staff> lista = new ArrayList<>();
-                        if (uv.getResponsable() != null) lista.add(uv.getResponsable());
-                        if (uv.getStaffAsignado() != null) lista.addAll(uv.getStaffAsignado());
-                        return lista.stream();
-                    })
-                    .filter(s -> s.getUsuario() != null && emailEmpleado.equalsIgnoreCase(s.getUsuario().getEmail()))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // Buscar si el username/email coincide con el nombre del staff
-        if (empleado == null) {
-            String parte = emailEmpleado.contains("@") ? emailEmpleado.substring(0, emailEmpleado.indexOf("@")) : emailEmpleado;
-            empleado = staffRepository.findAll().stream()
-                    .filter(s -> s.getNombre() != null && parte.toLowerCase().contains(s.getNombre().toLowerCase()))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // Fallback al primer staff disponible tal como hace EmpleadoController si no está vinculado
-        if (empleado == null) {
-            empleado = staffRepository.findAll().stream().findFirst().orElse(null);
-        }
-
-        if (empleado == null) {
-            throw new IllegalArgumentException("No se encontró ningún empleado disponible para el usuario: " + emailEmpleado);
-        }
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró un empleado asociado al usuario: " + emailEmpleado));
 
         // Buscar unidad a la que pertenece
         final Long empId = empleado.getId();
@@ -175,8 +161,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         return new ResultadoLiquidacion(nombreUnidad, dias, conjunto, dto.total());
     }
 
-    private ResultadoLiquidacion calcularLiquidacion(UnidadVenta unidad, Festival festival) {
-        long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
+    private ResultadoLiquidacion calcularLiquidacion(UnidadVenta unidad, Festival festival,
+                                                      LocalDate fechaDesde, LocalDate fechaHasta) {
+        long dias = diasDelFestival(fechaDesde, fechaHasta);
         BigDecimal factorProporcional = calcularFactorProporcional(dias);
         int periodos = calcularPeriodos(dias);
 
@@ -210,7 +197,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     private int calcularPeriodos(long dias) {
         
-        int diasPorPeriodo = 30; // o usa sueldoProperties.diasPorPeriodoOrDefault() si lo tienes configurado
+        int diasPorPeriodo = sueldoProperties.diasPorPeriodoOrDefault();
         if (dias <= 0) {
             return 1;
         }
@@ -241,11 +228,15 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             plusCategoria = BigDecimal.ZERO;
             rol = "Cajero";
         } else {
-            return null;
+            plusCategoria = BigDecimal.ZERO;
+            rol = "Empleado";
         }
 
-        // Fórmula: Total = Sueldo Base + (Años × $5.000) + Plus por Categoría
-        BigDecimal total = sueldoBase.add(montoAntiguedad).add(plusCategoria);
+        BigDecimal sueldo = s.getSueldo() != null ? s.getSueldo() : sueldoBase;
+        BigDecimal total = sueldo.add(montoAntiguedad).add(plusCategoria).multiply(factorProporcional);
+        BigDecimal sueldoLiquidado = sueldo.multiply(factorProporcional);
+        BigDecimal antiguedadLiquidada = montoAntiguedad.multiply(factorProporcional);
+        BigDecimal plusLiquidado = plusCategoria.multiply(factorProporcional);
 
         String email = (s.getUsuario() != null && s.getUsuario().getEmail() != null)
                 ? s.getUsuario().getEmail()
@@ -258,9 +249,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 s.getDni(),
                 rol,
                 anios,
-                sueldoBase,
-                montoAntiguedad,
-                plusCategoria,
+                sueldoLiquidado,
+                antiguedadLiquidada,
+                plusLiquidado,
                 total
         );
     }
@@ -298,7 +289,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     @Override
     public long aniosAntiguedad(LocalDate fechaIngreso, LocalDate referencia) {
-        if (fechaIngreso == null || fechaIngreso.isAfter(referencia)) {
+        if (fechaIngreso == null || referencia == null || fechaIngreso.isAfter(referencia)) {
             return 0;
         }
         return ChronoUnit.YEARS.between(fechaIngreso, referencia);
@@ -329,6 +320,15 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         return unidadVentaRepository.findAll();
     }
 
+    private void validarPeriodo(Festival festival, LocalDate desde, LocalDate hasta) {
+        if (desde == null || hasta == null || desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("El período consultado no es válido.");
+        }
+        if (desde.isBefore(festival.getFechaInicio()) || hasta.isAfter(festival.getFechaFin())) {
+            throw new IllegalArgumentException("El período consultado debe estar dentro del festival.");
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion liquidarSegunRol(
@@ -342,32 +342,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         boolean esEmpleado = !esAdmin && !esResponsable;
 
         if (esEmpleado) {
-            try {
-                return liquidarEmpleado(email, festivalId);
-            } catch (Exception e) {
-                BigDecimal sueldoBase = new BigDecimal("100000");
-                BigDecimal montoAntiguedad = new BigDecimal("15000");
-                BigDecimal plusCategoria = BigDecimal.ZERO;
-                BigDecimal total = sueldoBase.add(montoAntiguedad).add(plusCategoria);
-                LiquidacionDTO dtoFicticio = new LiquidacionDTO(
-                        1L,
-                        "Martín González",
-                        email,
-                        "38452910",
-                        "Cajero",
-                        3L,
-                        sueldoBase,
-                        montoAntiguedad,
-                        plusCategoria,
-                        total
-                );
-                return new ResultadoLiquidacion(
-                        "Food Truck 1 - El Asador Viajero",
-                        20L,
-                        Set.of(dtoFicticio),
-                        total
-                );
-            }
+            return liquidarEmpleado(email, festivalId);
         } else if (esAdmin) {
             if (unidadId != null && unidadId > 0) {
                 return liquidarPorUnidad(unidadId, festivalId);
@@ -375,24 +350,30 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 return liquidarTodos(festivalId);
             }
         } else {
-            if (unidadId != null && unidadId > 0) {
-                return liquidarPorUnidad(unidadId, festivalId);
-            } else if (codigo != null && !codigo.isBlank()) {
-                String codBuscado = codigo.trim();
-                UnidadVenta uv = unidadVentaRepository.findByCodigoIgnoreCase(codBuscado)
-                        .orElseGet(() -> unidadVentaRepository.findAll().stream()
-                                .filter(u -> codBuscado.equalsIgnoreCase(u.getCodigo()))
-                                .findFirst()
-                                .orElse(null));
-                if (uv != null) {
-                    return liquidarPorUnidad(uv.getId(), festivalId);
-                } else {
-                    return liquidar(email, festivalId);
-                }
-            } else {
-                return liquidar(email, festivalId);
+            // RESPONSABLE: solo puede liquidar la unidad que tiene a cargo.
+            UnidadVenta propia = buscarUnidadDelResponsable(email);
+
+            if (unidadId != null && unidadId > 0 && !Objects.equals(unidadId, propia.getId())) {
+                throw new IllegalArgumentException("No tiene permiso para liquidar una unidad que no está a su cargo.");
             }
+            if (codigo != null && !codigo.isBlank() && !codigo.trim().equalsIgnoreCase(propia.getCodigo())) {
+                throw new IllegalArgumentException("No tiene permiso para liquidar una unidad que no está a su cargo.");
+            }
+            return liquidarPorUnidad(propia.getId(), festivalId);
         }
+    }
+
+    private UnidadVenta buscarUnidadDelResponsable(String emailResponsable) {
+        if (emailResponsable == null) {
+            throw new IllegalArgumentException("Usuario no autenticado.");
+        }
+        return unidadVentaRepository.findAll().stream()
+                .filter(u -> u.getResponsable() != null
+                        && u.getResponsable().getUsuario() != null
+                        && emailResponsable.equalsIgnoreCase(u.getResponsable().getUsuario().getEmail()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró una unidad de venta a cargo del usuario: " + emailResponsable));
     }
 
     @Override
@@ -429,14 +410,19 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         }
 
         ResultadoLiquidacion resultado;
-        if (esEmpleado && email != null) {
+        if (esEmpleado) {
             resultado = liquidarEmpleado(email, targetFestivalId);
-        } else if (unidadId != null && unidadId > 0) {
-            resultado = liquidarPorUnidad(unidadId, targetFestivalId);
         } else if (esAdmin) {
-            resultado = liquidarTodos(targetFestivalId);
+            resultado = (unidadId != null && unidadId > 0)
+                    ? liquidarPorUnidad(unidadId, targetFestivalId)
+                    : liquidarTodos(targetFestivalId);
         } else {
-            resultado = liquidar(email, targetFestivalId);
+            // RESPONSABLE: solo recibos de empleados de su propia unidad.
+            UnidadVenta propia = buscarUnidadDelResponsable(email);
+            if (unidadId != null && unidadId > 0 && !Objects.equals(unidadId, propia.getId())) {
+                throw new IllegalArgumentException("No tiene permiso para ver recibos de una unidad que no está a su cargo.");
+            }
+            resultado = liquidarPorUnidad(propia.getId(), targetFestivalId);
         }
 
         final Long finalId = idEfectivo;
@@ -467,25 +453,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             reciboMap.put("fechaEmision", LocalDate.now());
 
             modelMap.put("recibo", reciboMap);
-        } else if (esEmpleado) {
-            Map<String, Object> reciboMap = new HashMap<>();
-            reciboMap.put("nombre", "Martín");
-            reciboMap.put("apellido", "González");
-            reciboMap.put("email", email != null ? email : "empleado@epicentro.com");
-            reciboMap.put("dni", "38452910");
-            reciboMap.put("rol", "Cajero");
-            reciboMap.put("festival", festival != null ? festival.getNombre() : "Epicentro Gourmet 2026");
-            reciboMap.put("unidad", "Food Truck 1 - El Asador Viajero");
-            reciboMap.put("diasFestival", 20L);
-            reciboMap.put("sueldoBase", new BigDecimal("100000"));
-            reciboMap.put("plusCategoria", null);
-            reciboMap.put("montoAntiguedad", new BigDecimal("15000"));
-            reciboMap.put("aniosAntiguedad", 3L);
-            reciboMap.put("coeficiente", 1.0);
-            reciboMap.put("total", new BigDecimal("115000"));
-            reciboMap.put("fechaEmision", LocalDate.now());
-
-            modelMap.put("recibo", reciboMap);
+        } else {
+            throw new IllegalArgumentException(
+                    "No se encontró una liquidación del empleado solicitado dentro de su alcance.");
         }
 
         modelMap.put("liquidacion", liquidacionDTO);

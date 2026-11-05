@@ -95,6 +95,27 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     ReporteVentaDTO obtenerReporteVentaPorFestival(
             @Param("festivalId") Long festivalId);
 
+        @Query("""
+                        SELECT new com.example.hito2grupo3.dto.ReporteVentaDTO(
+                                f.id,
+                                f.nombre,
+                                COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0),
+                                COUNT(DISTINCT p.id)
+                        )
+                        FROM Festival f
+                        LEFT JOIN Pedido p
+                                ON p.festival.id = f.id
+                                AND p.unidadVenta.id = :unidadVentaId
+                                AND p.estado = 'A'
+                        LEFT JOIN ItemPedido ip
+                                ON ip.pedido.id = p.id
+                        WHERE f.id = :festivalId
+                        GROUP BY f.id, f.nombre
+                        """)
+        ReporteVentaDTO obtenerReporteVentaPorFestivalYUnidad(
+                        @Param("festivalId") Long festivalId,
+                        @Param("unidadVentaId") Long unidadVentaId);
+
 
     // ============================
     // RANKING POR UNIDAD DE VENTA
@@ -126,6 +147,34 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             """)
     List<RankingUnidadDTO> obtenerRankingPorFestival(
             @Param("festivalId") Long festivalId);
+
+        @Query("""
+                        SELECT new com.example.hito2grupo3.dto.RankingUnidadDTO(
+                                uv.id,
+                                uv.nombreComercial,
+                                uv.codigo,
+                                CASE
+                                        WHEN TYPE(uv) = FoodTruck THEN 'FoodTruck'
+                                        WHEN TYPE(uv) = PuestoDesarmable THEN 'PuestoDesarmable'
+                                        ELSE 'UnidadVenta'
+                                END,
+                                COALESCE(SUM(ip.cantidad * ip.precioUnitario), 0)
+                        )
+                        FROM UnidadVenta uv
+                        JOIN uv.festivales f
+                        LEFT JOIN Pedido p
+                                ON p.unidadVenta.id = uv.id
+                                AND p.festival.id = :festivalId
+                                AND p.estado = 'A'
+                        LEFT JOIN ItemPedido ip
+                                ON ip.pedido.id = p.id
+                        WHERE f.id = :festivalId
+                          AND uv.id = :unidadVentaId
+                        GROUP BY uv.id, uv.nombreComercial, uv.codigo, TYPE(uv)
+                        """)
+        List<RankingUnidadDTO> obtenerRankingPorFestivalYUnidad(
+                        @Param("festivalId") Long festivalId,
+                        @Param("unidadVentaId") Long unidadVentaId);
 
 
     // ============================
