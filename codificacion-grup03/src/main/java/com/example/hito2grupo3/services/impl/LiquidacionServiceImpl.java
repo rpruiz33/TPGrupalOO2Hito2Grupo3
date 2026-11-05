@@ -17,10 +17,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,16 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             FestivalRepository festivalRepository,
             UnidadVentaRepository unidadVentaRepository,
             StaffRepository staffRepository,
-            LiquidacionHaberesRepository liquidacionHaberesRepository,
+            SueldoProperties sueldoProperties) {
+        this(festivalRepository, unidadVentaRepository, staffRepository, null, sueldoProperties);
+    }
+
+    @Autowired
+    public LiquidacionServiceImpl(
+            FestivalRepository festivalRepository,
+            UnidadVentaRepository unidadVentaRepository,
+            StaffRepository staffRepository,
+            @Autowired(required = false) LiquidacionHaberesRepository liquidacionHaberesRepository,
             SueldoProperties sueldoProperties) {
 
         this.festivalRepository = festivalRepository;
@@ -75,37 +86,112 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "La unidad de venta seleccionada no existe."));
 
-            return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
+        return calcularLiquidacion(unidad, festival, festival.getFechaInicio(), festival.getFechaFin());
     }
 
     /**
-     * Calcula la vista previa del personal de una unidad sin guardar datos.
-     * Genera una fila por empleado y período mensual cuando el festival supera
-     * los 30 días; para períodos de hasta 30 días genera una sola fila.
+     * Liquida el personal de una unidad para un rango de fechas determinado dentro del festival.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public ResultadoLiquidacion liquidarPorUnidadEntreFechas(
+            Long unidadId,
+            Long festivalId,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta) {
+
+        Festival festival = buscarFestival(festivalId);
+
+        UnidadVenta unidad = unidadVentaRepository.findById(unidadId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "La unidad de venta seleccionada no existe."));
+
+        LocalDate desde = fechaDesde != null ? fechaDesde : festival.getFechaInicio();
+        LocalDate hasta = fechaHasta != null ? fechaHasta : festival.getFechaFin();
+        validarPeriodo(festival, desde, hasta);
+
+        return calcularLiquidacion(unidad, festival, desde, hasta);
+    }
+
+    /**
+     * Sobrecarga de conveniencia para calcular la liquidación completa del festival.
      */
     private ResultadoLiquidacion calcularLiquidacion(
             UnidadVenta unidad,
             Festival festival) {
 
-        long dias = diasDelFestival(
+        return calcularLiquidacion(
+                unidad,
+                festival,
                 festival.getFechaInicio(),
                 festival.getFechaFin());
+    }
+
+    /**
+     * Calcula la vista previa del personal de una unidad para el rango indicado.
+     * Cuando el cálculo corresponde al festival completo y supera los 30 días,
+     * genera liquidaciones separadas por mes calendario.
+     */
+    private ResultadoLiquidacion calcularLiquidacion(
+            UnidadVenta unidad,
+            Festival festival,
+            LocalDate desde,
+            LocalDate hasta) {
+
+        long dias = diasDelFestival(desde, hasta);
+        BigDecimal factorProporcional = calcularFactorProporcional(dias);
+        BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
 
         Set<LiquidacionDTO> liquidaciones = new LinkedHashSet<>();
         BigDecimal totalGeneral = BigDecimal.ZERO;
 
         Map<Long, Staff> personalDeUnidad = obtenerPersonalDeUnidad(unidad);
 
-        for (Staff empleado : personalDeUnidad.values()) {
-            List<LiquidacionDTO> mensuales = armarLiquidacionesMensuales(
-                    empleado,
-                    unidad,
-                    festival,
-                    null);
+        boolean esFestivalCompleto = desde.equals(festival.getFechaInicio())
+                && hasta.equals(festival.getFechaFin());
 
-            for (LiquidacionDTO dto : mensuales) {
-                liquidaciones.add(dto);
-                totalGeneral = totalGeneral.add(dto.total());
+        for (Staff empleado : personalDeUnidad.values()) {
+            if (esFestivalCompleto && dias > 30) {
+                List<LiquidacionDTO> mensuales = armarLiquidacionesMensuales(
+                        empleado,
+                        unidad,
+                        festival,
+                        null);
+
+                for (LiquidacionDTO dto : mensuales) {
+                    liquidaciones.add(dto);
+                    totalGeneral = totalGeneral.add(dto.total());
+                }
+            } else {
+                LiquidacionDTO dto = armarLiquidacionEmpleado(
+                        empleado,
+                        festival,
+                        sueldoBase,
+                        factorProporcional,
+                        null);
+
+                if (dto != null) {
+                    LiquidacionDTO liquidacionConUnidad = new LiquidacionDTO(
+                            dto.empleadoId(),
+                            dto.nombreCompleto(),
+                            dto.email(),
+                            dto.dni(),
+                            dto.rol(),
+                            dto.aniosAntiguedad(),
+                            dto.sueldoBase(),
+                            dto.montoAntiguedad(),
+                            dto.plusCategoria(),
+                            dto.total(),
+                            unidad.getId(),
+                            unidad.getNombreComercial(),
+                            desde,
+                            hasta,
+                            dias,
+                            factorProporcional);
+
+                    liquidaciones.add(liquidacionConUnidad);
+                    totalGeneral = totalGeneral.add(dto.total());
+                }
             }
         }
 
@@ -159,8 +245,9 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     }
 
     /**
-     * Para los empleados, devuelve exclusivamente los registros históricos
-     * que ya fueron guardados para el festival seleccionado.
+     * Devuelve las liquidaciones del empleado: si ya existen registros persistidos
+     * para el festival se retornan; caso contrario se genera la liquidación calculada.
+     * La búsqueda de empleado es estricta por email del usuario, sin búsqueda por coincidencia parcial.
      */
     @Override
     @Transactional(readOnly = true)
@@ -171,102 +258,115 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         if (emailEmpleado == null || emailEmpleado.isBlank()) {
             throw new IllegalArgumentException("No se recibió un usuario de empleado válido.");
         }
-
-        Staff empleado = staffRepository.findByUsuario_Email(emailEmpleado).orElse(null);
-
-        // Alternativa para instalaciones donde el nombre de usuario no sea el email.
-        if (empleado == null) {
-            String parteUsuario = emailEmpleado.contains("@")
-                    ? emailEmpleado.substring(0, emailEmpleado.indexOf("@"))
-                    : emailEmpleado;
-
-            empleado = staffRepository.findAll().stream()
-                    .filter(s -> s.getNombre() != null
-                            && parteUsuario.toLowerCase().contains(
-                                    s.getNombre().toLowerCase()))
-                    .findFirst()
-                    .orElse(null);
-        }
         final String emailLimpio = emailEmpleado.trim();
 
-        if (empleado == null) {
-            throw new IllegalArgumentException(
-                    "No se encontró un empleado asociado al usuario: " + emailEmpleado);
-        }
+        Staff empleado = staffRepository.findByUsuario_Email(emailLimpio)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró un empleado asociado al usuario: " + emailLimpio));
 
-        List<LiquidacionHaberes> registros =
-                liquidacionHaberesRepository.buscarPorEmpleadoYFestival(
-                        empleado.getId(), festival.getId());
+        List<LiquidacionHaberes> registros = (liquidacionHaberesRepository != null)
+                ? liquidacionHaberesRepository.buscarPorEmpleadoYFestival(empleado.getId(), festival.getId())
+                : List.of();
 
-        Set<LiquidacionDTO> liquidaciones = new LinkedHashSet<>();
-        Set<String> nombresUnidades = new LinkedHashSet<>();
-        BigDecimal totalGeneral = BigDecimal.ZERO;
+        if (registros != null && !registros.isEmpty()) {
+            Set<LiquidacionDTO> liquidaciones = new LinkedHashSet<>();
+            Set<String> nombresUnidades = new LinkedHashSet<>();
+            BigDecimal totalGeneral = BigDecimal.ZERO;
 
-        String nombreCompleto =
-                (empleado.getNombre() != null ? empleado.getNombre() : "") + " "
-                + (empleado.getApellido() != null ? empleado.getApellido() : "");
+            String nombreCompleto =
+                    (empleado.getNombre() != null ? empleado.getNombre() : "") + " "
+                    + (empleado.getApellido() != null ? empleado.getApellido() : "");
 
-        String email = empleado.getUsuario() != null
-                && empleado.getUsuario().getEmail() != null
-                ? empleado.getUsuario().getEmail()
-                : emailEmpleado;
+            String email = empleado.getUsuario() != null
+                    && empleado.getUsuario().getEmail() != null
+                    ? empleado.getUsuario().getEmail()
+                    : emailLimpio;
 
-        for (LiquidacionHaberes registro : registros) {
-            String rol;
-            long anios = 0;
+            for (LiquidacionHaberes registro : registros) {
+                String rol;
+                long anios = 0;
 
-            if (empleado instanceof Cocinero cocinero) {
-                rol = cocinero.getCategoriaCocina() != null
-                        && cocinero.getCategoriaCocina().getNombre() != null
-                        ? cocinero.getCategoriaCocina().getNombre()
-                        : "Cocinero";
-            } else if (empleado instanceof Cajero) {
-                rol = "Cajero";
-                anios = aniosAntiguedad(
-                        empleado.getFechaIngreso(), registro.getPeriodoInicio());
-            } else {
-                continue;
+                if (empleado instanceof Cocinero cocinero) {
+                    rol = cocinero.getCategoriaCocina() != null
+                            && cocinero.getCategoriaCocina().getNombre() != null
+                            ? cocinero.getCategoriaCocina().getNombre()
+                            : "Cocinero";
+                } else if (empleado instanceof Cajero) {
+                    rol = "Cajero";
+                    anios = aniosAntiguedad(
+                            empleado.getFechaIngreso(), registro.getPeriodoInicio());
+                } else {
+                    anios = aniosAntiguedad(
+                            empleado.getFechaIngreso(), registro.getPeriodoInicio());
+                    rol = resolverRolStaff(empleado);
+                }
+
+                UnidadVenta unidadRegistro = registro.getUnidadVenta();
+
+                LiquidacionDTO dto = new LiquidacionDTO(
+                        empleado.getId(),
+                        nombreCompleto.trim(),
+                        email,
+                        empleado.getDni(),
+                        rol,
+                        anios,
+                        registro.getSueldoBase(),
+                        registro.getMontoAntiguedad(),
+                        registro.getPlusCategoria(),
+                        registro.getMontoCalculado(),
+                        unidadRegistro != null ? unidadRegistro.getId() : null,
+                        unidadRegistro != null ? unidadRegistro.getNombreComercial() : null,
+                        registro.getPeriodoInicio(),
+                        registro.getPeriodoFin(),
+                        registro.getDiasTrabajados() != null
+                                ? registro.getDiasTrabajados() : 0,
+                        registro.getFactorAplicado(),
+                        registro.getId());
+
+                liquidaciones.add(dto);
+                totalGeneral = totalGeneral.add(registro.getMontoCalculado());
+
+                if (unidadRegistro != null && unidadRegistro.getNombreComercial() != null) {
+                    nombresUnidades.add(unidadRegistro.getNombreComercial());
+                }
             }
 
-            UnidadVenta unidadRegistro = registro.getUnidadVenta();
+            String unidad = nombresUnidades.isEmpty()
+                    ? "Sin liquidaciones registradas"
+                    : String.join(", ", nombresUnidades);
 
-            LiquidacionDTO dto = new LiquidacionDTO(
-                    empleado.getId(),
-                    nombreCompleto.trim(),
-                    email,
-                    empleado.getDni(),
-                    rol,
-                    anios,
-                    registro.getSueldoBase(),
-                    registro.getMontoAntiguedad(),
-                    registro.getPlusCategoria(),
-                    registro.getMontoCalculado(),
-                    unidadRegistro != null ? unidadRegistro.getId() : null,
-                    unidadRegistro != null ? unidadRegistro.getNombreComercial() : null,
-                     registro.getPeriodoInicio(),
-                    registro.getPeriodoFin(),
-                    registro.getDiasTrabajados() != null
-                            ? registro.getDiasTrabajados() : 0,
-                    registro.getFactorAplicado(),
-                    registro.getId());
+            long diasFestival = diasDelFestival(
+                    festival.getFechaInicio(), festival.getFechaFin());
 
-            liquidaciones.add(dto);
-            totalGeneral = totalGeneral.add(registro.getMontoCalculado());
-
-            if (unidadRegistro != null && unidadRegistro.getNombreComercial() != null) {
-                nombresUnidades.add(unidadRegistro.getNombreComercial());
-            }
+            return new ResultadoLiquidacion(
+                    unidad, diasFestival, liquidaciones, totalGeneral);
         }
 
-        String unidad = nombresUnidades.isEmpty()
-                ? "Sin liquidaciones registradas"
-                : String.join(", ", nombresUnidades);
+        // Si no hay registros persistidos (vista previa / cálculo dinámico)
+        final Long empId = empleado.getId();
+        UnidadVenta unidad = unidadVentaRepository.findAll().stream()
+                .filter(u -> (u.getResponsable() != null && Objects.equals(u.getResponsable().getId(), empId))
+                        || (u.getStaffAsignado() != null && u.getStaffAsignado().stream()
+                                .anyMatch(s -> s != null && Objects.equals(s.getId(), empId))))
+                .findFirst()
+                .orElse(null);
 
-        long diasFestival = diasDelFestival(
-                festival.getFechaInicio(), festival.getFechaFin());
+        String nombreUnidad = unidad != null ? unidad.getNombreComercial() : "Unidad asignada";
+        long dias = diasDelFestival(festival.getFechaInicio(), festival.getFechaFin());
+        BigDecimal factorProporcional = calcularFactorProporcional(dias);
+        BigDecimal sueldoBase = sueldoProperties.baseOrDefault();
 
-        return new ResultadoLiquidacion(
-                unidad, diasFestival, liquidaciones, totalGeneral);
+        LiquidacionDTO dto = armarLiquidacionEmpleado(
+                empleado, festival, sueldoBase, factorProporcional, emailLimpio);
+
+        if (dto == null) {
+            throw new IllegalArgumentException("No se pudo generar la liquidación para el empleado.");
+        }
+
+        Set<LiquidacionDTO> conjunto = new LinkedHashSet<>();
+        conjunto.add(dto);
+
+        return new ResultadoLiquidacion(nombreUnidad, dias, conjunto, dto.total());
     }
 
     /**
@@ -418,6 +518,10 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             Festival festival,
             LiquidacionDTO dto) {
 
+        if (liquidacionHaberesRepository == null) {
+            return;
+        }
+
         LocalDate periodoInicio = dto.periodoInicio();
         LocalDate periodoFin = dto.periodoFin();
 
@@ -480,15 +584,19 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
     }
 
     /**
-     * Calcula el haber total de un empleado según su tipo de puesto y la
-     * duración completa del festival. Este método no persiste información.
+     * Calcula el haber de un empleado según su puesto y la duración de referencia.
+     * Si el empleado tiene sueldo propio definido mayor a cero, se prioriza sobre el sueldo base por defecto.
      */
     private LiquidacionDTO armarLiquidacionEmpleado(
             Staff staff,
             Festival festival,
-            BigDecimal sueldoBase,
+            BigDecimal sueldoBaseParam,
             BigDecimal factorProporcional,
             String emailOverride) {
+
+        if (staff == null) {
+            return null;
+        }
 
         long anios = 0;
         BigDecimal montoAntiguedad = BigDecimal.ZERO;
@@ -496,13 +604,17 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         BigDecimal baseLiquidable;
         String rol;
 
+        BigDecimal sueldo = (staff.getSueldo() != null && staff.getSueldo().compareTo(BigDecimal.ZERO) > 0)
+                ? staff.getSueldo()
+                : sueldoBaseParam;
+
         if (staff instanceof Cocinero cocinero) {
             plusCategoria = resolverPlusCocina(cocinero);
             rol = cocinero.getCategoriaCocina() != null
                     && cocinero.getCategoriaCocina().getNombre() != null
                     ? cocinero.getCategoriaCocina().getNombre()
                     : "Cocinero";
-            baseLiquidable = sueldoBase.add(plusCategoria);
+            baseLiquidable = sueldo.add(plusCategoria);
 
         } else if (staff instanceof Cajero) {
             anios = aniosAntiguedad(
@@ -510,25 +622,17 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
                     .multiply(BigDecimal.valueOf(anios));
             rol = "Cajero";
-            baseLiquidable = sueldoBase.add(montoAntiguedad);
+            baseLiquidable = sueldo.add(montoAntiguedad);
 
         } else {
             // Personal genérico (Staff / Responsable / Empleado que no es Cocinero ni Cajero)
-            plusCategoria = BigDecimal.ZERO;
+            anios = aniosAntiguedad(
+                    staff.getFechaIngreso(), festival.getFechaInicio());
             montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
                     .multiply(BigDecimal.valueOf(anios));
-            if (s.getUsuario() != null && s.getUsuario().getRol() != null && s.getUsuario().getRol().getNombre() != null) {
-                String nomRol = s.getUsuario().getRol().getNombre().replace("ROLE_", "").trim();
-                rol = switch (nomRol.toUpperCase(Locale.ROOT)) {
-                    case "RESPONSABLE" -> "Responsable";
-                    case "ADMIN" -> "Administrador";
-                    case "CAJERO" -> "Cajero";
-                    case "COCINERO" -> "Cocinero";
-                    default -> "Empleado";
-                };
-            } else {
-                rol = "Empleado";
-            }
+            plusCategoria = BigDecimal.ZERO;
+            baseLiquidable = sueldo.add(montoAntiguedad);
+            rol = resolverRolStaff(staff);
         }
 
         BigDecimal total = baseLiquidable
@@ -545,7 +649,23 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
         return new LiquidacionDTO(
                 staff.getId(), nombreCompleto.trim(), email, staff.getDni(),
-                rol, anios, sueldoBase, montoAntiguedad, plusCategoria, total);
+                rol, anios, sueldo, montoAntiguedad, plusCategoria, total);
+    }
+
+    private String resolverRolStaff(Staff staff) {
+        if (staff != null && staff.getUsuario() != null
+                && staff.getUsuario().getRol() != null
+                && staff.getUsuario().getRol().getNombre() != null) {
+            String nomRol = staff.getUsuario().getRol().getNombre().replace("ROLE_", "").trim();
+            return switch (nomRol.toUpperCase(Locale.ROOT)) {
+                case "RESPONSABLE" -> "Responsable";
+                case "ADMIN" -> "Administrador";
+                case "CAJERO" -> "Cajero";
+                case "COCINERO" -> "Cocinero";
+                default -> "Empleado";
+            };
+        }
+        return "Empleado";
     }
 
     private BigDecimal resolverPlusCocina(Cocinero cocinero) {
@@ -680,6 +800,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
         return liquidarPorUnidad(unidadResponsable.getId(), festivalId);
     }
+
     @Override
     @Transactional(readOnly = true)
     public ResultadoLiquidacion consultarLiquidacionesRegistradasSegunRol(
@@ -774,7 +895,10 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                         registro.getPeriodoInicio());
 
             } else {
-                rol = "Empleado";
+                anios = aniosAntiguedad(
+                        empleado.getFechaIngreso(),
+                        registro.getPeriodoInicio());
+                rol = resolverRolStaff(empleado);
             }
 
             UnidadVenta unidadRegistro = registro.getUnidadVenta();
@@ -840,6 +964,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                 totalGeneral
         );
     }
+
     /**
      * Persiste explícitamente los registros mensuales de la vista previa.
      * Requiere ADMIN o RESPONSABLE; consultar la pantalla no guarda datos.
@@ -911,19 +1036,6 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         return resultado;
     }
 
-    private UnidadVenta buscarUnidadDelResponsable(String emailResponsable) {
-        if (emailResponsable == null) {
-            throw new IllegalArgumentException("Usuario no autenticado.");
-        }
-        return unidadVentaRepository.findAll().stream()
-                .filter(u -> u.getResponsable() != null
-                        && u.getResponsable().getUsuario() != null
-                        && emailResponsable.equalsIgnoreCase(u.getResponsable().getUsuario().getEmail()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró una unidad de venta a cargo del usuario: " + emailResponsable));
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> obtenerModeloRecibo(
@@ -937,6 +1049,11 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         if (liquidacionId == null) {
             throw new IllegalArgumentException(
                     "No se indicó una liquidación válida.");
+        }
+
+        if (liquidacionHaberesRepository == null) {
+            throw new IllegalStateException(
+                    "El repositorio de liquidaciones no se encuentra disponible.");
         }
 
         // Buscar la liquidación individual registrada.
@@ -1009,7 +1126,13 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             }
 
         } else {
-            rol = "Empleado";
+            if (empleado.getFechaIngreso() != null
+                    && registro.getPeriodoInicio() != null) {
+                aniosAntiguedad = aniosAntiguedad(
+                        empleado.getFechaIngreso(),
+                        registro.getPeriodoInicio());
+            }
+            rol = resolverRolStaff(empleado);
         }
 
         String nombreCompleto =
@@ -1069,7 +1192,7 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                                 u.getResponsable().getUsuario().getEmail()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró una unidad asignada al responsable indicado."));
+                        "No se encontró una unidad asignada al responsable indicado: " + email));
     }
 
     private Festival buscarFestival(Long festivalId) {
