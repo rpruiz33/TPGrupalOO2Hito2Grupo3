@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Servicio integral para operaciones y reglas de negocio sobre Unidades de Venta
@@ -20,6 +21,10 @@ import java.util.List;
  */
 @Service
 public class UnidadVentaServiceImpl implements IUnidadVentaService {
+
+    // Regex exclusiva para autos de Argentina (AAA123 y AA123BB)
+    private static final String PATENTE_ARGENTINA_REGEX = "^([A-Z]{2}\\s?\\d{3}\\s?[A-Z]{2}|[A-Z]{3}\\s?\\d{3})$";
+    private static final Pattern PATTERN_PATENTE_ARG = Pattern.compile(PATENTE_ARGENTINA_REGEX);
 
     private final ICanonService canonService;
     private final UnidadVentaRepository unidadVentaRepository;
@@ -32,6 +37,16 @@ public class UnidadVentaServiceImpl implements IUnidadVentaService {
         this.canonService = canonService;
         this.unidadVentaRepository = unidadVentaRepository;
         this.staffRepository = staffRepository;
+    }
+
+    /**
+     * Valida si una cadena cumple con los formatos de patentes de autos de la República Argentina (AAA123 o AA123BB).
+     */
+    public boolean validarPatenteArgentina(String patente) {
+        if (patente == null || patente.isBlank()) {
+            return false;
+        }
+        return PATTERN_PATENTE_ARG.matcher(patente.trim().toUpperCase()).matches();
     }
 
     @Override
@@ -142,4 +157,3 @@ public class UnidadVentaServiceImpl implements IUnidadVentaService {
         }
     }
 }
-

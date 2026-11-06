@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
@@ -114,10 +113,13 @@
                         <input type="text"
                                id="patente"
                                name="patente"
-                               class="form-control"
+                               class="form-control text-uppercase"
                                th:value="${unidad instanceof T(com.example.hito2grupo3.entities.FoodTruck) ? unidad.patente : ''}"
-                               maxlength="20"
+                               maxlength="9"
+                               pattern="^[a-zA-Z]{2}\s?\d{3}\s?[a-zA-Z]{2}$\vert{}^[a-zA-Z]{3}\s?\d{3}$"
+                               title="Ingrese una patente válida de auto de Argentina (ej: AA123BB o AAA123)"
                                required>
+                        <div class="form-text">Formatos permitidos: AAA123 o AA123BB</div>
                     </div>
 
                     <div class="form-check form-switch mb-3">
@@ -198,6 +200,27 @@
 
     <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputPatente = document.getElementById('patente');
+            if (inputPatente) {
+                // Regex para formatos de autos de Argentina (AAA123 y AA123BB)
+                const regexPatenteAuto = /^([A-Z]{2}\s?\d{3}\s?[A-Z]{2}|[A-Z]{3}\s?\d{3})$/;
+
+                inputPatente.addEventListener('input', () => {
+                    inputPatente.value = inputPatente.value.toUpperCase();
+                    
+                    const val = inputPatente.value.trim();
+                    if (val && !regexPatenteAuto.test(val)) {
+                        inputPatente.setCustomValidity('La patente debe tener un formato válido de Argentina (AAA123 o AA123BB).');
+                    } else {
+                        inputPatente.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
