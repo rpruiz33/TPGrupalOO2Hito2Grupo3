@@ -23,7 +23,7 @@
             <h2 class="fw-bold mb-1" th:text="${festival.id == null ? 'Nuevo Festival' : 'Editar Festival'}">Formulario de Festival</h2>
             <p class="text-white-50 mb-0">
                 <span th:if="${festival.id == null}">Completá los datos requeridos para programar una nueva edición.</span>
-                <span th:unless="${festival.id == null}">Actualizá el nombre, las fechas y las unidades de venta habilitadas.</span>
+                <span th:unless="${festival.id == null}">Actualizá las fechas y las unidades de venta habilitadas.</span>
             </p>
         </div>
         <a th:href="@{/admin/festivales}" class="menu-button">← Volver al Menu</a>
@@ -36,51 +36,68 @@
                 <strong>Revisá los datos ingresados:</strong>
                 <ul class="mb-0"><li th:each="err : ${#fields.allErrors()}" th:text="${err}"></li></ul>
             </div>
+
             <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">1. Información General del Evento</h5>
+            
+            <!-- Campo Nombre: Inmutable y sombreado en modo edición -->
             <div class="mb-3">
                 <label for="nombre" class="form-label fw-bold">Nombre del Festival</label>
-                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" minlength="3" maxlength="100" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]+$" required>
+                <input type="text" 
+                       class="form-control" 
+                       th:classappend="${festival.id != null ? 'bg-light' : ''}"
+                       id="nombre" 
+                       th:field="*{nombre}" 
+                       minlength="3" 
+                       maxlength="100" 
+                       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]+$" 
+                       th:readonly="${festival.id != null}"
+                       required>
                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
             </div>
+
             <div class="row g-3 mb-2">
+                <!-- Fecha de Inicio -->
                 <div class="col-md-6">
                     <label for="fechaInicio" class="form-label fw-bold">Fecha de Inicio</label>
                     <input th:if="${festival.id == null}"
-       type="date"
-       class="form-control"
-       id="fechaInicio"
-       th:field="*{fechaInicio}"
-       th:min="${fechaMinima}"
-       required>
+                           type="date"
+                           class="form-control"
+                           id="fechaInicio"
+                           th:field="*{fechaInicio}"
+                           th:min="${fechaMinima}"
+                           required>
 
-<input th:unless="${festival.id == null}"
-       type="date"
-       class="form-control"
-       id="fechaInicio"
-       th:field="*{fechaInicio}"
-       required>
+                    <input th:unless="${festival.id == null}"
+                           type="date"
+                           class="form-control"
+                           id="fechaInicio"
+                           th:field="*{fechaInicio}"
+                           required>
                     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaInicio')}" th:errors="*{fechaInicio}"></div>
                 </div>
+
+                <!-- Fecha de Finalización -->
                 <div class="col-md-6">
                     <label for="fechaFin" class="form-label fw-bold">Fecha de Finalización</label>
                     <input th:if="${festival.id == null}"
-       type="date"
-       class="form-control"
-       id="fechaFin"
-       th:field="*{fechaFin}"
-       th:min="${fechaMinima}"
-       required>
+                           type="date"
+                           class="form-control"
+                           id="fechaFin"
+                           th:field="*{fechaFin}"
+                           th:min="${fechaMinima}"
+                           required>
 
-<input th:unless="${festival.id == null}"
-       type="date"
-       class="form-control"
-       id="fechaFin"
-       th:field="*{fechaFin}"
-       required>
+                    <input th:unless="${festival.id == null}"
+                           type="date"
+                           class="form-control"
+                           id="fechaFin"
+                           th:field="*{fechaFin}"
+                           required>
                     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fechaFin')}" th:errors="*{fechaFin}"></div>
                 </div>
             </div>
             <div class="mb-4 text-danger" th:if="${#fields.hasErrors('rangoFechasValido')}" th:errors="*{rangoFechasValido}"></div>
+
             <h5 class="fw-bold pb-2 mb-3 border-bottom text-dark">2. Unidades de Venta Habilitadas</h5>
             <p class="text-muted small mb-3">Seleccioná las unidades de venta autorizadas a operar en esta edición.</p>
             <div th:if="${#lists.isEmpty(todasUnidades)}" class="alert alert-warning small">No hay unidades de venta registradas.</div>
@@ -105,5 +122,47 @@
     </div>
 </div>
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputInicio = document.getElementById('fechaInicio');
+        const inputFin = document.getElementById('fechaFin');
+
+        function ajustarFechasLimites() {
+            if (inputInicio.value) {
+                const fechaInicioObj = new Date(inputInicio.value);
+                fechaInicioObj.setDate(fechaInicioObj.getDate() + 1);
+                const minFin = fechaInicioObj.toISOString().split('T')[0];
+                
+                inputFin.setAttribute('min', minFin);
+
+                if (inputFin.value && inputFin.value < minFin) {
+                    inputFin.setCustomValidity('La fecha de finalización debe ser por lo menos 1 día posterior a la fecha de inicio.');
+                } else {
+                    inputFin.setCustomValidity('');
+                }
+            }
+
+            if (inputFin.value) {
+                const fechaFinObj = new Date(inputFin.value);
+                fechaFinObj.setDate(fechaFinObj.getDate() - 1);
+                const maxInicio = fechaFinObj.toISOString().split('T')[0];
+                
+                inputInicio.setAttribute('max', maxInicio);
+
+                if (inputInicio.value && inputInicio.value > maxInicio) {
+                    inputInicio.setCustomValidity('La fecha de inicio debe ser por lo menos 1 día anterior a la fecha de finalización.');
+                } else {
+                    inputInicio.setCustomValidity('');
+                }
+            }
+        }
+
+        inputInicio.addEventListener('change', ajustarFechasLimites);
+        inputFin.addEventListener('change', ajustarFechasLimites);
+        
+        ajustarFechasLimites();
+    });
+</script>
 </body>
 </html>

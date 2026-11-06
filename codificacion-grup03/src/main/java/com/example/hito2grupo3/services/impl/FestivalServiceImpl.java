@@ -1,9 +1,9 @@
 package com.example.hito2grupo3.services.impl;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -50,19 +50,19 @@ public class FestivalServiceImpl implements IFestivalService {
     }
 
     @Override
-@Transactional(readOnly = true)
-public List<Festival> buscarFestivalesActivosPorUnidadVenta(Long unidadVentaId, LocalDate fecha) {
-    return festivalRepository.findAllByOrderByFechaInicioAsc().stream()
-            .filter(Festival::isActivo)
-            .filter(festival -> festival.getFechaInicio() == null
-                    || !fecha.isBefore(festival.getFechaInicio()))
-            .filter(festival -> festival.getFechaFin() == null
-                    || !fecha.isAfter(festival.getFechaFin()))
-            .filter(festival -> festival.getUnidadesVentaHabilitadas() != null
-                    && festival.getUnidadesVentaHabilitadas().stream()
-                            .anyMatch(unidadVenta -> unidadVentaId.equals(unidadVenta.getId())))
-            .collect(Collectors.toList());
-}
+    @Transactional(readOnly = true)
+    public List<Festival> buscarFestivalesActivosPorUnidadVenta(Long unidadVentaId, LocalDate fecha) {
+        return festivalRepository.findAllByOrderByFechaInicioAsc().stream()
+                .filter(Festival::isActivo)
+                .filter(festival -> festival.getFechaInicio() == null
+                        || !fecha.isBefore(festival.getFechaInicio()))
+                .filter(festival -> festival.getFechaFin() == null
+                        || !fecha.isAfter(festival.getFechaFin()))
+                .filter(festival -> festival.getUnidadesVentaHabilitadas() != null
+                        && festival.getUnidadesVentaHabilitadas().stream()
+                                .anyMatch(unidadVenta -> unidadVentaId.equals(unidadVenta.getId())))
+                .collect(Collectors.toList());
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -109,12 +109,28 @@ public List<Festival> buscarFestivalesActivosPorUnidadVenta(Long unidadVentaId, 
     @Override
     @Transactional
     public Festival actualizarFestival(Long id, FestivalDTO dto) {
-    validarRangoFechas(dto);
+        Festival festival = buscarPorId(id);
+        LocalDate hoy = LocalDate.now();
 
-    Festival festival = buscarPorId(id);
-        festival.setNombre(dto.getNombre().trim());
-        festival.setFechaInicio(dto.getFechaInicio());
-        festival.setFechaFin(dto.getFechaFin());
+        // 1. Conservar el nombre original (no modificable en edición)
+        dto.setNombre(festival.getNombre());
+        // (Mantiene festival.getNombre())
+
+        // 2. Regla de fechas pasadas: Si la fecha original ya pasó o es hoy, no se actualiza
+        if (festival.getFechaInicio() != null && (festival.getFechaInicio().isBefore(hoy) || festival.getFechaInicio().isEqual(hoy))) {
+            dto.setFechaInicio(festival.getFechaInicio());
+        } else if (dto.getFechaInicio() != null) {
+            festival.setFechaInicio(dto.getFechaInicio());
+        }
+
+        if (festival.getFechaFin() != null && (festival.getFechaFin().isBefore(hoy) || festival.getFechaFin().isEqual(hoy))) {
+            dto.setFechaFin(festival.getFechaFin());
+        } else if (dto.getFechaFin() != null) {
+            festival.setFechaFin(dto.getFechaFin());
+        }
+
+        // 3. Validar que la fecha final sea estrictamente posterior a la fecha inicio (min 1 día de diferencia)
+        validarRangoFechas(dto);
 
         festival.getUnidadesVentaHabilitadas().clear();
         if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
@@ -158,29 +174,28 @@ public List<Festival> buscarFestivalesActivosPorUnidadVenta(Long unidadVentaId, 
         festivalRepository.delete(festival);
     }
 
-private void validarFechas(FestivalDTO dto) {
-    LocalDate hoy = LocalDate.now();
+    private void validarFechas(FestivalDTO dto) {
+        LocalDate hoy = LocalDate.now();
 
-    if (dto.getFechaInicio() != null && dto.getFechaInicio().isBefore(hoy)) {
-        throw new IllegalArgumentException(
-                "La fecha de inicio no puede ser anterior a hoy.");
-    }
+        if (dto.getFechaInicio() != null && dto.getFechaInicio().isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a hoy.");
+        }
 
-    if (dto.getFechaFin() != null && dto.getFechaFin().isBefore(hoy)) {
-        throw new IllegalArgumentException(
-                "La fecha de finalización no puede ser anterior a hoy.");
-    }
-    
-    validarRangoFechas(dto);
+        if (dto.getFechaFin() != null && dto.getFechaFin().isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de finalización no puede ser anterior a hoy.");
+        }
+        
+        validarRangoFechas(dto);
     }
 
     private void validarRangoFechas(FestivalDTO dto) {
-    if (dto.getFechaInicio() != null && dto.getFechaFin() != null
-            && dto.getFechaFin().isBefore(dto.getFechaInicio())) {
-
-        throw new IllegalArgumentException(
-                "La fecha de finalización no puede ser anterior a la fecha de inicio.");
-    }
+        if (dto.getFechaInicio() != null && dto.getFechaFin() != null) {
+            // Requiere que fechaFin sea al menos 1 día posterior a fechaInicio (!fechaFin.isAfter(fechaInicio) cubre menor o igual)
+            if (!dto.getFechaFin().isAfter(dto.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha de finalización debe ser por lo menos 1 día posterior a la fecha de inicio.");
+            }
+        }
     }
 
     private FestivalDTO convertirADTO(Festival festival) {
