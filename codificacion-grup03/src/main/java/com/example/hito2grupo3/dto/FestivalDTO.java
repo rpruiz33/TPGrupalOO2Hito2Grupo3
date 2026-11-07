@@ -28,7 +28,7 @@ public class FestivalDTO {
 
     @NotBlank(message = "El nombre del festival es obligatorio")
     @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.-]+$", message = "El nombre contiene caracteres no permitidos")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.'()\\-]+$", message = "El nombre contiene caracteres no permitidos")
     private String nombre;
 
     @NotNull(message = "La fecha de inicio es obligatoria")

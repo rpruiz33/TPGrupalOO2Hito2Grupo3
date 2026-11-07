@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -98,10 +98,28 @@
             </h2>
 
             <div class="d-flex flex-wrap justify-content-center gap-2 pt-2">
-                <a class="menu-button menu-button-primary py-2 px-3" th:href="@{/liquidacion}">
-                    <span sec:authorize="hasAnyRole('ADMIN', 'RESPONSABLE')">Haberes Empleados</span>
-                    <span sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE')">Ver mis Haberes</span>
-                </a>
+<a class="menu-button menu-button-primary py-2 px-3"
+   th:href="@{/liquidacion(personal=true)}"
+   th:if="${empleado != null and empleado.rol == 'Responsable'}">
+    🧾 Ver mis haberes
+</a>
+
+<!-- Responsable: consultar los haberes de su unidad -->
+<a class="menu-button py-2 px-3"
+   th:href="@{/liquidacion}"
+   th:if="${empleado != null and empleado.rol == 'Responsable'}">
+    Haberes de mi unidad
+</a>
+
+<!-- Administrador y demás empleados -->
+<a class="menu-button menu-button-primary py-2 px-3"
+   th:href="@{/liquidacion}"
+   th:unless="${empleado != null and empleado.rol == 'Responsable'}">
+
+    <span sec:authorize="hasRole('ADMIN')">Haberes Empleados</span>
+    <span sec:authorize="!hasRole('ADMIN')">Ver mis Haberes</span>
+</a>
+                
 
                 <a class="menu-button py-2 px-3" th:href="@{/cajero/cierre-caja}" th:if="${empleado != null and empleado.cajero}">
                     🔒 Cerrar Caja

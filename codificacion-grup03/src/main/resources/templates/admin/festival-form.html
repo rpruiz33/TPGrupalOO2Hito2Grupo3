@@ -42,16 +42,16 @@
             <!-- Campo Nombre: Inmutable y sombreado en modo edición -->
             <div class="mb-3">
                 <label for="nombre" class="form-label fw-bold">Nombre del Festival</label>
-                <input type="text" 
-                       class="form-control" 
-                       th:classappend="${festival.id != null ? 'bg-light' : ''}"
-                       id="nombre" 
-                       th:field="*{nombre}" 
-                       minlength="3" 
-                       maxlength="100" 
-                       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]+$" 
-                       th:readonly="${festival.id != null}"
-                       required>
+                <input type="text"
+       class="form-control"
+       th:classappend="${festival.id != null ? 'bg-light' : ''}"
+       id="nombre"
+       th:field="*{nombre}"
+       minlength="3"
+       maxlength="100"
+       pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.'()-]+$"
+       th:readonly="${festival.id != null}"
+       required>
                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
             </div>
 

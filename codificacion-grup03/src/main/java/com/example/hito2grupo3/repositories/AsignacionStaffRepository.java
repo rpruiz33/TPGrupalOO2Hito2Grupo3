@@ -11,5 +11,5 @@ public interface AsignacionStaffRepository
         extends JpaRepository<AsignacionStaff, Long> {
 
     List<AsignacionStaff> findByStaff_IdOrderByFechaInicioDesc(Long staffId);
-
+    List<AsignacionStaff> findByFestival_Id(Long festivalId);
 }
