@@ -16,6 +16,9 @@ import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.PedidoRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IFestivalService;
+import com.example.hito2grupo3.entities.AsignacionStaff;
+import com.example.hito2grupo3.repositories.AsignacionStaffRepository;
+
 
 @Service
 public class FestivalServiceImpl implements IFestivalService {
@@ -23,14 +26,17 @@ public class FestivalServiceImpl implements IFestivalService {
     private final FestivalRepository festivalRepository;
     private final UnidadVentaRepository unidadVentaRepository;
     private final PedidoRepository pedidoRepository;
+private final AsignacionStaffRepository asignacionStaffRepository;
 
-    public FestivalServiceImpl(FestivalRepository festivalRepository,
-                               UnidadVentaRepository unidadVentaRepository,
-                               PedidoRepository pedidoRepository) {
-        this.festivalRepository = festivalRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
-        this.pedidoRepository = pedidoRepository;
-    }
+public FestivalServiceImpl(FestivalRepository festivalRepository,
+                           UnidadVentaRepository unidadVentaRepository,
+                           PedidoRepository pedidoRepository,
+                           AsignacionStaffRepository asignacionStaffRepository) {
+    this.festivalRepository = festivalRepository;
+    this.unidadVentaRepository = unidadVentaRepository;
+    this.pedidoRepository = pedidoRepository;
+    this.asignacionStaffRepository = asignacionStaffRepository;
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -107,28 +113,42 @@ public class FestivalServiceImpl implements IFestivalService {
     }
 
     @Override
-    @Transactional
-    public Festival actualizarFestival(Long id, FestivalDTO dto) {
-        validarRangoFechas(dto);
+@Transactional
+public Festival actualizarFestival(Long id, FestivalDTO dto) {
+    validarRangoFechas(dto);
 
-        Festival festival = buscarPorId(id);
-        
-        // El nombre no se modifica al editar (conserva el existente)
-        festival.setFechaInicio(dto.getFechaInicio());
-        festival.setFechaFin(dto.getFechaFin());
+    Festival festival = buscarPorId(id);
 
-        // Actualizar únicamente las unidades seleccionadas para este festival
-        festival.getUnidadesVentaHabilitadas().clear();
-        if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
-            List<UnidadVenta> unidades = unidadVentaRepository.findAllById(dto.getUnidadesVentaIds());
-            festival.getUnidadesVentaHabilitadas().addAll(
-                unidades.stream()
-                    .filter(UnidadVenta::isActivo)
-                    .collect(Collectors.toSet()));
-        }
+    // Actualizar las fechas del festival
+    festival.setFechaInicio(dto.getFechaInicio());
+    festival.setFechaFin(dto.getFechaFin());
 
-        return festivalRepository.save(festival);
+    // Sincronizar las fechas de todas las asignaciones del Staff
+    List<AsignacionStaff> asignaciones =
+            asignacionStaffRepository.findByFestival_Id(id);
+
+    for (AsignacionStaff asignacion : asignaciones) {
+        asignacion.setFechaInicio(festival.getFechaInicio());
+        asignacion.setFechaFin(festival.getFechaFin());
     }
+
+    asignacionStaffRepository.saveAll(asignaciones);
+
+    // Actualizar únicamente las unidades seleccionadas para este festival
+    festival.getUnidadesVentaHabilitadas().clear();
+
+    if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
+        List<UnidadVenta> unidades =
+                unidadVentaRepository.findAllById(dto.getUnidadesVentaIds());
+
+        festival.getUnidadesVentaHabilitadas().addAll(
+                unidades.stream()
+                        .filter(UnidadVenta::isActivo)
+                        .collect(Collectors.toSet()));
+    }
+
+    return festivalRepository.save(festival);
+}
 
     /**
      * Remueve una unidad de venta únicamente de la lista de habilitadas de un festival específico.

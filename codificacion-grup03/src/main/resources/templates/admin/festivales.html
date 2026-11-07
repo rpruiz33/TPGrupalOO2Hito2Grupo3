@@ -41,7 +41,13 @@
                     <div class="card-body p-4 d-flex flex-column justify-content-between">
                         <div>
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge" th:classappend="${festival.activo ? 'bg-success' : 'bg-danger'}" th:text="${festival.estado}">Estado</span>
+                                <span class="badge"
+      th:text="${festival.estado}"
+      th:classappend="
+        ${festival.estado == 'Finalizado'} ? ' bg-danger' :
+        (${festival.estado == 'En curso'} ? ' bg-success' :
+        (${festival.estado == 'Próximo'} ? ' bg-warning text-dark' :
+        ' bg-secondary'))">Estado</span>
                                 <span class="text-secondary small" th:text="${festival.cantidadUnidades} + ' unidades'">0 unidades</span>
                             </div>
                             <h2 class="h5 fw-bold mb-2 text-dark" th:text="${festival.nombre}">Nombre del festival</h2>

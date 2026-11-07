@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html lang="es" 
+<html lang="es"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
@@ -7,8 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Recibo de Sueldo - Epicentro Gourmet</title>
+
     <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/panel-base.css}">
+
     <style>
         .recibo-simple-card {
             background-color: #ffffff;
@@ -66,19 +69,38 @@
 </head>
 
 <body>
-    <!-- Navbar común con los demás paneles -->
-    <nav sec:authorize="hasRole('ADMIN')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
-    <nav sec:authorize="hasRole('RESPONSABLE')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
-    <nav sec:authorize="hasRole('CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}"></nav>
-    <nav sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO')" th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Empleado', 'Empleado', '/empleado/index')}"></nav>
+
+    <!-- Navbar según el rol del usuario -->
+    <nav sec:authorize="hasRole('ADMIN')"
+         th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}">
+    </nav>
+
+    <nav sec:authorize="hasRole('RESPONSABLE')"
+         th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}">
+    </nav>
+
+    <nav sec:authorize="hasRole('CAJERO')"
+         th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Cajero', 'Cajero', '/cajero/index')}">
+    </nav>
+
+    <nav sec:authorize="!hasAnyRole('ADMIN', 'RESPONSABLE', 'CAJERO')"
+         th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Empleado', 'Empleado', '/empleado/index')}">
+    </nav>
 
     <main class="container py-3">
-        
-        <div th:if="${error}" class="alert alert-danger text-center shadow-sm mb-3" role="alert" th:text="${error}"></div>
 
-        <!-- Tarjeta blanca simple con el recibo -->
-        <div class="card recibo-simple-card p-4 p-md-5" th:if="${recibo != null}">
-            
+        <!-- Mensaje de error -->
+        <div th:if="${error}"
+             class="alert alert-danger text-center shadow-sm mb-3"
+             role="alert"
+             th:text="${error}">
+        </div>
+
+        <!-- Recibo de sueldo -->
+        <div class="card recibo-simple-card p-4 p-md-5"
+             th:if="${recibo != null}">
+
+            <!-- Encabezado -->
             <header class="text-center pb-3 border-bottom mb-4">
                 <h1>Epicentro Gourmet</h1>
                 <p class="subtitulo mb-0">Recibo de sueldo</p>
@@ -86,81 +108,178 @@
 
             <!-- Datos del empleado -->
             <div class="mb-3 text-center">
-                <h2 class="h5 fw-bold mb-1" th:text="${recibo.nombre} + ' ' + ${recibo.apellido}">Martín González</h2>
+
+                <h2 class="h5 fw-bold mb-1"
+                    th:text="${recibo.nombre + ' ' + recibo.apellido}">
+                </h2>
+
                 <div class="text-muted small">
-                    <span th:text="'DNI: ' + ${recibo.dni}">DNI: 38.452.910</span> · 
-                    <span th:text="${recibo.rol}">Cajero</span>
-                    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}" th:text="' · ' + ${recibo.email}"> · empleado@epicentro.com</span>
+
+                    <span th:text="${'DNI: ' + recibo.dni}"></span>
+
+                    ·
+
+                    <span th:text="${recibo.rol}"></span>
+
+                    <span th:if="${recibo.email != null and !#strings.isEmpty(recibo.email)}"
+                          th:text="${' · ' + recibo.email}">
+                    </span>
+
                 </div>
             </div>
 
-            <!-- Resumen Festival y Total -->
+            <!-- Resumen del festival y total -->
             <div class="row g-2 text-center my-3 p-3 bg-light rounded border">
+
                 <div class="col-6">
                     <span class="text-muted small d-block">Festival</span>
-                    <strong class="text-dark" th:text="${recibo.festival}">Epicentro Gourmet 2026</strong>
+
+                    <strong class="text-dark"
+                            th:text="${recibo.festival}">
+                    </strong>
                 </div>
+
                 <div class="col-6">
                     <span class="text-muted small d-block">Total a cobrar</span>
-                    <strong class="fs-5 text-success" th:text="'$ ' + ${#numbers.formatDecimal(recibo.total, 1, 'POINT', 0, 'COMMA')}">$ 102.000</strong>
+
+                    <strong class="fs-5 text-success"
+                            th:text="${'$ ' + #numbers.formatDecimal(recibo.total, 1, 'POINT', 0, 'COMMA')}">
+                    </strong>
                 </div>
+
             </div>
 
             <!-- Tabla de conceptos -->
-            <h3 class="h6 fw-bold mt-3 mb-2" style="color: #800020;">Liquidación de haberes</h3>
+            <h3 class="h6 fw-bold mt-3 mb-2" style="color: #800020;">
+                Liquidación de haberes
+            </h3>
+
             <div class="table-responsive mb-4">
+
                 <table class="table table-bordered recibo-tabla align-middle mb-0">
+
                     <thead>
                         <tr>
                             <th>Concepto</th>
-                            <th class="text-end" style="width: 200px;">Monto / Valor</th>
+                            <th class="text-end" style="width: 200px;">
+                                Monto / Valor
+                            </th>
                         </tr>
                     </thead>
+
                     <tbody>
+
+                        <!-- Unidad de venta -->
                         <tr>
                             <td>Unidad de venta</td>
-                            <td class="text-end text-muted" th:text="${recibo.unidad}">Puesto 1 - Hamburguesas</td>
+
+                            <td class="text-end text-muted"
+                                th:text="${recibo.unidad}">
+                            </td>
                         </tr>
+                        <!-- Mes liquidado -->
                         <tr>
-                            <td>Duración del festival</td>
-                            <td class="text-end" th:text="${recibo.diasFestival} + ' días'">3 días</td>
+                            <td>Mes liquidado</td>
+
+                            <td class="text-end fw-semibold"
+                                th:text="${recibo.periodoInicio != null
+                                    ? #temporals.format(recibo.periodoInicio, 'MM/yyyy')
+                                    : '-'}">
+                            </td>
                         </tr>
+
+                        <!-- Período liquidado -->
+                        <tr>
+                            <td>Período liquidado</td>
+
+                            <td class="text-end"
+                                th:text="${recibo.periodoInicio != null and recibo.periodoFin != null
+                                    ? #temporals.format(recibo.periodoInicio, 'dd/MM/yyyy')
+                                      + ' al ' + #temporals.format(recibo.periodoFin, 'dd/MM/yyyy')
+                                    : '-'}">
+                            </td>
+                        </tr>
+
+                        <!-- Días liquidados -->
+                        <tr>
+                            <td>Días liquidados</td>
+
+                            <td class="text-end"
+                                th:text="${recibo.diasPeriodo} + ' días'">
+                            </td>
+                        </tr>
+
+                        <!-- Sueldo base -->
                         <tr>
                             <td>Sueldo base</td>
-                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.sueldoBase, 1, 'POINT', 0, 'COMMA')}">$ 60.000</td>
+
+                            <td class="text-end"
+                                th:text="${'$ ' + #numbers.formatDecimal(recibo.sueldoBase, 1, 'POINT', 0, 'COMMA')}">
+                            </td>
                         </tr>
+
+                        <!-- Plus por categoría -->
                         <tr th:if="${recibo.plusCategoria != null and recibo.plusCategoria.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+
                             <td>Plus por categoría</td>
-                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.plusCategoria, 1, 'POINT', 0, 'COMMA')}">$ 15.000</td>
+
+                            <td class="text-end"
+                                th:text="${'$ ' + #numbers.formatDecimal(recibo.plusCategoria, 1, 'POINT', 0, 'COMMA')}">
+                            </td>
                         </tr>
+
+                        <!-- Antigüedad -->
                         <tr th:if="${recibo.montoAntiguedad != null and recibo.montoAntiguedad.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
-                            <td th:text="'Antigüedad (' + ${recibo.aniosAntiguedad} + ' años)'">Antigüedad (3 años)</td>
-                            <td class="text-end" th:text="'$ ' + ${#numbers.formatDecimal(recibo.montoAntiguedad, 1, 'POINT', 0, 'COMMA')}">$ 10.000</td>
+
+                            <td th:text="${'Antigüedad (' + recibo.aniosAntiguedad + ' años)'}">
+                            </td>
+
+                            <td class="text-end"
+                                th:text="${'$ ' + #numbers.formatDecimal(recibo.montoAntiguedad, 1, 'POINT', 0, 'COMMA')}">
+                            </td>
                         </tr>
+
+                      
                         <tr>
-                            <td>Coeficiente por duración</td>
-                            <td class="text-end" th:text="${recibo.coeficiente}">1.2</td>
+                            <td>Coeficiente total del festival</td>
+
+                            <td class="text-end"
+                                th:text="${recibo.coeficiente}">
+                            </td>
                         </tr>
+
                     </tbody>
+
                 </table>
             </div>
 
             <!-- Botones de acción -->
             <div class="d-flex justify-content-center gap-3 d-print-none mb-4">
-                <button type="button" class="menu-button" onclick="window.print()">
+
+                <button type="button"
+                        class="menu-button"
+                        onclick="window.print()">
                     🖨️ Imprimir PDF
                 </button>
-                <a class="menu-button" th:href="@{/liquidacion(festivalId=${festivalId}, unidadId=${unidadId})}">
+
+                <a class="menu-button"
+                   th:href="@{/liquidacion(festivalId=${festivalId}, unidadId=${unidadId})}">
                     ← Volver
                 </a>
+
             </div>
 
-            <!-- Logo UNLa que aparece abajo al imprimir -->
+            <!-- Logo UNLa para impresión -->
             <div class="logo-impresion d-none d-print-block text-center mt-4 pt-3 border-top">
-                <img th:src="@{/images/unla-logo.png}" alt="Logo UNLa" style="height: 48px; object-fit: contain;">
+
+                <img th:src="@{/images/unla-logo.png}"
+                     alt="Logo UNLa"
+                     style="height: 48px; object-fit: contain;">
+
                 <div class="text-muted mt-1" style="font-size: 0.75rem;">
                     Universidad Nacional de Lanús · Epicentro Gourmet
                 </div>
+
             </div>
 
         </div>
@@ -168,5 +287,6 @@
     </main>
 
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
 </body>
 </html>
