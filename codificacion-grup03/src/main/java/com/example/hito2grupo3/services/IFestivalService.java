@@ -5,7 +5,6 @@ import java.time.LocalDate;
 
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
-import com.example.hito2grupo3.entities.UnidadVenta;
 
 public interface IFestivalService {
 
@@ -20,6 +19,8 @@ public interface IFestivalService {
     Festival crearFestival(FestivalDTO dto);
 
     Festival actualizarFestival(Long id, FestivalDTO dto);
+
+    void desasociarUnidadDeFestival(Long festivalId, Long unidadVentaId);
 
     void darDeBaja(Long id);
 

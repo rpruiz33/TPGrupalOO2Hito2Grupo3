@@ -3,6 +3,7 @@ package com.example.hito2grupo3.controllers;
 import com.example.hito2grupo3.entities.FoodTruck;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.IAdminDashboardService;
+import com.example.hito2grupo3.services.IFestivalService;
 import com.example.hito2grupo3.services.IModificarUnidadVentaService;
 import com.example.hito2grupo3.services.IUnidadVentaService;
 
@@ -22,13 +23,16 @@ import java.math.BigDecimal;
 public class AdminController {
 
     private final IAdminDashboardService adminDashboardService;
+    private final IFestivalService festivalService;
     private final IUnidadVentaService unidadVentaService;
     private final IModificarUnidadVentaService modificarUnidadVentaService;
 
     public AdminController(IAdminDashboardService adminDashboardService,
+                           IFestivalService festivalService,
                            IUnidadVentaService unidadVentaService,
                            IModificarUnidadVentaService modificarUnidadVentaService) {
         this.adminDashboardService = adminDashboardService;
+        this.festivalService = festivalService;
         this.unidadVentaService = unidadVentaService;
         this.modificarUnidadVentaService = modificarUnidadVentaService;
     }
@@ -109,11 +113,11 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            unidadVentaService.darDeBaja(id);
+            festivalService.desasociarUnidadDeFestival(festivalId, id);
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
-                    "La unidad de venta se dio de baja correctamente.");
+                "La unidad de venta se quitó de este festival correctamente.");
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(

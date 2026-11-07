@@ -51,7 +51,7 @@ public class AdminFestivalController {
             new BeanPropertyBindingResult(dto, "festival"));
 model.addAttribute("formAction", "/admin/festivales/guardar");
 model.addAttribute("fechaMinima", LocalDate.now());
-model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+    model.addAttribute("todasUnidades", unidadVentaRepository.findByActivoTrue());
         return "admin/festival-form";
     }
 
@@ -63,7 +63,7 @@ model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("formAction", "/admin/festivales/guardar");
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", unidadVentaRepository.findByActivoTrue());
             model.addAttribute("fechaMinima", LocalDate.now());
             return "admin/festival-form";
         }
@@ -75,7 +75,7 @@ model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("formAction", "/admin/festivales/guardar");
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", unidadVentaRepository.findByActivoTrue());
             model.addAttribute("fechaMinima", LocalDate.now());
             return "admin/festival-form";
         }
@@ -93,7 +93,7 @@ model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
                     new BeanPropertyBindingResult(dto, "festival"));
             model.addAttribute("formAction", "/admin/festivales/editar/" + id);
             
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", unidadVentaRepository.findByActivoTrue());
             return "admin/festival-form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el festival solicitado: " + e.getMessage());
@@ -111,7 +111,7 @@ model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
         if (result.hasErrors()) {
             festivalDTO.setId(id);
             model.addAttribute("formAction", "/admin/festivales/editar/" + id);
-            model.addAttribute("todasUnidades", unidadVentaRepository.findAll());
+            model.addAttribute("todasUnidades", unidadVentaRepository.findByActivoTrue());
             
             return "admin/festival-form";
         }

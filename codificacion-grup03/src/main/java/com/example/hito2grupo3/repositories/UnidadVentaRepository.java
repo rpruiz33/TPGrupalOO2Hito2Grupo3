@@ -40,6 +40,7 @@ List<UnidadVenta> buscarPorStaffAsignadoOResponsable(
     Optional<UnidadVenta> findByCodigo(String codigo);
     Optional<UnidadVenta> findByCodigoIgnoreCase(String codigo);
     List<UnidadVenta> findByCodigoStartingWith(String prefijo);
+    List<UnidadVenta> findByActivoTrue();
 
     Optional<UnidadVenta> findByResponsable_Id(long responsableId);
 

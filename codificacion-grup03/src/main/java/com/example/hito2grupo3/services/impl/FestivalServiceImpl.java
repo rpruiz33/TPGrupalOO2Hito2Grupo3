@@ -109,36 +109,39 @@ public class FestivalServiceImpl implements IFestivalService {
     @Override
     @Transactional
     public Festival actualizarFestival(Long id, FestivalDTO dto) {
-        Festival festival = buscarPorId(id);
-        LocalDate hoy = LocalDate.now();
-
-        // 1. Conservar el nombre original (no modificable en edición)
-        dto.setNombre(festival.getNombre());
-        // (Mantiene festival.getNombre())
-
-        // 2. Regla de fechas pasadas: Si la fecha original ya pasó o es hoy, no se actualiza
-        if (festival.getFechaInicio() != null && (festival.getFechaInicio().isBefore(hoy) || festival.getFechaInicio().isEqual(hoy))) {
-            dto.setFechaInicio(festival.getFechaInicio());
-        } else if (dto.getFechaInicio() != null) {
-            festival.setFechaInicio(dto.getFechaInicio());
-        }
-
-        if (festival.getFechaFin() != null && (festival.getFechaFin().isBefore(hoy) || festival.getFechaFin().isEqual(hoy))) {
-            dto.setFechaFin(festival.getFechaFin());
-        } else if (dto.getFechaFin() != null) {
-            festival.setFechaFin(dto.getFechaFin());
-        }
-
-        // 3. Validar que la fecha final sea estrictamente posterior a la fecha inicio (min 1 día de diferencia)
         validarRangoFechas(dto);
 
+        Festival festival = buscarPorId(id);
+        
+        // El nombre no se modifica al editar (conserva el existente)
+        festival.setFechaInicio(dto.getFechaInicio());
+        festival.setFechaFin(dto.getFechaFin());
+
+        // Actualizar únicamente las unidades seleccionadas para este festival
         festival.getUnidadesVentaHabilitadas().clear();
         if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
             List<UnidadVenta> unidades = unidadVentaRepository.findAllById(dto.getUnidadesVentaIds());
-            festival.getUnidadesVentaHabilitadas().addAll(unidades);
+            festival.getUnidadesVentaHabilitadas().addAll(
+                unidades.stream()
+                    .filter(UnidadVenta::isActivo)
+                    .collect(Collectors.toSet()));
         }
 
         return festivalRepository.save(festival);
+    }
+
+    /**
+     * Remueve una unidad de venta únicamente de la lista de habilitadas de un festival específico.
+     * No desactiva la unidad en el sistema ni afecta a otros festivales.
+     */
+    @Override
+    @Transactional
+    public void desasociarUnidadDeFestival(Long festivalId, Long unidadVentaId) {
+        Festival festival = buscarPorId(festivalId);
+        if (festival.getUnidadesVentaHabilitadas() != null) {
+            festival.getUnidadesVentaHabilitadas().removeIf(unidad -> unidad.getId().equals(unidadVentaId));
+            festivalRepository.save(festival);
+        }
     }
 
     @Override
@@ -184,13 +187,12 @@ public class FestivalServiceImpl implements IFestivalService {
         if (dto.getFechaFin() != null && dto.getFechaFin().isBefore(hoy)) {
             throw new IllegalArgumentException("La fecha de finalización no puede ser anterior a hoy.");
         }
-        
+
         validarRangoFechas(dto);
     }
 
     private void validarRangoFechas(FestivalDTO dto) {
         if (dto.getFechaInicio() != null && dto.getFechaFin() != null) {
-            // Requiere que fechaFin sea al menos 1 día posterior a fechaInicio (!fechaFin.isAfter(fechaInicio) cubre menor o igual)
             if (!dto.getFechaFin().isAfter(dto.getFechaInicio())) {
                 throw new IllegalArgumentException(
                         "La fecha de finalización debe ser por lo menos 1 día posterior a la fecha de inicio.");
@@ -208,10 +210,18 @@ public class FestivalServiceImpl implements IFestivalService {
         Set<Long> unidadIds = new HashSet<>();
         if (festival.getUnidadesVentaHabilitadas() != null) {
             unidadIds = festival.getUnidadesVentaHabilitadas().stream()
+                    .filter(UnidadVenta::isActivo)
                     .map(UnidadVenta::getId)
                     .collect(Collectors.toSet());
-            dto.setCantidadUnidades(festival.getUnidadesVentaHabilitadas().size());
+
+                // Una unidad dada de baja deja de contar en el festival.
+                dto.setCantidadUnidades((int) festival.getUnidadesVentaHabilitadas().stream()
+                    .filter(UnidadVenta::isActivo)
+                    .count());
+        } else {
+            dto.setCantidadUnidades(0);
         }
+
         dto.setUnidadesVentaIds(unidadIds);
         dto.setActivo(festival.isActivo());
         dto.calcularEstadoYDuracion();
