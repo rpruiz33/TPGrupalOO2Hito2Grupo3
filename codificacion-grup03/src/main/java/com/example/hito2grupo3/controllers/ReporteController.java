@@ -102,13 +102,28 @@ public class ReporteController {
 
     @GetMapping("/mayores-canon")
     public String verReporteMayoresCanon(
+            @RequestParam(required = false) Long festivalId,
             @RequestParam(defaultValue = "3") int cantidad,
             Model model) {
 
+        List<Festival> festivales = festivalRepository.findAll();
+        model.addAttribute("festivales", festivales);
         model.addAttribute("cantidad", cantidad);
 
+        Long selectedFestivalId = festivalId;
+        if (selectedFestivalId == null && !festivales.isEmpty()) {
+            LocalDate hoy = LocalDate.now();
+            Festival festActivo = festivales.stream()
+                    .filter(f -> f.getFechaInicio() != null && f.getFechaFin() != null
+                            && !hoy.isBefore(f.getFechaInicio()) && !hoy.isAfter(f.getFechaFin()))
+                    .findFirst()
+                    .orElse(festivales.get(0));
+            selectedFestivalId = festActivo != null ? festActivo.getId() : null;
+        }
+        model.addAttribute("festivalId", selectedFestivalId);
+
         try {
-            List<ReporteMayoresCanonDTO> reporte = reporteMayoresCanonService.obtenerMayoresCanon(cantidad);
+            List<ReporteMayoresCanonDTO> reporte = reporteMayoresCanonService.obtenerMayoresCanon(selectedFestivalId, cantidad);
 
             model.addAttribute("reporte", reporte);
             return "reportes/ReporteMayoresCanon";
@@ -123,5 +138,5 @@ public class ReporteController {
             model.addAttribute("reporte", List.of());
             return "reportes/ReporteMayoresCanon";
         }
-}
+    }
 }

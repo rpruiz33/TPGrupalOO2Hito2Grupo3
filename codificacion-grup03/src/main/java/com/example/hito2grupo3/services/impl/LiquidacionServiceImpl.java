@@ -674,6 +674,14 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
             return sueldoProperties.plusCocineroOrDefault();
         }
 
+        // Prioridad 1: Si la categoría tiene un plus configurado en la base de datos
+        if (cocinero.getCategoriaCocina().getPlusFijo() != null
+                && cocinero.getCategoriaCocina().getPlusFijo()
+                        .compareTo(BigDecimal.ZERO) > 0) {
+            return cocinero.getCategoriaCocina().getPlusFijo();
+        }
+
+        // Prioridad 2: Si no tiene plus configurado, resolver por nombre de categoría según propiedades
         String nombreCategoria = cocinero.getCategoriaCocina().getNombre() != null
                 ? cocinero.getCategoriaCocina().getNombre().toLowerCase().trim()
                 : "";
@@ -689,12 +697,6 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
         if (nombreCategoria.contains("cocinero")) {
             return sueldoProperties.plusCocineroOrDefault();
-        }
-
-        if (cocinero.getCategoriaCocina().getPlusFijo() != null
-                && cocinero.getCategoriaCocina().getPlusFijo()
-                        .compareTo(BigDecimal.ZERO) > 0) {
-            return cocinero.getCategoriaCocina().getPlusFijo();
         }
 
         return sueldoProperties.plusCocineroOrDefault();
