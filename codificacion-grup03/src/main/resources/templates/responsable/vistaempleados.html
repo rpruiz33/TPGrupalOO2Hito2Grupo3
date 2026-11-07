@@ -44,7 +44,7 @@
             <h3 class="h5 fw-bold mb-3 pb-2 border-bottom" style="color: #800020;">
                 🔍 Buscar empleados
             </h3>
-            <form th:action="@{/responsable/usuarios}" method="get">
+            <form id="filtrosEmpleados" th:action="@{/responsable/usuarios}" method="get">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="nombre" class="form-label fw-semibold">Nombre</label>
@@ -97,12 +97,15 @@
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mt-3">
-    <button type="button"
-            id="limpiarFiltros"
-            class="menu-button">
-        Limpiar filtros
-    </button>
-</div>
+                    <button type="submit" class="menu-button menu-button-primary">
+                        Buscar
+                    </button>
+                    <button type="button"
+                            id="limpiarFiltros"
+                            class="menu-button">
+                        Limpiar filtros
+                    </button>
+                </div>
             </form>
         </section>
         <section class="card menu-card overflow-hidden">
@@ -270,128 +273,32 @@
     <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
-    const nombre = document.getElementById("nombre");
-    const apellido = document.getElementById("apellido");
-    const dni = document.getElementById("dni");
-    const email = document.getElementById("email");
+    const formulario = document.getElementById("filtrosEmpleados");
     const estado = document.getElementById("estado");
     const rol = document.getElementById("rol");
-
-    const contador = document.getElementById("cantidadResultados");
-    const sinResultados = document.getElementById("sinResultadosFiltro");
     const botonLimpiar = document.getElementById("limpiarFiltros");
-    const formulario = document.querySelector("form");
 
-    const filas = Array.from(
-        document.querySelectorAll("#tablaEmpleados tbody tr[data-nombre]")
-    );
-
-    function normalizar(valor) {
-        return (valor || "")
-            .toString()
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
-    }
-
-    function aplicarFiltros() {
-
-        const filtroNombre = normalizar(nombre.value);
-        const filtroApellido = normalizar(apellido.value);
-        const filtroDni = normalizar(dni.value);
-        const filtroEmail = normalizar(email.value);
-        const filtroEstado = estado.value;
-        const filtroRol = normalizar(rol.value);
-
-        let visibles = 0;
-
-        filas.forEach(function (fila) {
-
-            const coincideNombre =
-                normalizar(fila.dataset.nombre).includes(filtroNombre);
-
-            const coincideApellido =
-                normalizar(fila.dataset.apellido).includes(filtroApellido);
-
-            const coincideDni =
-                normalizar(fila.dataset.dni).includes(filtroDni);
-
-            const coincideEmail =
-                normalizar(fila.dataset.email).includes(filtroEmail);
-
-            const coincideEstado =
-                !filtroEstado ||
-                filtroEstado === "TODOS" ||
-                fila.dataset.estado === filtroEstado;
-
-            // Quitar ROLE_ si viene incluido en el nombre del rol.
-            const rolEmpleado = normalizar(fila.dataset.rol)
-                .replace(/^role_/, "");
-
-            const coincideRol =
-                !filtroRol || rolEmpleado === filtroRol;
-
-            const mostrar =
-                coincideNombre &&
-                coincideApellido &&
-                coincideDni &&
-                coincideEmail &&
-                coincideEstado &&
-                coincideRol;
-
-            fila.style.display = mostrar ? "" : "none";
-
-            if (mostrar) {
-                visibles++;
-            }
-        });
-
-        contador.textContent = visibles + " empleado(s)";
-
-        if (sinResultados) {
-            sinResultados.style.display =
-                filas.length > 0 && visibles === 0
-                    ? "table-row"
-                    : "none";
-        }
-    }
-
-    // Filtrar mientras se escribe.
-    [
-        nombre,
-        apellido,
-        dni,
-        email,
-        estado,
-        rol
-    ].forEach(function (campo) {
-        campo.addEventListener("input", aplicarFiltros);
-        campo.addEventListener("change", aplicarFiltros);
+    // El cambio de estado vuelve a consultar al servidor.
+    // La consulta se limita a la unidad del Responsable autenticado.
+    estado.addEventListener("change", function () {
+        formulario.submit();
     });
 
-    // Evitar que Enter envíe el formulario y recargue la página.
-    formulario.addEventListener("submit", function (evento) {
-        evento.preventDefault();
+    // El puesto también se vuelve a consultar en el servidor.
+    rol.addEventListener("change", function () {
+        formulario.submit();
     });
 
-    // Limpiar filtros.
+    // Restablece todos los filtros y vuelve al estado predeterminado: ACTIVOS.
     botonLimpiar.addEventListener("click", function () {
-
-        nombre.value = "";
-        apellido.value = "";
-        dni.value = "";
-        email.value = "";
-        estado.value = "TODOS";
+        formulario.querySelector("#nombre").value = "";
+        formulario.querySelector("#apellido").value = "";
+        formulario.querySelector("#dni").value = "";
+        formulario.querySelector("#email").value = "";
+        estado.value = "ACTIVOS";
         rol.value = "";
-
-        aplicarFiltros();
+        formulario.submit();
     });
-
-    // Aplicar filtros al cargar.
-    aplicarFiltros();
-
 });
 </script>
 </body>
