@@ -20,7 +20,7 @@ import java.util.List;
 public class ReporteMayoresCanonServiceImpl implements IReporteMayoresCanonService {
 
     private final FestivalRepository festivalRepository;
-    private final ICanonService canonService; // Inyectamos el servicio de canon
+    private final ICanonService canonService;
 
     public ReporteMayoresCanonServiceImpl(
             FestivalRepository festivalRepository,
@@ -32,30 +32,48 @@ public class ReporteMayoresCanonServiceImpl implements IReporteMayoresCanonServi
     @Override
     @Transactional(readOnly = true)
     public List<ReporteMayoresCanonDTO> obtenerMayoresCanon(int cantidad) {
+        return obtenerMayoresCanon(null, cantidad);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReporteMayoresCanonDTO> obtenerMayoresCanon(Long festivalId, int cantidad) {
 
         if (cantidad <= 0) {
             throw new IllegalArgumentException(
                     "La cantidad de unidades debe ser mayor a cero.");
         }
 
-        LocalDate hoy = LocalDate.now();
+        Festival festival;
+        if (festivalId != null) {
+            festival = festivalRepository.findById(festivalId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "El festival seleccionado no existe."));
+        } else {
+            LocalDate hoy = LocalDate.now();
+            festival = festivalRepository
+                    .findFirstByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(hoy, hoy)
+                    .orElseGet(() -> festivalRepository.findAll().stream().findFirst()
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "No hay festivales registrados en el sistema.")));
+        }
 
-        Festival festivalActivo = festivalRepository
-                .findFirstByFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(hoy, hoy)
-                .orElseThrow(() -> new IllegalStateException(
-                        "No hay un festival activo en la fecha actual."));
+        if (festival.getUnidadesVentaHabilitadas() == null || festival.getUnidadesVentaHabilitadas().isEmpty()) {
+            return List.of();
+        }
 
-        return festivalActivo.getUnidadesVentaHabilitadas()
+        return festival.getUnidadesVentaHabilitadas()
                 .stream()
+                .filter(UnidadVenta::isActivo)
                 .sorted(Comparator.comparing(
-                        canonService::calcularCanon, // Calcula usando el servicio
+                        canonService::calcularCanon,
                         Comparator.reverseOrder()))
                 .limit(cantidad)
                 .map(unidad -> new ReporteMayoresCanonDTO(
                         unidad.getNombreComercial(),
                         unidad.getCodigo(),
                         obtenerTipoUnidad(unidad),
-                        canonService.calcularCanon(unidad))) // Calcula usando el servicio
+                        canonService.calcularCanon(unidad)))
                 .toList();
     }
 

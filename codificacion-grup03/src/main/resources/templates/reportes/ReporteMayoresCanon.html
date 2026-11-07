@@ -15,7 +15,7 @@
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
                 <h1 class="h3 fw-bold mb-1">🏛️ Reporte de Cánones</h1>
-                <p class="text-white-50 mb-0">Ranking de unidades de venta con mayor canon en el festival activo.</p>
+                <p class="text-white-50 mb-0">Ranking de unidades de venta con mayor canon por festival.</p>
             </div>
 
             <div class="d-flex flex-wrap gap-2">
@@ -38,9 +38,20 @@
 
             <form th:action="@{/admin/reportes/mayores-canon}" method="get">
                 <div class="row g-2 align-items-end">
-                    <div class="col-12 col-sm-8 col-md-5 col-lg-4">
+                    <div class="col-12 col-md-5" th:if="${festivales != null and not #lists.isEmpty(festivales)}">
+                        <label for="festivalId" class="form-label small fw-semibold text-secondary mb-1">
+                            Festival
+                        </label>
+                        <select id="festivalId" name="festivalId" class="form-select form-select-sm">
+                            <option th:each="f : ${festivales}"
+                                    th:value="${f.id}"
+                                    th:text="${f.nombre}"
+                                    th:selected="${f.id == festivalId}">Festival</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-8 col-md-4">
                         <label for="cantidad" class="form-label small fw-semibold text-secondary mb-1">
-                            Cantidad de unidades a mostrar
+                            Cantidad de unidades (x)
                         </label>
                         <input type="number"
                                id="cantidad"
@@ -49,10 +60,10 @@
                                min="1"
                                max="100"
                                th:value="${cantidad}"
-                               placeholder="Ej: 5"
+                               placeholder="Ej: 3"
                                required>
                     </div>
-                    <div class="col-12 col-sm-4 col-md-3 col-lg-2">
+                    <div class="col-12 col-sm-4 col-md-3">
                         <button type="submit" 
                                 class="menu-button menu-button-primary w-100 py-1 small justify-content-center" 
                                 style="font-size: 0.85rem; height: 31px;">

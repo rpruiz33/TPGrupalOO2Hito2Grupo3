@@ -1,6 +1,7 @@
 
 package com.example.hito2grupo3.services.impl;
 
+import com.example.hito2grupo3.configuration.CanonProperties;
 import com.example.hito2grupo3.entities.FoodTruck;
 import com.example.hito2grupo3.entities.PuestoDesarmable;
 import com.example.hito2grupo3.entities.UnidadVenta;
@@ -17,18 +18,26 @@ import java.math.BigDecimal;
 @Service
 public class CanonServiceImpl implements ICanonService {
 
-    private static final BigDecimal VALOR_M2_BASE = BigDecimal.valueOf(500);
-    private static final BigDecimal DESCUENTO_MIN_MONTAJE = BigDecimal.valueOf(10);
-    private static final BigDecimal PLUS_ELECTRICIDAD = BigDecimal.valueOf(2000);
-
     private final StaffRepository staffRepository;
     private final UnidadVentaRepository unidadVentaRepository;
+    private final CanonProperties canonProperties;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public CanonServiceImpl(
+            StaffRepository staffRepository,
+            UnidadVentaRepository unidadVentaRepository,
+            CanonProperties canonProperties) {
+        this.staffRepository = staffRepository;
+        this.unidadVentaRepository = unidadVentaRepository;
+        this.canonProperties = canonProperties != null
+                ? canonProperties
+                : new CanonProperties(null, null, null);
+    }
 
     public CanonServiceImpl(
             StaffRepository staffRepository,
             UnidadVentaRepository unidadVentaRepository) {
-        this.staffRepository = staffRepository;
-        this.unidadVentaRepository = unidadVentaRepository;
+        this(staffRepository, unidadVentaRepository, new CanonProperties(null, null, null));
     }
 
     @Override
@@ -59,13 +68,13 @@ public class CanonServiceImpl implements ICanonService {
         }
 
         BigDecimal canonBase =
-                puesto.getSuperficieM2().multiply(VALOR_M2_BASE);
+                puesto.getSuperficieM2().multiply(canonProperties.costoPorM2OrDefault());
 
         long minutos = puesto.getTiempoMontajeMin() != null
                 ? puesto.getTiempoMontajeMin() : 0L;
 
         BigDecimal descuento =
-                BigDecimal.valueOf(minutos).multiply(DESCUENTO_MIN_MONTAJE);
+                BigDecimal.valueOf(minutos).multiply(canonProperties.costoPorMinutoMontajeOrDefault());
 
         BigDecimal canonFinal = canonBase.subtract(descuento);
 
@@ -81,10 +90,10 @@ public class CanonServiceImpl implements ICanonService {
         }
 
         BigDecimal canon =
-                foodTruck.getSuperficieM2().multiply(VALOR_M2_BASE);
+                foodTruck.getSuperficieM2().multiply(canonProperties.costoPorM2OrDefault());
 
         if (foodTruck.isRequiereElectricidad()) {
-            canon = canon.add(PLUS_ELECTRICIDAD);
+            canon = canon.add(canonProperties.plusElectricidadOrDefault());
         }
 
         return canon;

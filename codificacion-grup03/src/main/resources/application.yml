@@ -44,3 +44,18 @@ spring:
             required: true
           ssl:
             trust: smtp.gmail.com
+
+canon:
+  costo-por-m2: 500
+  plus-electricidad-food-truck: 2000
+  costo-por-minuto-montaje-puesto: 10
+
+sueldos:
+  base: 100000
+  por-anio-antiguedad: 5000
+  plus-cocinero: 150000
+  plus-cocinero-ayudante: 100000
+  plus-lavaplatos: 50000
+  dias-por-periodo: 15
+  porcentaje-por-periodo: 0.50
+

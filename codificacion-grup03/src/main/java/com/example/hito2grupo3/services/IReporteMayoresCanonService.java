@@ -6,4 +6,6 @@ import com.example.hito2grupo3.dto.ReporteMayoresCanonDTO;
 public interface IReporteMayoresCanonService {
 
     List<ReporteMayoresCanonDTO> obtenerMayoresCanon(int cantidad);
+
+    List<ReporteMayoresCanonDTO> obtenerMayoresCanon(Long festivalId, int cantidad);
 }

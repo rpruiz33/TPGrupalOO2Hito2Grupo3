@@ -94,7 +94,7 @@ public class AdminUsuarioController {
                 nombre,
                 apellido,
                 dni,
-                "TODOS",
+                estado,
                 rolFiltro,
                 email
                 );
@@ -135,18 +135,22 @@ public class AdminUsuarioController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttrs) {
-LocalDate hoy = LocalDate.now();
+        LocalDate hoy = LocalDate.now();
 
-if (dto.getFechaIngreso() != null
-        && (dto.getFechaIngreso().isBefore(hoy)
-        || dto.getFechaIngreso().isAfter(hoy.plusMonths(1)))) {
-
-    result.rejectValue(
-            "fechaIngreso",
-            "fechaIngreso.invalida",
-            "La fecha de ingreso debe ser desde hoy hasta un mes en adelante."
-    );
-}
+        if (dto.getFechaIngreso() != null && dto.getFechaIngreso().isAfter(hoy)) {
+            result.rejectValue(
+                    "fechaIngreso",
+                    "fechaIngreso.invalida",
+                    "La fecha de ingreso no puede ser futura."
+            );
+        } else if (dto.getFechaNacimiento() != null && dto.getFechaIngreso() != null
+                && dto.getFechaIngreso().isBefore(dto.getFechaNacimiento().plusYears(18))) {
+            result.rejectValue(
+                    "fechaIngreso",
+                    "fechaIngreso.invalida",
+                    "La fecha de ingreso debe ser posterior a la mayoría de edad (18 años)."
+            );
+        }
         if (result.hasErrors()) {
             model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";

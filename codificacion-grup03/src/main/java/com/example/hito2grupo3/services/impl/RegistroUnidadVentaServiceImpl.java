@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.hito2grupo3.configuration.SueldoProperties;
 import com.example.hito2grupo3.services.ICanonService;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.FoodTruck;
@@ -18,7 +20,6 @@ import com.example.hito2grupo3.entities.Rol;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.entities.Usuario;
-import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.repositories.RolRepository;
 import com.example.hito2grupo3.repositories.StaffRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
@@ -37,6 +38,9 @@ public class RegistroUnidadVentaServiceImpl
     private final PasswordEncoder passwordEncoder;
     private final FestivalRepository festivalRepository;
     private final ICanonService canonService;
+    private final SueldoProperties sueldoProperties;
+
+    @Autowired
     public RegistroUnidadVentaServiceImpl(
             UsuarioRepository usuarioRepository,
             StaffRepository staffRepository,
@@ -44,7 +48,8 @@ public class RegistroUnidadVentaServiceImpl
             RolRepository rolRepository,
             FestivalRepository festivalRepository,
             PasswordEncoder passwordEncoder,
-            ICanonService canonService) {
+            ICanonService canonService,
+            @Autowired(required = false) SueldoProperties sueldoProperties) {
         this.usuarioRepository = usuarioRepository;
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
@@ -52,6 +57,7 @@ public class RegistroUnidadVentaServiceImpl
         this.festivalRepository = festivalRepository;
         this.passwordEncoder = passwordEncoder;
         this.canonService = canonService;
+        this.sueldoProperties = sueldoProperties;
     }
 
     private String generarCodigo(String tipoUnidad) {
@@ -276,6 +282,9 @@ public class RegistroUnidadVentaServiceImpl
         responsable.setFechaNacimiento(fechaNacimiento);
         responsable.setFechaIngreso(fechaIngreso);
         responsable.setUsuario(usuario);
+        responsable.setSueldo(sueldoProperties != null
+                ? sueldoProperties.baseOrDefault()
+                : new BigDecimal("100000"));
         responsable = staffRepository.save(responsable);
 
         // Completar datos comunes de la unidad
