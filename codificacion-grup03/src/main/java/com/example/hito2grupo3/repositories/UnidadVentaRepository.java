@@ -48,5 +48,10 @@ List<UnidadVenta> buscarPorStaffAsignadoOResponsable(
     @Transactional
     @Query("UPDATE UnidadVenta u SET u.activo = false WHERE u.id = :id AND u.activo = true")
     int darDeBaja(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE UnidadVenta u SET u.activo = true WHERE u.id = :id AND u.activo = false")
+    int reactivar(@Param("id") Long id);
     long countByActivoTrue();
 }

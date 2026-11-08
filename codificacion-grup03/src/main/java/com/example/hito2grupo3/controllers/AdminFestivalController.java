@@ -1,9 +1,10 @@
 package com.example.hito2grupo3.controllers;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.hito2grupo3.dto.FestivalDTO;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.UnidadVenta;
+import com.example.hito2grupo3.repositories.FestivalRepository;
 import com.example.hito2grupo3.repositories.UnidadVentaRepository;
 import com.example.hito2grupo3.services.IFestivalService;
 
@@ -28,11 +30,14 @@ public class AdminFestivalController {
 
     private final IFestivalService festivalService;
     private final UnidadVentaRepository unidadVentaRepository;
+    private final FestivalRepository festivalRepository;
 
     public AdminFestivalController(IFestivalService festivalService,
-                                   UnidadVentaRepository unidadVentaRepository) {
+                                   UnidadVentaRepository unidadVentaRepository,
+                                   FestivalRepository festivalRepository) {
         this.festivalService = festivalService;
         this.unidadVentaRepository = unidadVentaRepository;
+        this.festivalRepository = festivalRepository;
     }
 
     // Listado de festivales
@@ -184,15 +189,13 @@ model.addAttribute("fechaMinima", LocalDate.now());
 
     // Detalle / Unidades de venta del festival
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     public String verUnidadesFestival(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Festival festival = festivalService.buscarPorId(id);
             model.addAttribute("festival", festival);
-            model.addAttribute("unidades",
-                    festival.getUnidadesVentaHabilitadas().stream()
-                            .filter(UnidadVenta::isActivo)
-                            .toList());
+            List<UnidadVenta> listaUnidades = festivalRepository.obtenerUnidadesPorFestival(id);
+            model.addAttribute("unidades", listaUnidades);
+            model.addAttribute("cantidadActivas", listaUnidades.stream().filter(UnidadVenta::isActivo).count());
             return "admin/unidades-festivales";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se encontró el festival indicado.");

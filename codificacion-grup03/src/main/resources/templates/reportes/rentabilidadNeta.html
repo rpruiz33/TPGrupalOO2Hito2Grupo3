@@ -11,7 +11,12 @@
 
 <body>
 
-    <nav th:replace="~{fragments/header :: app-navbar(${esResponsable ? 'Epicentro Gourmet - Responsable' : 'Epicentro Gourmet - Admin'}, ${esResponsable ? 'Responsable' : 'Administrador'}, ${esResponsable ? '/responsable/index' : '/admin/dashboard'})}"></nav>
+    <th:block th:if="${esResponsable}">
+        <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Responsable', 'Responsable', '/responsable/index')}"></nav>
+    </th:block>
+    <th:block th:unless="${esResponsable}">
+        <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
+    </th:block>
     <main class="container panel-container mt-4" style="max-width: 1150px;">
         <section class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 text-white">
             <div>
@@ -208,7 +213,7 @@
                             </td>
 
                             <td class="text-end pe-3 fw-bold"
-                                th:classappend="${d.rentabilidadNeta >= 0} ? 'text-success' : 'text-danger'"
+                                th:classappend="${d.rentabilidadNeta == null or d.rentabilidadNeta >= 0} ? 'text-success' : 'text-danger'"
                                 th:text="${d.rentabilidadNeta != null ? '$ ' + #numbers.formatDecimal(d.rentabilidadNeta, 1, 'POINT', 2, 'COMMA') : '$ 0,00'}">
                                 $ 0,00
                             </td>

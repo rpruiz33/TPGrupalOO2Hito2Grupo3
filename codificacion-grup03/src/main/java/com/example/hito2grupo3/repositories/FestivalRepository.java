@@ -16,11 +16,12 @@ public interface FestivalRepository extends JpaRepository<Festival, Long> {
     List<Festival> findAllByOrderByFechaInicioAsc();
 
     @Query("""
-        SELECT u
+        SELECT DISTINCT u
         FROM Festival f
         JOIN f.unidadesVentaHabilitadas u
+        LEFT JOIN FETCH u.responsable
         WHERE f.id = :festivalId
-        ORDER BY u.nombreComercial
+        ORDER BY u.id
         """)
     List<UnidadVenta> obtenerUnidadesPorFestival(
             @Param("festivalId") Long festivalId);

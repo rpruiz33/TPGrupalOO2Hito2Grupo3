@@ -156,4 +156,19 @@ public class UnidadVentaServiceImpl implements IUnidadVentaService {
                     "No se encontró una unidad activa con el ID: " + id);
         }
     }
+
+    @Override
+    @Transactional
+    public void reactivar(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El ID de la unidad es obligatorio.");
+        }
+
+        int filasActualizadas = unidadVentaRepository.reactivar(id);
+
+        if (filasActualizadas == 0) {
+            throw new IllegalArgumentException(
+                    "No se encontró una unidad inactiva con el ID: " + id);
+        }
+    }
 }

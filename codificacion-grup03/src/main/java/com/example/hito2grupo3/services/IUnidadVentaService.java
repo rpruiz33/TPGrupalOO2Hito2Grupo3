@@ -73,4 +73,6 @@ public interface IUnidadVentaService {
     List<UnidadVenta> listarTodas();
 
     void darDeBaja(Long id);
+
+    void reactivar(Long id);
 }

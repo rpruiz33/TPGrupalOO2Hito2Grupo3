@@ -113,11 +113,33 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            festivalService.desasociarUnidadDeFestival(festivalId, id);
+            unidadVentaService.darDeBaja(id);
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
-                "La unidad de venta se quitó de este festival correctamente.");
+                    "La unidad de venta fue dada de baja lógicamente con éxito.");
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage());
+        }
+
+        return "redirect:/admin/festivales/" + festivalId;
+    }
+
+    @PostMapping("/unidades/{id}/reactivar")
+    public String reactivarUnidad(
+            @PathVariable Long id,
+            @RequestParam Long festivalId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            unidadVentaService.reactivar(id);
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "La unidad de venta fue reactivada con éxito.");
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(

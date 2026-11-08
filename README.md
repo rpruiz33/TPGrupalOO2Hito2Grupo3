@@ -185,6 +185,7 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | --- | --- | --- |
 | Autenticación, registro y contraseña | Roberto Andrés Ruiz Pereira | [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) |
 | Gestión de festivales (Alta y ABM) | Roberto Andrés Ruiz Pereira | [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65), [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) |
+| Baja lógica de unidades de venta desde el festival | Roberto Andrés Ruiz Pereira | [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) |
 | Gestión de categorías de cocina | Roberto Andrés Ruiz Pereira | [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) |
 | Liquidación de haberes y recibos | Roberto Andrés Ruiz Pereira | [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29), [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) |
 | Rentabilidad neta | Roberto Andrés Ruiz Pereira | [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) |
@@ -218,6 +219,7 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 - **Casos de Uso Principales:**
   1. **ABM y Baja Lógica de Festivales** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Alta, edición con inmutabilidad de nombre, baja lógica sin romper histórico de pedidos.
   2. **Liquidación de Haberes y Recibos PDF** ([PR #30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [PR #32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32)): Cálculo con proporcionalidad por días, antigüedad y categoría.
+  3. **Baja Lógica de Unidades de Venta desde el Festival** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Inhabilitación de una unidad de venta asociada a un festival sin eliminarla físicamente, conservando el historial de pedidos y la posibilidad de reactivarla. El administrador puede ver el estado (Activa / Inactiva) de cada unidad en la vista del festival y dar de baja o reactivar individualmente.
 - **Validaciones de Carga de Datos:**
   1. **Validación de fechas del festival:** fecha de inicio y fin obligatorias, inicio anterior a fin con al menos 1 día de diferencia en backend y frontend ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
   2. **Validación de formato de patente en Food Trucks:** formato argentino alfanumérico estricto (`AAA123` o `AA123BB`) tanto en cliente como servidor ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
