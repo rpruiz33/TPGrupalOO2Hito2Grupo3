@@ -685,9 +685,10 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
         BigDecimal baseLiquidable;
         String rol;
 
-        BigDecimal sueldo = (staff.getSueldo() != null && staff.getSueldo().compareTo(BigDecimal.ZERO) > 0)
+        BigDecimal sueldoMinimo = sueldoProperties.baseOrDefault();
+        BigDecimal sueldo = (staff.getSueldo() != null && staff.getSueldo().compareTo(sueldoMinimo) >= 0)
                 ? staff.getSueldo()
-                : sueldoBaseParam;
+                : sueldoMinimo;
 
         if (staff instanceof Cocinero cocinero) {
             plusCategoria = resolverPlusCocina(cocinero);

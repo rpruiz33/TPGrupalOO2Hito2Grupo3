@@ -190,7 +190,7 @@ INSERT INTO tmp_empleados VALUES
 
 -- U6: PD-0000103
 ('C', 'Pablo',     'Castro',    '36985214', '1992-06-18', '2021-03-10', 145000.00, 'Manana', 16,  8500.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
-('C', 'Valeria',   'Gimenez',   '42145896', '2000-01-20', '2025-06-01',  95000.00, 'Tarde',  17,  3500.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
+('C', 'Valeria',   'Gimenez',   '42145896', '2000-01-20', '2025-06-01', 105000.00, 'Tarde',  17,  3500.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
 ('C', 'Esteban',   'Molina',    '30985214', '1984-05-12', '2017-02-14', 170000.00, 'Noche',  18, 15000.00, NULL, NULL, NULL, NULL, 'PD-0000103'),
 ('K', 'Mauricio',  'Duarte',    '32456987', '1986-11-23', '2018-09-01', 180000.00, NULL, NULL, NULL, 'Cordero',      1, 19000.00, 'Parrillero', 'PD-0000103'),
 ('K', 'Luciana',   'Godoy',     '38965412', '1995-04-17', '2023-10-15', 120000.00, NULL, NULL, NULL, 'Guarniciones', 1,  8000.00, 'Minutero',               'PD-0000103'),
@@ -214,7 +214,7 @@ INSERT INTO tmp_empleados VALUES
 
 -- U9: FT-0000105
 ('C', 'Matias',    'Luna',      '30147852', '1983-07-22', '2017-03-01', 175000.00, 'Manana', 25, 16500.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
-('C', 'Daniela',   'Rojas',     '42896541', '2001-02-14', '2025-08-01',  92000.00, 'Tarde',  26,  3000.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
+('C', 'Daniela',   'Rojas',     '42896541', '2001-02-14', '2025-08-01', 105000.00, 'Tarde',  26,  3000.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
 ('C', 'Federico',  'Maldonado', '35896541', '1991-05-09', '2020-04-18', 150000.00, 'Noche',  27, 10000.00, NULL, NULL, NULL, NULL, 'FT-0000105'),
 ('K', 'Leandro',   'Santillan', '32896541', '1987-09-30', '2018-06-25', 180000.00, NULL, NULL, NULL, 'Trucha Ahumada',1, 18500.00, 'Parrillero', 'FT-0000105'),
 ('K', 'Sabrina',   'Ibanez',    '37965412', '1994-01-26', '2022-09-10', 135000.00, NULL, NULL, NULL, 'Ciervo',       1, 11500.00, 'Minutero',               'FT-0000105'),
@@ -222,7 +222,7 @@ INSERT INTO tmp_empleados VALUES
 
 -- U10: PD-0000105
 ('C', 'Damian',    'Vega',      '38521479', '1994-11-16', '2021-02-01', 145000.00, 'Manana', 28,  9000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
-('C', 'Florencia', 'Lucero',    '43125896', '2002-06-03', '2025-05-10',  90000.00, 'Tarde',  29,  3000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
+('C', 'Florencia', 'Lucero',    '43125896', '2002-06-03', '2025-05-10', 100000.00, 'Tarde',  29,  3000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
 ('C', 'Manuel',    'Bustos',    '31524789', '1985-08-28', '2018-11-20', 165000.00, 'Noche',  30, 14000.00, NULL, NULL, NULL, NULL, 'PD-0000105'),
 ('K', 'Oscar',     'Gallardo',  '29521478', '1982-10-05', '2016-10-01', 195000.00, NULL, NULL, NULL, 'Empanada Salteña',1, 22500.00, 'Parrillero','PD-0000105'),
 ('K', 'Melisa',    'Carrizo',   '36987451', '1992-04-11', '2020-07-15', 140000.00, NULL, NULL, NULL, 'Locro',          1, 13500.00, 'Minutero',             'PD-0000105'),
