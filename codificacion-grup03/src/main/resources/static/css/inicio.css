@@ -267,6 +267,31 @@ body {
 }
 
 /* ==========================================================================
+   8.1. LOGO UNLA
+   ========================================================================== */
+
+.unla-logo-contenedor {
+    text-align: center;
+    margin-top: 35px;
+    margin-bottom: 5px;
+}
+
+.unla-logo-chico {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.95;
+}
+
+.unla-logo-chico:hover {
+    transform: scale(1.06);
+    opacity: 1;
+}
+
+/* ==========================================================================
    9. FOOTER
    ========================================================================== */
 
