@@ -49,7 +49,7 @@ public class RegistroUnidadVentaServiceImpl
             FestivalRepository festivalRepository,
             PasswordEncoder passwordEncoder,
             ICanonService canonService,
-            @Autowired(required = false) SueldoProperties sueldoProperties) {
+            SueldoProperties sueldoProperties) {
         this.usuarioRepository = usuarioRepository;
         this.staffRepository = staffRepository;
         this.unidadVentaRepository = unidadVentaRepository;
@@ -282,9 +282,7 @@ public class RegistroUnidadVentaServiceImpl
         responsable.setFechaNacimiento(fechaNacimiento);
         responsable.setFechaIngreso(fechaIngreso);
         responsable.setUsuario(usuario);
-        responsable.setSueldo(sueldoProperties != null
-                ? sueldoProperties.baseOrDefault()
-                : new BigDecimal("100000"));
+        responsable.setSueldo(sueldoProperties.baseOrDefault());
         responsable = staffRepository.save(responsable);
 
         // Completar datos comunes de la unidad
