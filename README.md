@@ -15,7 +15,7 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 
 ## Tecnologías utilizadas
 
-- Java 21 como entorno de desarrollo. El proyecto está configurado en Maven con `java.version` 17 y puede ejecutarse con JDK 17 o 21.
+- Java 17 como entorno de desarrollo y ejecución (configurado en Maven con `java.version` 17).
 - Spring Boot.
 - Spring MVC y Thymeleaf para la interfaz web.
 - Spring Security para la autenticación y autorización por roles.
@@ -26,15 +26,19 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 
 ## Diagrama de clases
 
-Enlace: pendiente de agregar.
+El modelo de dominio y diagrama de clases de la aplicación se encuentra versionado en el repositorio en formato vectorial:
+
+- 📄 [Diagrama de Clases UML (SVG)](./UML-final(15)(1)(3).svg)
+
+![Diagrama de Clases UML](./UML-final(15)(1)(3).svg)
 
 ## Pull requests
 
-Las funcionalidades y cambios del proyecto fueron integrados mediante las siguientes 58 pull requests mergeadas:
+Las funcionalidades y cambios del proyecto fueron integrados mediante 61 pull requests mergeadas en la rama `dev`:
 
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
-| [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/81) | fix: sincronizar fechas al actualizar festival,correccion ABM de fest | Leonel Soloaga |
+| [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | fix: sincronizar fechas al actualizar festival,correccion ABM de fest | Leonel Soloaga |
 | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) | fix liquidaciones mensuales y recibos individuales | Leonel Soloaga |
 | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) | validaciones y seguridad de empleados y festivales | Leonel Soloaga |
 | [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga | Ana Belén Vázquez |
@@ -102,7 +106,7 @@ Ver todas las pull requests en el [repositorio de GitHub](https://github.com/rpr
 
 Antes de ejecutar la aplicación, se debe contar con:
 
-- JDK 17 o 21.
+- JDK 17.
 - MySQL instalado y en funcionamiento.
 - Maven, o utilizar el Maven Wrapper incluido (`mvnw`).
 - Acceso al repositorio del proyecto.
@@ -175,22 +179,72 @@ http://localhost:8080
 
 ## Casos de uso y responsables
 
-La asignación se realizó tomando como referencia los autores de las pull requests relacionadas con cada funcionalidad. Algunos casos de uso tienen más de un responsable porque fueron desarrollados en distintas etapas.
+La asignación se detalla a continuación especificando por cada integrante sus **casos de uso (CU)** asignados con enlace a sus correspondientes Pull Requests, y las **2 validaciones de carga de datos** requeridas:
 
-| Caso de uso | Responsable |
-| --- | --- |
-| Autenticación, registro y contraseña | Roberto Andrés Ruiz Pereira |
-| Gestión de usuarios y roles | Federico Matías Salvatierra; Roberto Andrés Ruiz Pereira |
-| Gestión de festivales | Roberto Andrés Ruiz Pereira |
-| Gestión de unidades de venta | Ana Belén Vázquez; Federico Matías Salvatierra |
-| Gestión de personal y asignaciones | Federico Matías Salvatierra; Leonel Alejandro Soloaga; Roberto Andrés Ruiz Pereira |
-| Gestión de categorías de cocina | Roberto Andrés Ruiz Pereira |
-| Gestión de platos | Leonel Alejandro Soloaga |
-| Gestión de pedidos | Leonel Alejandro Soloaga |
-| Caja y cierre de caja | Leonel Alejandro Soloaga; Roberto Andrés Ruiz Pereira |
-| Liquidaciones | Roberto Andrés Ruiz Pereira |
-| Reportes de ventas, recaudación y cánones | Roberto Andrés Ruiz Pereira; Federico Matías Salvatierra; Ana Belén Vázquez |
-| Rentabilidad neta | Roberto Andrés Ruiz Pereira |
+| Caso de uso | Responsable | Pull Request(s) asociadas |
+| --- | --- | --- |
+| Autenticación, registro y contraseña | Roberto Andrés Ruiz Pereira | [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) |
+| Gestión de festivales (Alta y ABM) | Roberto Andrés Ruiz Pereira | [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65), [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) |
+| Gestión de categorías de cocina | Roberto Andrés Ruiz Pereira | [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) |
+| Liquidación de haberes y recibos | Roberto Andrés Ruiz Pereira | [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29), [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) |
+| Rentabilidad neta | Roberto Andrés Ruiz Pereira | [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) |
+| Cierre y reapertura de caja | Roberto Andrés Ruiz Pereira | [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) |
+| Reporte de recaudación | Roberto Andrés Ruiz Pereira | [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) |
+| Gestión y alta de usuarios/roles | Federico Matías Salvatierra | [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) |
+| Gestión de festivales y unidades | Federico Matías Salvatierra | [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) |
+| Gestión del responsable | Federico Matías Salvatierra | [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) |
+| Cálculo de canon en perfil responsable | Federico Matías Salvatierra | [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) |
+| Validación y cálculo de cánones | Federico Matías Salvatierra | [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) |
+| Historial de asignaciones de empleados | Federico Matías Salvatierra | [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) |
+| Registro de unidad de venta y responsable | Ana Belén Vázquez | [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) |
+| Modificación de unidad de venta | Ana Belén Vázquez | [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68), [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) |
+| Baja lógica de unidades de venta | Ana Belén Vázquez | [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) |
+| Reporte de mayores cánones | Ana Belén Vázquez | [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) |
+| Alta y registro de pedidos | Leonel Alejandro Soloaga | [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27), [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) |
+| Funcionalidad y perfil de cajero | Leonel Alejandro Soloaga | [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) |
+| Gestión y ABM de platos | Leonel Alejandro Soloaga | [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) |
+| Filtro y búsqueda de empleados | Leonel Alejandro Soloaga | [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) |
+| Plato estrella | Leonel Alejandro Soloaga | [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) |
+| Historial de pedidos con filtros | Leonel Alejandro Soloaga | [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) |
+| Validaciones de pedidos y cantidades | Leonel Alejandro Soloaga | [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) |
+| Validaciones y seguridad de empleados | Leonel Alejandro Soloaga | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) |
+| Liquidaciones mensuales y recibos | Leonel Alejandro Soloaga | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) |
+
+### Distribución de CU y Validaciones de Carga por Integrante
+
+Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validaciones de Carga por persona**, se detalla la contribución individual:
+
+#### 1. Roberto Andrés Ruiz Pereira ([@rpruiz33](https://github.com/rpruiz33))
+- **Casos de Uso Principales:**
+  1. **ABM y Baja Lógica de Festivales** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Alta, edición con inmutabilidad de nombre, baja lógica sin romper histórico de pedidos.
+  2. **Liquidación de Haberes y Recibos PDF** ([PR #30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [PR #32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32)): Cálculo con proporcionalidad por días, antigüedad y categoría.
+- **Validaciones de Carga de Datos:**
+  1. **Validación de fechas del festival:** fecha de inicio y fin obligatorias, inicio anterior a fin con al menos 1 día de diferencia en backend y frontend ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
+  2. **Validación de formato de patente en Food Trucks:** formato argentino alfanumérico estricto (`AAA123` o `AA123BB`) tanto en cliente como servidor ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
+
+#### 2. Ana Belén Vázquez ([@anavazquez141](https://github.com/anavazquez141))
+- **Casos de Uso Principales:**
+  1. **Registro y Modificación de Unidades de Venta** ([PR #33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33), [PR #69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69)): Alta pública de unidad con cálculo de canon y edición administrativa.
+  2. **Baja Lógica de Unidades de Venta** ([PR #83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83)): Inhabilitación segura de unidad sin afectar festivales anteriores ni registros históricos.
+- **Validaciones de Carga de Datos:**
+  1. **Validación de formato y unicidad de DNI:** DNI numérico de 7 u 8 dígitos sin puntos ni letras y verificación de no duplicidad ([PR #84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84)).
+  2. **Validación sintáctica y unicidad de Email:** formato RFC válido con regex y comprobación en base de datos de no existencia previa ([PR #84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84)).
+
+#### 3. Leonel Alejandro Soloaga ([@Le0oneL](https://github.com/Le0oneL))
+- **Casos de Uso Principales:**
+  1. **Gestión de Platos y Plato Estrella** ([PR #52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [PR #57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57)): Alta, edición, inhabilitación y determinación del plato más vendido por unidad y festival.
+  2. **Historial de Pedidos y Filtros de Búsqueda** ([PR #67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67), [PR #56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56)): Filtro multicriterio por estado, unidad, empleado y fechas.
+- **Validaciones de Carga de Datos:**
+  1. **Validación de carga de pedidos e ítems:** control de stock, platos pertenecientes a la unidad del cajero y cantidad de ítems mayor a cero ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)).
+  2. **Validación de alta/edición de empleados:** validación de campos obligatorios, edad mínima legal, roles válidos y turnos de caja ([PR #87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87)).
+
+#### 4. Federico Matías Salvatierra ([@Fsalvatierra](https://github.com/Fsalvatierra))
+- **Casos de Uso Principales:**
+  1. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
+  2. **Cálculo y Visualización de Canon en Perfil Responsable** ([PR #58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58)): Visualización y desglose del canon comercial aplicable a la unidad.
+- **Validaciones de Carga de Datos:**
+  1. **Validación de canon positivo:** verificación estricta de que el canon calculado para cualquier unidad sea estrictamente mayor a cero ([PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
+  2. **Validación de superficie y parámetros de unidad:** superficie mínima en m² y parámetros positivos de montaje y puestos ([PR #47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47), [PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
 
 ## Estructura principal
 
