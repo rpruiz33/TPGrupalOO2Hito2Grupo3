@@ -41,9 +41,35 @@ public class UserController {
 
     @GetMapping("/login")
     public String login(
+            Authentication authentication,
             Model model,
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String logout) {
+
+        // Si ya hay una sesión autenticada válida, redirigir a su panel correspondiente
+        if (authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName())) {
+
+            boolean esAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (esAdmin) {
+                return "redirect:/admin/dashboard";
+            }
+
+            boolean esResponsable = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_RESPONSABLE"));
+            if (esResponsable) {
+                return "redirect:/responsable/index";
+            }
+
+            boolean esCajero = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CAJERO"));
+            if (esCajero) {
+                return "redirect:/cajero/index";
+            }
+
+            return "redirect:/empleado/index";
+        }
 
         model.addAttribute("error", error);
         model.addAttribute("logout", logout);
