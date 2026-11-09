@@ -79,7 +79,11 @@ public String mostrarIndex(Model model, Principal principal) {
             Principal principal,
             Model model) {
 
-        String email = principal != null ? principal.getName() : "cajero@epicentro.com";
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        String email = principal.getName();
 
         try {
             Map<String, Object> resumen = cierreCajaService.obtenerResumenCierre(email);
@@ -161,8 +165,12 @@ public String mostrarIndex(Model model, Principal principal) {
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
         try {
-            String email = principal != null ? principal.getName() : "cajero@epicentro.com";
+            String email = principal.getName();
 
             // Si vienen nulos, resolverlos con el resumen
             if (cajeroId == null || unidadVentaId == null) {
@@ -206,8 +214,12 @@ public String mostrarIndex(Model model, Principal principal) {
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
         try {
-            String email = principal != null ? principal.getName() : "";
+            String email = principal.getName();
             if (cajeroId == null || unidadVentaId == null) {
                 try {
                     Map<String, Object> resumen = cierreCajaService.obtenerResumenCierre(email);
