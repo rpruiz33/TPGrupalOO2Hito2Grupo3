@@ -31,6 +31,9 @@ public class FestivalDTO {
     @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.'()\\-]+$", message = "El nombre contiene caracteres no permitidos")
     private String nombre;
 
+    @NotBlank(message = "La temporada es obligatoria")
+    private String temporada;
+
     @NotNull(message = "La fecha de inicio es obligatoria")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaInicio;
@@ -57,13 +60,18 @@ public class FestivalDTO {
         return !fechaInicio.isAfter(fechaFin);
     }
 
-    public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
+    public FestivalDTO(Long id, String nombre, String temporada, LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
         this.nombre = nombre;
+        this.temporada = temporada;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.activo = true;
         calcularEstadoYDuracion();
+    }
+
+    public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
+        this(id, nombre, null, fechaInicio, fechaFin);
     }
 
     public void calcularEstadoYDuracion() {

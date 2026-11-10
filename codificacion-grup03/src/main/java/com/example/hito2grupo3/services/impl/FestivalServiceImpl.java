@@ -99,6 +99,7 @@ public FestivalServiceImpl(FestivalRepository festivalRepository,
 
         Festival festival = new Festival();
         festival.setNombre(dto.getNombre().trim());
+        festival.setTemporada(dto.getTemporada() != null ? dto.getTemporada().trim() : null);
         festival.setFechaInicio(dto.getFechaInicio());
         festival.setFechaFin(dto.getFechaFin());
 
@@ -118,6 +119,10 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
     validarRangoFechas(dto);
 
     Festival festival = buscarPorId(id);
+
+    if (dto.getTemporada() != null && !dto.getTemporada().isBlank()) {
+        festival.setTemporada(dto.getTemporada().trim());
+    }
 
     // Actualizar las fechas del festival
     festival.setFechaInicio(dto.getFechaInicio());
@@ -224,6 +229,7 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
         FestivalDTO dto = new FestivalDTO();
         dto.setId(festival.getId());
         dto.setNombre(festival.getNombre());
+        dto.setTemporada(festival.getTemporada());
         dto.setFechaInicio(festival.getFechaInicio());
         dto.setFechaFin(festival.getFechaFin());
 

@@ -50,8 +50,11 @@
         ' bg-secondary'))">Estado</span>
                                 <span class="text-secondary small" th:text="${festival.cantidadUnidades} + ' unidades'">0 unidades</span>
                             </div>
-                            <h2 class="h5 fw-bold mb-2 text-dark" th:text="${festival.nombre}">Nombre del festival</h2>
+                            <h2 class="h5 fw-bold mb-1 text-dark" th:text="${festival.nombre}">Nombre del festival</h2>
                             <div class="text-secondary small mb-3">
+                                <div th:if="${festival.temporada != null and !festival.temporada.isBlank()}">
+                                    <strong>Temporada:</strong> <span th:text="${festival.temporada}">-</span>
+                                </div>
                                 <div><strong>Inicio:</strong> <span th:text="${festival.fechaInicio != null ? #temporals.format(festival.fechaInicio, 'dd/MM/yyyy') : '-'}">-</span></div>
                                 <div><strong>Fin:</strong> <span th:text="${festival.fechaFin != null ? #temporals.format(festival.fechaFin, 'dd/MM/yyyy') : '-'}">-</span></div>
                             </div>

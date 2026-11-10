@@ -73,6 +73,11 @@
 
                         <div class="festival-fechas">
 
+                            <p th:if="${festival.temporada != null and !festival.temporada.isBlank()}">
+                                <strong>Temporada</strong>
+                                <span th:text="${festival.temporada}"></span>
+                            </p>
+
                             <p>
                                 <strong>Fecha de inicio</strong>
                                 <span th:text="${festival.fechaInicio}"></span>

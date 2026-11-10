@@ -46,7 +46,7 @@
                         <option value="">Seleccioná un festival</option>
                         <option th:each="festival : ${festivales}"
                                 th:value="${festival.id}"
-                                th:text="${festival.nombre}"
+                                th:text="${festival.nombre + (festival.temporada != null ? ' (' + festival.temporada + ')' : '')}"
                                 th:selected="${festivalId != null and festivalId == festival.id}"></option>
                     </select>
                 </div>
@@ -72,7 +72,7 @@
                         <option value="">-- Seleccioná un festival --</option>
                         <option th:each="festival : ${festivales}"
                                 th:value="${festival.id}"
-                                th:text="${festival.nombre}"
+                                th:text="${festival.nombre + (festival.temporada != null ? ' (' + festival.temporada + ')' : '')}"
                                 th:selected="${festivalId != null and festivalId == festival.id}"></option>
                     </select>
                 </div>

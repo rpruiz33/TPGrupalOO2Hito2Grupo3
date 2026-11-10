@@ -115,12 +115,11 @@ List<Staff> filtrarTodosPorEstado(
     SELECT DISTINCT s
     FROM UnidadVenta uv
     JOIN uv.staffAsignado s
-    JOIN s.usuario u
     JOIN Festival f ON f.id = :festivalId
     JOIN f.staffGeneral sf
     LEFT JOIN FETCH s.usuario
     WHERE uv.id = :unidadId
-      AND sf.id = u.id
+      AND sf.id = s.id
       AND s.activo = true
     ORDER BY s.apellido, s.nombre
     """)

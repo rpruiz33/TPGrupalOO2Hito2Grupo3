@@ -84,7 +84,7 @@
                             </option>
                             <option th:each="festival : ${festivales}"
                                     th:value="${festival.id}"
-                                    th:text="${festival.nombre}"
+                                    th:text="${festival.nombre + (festival.temporada != null ? ' (' + festival.temporada + ')' : '')}"
                                     th:selected="${#lists.size(festivales) == 1}">
                             </option>
                         </select>

@@ -45,7 +45,7 @@
                         <select id="festivalId" name="festivalId" class="form-select form-select-sm">
                             <option th:each="f : ${festivales}"
                                     th:value="${f.id}"
-                                    th:text="${f.nombre}"
+                                    th:text="${f.nombre + (f.temporada != null ? ' (' + f.temporada + ')' : '')}"
                                     th:selected="${f.id == festivalId}">Festival</option>
                         </select>
                     </div>
