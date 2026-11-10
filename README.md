@@ -38,6 +38,7 @@ Las funcionalidades y cambios del proyecto fueron integrados mediante 61 pull re
 
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
+| [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) | Mejorar liquidaciones, empleados y registro de unidades de venta | Leonel Soloaga |
 | [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | fix: sincronizar fechas al actualizar festival,correccion ABM de fest | Leonel Soloaga |
 | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) | fix liquidaciones mensuales y recibos individuales | Leonel Soloaga |
 | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) | validaciones y seguridad de empleados y festivales | Leonel Soloaga |
