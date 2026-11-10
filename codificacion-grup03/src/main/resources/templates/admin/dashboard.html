@@ -12,10 +12,26 @@
 <body>
     <nav th:replace="~{fragments/header :: app-navbar('Epicentro Gourmet - Admin', 'Administrador', '/admin/dashboard')}"></nav>
     <main class="container panel-container mt-4" style="max-width: 1100px;">
-        <header class="text-center text-white mb-4">
+        <header class="text-center text-white mb-3">
             <h1 class="h3 fw-bold mb-1">Panel de Control</h1>
-            <p class="text-white-50 mb-0">Gestión global y administración de Epicentro Gourmet.</p>
+            <p class="text-white-50 mb-3">Gestión global y administración de Epicentro Gourmet.</p>
+
+            <!-- Selector de Festival -->
+            <form th:action="@{/admin/dashboard}" method="get" class="d-inline-flex align-items-center justify-content-center gap-2 flex-wrap mb-2">
+                <label for="festivalSelect" class="text-white small fw-semibold">🎪 Festival:</label>
+                <select id="festivalSelect" name="festivalId" class="form-select form-select-sm control-epicentro shadow-sm"
+                        style="width: auto; min-width: 250px; display: inline-block;"
+                        onchange="this.form.submit()">
+                    <option th:each="f : ${festivales}"
+                            th:value="${f.id}"
+                            th:text="${f.nombre}"
+                            th:selected="${festivalId != null and festivalId == f.id}">
+                        Festival
+                    </option>
+                </select>
+            </form>
         </header>
+
         <section class="row g-2 justify-content-center mb-4">
             
             <div class="col-6 col-md-4 col-xl">
@@ -27,7 +43,7 @@
 
             <div class="col-6 col-md-4 col-xl">
                 <div class="card menu-card p-2 text-center h-100">
-                    <span class="text-muted small fw-semibold">Recaudación Total</span>
+                    <span class="text-muted small fw-semibold">Recaudación</span>
                     <strong class="fs-5 text-success" th:text="'$' + ${#numbers.formatDecimal(recaudacionMensual != null ? recaudacionMensual : 0, 1, 'POINT', 0, 'COMMA')}">$0</strong>
                 </div>
             </div>

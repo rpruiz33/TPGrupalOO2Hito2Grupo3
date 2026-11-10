@@ -2,18 +2,18 @@
 # CONFIGURACIÓN DE VARIABLES DE ENTORNO - EPICENTRO GOURMET
 # ==============================================================================
 # Instrucciones:
-# 1. Copiá este archivo en la carpeta 'codificacion-grup03' con el nombre '.env':
-#    cp .env.example codificacion-grup03/.env
-# 2. Completá los valores según tu configuración local.
+# 1. Copiá este archivo y renombralo como '.env' en la raíz del módulo:
+#    cp .env.example .env
+# 2. Completá los valores según tu entorno local.
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
 # 1. BASE DE DATOS (MySQL)
 # ------------------------------------------------------------------------------
 # URL de conexión JDBC hacia tu base de datos MySQL local o remota.
-# Asegurate de que la base 'tpoo2_db' exista previamente creada en MySQL:
-# CREATE DATABASE IF NOT EXISTS tpoo2_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-DB_URL=jdbc:mysql://localhost:3306/tpoo2_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+# Asegurate de que la base 'ghsicilianotfi' exista previamente creada en MySQL:
+# CREATE DATABASE IF NOT EXISTS ghsicilianotfi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DB_URL=jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 
 # Usuario de MySQL (por defecto suele ser 'root')
 DB_USERNAME=root

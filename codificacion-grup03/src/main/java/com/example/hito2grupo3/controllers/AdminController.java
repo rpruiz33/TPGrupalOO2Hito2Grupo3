@@ -38,8 +38,10 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String panelAdministrador(Model model) {
-        model.addAllAttributes(adminDashboardService.obtenerKpisDashboard());
+    public String panelAdministrador(
+            @RequestParam(required = false) Long festivalId,
+            Model model) {
+        model.addAllAttributes(adminDashboardService.obtenerKpisDashboard(festivalId));
         return "admin/dashboard";
     }
 

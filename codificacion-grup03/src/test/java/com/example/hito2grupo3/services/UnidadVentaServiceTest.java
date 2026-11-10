@@ -31,8 +31,7 @@ class UnidadVentaServiceTest {
         unidadVentaService = new UnidadVentaServiceImpl(
                 canonService,
                 unidadVentaRepository,
-                staffRepository
-        );
+                staffRepository);
     }
 
     @Test
@@ -63,4 +62,3 @@ class UnidadVentaServiceTest {
         verify(unidadVentaRepository, never()).reactivar(any());
     }
 }
-
