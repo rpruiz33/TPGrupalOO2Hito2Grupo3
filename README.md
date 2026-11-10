@@ -34,7 +34,7 @@ El modelo de dominio y diagrama de clases de la aplicación se encuentra version
 
 ## Pull requests
 
-Las funcionalidades y cambios del proyecto fueron integrados mediante 61 pull requests mergeadas en la rama `dev`:
+Las funcionalidades y cambios del proyecto fueron integrados mediante pull requests mergeadas en la rama `dev`:
 
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
