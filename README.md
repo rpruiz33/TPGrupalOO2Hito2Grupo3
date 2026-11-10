@@ -176,7 +176,6 @@ http://localhost:8080
 - **Responsable:** administra la información de su unidad, empleados y platos.
 - **Empleado:** consulta su información y participa en la operatoria asignada.
 - **Cajero:** registra operaciones de caja y realiza cierres.
-- **Usuario:** accede a las funcionalidades generales habilitadas para su cuenta.
 
 ## Casos de uso y responsables
 
@@ -240,11 +239,16 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 - **Casos de Uso Principales:**
   1. **Alta de Pedidos** ([PR #27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27), [PR #35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35)): registro de ventas por cajero o responsable, con carga automática de festival, unidad y platos según el usuario, y precio congelado en cada ítem.
   2. **Historial y Anulación de Pedidos** ([PR #67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67)): historial con filtros por estado, unidad, festival, empleado y rango de fechas; detalle del pedido y anulación lógica con motivo.
+  3.  Alta de platos ([#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52)), Modificación e inhabilitación de platos ([#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55))
+  4.   Filtro de empleados ([#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56))
+  5.   Plato estrella ([#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57))
+  6.    Ver su información ([#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63))
+  7.Liquidaciones mensuales y recibos ([#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88)).
+  
 - **Validaciones de Carga de Datos:**
   1. **Validación de alta de pedidos** ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)): la fecha de la venta debe ser la del día, el festival debe estar vigente y la unidad habilitada en él, máximo 100 unidades por plato, y los platos deben estar activos y pertenecer a la unidad.
   2. **Validación de alta/edición de empleados** ([PR #87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87)): edad entre 18 y 100 años, fecha de ingreso no anterior a la de nacimiento, y categoría de cocina obligatoria y existente para cocineros.
-- **Casos de uso de la consigna implementados:** Alta de platos ([#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52)), Modificación e inhabilitación de platos ([#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55)), Filtro de empleados ([#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56)), Plato estrella ([#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57)), Ver su información ([#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63)) y Liquidaciones mensuales y recibos ([#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88)).
-  
+
 #### 4. Federico Matías Salvatierra ([@Fsalvatierra](https://github.com/Fsalvatierra))
 - **Casos de Uso Principales:**
   1. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
