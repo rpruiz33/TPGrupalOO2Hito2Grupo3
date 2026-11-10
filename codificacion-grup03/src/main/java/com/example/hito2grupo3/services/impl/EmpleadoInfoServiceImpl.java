@@ -2,6 +2,7 @@ package com.example.hito2grupo3.services.impl;
 
 import com.example.hito2grupo3.dto.AsignacionStaffDTO;
 import com.example.hito2grupo3.entities.Cajero;
+import com.example.hito2grupo3.entities.Cocinero;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
@@ -48,7 +49,14 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
                                 + ". Contactá con el administrador."));
 
         String rol = resolverRol(staff);
+String puesto = rol;
 
+if (staff instanceof Cocinero cocinero) {
+    puesto = cocinero.getCategoriaCocina() != null
+            && cocinero.getCategoriaCocina().getNombre() != null
+                    ? cocinero.getCategoriaCocina().getNombre()
+                    : "Categoría sin asignar";
+}
         boolean esCajero = "Cajero".equals(rol)
                 && staff instanceof Cajero;
 
@@ -60,6 +68,7 @@ public class EmpleadoInfoServiceImpl implements IEmpleadoInfoService {
         empleadoMap.put("nombre", staff.getNombre() + " " + staff.getApellido());
         empleadoMap.put("dni", staff.getDni());
         empleadoMap.put("rol", rol);
+        empleadoMap.put("puesto", puesto);
         empleadoMap.put("antiguedad", antiguedad);
         empleadoMap.put("cajero", esCajero);
         empleadoMap.put("email", email);
