@@ -39,7 +39,7 @@ Las funcionalidades y cambios del proyecto fueron integrados mediante pull reque
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
 | [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) | Mejorar liquidaciones, empleados y registro de unidades de venta | Leonel Soloaga |
-| [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | fix: sincronizar fechas al actualizar festival,correccion ABM de fest | Leonel Soloaga |
+| [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | Sincronización de fechas al actualizar festival y corrección del ABM de festivales y liquidaciones | Leonel Alejandro Soloaga |
 | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) | fix liquidaciones mensuales y recibos individuales | Leonel Soloaga |
 | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) | validaciones y seguridad de empleados y festivales | Leonel Soloaga |
 | [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga | Ana Belén Vázquez |
@@ -207,10 +207,13 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | Gestión y ABM de platos | Leonel Alejandro Soloaga | [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) |
 | Filtro y búsqueda de empleados | Leonel Alejandro Soloaga | [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) |
 | Plato estrella | Leonel Alejandro Soloaga | [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) |
+| Ver su información / dashboard del empleado |Leonel Alejandro Soloaga | [#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63) |
 | Historial de pedidos con filtros | Leonel Alejandro Soloaga | [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) |
 | Validaciones de pedidos y cantidades | Leonel Alejandro Soloaga | [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) |
 | Validaciones y seguridad de empleados | Leonel Alejandro Soloaga | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) |
 | Liquidaciones mensuales y recibos | Leonel Alejandro Soloaga | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) |
+| Corrección de fechas de festivales y liquidaciones | Leonel Alejandro Soloaga | [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) |
+| Mejoras en liquidaciones, empleados y registro de unidades | Leonel Alejandro Soloaga | [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) |
 
 ### Distribución de CU y Validaciones de Carga por Integrante
 
@@ -235,12 +238,13 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 
 #### 3. Leonel Alejandro Soloaga ([@Le0oneL](https://github.com/Le0oneL))
 - **Casos de Uso Principales:**
-  1. **Gestión de Platos y Plato Estrella** ([PR #52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [PR #57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57)): Alta, edición, inhabilitación y determinación del plato más vendido por unidad y festival.
-  2. **Historial de Pedidos y Filtros de Búsqueda** ([PR #67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67), [PR #56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56)): Filtro multicriterio por estado, unidad, empleado y fechas.
+  1. **Alta de Pedidos** ([PR #27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27), [PR #35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35)): registro de ventas por cajero o responsable, con carga automática de festival, unidad y platos según el usuario, y precio congelado en cada ítem.
+  2. **Historial y Anulación de Pedidos** ([PR #67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67)): historial con filtros por estado, unidad, festival, empleado y rango de fechas; detalle del pedido y anulación lógica con motivo.
 - **Validaciones de Carga de Datos:**
-  1. **Validación de carga de pedidos e ítems:**  platos pertenecientes a la unidad del cajero y cantidad de ítems mayor a cero ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)).
-  2. **Validación de alta/edición de empleados:** validación de campos obligatorios, edad mínima legal, roles válidos y turnos de caja ([PR #87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87)).
-
+  1. **Validación de alta de pedidos** ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)): la fecha de la venta debe ser la del día, el festival debe estar vigente y la unidad habilitada en él, máximo 100 unidades por plato, y los platos deben estar activos y pertenecer a la unidad.
+  2. **Validación de alta/edición de empleados** ([PR #87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87)): edad entre 18 y 100 años, fecha de ingreso no anterior a la de nacimiento, y categoría de cocina obligatoria y existente para cocineros.
+- **Casos de uso de la consigna implementados:** Alta de platos ([#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52)), Modificación e inhabilitación de platos ([#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55)), Filtro de empleados ([#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56)), Plato estrella ([#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57)), Ver su información ([#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63)) y Liquidaciones mensuales y recibos ([#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88)).
+  
 #### 4. Federico Matías Salvatierra ([@Fsalvatierra](https://github.com/Fsalvatierra))
 - **Casos de Uso Principales:**
   1. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
