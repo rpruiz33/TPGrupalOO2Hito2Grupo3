@@ -101,6 +101,7 @@ public FestivalServiceImpl(FestivalRepository festivalRepository,
         festival.setNombre(dto.getNombre().trim());
         festival.setFechaInicio(dto.getFechaInicio());
         festival.setFechaFin(dto.getFechaFin());
+        festival.setTemporada(obtenerTemporada(dto));
 
         if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
             List<UnidadVenta> unidades = unidadVentaRepository.findAllById(dto.getUnidadesVentaIds());
@@ -122,6 +123,7 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
     // Actualizar las fechas del festival
     festival.setFechaInicio(dto.getFechaInicio());
     festival.setFechaFin(dto.getFechaFin());
+    festival.setTemporada(obtenerTemporada(dto));
 
     // Sincronizar las fechas de todas las asignaciones del Staff
     List<AsignacionStaff> asignaciones =
@@ -220,10 +222,18 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
         }
     }
 
+    private String obtenerTemporada(FestivalDTO dto) {
+        if (dto.getFechaInicio() != null) {
+            return Festival.determinarTemporada(dto.getFechaInicio());
+        }
+        return dto.getTemporada() != null ? dto.getTemporada().trim() : null;
+    }
+
     private FestivalDTO convertirADTO(Festival festival) {
         FestivalDTO dto = new FestivalDTO();
         dto.setId(festival.getId());
         dto.setNombre(festival.getNombre());
+        dto.setTemporada(festival.getTemporada());
         dto.setFechaInicio(festival.getFechaInicio());
         dto.setFechaFin(festival.getFechaFin());
 

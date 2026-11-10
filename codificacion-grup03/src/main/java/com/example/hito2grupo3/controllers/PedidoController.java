@@ -200,6 +200,7 @@ public class PedidoController {
                 .map(festival -> new FestivalRespuesta(
                         festival.getId(),
                         festival.getNombre(),
+                    festival.getTemporada(),
                         festival.getFechaInicio(),
                         festival.getFechaFin()))
                 .toList();
@@ -275,6 +276,7 @@ public class PedidoController {
     public record FestivalRespuesta(
             Long id,
             String nombre,
+            String temporada,
             LocalDate fechaInicio,
             LocalDate fechaFin) {
     }

@@ -119,9 +119,10 @@ if (staff instanceof Cocinero cocinero) {
 
             asignacion.put("unidad", unidadVigente.getNombreComercial());
 
-            asignacion.put("festival", festivalesVigentes.isEmpty()
+                asignacion.put("festival", festivalesVigentes.isEmpty()
                     ? "Sin festival vigente"
-                    : festivalesVigentes.get(0).getNombre());
+                    : festivalesVigentes.get(0).getNombre()
+                        + " (" + festivalesVigentes.get(0).getTemporada() + ")");
 
         } else {
             return asignacionVacia();
@@ -172,9 +173,10 @@ if (staff instanceof Cocinero cocinero) {
 
             asignacion.put("unidad", unidadVigente.getNombreComercial());
 
-            asignacion.put("festival", festivalesVigentes.isEmpty()
+                asignacion.put("festival", festivalesVigentes.isEmpty()
                     ? "Sin festival vigente"
-                    : festivalesVigentes.get(0).getNombre());
+                    : festivalesVigentes.get(0).getNombre()
+                        + " (" + festivalesVigentes.get(0).getTemporada() + ")");
 
             modelMap.put("asignacionActual", asignacion);
 

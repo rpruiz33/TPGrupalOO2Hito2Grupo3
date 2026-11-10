@@ -55,6 +55,24 @@
                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
             </div>
 
+            <!-- Campo Temporada (Selector según estación del año) -->
+            <div class="mb-3">
+                <label for="temporada" class="form-label fw-bold">Temporada</label>
+                <select class="form-select"
+                        id="temporada"
+                        th:field="*{temporada}"
+                        required>
+                    <option value="" disabled th:selected="${festival.temporada == null or festival.temporada == ''}">
+                        -- Seleccioná una temporada --
+                    </option>
+                    <option value="Verano">Verano</option>
+                    <option value="Otoño">Otoño</option>
+                    <option value="Invierno">Invierno</option>
+                    <option value="Primavera">Primavera</option>
+                </select>
+                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('temporada')}" th:errors="*{temporada}"></div>
+            </div>
+
             <div class="row g-3 mb-2">
                 <!-- Fecha de Inicio -->
                 <div class="col-md-6">
@@ -158,7 +176,26 @@
             }
         }
 
-        inputInicio.addEventListener('change', ajustarFechasLimites);
+        inputInicio.addEventListener('change', () => {
+            ajustarFechasLimites();
+            const selectTemporada = document.getElementById('temporada');
+            if (inputInicio.value && selectTemporada && (!selectTemporada.value || selectTemporada.value === '')) {
+                const partes = inputInicio.value.split('-');
+                if (partes.length === 3) {
+                    const mes = parseInt(partes[1], 10);
+                    const dia = parseInt(partes[2], 10);
+                    let estacion = 'Primavera';
+                    if ((mes === 12 && dia >= 21) || mes === 1 || mes === 2 || (mes === 3 && dia <= 20)) {
+                        estacion = 'Verano';
+                    } else if ((mes === 3 && dia >= 21) || mes === 4 || mes === 5 || (mes === 6 && dia <= 20)) {
+                        estacion = 'Otoño';
+                    } else if ((mes === 6 && dia >= 21) || mes === 7 || mes === 8 || (mes === 9 && dia <= 20)) {
+                        estacion = 'Invierno';
+                    }
+                    selectTemporada.value = estacion;
+                }
+            }
+        });
         inputFin.addEventListener('change', ajustarFechasLimites);
         
         ajustarFechasLimites();

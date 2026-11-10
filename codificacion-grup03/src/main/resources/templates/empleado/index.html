@@ -29,6 +29,10 @@
 <p class="unit-info mb-0">
     Gestión de actividades y consultas personales.
 </p>
+<p class="unit-info mb-0" th:if="${asignacionActual != null}">
+    Festival:
+    <strong th:text="${asignacionActual.festival}">Sin festival vigente</strong>
+</p>
     </header>
 
     <div th:if="${mensaje}"

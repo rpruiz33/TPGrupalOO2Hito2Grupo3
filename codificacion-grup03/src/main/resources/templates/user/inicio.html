@@ -65,13 +65,18 @@
 
                         <div class="festival-icono">♨</div>
 
-                        <h3 th:text="${festival.nombre}">
+                        <h3 th:text="${festival.nombre + ' (' + festival.temporada + ')'}">
                             Nombre del festival
                         </h3>
 
                         <div class="separador-card"></div>
 
                         <div class="festival-fechas">
+
+                            <p th:if="${festival.temporada != null and !festival.temporada.isBlank()}">
+                                <strong>Temporada</strong>
+                                <span th:text="${festival.temporada}"></span>
+                            </p>
 
                             <p>
                                 <strong>Fecha de inicio</strong>

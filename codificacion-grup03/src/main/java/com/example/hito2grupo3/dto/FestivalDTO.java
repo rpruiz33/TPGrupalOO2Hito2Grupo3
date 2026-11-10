@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.hito2grupo3.entities.Festival;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -30,6 +32,10 @@ public class FestivalDTO {
     @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
     @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s,.'()\\-]+$", message = "El nombre contiene caracteres no permitidos")
     private String nombre;
+
+    @NotBlank(message = "La temporada es obligatoria")
+    @Pattern(regexp = "Invierno|Primavera|Verano|Otoño", message = "La temporada debe ser Invierno, Primavera, Verano u Otoño")
+    private String temporada;
 
     @NotNull(message = "La fecha de inicio es obligatoria")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -57,13 +63,18 @@ public class FestivalDTO {
         return !fechaInicio.isAfter(fechaFin);
     }
 
-    public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
+    public FestivalDTO(Long id, String nombre, String temporada, LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
         this.nombre = nombre;
+        this.temporada = temporada;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.activo = true;
         calcularEstadoYDuracion();
+    }
+
+    public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
+        this(id, nombre, fechaInicio != null ? Festival.determinarTemporada(fechaInicio) : null, fechaInicio, fechaFin);
     }
 
     public void calcularEstadoYDuracion() {

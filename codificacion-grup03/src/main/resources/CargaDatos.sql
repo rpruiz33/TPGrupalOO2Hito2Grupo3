@@ -20,9 +20,10 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
 
--- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN
+-- 2.1 FESTIVALES DINÁMICOS SEGÚN LA FECHA DE EJECUCIÓN (Temporada calculada según fecha_inicio en Hemisferio Sur)
 INSERT INTO festivales (
     nombre,
+    temporada,
     fecha_inicio,
     fecha_fin,
     activo
@@ -31,6 +32,18 @@ INSERT INTO festivales (
 -- Festival actual
 (
     'Epicentro Gourmet UNLa (Edicion Actual)',
+    CASE
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 12 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) IN (1, 2)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) <= 20) THEN 'Verano'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) IN (4, 5)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) <= 20) THEN 'Otoño'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) IN (7, 8)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) = 9 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)) <= 20) THEN 'Invierno'
+        ELSE 'Primavera'
+    END,
     DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY),
     DATE_ADD(CURRENT_DATE(), INTERVAL 15 DAY),
     TRUE
@@ -39,6 +52,18 @@ INSERT INTO festivales (
 -- Festival anterior
 (
     'Epicentro Gourmet UNLa (Edicion Anterior)',
+    CASE
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 12 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) IN (1, 2)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) <= 20) THEN 'Verano'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) IN (4, 5)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) <= 20) THEN 'Otoño'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) IN (7, 8)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) = 9 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY)) <= 20) THEN 'Invierno'
+        ELSE 'Primavera'
+    END,
     DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY),
     DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY),
     TRUE
@@ -47,10 +72,39 @@ INSERT INTO festivales (
 -- Festival anual
 (
     'Epicentro Gourmet UNLa (Edicion Anual)',
+    CASE
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 12 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) IN (1, 2)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) <= 20) THEN 'Verano'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 3 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) IN (4, 5)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) <= 20) THEN 'Otoño'
+        WHEN (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 6 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) >= 21)
+          OR MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) IN (7, 8)
+          OR (MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) = 9 AND DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)) <= 20) THEN 'Invierno'
+        ELSE 'Primavera'
+    END,
     DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY),
     DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY),
     TRUE
 );
+
+-- Garantiza que todos los festivales tengan la temporada correspondiente a su fecha de inicio.
+UPDATE festivales
+SET temporada = CASE
+    WHEN (MONTH(fecha_inicio) = 12 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (1, 2)
+      OR (MONTH(fecha_inicio) = 3 AND DAY(fecha_inicio) <= 20) THEN 'Verano'
+    WHEN (MONTH(fecha_inicio) = 3 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (4, 5)
+      OR (MONTH(fecha_inicio) = 6 AND DAY(fecha_inicio) <= 20) THEN 'Otoño'
+    WHEN (MONTH(fecha_inicio) = 6 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (7, 8)
+      OR (MONTH(fecha_inicio) = 9 AND DAY(fecha_inicio) <= 20) THEN 'Invierno'
+    ELSE 'Primavera'
+END
+WHERE fecha_inicio IS NOT NULL;
+
 -- Asignamos los IDs de los festivales
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
 SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);

@@ -55,9 +55,11 @@ public String mostrarIndex(Model model, Principal principal) {
                 empleadoInfoService.obtenerDashboardEmpleado(principal.getName());
 
         model.addAttribute("unidadVenta", dashboardData.get("unidadAsignada"));
+        model.addAttribute("asignacionActual", dashboardData.get("asignacionActual"));
 
     } catch (Exception e) {
         model.addAttribute("unidadVenta", null);
+        model.addAttribute("asignacionActual", null);
         model.addAttribute(
                 "error",
                 "No se pudo cargar la información de la unidad de venta."

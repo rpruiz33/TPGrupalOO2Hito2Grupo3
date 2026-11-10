@@ -198,7 +198,7 @@
                             <td th:text="${pedido.unidadVenta.nombreComercial}"></td>
 
                             <!-- Festival -->
-                            <td th:text="${pedido.festival.nombre}"></td>
+                            <td th:text="${pedido.festival.nombre + ' (' + pedido.festival.temporada + ')'}"></td>
 
                             <!-- Registrado por -->
                             <td
@@ -458,7 +458,7 @@
                         const opcion = document.createElement("option");
 
                         opcion.value = festival.id;
-                        opcion.textContent = festival.nombre;
+                        opcion.textContent = festival.nombre + " (" + festival.temporada + ")";
 
                         filtroFestival.appendChild(opcion);
 

@@ -57,7 +57,7 @@
                             <option value="">-- Seleccione Festival --</option>
                             <option th:each="f : ${festivales}"
                                     th:value="${f.id}"
-                                    th:text="${f.nombre}"
+                                    th:text="${f.nombre + (f.temporada != null ? ' (' + f.temporada + ')' : '')}"
                                     th:selected="${festivalId != null and festivalId == f.id}"
                                     th:data-inicio="${f.fechaInicio}"
                                     th:data-fin="${f.fechaFin}">

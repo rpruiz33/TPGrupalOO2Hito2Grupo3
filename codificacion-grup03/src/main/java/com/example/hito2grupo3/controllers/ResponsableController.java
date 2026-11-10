@@ -1,5 +1,6 @@
 package com.example.hito2grupo3.controllers;
 
+import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.ICanonService;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/responsable")
@@ -48,6 +51,7 @@ public class ResponsableController {
         model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         model.addAttribute("unidadVenta", unidad);
+        model.addAttribute("festivalActual", obtenerFestivalActual(unidad));
         model.addAttribute("festivales", liquidacionService.listarFestivales());
 
         return "responsable/index";
@@ -68,6 +72,7 @@ public class ResponsableController {
         model.addAttribute("nombreResponsable", responsable.getNombre() + " " + responsable.getApellido());
         UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
         model.addAttribute("unidadVenta", unidad);
+        model.addAttribute("festivalActual", obtenerFestivalActual(unidad));
         model.addAttribute("festivales", liquidacionService.listarFestivales());
 
         if (unidad == null) {
@@ -77,5 +82,21 @@ public class ResponsableController {
         }
 
         return "responsable/index";
+    }
+
+    private Festival obtenerFestivalActual(UnidadVenta unidad) {
+        if (unidad == null || unidad.getFestivales() == null) {
+            return null;
+        }
+
+        LocalDate hoy = LocalDate.now();
+        return unidad.getFestivales().stream()
+                .filter(festival -> festival.isActivo()
+                        && festival.getFechaInicio() != null
+                        && festival.getFechaFin() != null
+                        && !hoy.isBefore(festival.getFechaInicio())
+                        && !hoy.isAfter(festival.getFechaFin()))
+                .findFirst()
+                .orElse(null);
     }
 }
