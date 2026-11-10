@@ -238,7 +238,7 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
   1. **Gestión de Platos y Plato Estrella** ([PR #52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [PR #57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57)): Alta, edición, inhabilitación y determinación del plato más vendido por unidad y festival.
   2. **Historial de Pedidos y Filtros de Búsqueda** ([PR #67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67), [PR #56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56)): Filtro multicriterio por estado, unidad, empleado y fechas.
 - **Validaciones de Carga de Datos:**
-  1. **Validación de carga de pedidos e ítems:** control de stock, platos pertenecientes a la unidad del cajero y cantidad de ítems mayor a cero ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)).
+  1. **Validación de carga de pedidos e ítems:**  platos pertenecientes a la unidad del cajero y cantidad de ítems mayor a cero ([PR #71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71)).
   2. **Validación de alta/edición de empleados:** validación de campos obligatorios, edad mínima legal, roles válidos y turnos de caja ([PR #87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87)).
 
 #### 4. Federico Matías Salvatierra ([@Fsalvatierra](https://github.com/Fsalvatierra))
