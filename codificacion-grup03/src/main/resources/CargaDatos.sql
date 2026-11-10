@@ -88,6 +88,23 @@ INSERT INTO festivales (
     DATE_SUB(CURRENT_DATE(), INTERVAL 345 DAY),
     TRUE
 );
+
+-- Garantiza que todos los festivales tengan la temporada correspondiente a su fecha de inicio.
+UPDATE festivales
+SET temporada = CASE
+    WHEN (MONTH(fecha_inicio) = 12 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (1, 2)
+      OR (MONTH(fecha_inicio) = 3 AND DAY(fecha_inicio) <= 20) THEN 'Verano'
+    WHEN (MONTH(fecha_inicio) = 3 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (4, 5)
+      OR (MONTH(fecha_inicio) = 6 AND DAY(fecha_inicio) <= 20) THEN 'Otoño'
+    WHEN (MONTH(fecha_inicio) = 6 AND DAY(fecha_inicio) >= 21)
+      OR MONTH(fecha_inicio) IN (7, 8)
+      OR (MONTH(fecha_inicio) = 9 AND DAY(fecha_inicio) <= 20) THEN 'Invierno'
+    ELSE 'Primavera'
+END
+WHERE fecha_inicio IS NOT NULL;
+
 -- Asignamos los IDs de los festivales
 SET @festival_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Actual)' LIMIT 1);
 SET @festival_anterior_id = (SELECT id FROM festivales WHERE nombre = 'Epicentro Gourmet UNLa (Edicion Anterior)' LIMIT 1);

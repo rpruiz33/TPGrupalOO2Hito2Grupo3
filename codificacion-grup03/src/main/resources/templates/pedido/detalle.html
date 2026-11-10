@@ -51,7 +51,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="dato-pedido">
                     <small>Festival</small>
-                    <strong th:text="${pedido.festival != null ? pedido.festival.nombre : '-'}"></strong>
+                    <strong th:text="${pedido.festival != null ? pedido.festival.nombre + ' (' + pedido.festival.temporada + ')' : '-'}"></strong>
                 </div>
             </div>
 

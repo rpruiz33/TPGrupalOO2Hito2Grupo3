@@ -24,7 +24,7 @@
                         onchange="this.form.submit()">
                     <option th:each="f : ${festivales}"
                             th:value="${f.id}"
-                            th:text="${f.nombre}"
+                            th:text="${f.nombre + ' (' + f.temporada + ')'}"
                             th:selected="${festivalId != null and festivalId == f.id}">
                         Festival
                     </option>

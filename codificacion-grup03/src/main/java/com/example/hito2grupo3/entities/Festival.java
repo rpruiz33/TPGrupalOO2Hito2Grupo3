@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,8 +14,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +40,8 @@ public class Festival {
     private String nombre;
 
     @NotBlank(message = "La temporada es obligatoria")
+    @Pattern(regexp = "Invierno|Primavera|Verano|Otoño", message = "La temporada debe ser Invierno, Primavera, Verano u Otoño")
+    @Column(nullable = false)
     private String temporada;
 
     @ManyToMany
@@ -78,6 +85,35 @@ public class Festival {
             Set<UnidadVenta> unidadesVentaHabilitadas, LocalDate fechaInicio,
             LocalDate fechaFin, Set<Costos> costos) {
         this(id, nombre, null, staffGeneral, unidadesVentaHabilitadas, fechaInicio, fechaFin, costos);
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void asegurarTemporada() {
+        if ((temporada == null || temporada.isBlank()) && fechaInicio != null) {
+            temporada = determinarTemporada(fechaInicio);
+        }
+    }
+
+    @PostLoad
+    private void completarTemporadaAlCargar() {
+        asegurarTemporada();
+    }
+
+    public static String determinarTemporada(LocalDate fecha) {
+        int mes = fecha.getMonthValue();
+        int dia = fecha.getDayOfMonth();
+
+        if ((mes == 12 && dia >= 21) || mes == 1 || mes == 2 || (mes == 3 && dia <= 20)) {
+            return "Verano";
+        }
+        if ((mes == 3 && dia >= 21) || mes == 4 || mes == 5 || (mes == 6 && dia <= 20)) {
+            return "Otoño";
+        }
+        if ((mes == 6 && dia >= 21) || mes == 7 || mes == 8 || (mes == 9 && dia <= 20)) {
+            return "Invierno";
+        }
+        return "Primavera";
     }
 
 }

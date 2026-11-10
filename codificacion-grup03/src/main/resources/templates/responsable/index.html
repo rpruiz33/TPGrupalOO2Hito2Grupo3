@@ -26,6 +26,12 @@
                 Sin asignar
             </strong>
         </p>
+        <p class="unit-info mb-0 small text-white-50" th:if="${festivalActual != null}">
+            Festival:
+            <strong class="text-white" th:text="${festivalActual.nombre + ' (' + festivalActual.temporada + ')'}">
+                Sin festival vigente
+            </strong>
+        </p>
     </header>
 
     <div th:if="${mensaje}"

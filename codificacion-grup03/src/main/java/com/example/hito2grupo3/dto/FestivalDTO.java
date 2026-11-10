@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.hito2grupo3.entities.Festival;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -32,6 +34,7 @@ public class FestivalDTO {
     private String nombre;
 
     @NotBlank(message = "La temporada es obligatoria")
+    @Pattern(regexp = "Invierno|Primavera|Verano|Otoño", message = "La temporada debe ser Invierno, Primavera, Verano u Otoño")
     private String temporada;
 
     @NotNull(message = "La fecha de inicio es obligatoria")
@@ -71,7 +74,7 @@ public class FestivalDTO {
     }
 
     public FestivalDTO(Long id, String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
-        this(id, nombre, null, fechaInicio, fechaFin);
+        this(id, nombre, fechaInicio != null ? Festival.determinarTemporada(fechaInicio) : null, fechaInicio, fechaFin);
     }
 
     public void calcularEstadoYDuracion() {

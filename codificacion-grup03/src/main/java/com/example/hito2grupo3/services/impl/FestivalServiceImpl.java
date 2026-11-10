@@ -99,9 +99,9 @@ public FestivalServiceImpl(FestivalRepository festivalRepository,
 
         Festival festival = new Festival();
         festival.setNombre(dto.getNombre().trim());
-        festival.setTemporada(dto.getTemporada() != null ? dto.getTemporada().trim() : null);
         festival.setFechaInicio(dto.getFechaInicio());
         festival.setFechaFin(dto.getFechaFin());
+        festival.setTemporada(obtenerTemporada(dto));
 
         if (dto.getUnidadesVentaIds() != null && !dto.getUnidadesVentaIds().isEmpty()) {
             List<UnidadVenta> unidades = unidadVentaRepository.findAllById(dto.getUnidadesVentaIds());
@@ -120,13 +120,10 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
 
     Festival festival = buscarPorId(id);
 
-    if (dto.getTemporada() != null && !dto.getTemporada().isBlank()) {
-        festival.setTemporada(dto.getTemporada().trim());
-    }
-
     // Actualizar las fechas del festival
     festival.setFechaInicio(dto.getFechaInicio());
     festival.setFechaFin(dto.getFechaFin());
+    festival.setTemporada(obtenerTemporada(dto));
 
     // Sincronizar las fechas de todas las asignaciones del Staff
     List<AsignacionStaff> asignaciones =
@@ -223,6 +220,13 @@ public Festival actualizarFestival(Long id, FestivalDTO dto) {
                         "La fecha de finalización debe ser por lo menos 1 día posterior a la fecha de inicio.");
             }
         }
+    }
+
+    private String obtenerTemporada(FestivalDTO dto) {
+        if (dto.getFechaInicio() != null) {
+            return Festival.determinarTemporada(dto.getFechaInicio());
+        }
+        return dto.getTemporada() != null ? dto.getTemporada().trim() : null;
     }
 
     private FestivalDTO convertirADTO(Festival festival) {
