@@ -698,13 +698,20 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
                             : "Cocinero";
             baseLiquidable = sueldo.add(plusCategoria);
 
-        } else if (staff instanceof Cajero) {
+        } else if (staff instanceof Cajero cajero) {
             anios = aniosAntiguedad(
                     staff.getFechaIngreso(), festival.getFechaInicio());
             montoAntiguedad = sueldoProperties.porAnioAntiguedadOrDefault()
                     .multiply(BigDecimal.valueOf(anios));
+
+            // El plus/adicional del cajero se incorpora a la liquidación.
+            // Si el campo está vacío (null), se considera que no tiene plus ($0).
+            plusCategoria = cajero.getPlusOadicional() != null
+                    ? cajero.getPlusOadicional()
+                    : BigDecimal.ZERO;
+
             rol = "Cajero";
-            baseLiquidable = sueldo.add(montoAntiguedad);
+            baseLiquidable = sueldo.add(montoAntiguedad).add(plusCategoria);
 
         } else {
             // Personal genérico (Staff / Responsable / Empleado que no es Cocinero ni
@@ -753,37 +760,61 @@ public class LiquidacionServiceImpl implements ILiquidacionService {
 
     private BigDecimal resolverPlusCocina(Cocinero cocinero) {
 
-        if (cocinero.getCategoriaCocina() == null) {
-            return sueldoProperties.plusCocineroOrDefault();
+        if (cocinero == null) {
+            throw new IllegalArgumentException(
+                    "No se puede calcular el plus de cocina: el empleado no es válido.");
         }
 
-        // Prioridad 1: Si la categoría tiene un plus configurado en la base de datos
-        if (cocinero.getCategoriaCocina().getPlusFijo() != null
-                && cocinero.getCategoriaCocina().getPlusFijo()
-                        .compareTo(BigDecimal.ZERO) > 0) {
-            return cocinero.getCategoriaCocina().getPlusFijo();
+        CategoriaCocina categoria = cocinero.getCategoriaCocina();
+        if (categoria == null) {
+            throw new IllegalStateException(
+                    "El empleado de Cocina " + cocinero.getNombre() + " "
+                            + cocinero.getApellido()
+                            + " no tiene una categoría asignada. No se puede calcular su liquidación.");
         }
 
-        // Prioridad 2: Si no tiene plus configurado, resolver por nombre de categoría
-        // según propiedades
-        String nombreCategoria = cocinero.getCategoriaCocina().getNombre() != null
-                ? cocinero.getCategoriaCocina().getNombre().toLowerCase().trim()
-                : "";
+        String nombreCategoria = categoria.getNombre();
+        if (nombreCategoria == null || nombreCategoria.isBlank()) {
+            throw new IllegalStateException(
+                    "La categoría de cocina del empleado " + cocinero.getNombre() + " "
+                            + cocinero.getApellido()
+                            + " no tiene un nombre válido. No se puede calcular su liquidación.");
+        }
 
-        if (nombreCategoria.contains("ayudante")) {
+        BigDecimal plusFijo = categoria.getPlusFijo();
+
+        // Prioridad 1: utilizar el plus fijo configurado para la categoría.
+        if (plusFijo != null && plusFijo.compareTo(BigDecimal.ZERO) > 0) {
+            return plusFijo;
+        }
+
+        if (plusFijo != null && plusFijo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException(
+                    "La categoría " + nombreCategoria
+                            + " tiene un plus fijo negativo. Revisá su configuración.");
+        }
+
+        // Prioridad 2: si el plus no está configurado (nulo o cero),
+        // resolverlo mediante las propiedades según el nombre de la categoría.
+        String nombreNormalizado = nombreCategoria.toLowerCase(Locale.ROOT).trim();
+
+        if (nombreNormalizado.contains("ayudante")) {
             return sueldoProperties.plusCocineroAyudanteOrDefault();
         }
 
-        if (nombreCategoria.contains("lavaplatos")
-                || nombreCategoria.contains("bachero")) {
+        if (nombreNormalizado.contains("lavaplatos")
+                || nombreNormalizado.contains("bachero")) {
             return sueldoProperties.plusLavaplatosOrDefault();
         }
 
-        if (nombreCategoria.contains("cocinero")) {
+        if (nombreNormalizado.contains("cocinero")) {
             return sueldoProperties.plusCocineroOrDefault();
         }
 
-        return sueldoProperties.plusCocineroOrDefault();
+        // No asignar el plus de Cocinero a categorías desconocidas.
+        throw new IllegalStateException(
+                "No se pudo determinar el plus para la categoría de cocina: "
+                        + nombreCategoria + ". Revisá el plus fijo de la categoría o su nombre.");
     }
 
     @Override

@@ -133,39 +133,59 @@
                 th:text="${empleado.id == null ? 'Desde hoy hasta un mes en adelante.' : 'Se conserva la fecha de ingreso registrada.'}"></small>
     </div>
 
-    <div class="col-md-4">
-        <label class="form-label fw-bold">Sueldo Base ($)</label>
-        <input type="number" step="0.01" min="0.01"
-               class="form-control"
-               th:errorclass="is-invalid"
-               th:field="*{sueldo}"
-               placeholder="150000.00" required>
-        <div class="invalid-feedback" th:if="${#fields.hasErrors('sueldo')}"
-             th:errors="*{sueldo}"></div>
-    </div>
+   
 </div>
 
                 <h5 class="fw-bold pb-2 mb-3 border-bottom" style="color: #800020;">2. Puesto / Cargo Laboral</h5>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Tipo de Empleado</label>
+
                     <th:block th:if="${empleado.id == null}">
-                        <select id="selectTipo" class="form-select control-epicentro" th:errorclass="is-invalid" th:field="*{tipo}">
+                        <select id="selectTipo"
+                                class="form-select control-epicentro"
+                                th:errorclass="is-invalid"
+                                th:field="*{tipo}"
+                                th:attr="data-nuevo='true',data-errores=${#fields.hasAnyErrors()}"
+                                required>
+                            <option value="">-- Seleccionar tipo de empleado --</option>
                             <option value="GENERAL">Staff General</option>
                             <option value="CAJERO">Cajero</option>
-                            <option value="COCINERO">Cocinero</option>
+                            <option value="COCINERO">Cocina</option>
                         </select>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('tipo')}"
+                             th:errors="*{tipo}"></div>
                     </th:block>
+
                     <th:block th:unless="${empleado.id == null}">
-                        <select id="selectTipo" class="form-select control-epicentro bg-light" disabled>
+                        <select id="selectTipo"
+                                class="form-select control-epicentro bg-light"
+                                disabled>
                             <option th:value="'GENERAL'" th:selected="${empleado.tipo == 'GENERAL'}">Staff General</option>
                             <option th:value="'CAJERO'" th:selected="${empleado.tipo == 'CAJERO'}">Cajero</option>
-                            <option th:value="'COCINERO'" th:selected="${empleado.tipo == 'COCINERO'}">Cocinero</option>
+                            <option th:value="'COCINERO'" th:selected="${empleado.tipo == 'COCINERO'}">Cocina</option>
                         </select>
                         <input type="hidden" id="tipoHidden" name="tipo" th:value="${empleado.tipo}"/>
                         <small class="text-muted">El tipo de empleado no puede modificarse una vez creado.</small>
                     </th:block>
+                </div>
+
+                <div id="seccionSueldo"
+                     class="mb-3"
+                     th:classappend="${empleado.id == null} ? ' d-none' : ''">
+                    <label class="form-label fw-bold">Sueldo Base ($)</label>
+                    <input type="number"
+                           id="sueldo"
+                           step="0.01"
+                           min="0.01"
+                           class="form-control"
+                           th:errorclass="is-invalid"
+                           th:field="*{sueldo}"
+                           placeholder="100000.00">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('sueldo')}"
+                         th:errors="*{sueldo}"></div>
                 </div>
 
                 <div id="seccionCajero" class="border rounded p-3 mb-4 bg-light" style="display: none;">
@@ -180,11 +200,26 @@
                             </select>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('turno')}" th:errors="*{turno}"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Número de Caja</label>
-                            <input type="number" min="1" max="999" class="form-control" th:errorclass="is-invalid" th:field="*{numeroCaja}" placeholder="Ej. 1">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('numeroCaja')}" th:errors="*{numeroCaja}"></div>
-                        </div>
+<div class="col-md-4">
+    <label class="form-label fw-semibold">
+        Número de Caja <span class="text-danger">*</span>
+    </label>
+
+    <input type="number"
+           id="numeroCaja"
+           min="1"
+           max="999"
+           step="1"
+           class="form-control"
+           th:errorclass="is-invalid"
+           th:field="*{numeroCaja}"
+           placeholder="Ej. 1">
+
+    <div class="invalid-feedback"
+         th:if="${#fields.hasErrors('numeroCaja')}"
+         th:errors="*{numeroCaja}">
+    </div>
+</div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Plus o Adicional ($)</label>
                             <input type="number" step="0.01" min="0" class="form-control" th:errorclass="is-invalid" th:field="*{plusOadicional}" placeholder="0.00">
@@ -194,7 +229,7 @@
                 </div>
 
                 <div id="seccionCocinero" class="border rounded p-3 mb-4 bg-light" style="display: none;">
-                    <h6 class="fw-bold text-warning text-dark mb-3">Datos Específicos de Cocinero</h6>
+                    <h6 class="fw-bold text-warning text-dark mb-3">Datos Específicos de Cocina</h6>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Especialidad</label>
@@ -204,14 +239,21 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('especialidad')}" th:errors="*{especialidad}"></div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Categoría de Cocina</label>
-                            <select class="form-select control-epicentro" th:field="*{categoriaCocinaId}">
-                                <option value="">-- Sin categoría asignada --</option>
-                                <option th:each="cat : ${categoriasCocina}" 
-                                        th:value="${cat.id}" 
-                                        th:text="${cat.nombre} + ' (Plus: $' + ${#numbers.formatDecimal(cat.plusFijo != null ? cat.plusFijo : 0, 1, 'POINT', 0, 'COMMA')} + ')'">
-                                </option>
-                            </select>
+                           <label class="form-label fw-semibold">Categoría de Cocina</label>
+<select id="categoriaCocinaId"
+        class="form-select control-epicentro"
+        th:errorclass="is-invalid"
+        th:field="*{categoriaCocinaId}">
+    <option value="">-- Seleccionar categoría --</option>
+    <option th:each="cat : ${categoriasCocina}"
+            th:value="${cat.id}"
+            th:text="${cat.nombre} + ' (Plus: $' + ${#numbers.formatDecimal(cat.plusFijo != null ? cat.plusFijo : 0, 1, 'POINT', 0, 'COMMA')} + ')'">
+    </option>
+</select>
+<div class="invalid-feedback"
+     th:if="${#fields.hasErrors('categoriaCocinaId')}"
+     th:errors="*{categoriaCocinaId}">
+</div>
                         </div>
                     </div>
                     <div class="row g-3 align-items-center">
@@ -425,26 +467,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function actualizarCamposSegunTipo() {
             const tipo = getTipo();
+
             const seccionCajero = document.getElementById('seccionCajero');
             const seccionCocinero = document.getElementById('seccionCocinero');
+            const categoriaCocina = document.getElementById('categoriaCocinaId');
+            const seccionSueldo = document.getElementById('seccionSueldo');
+            const campoSueldo = document.getElementById('sueldo');
+            const numeroCaja = document.getElementById('numeroCaja');
+            const tipoSeleccionado = tipo !== '';
 
-            if (tipo === 'CAJERO') {
-                seccionCajero.style.display = 'block';
-                seccionCocinero.style.display = 'none';
-            } else if (tipo === 'COCINERO') {
-                seccionCajero.style.display = 'none';
-                seccionCocinero.style.display = 'block';
-            } else {
-                seccionCajero.style.display = 'none';
-                seccionCocinero.style.display = 'none';
+            if (seccionSueldo) {
+                seccionSueldo.classList.toggle('d-none', !tipoSeleccionado);
+            }
+
+            if (campoSueldo) {
+                campoSueldo.required = tipoSeleccionado;
+                campoSueldo.disabled = !tipoSeleccionado;
+            }
+
+            if (seccionCajero) {
+                seccionCajero.style.display = tipo === 'CAJERO' ? 'block' : 'none';
+            }
+
+            if (seccionCocinero) {
+                seccionCocinero.style.display = tipo === 'COCINERO' ? 'block' : 'none';
+            }
+
+            // La categoría solo es obligatoria para empleados de Cocina.
+            if (categoriaCocina) {
+                const esCocina = tipo === 'COCINERO';
+                categoriaCocina.required = esCocina;
+                categoriaCocina.disabled = !esCocina;
+            }
+
+            // El número de caja solo es obligatorio para los Cajeros.
+            if (numeroCaja) {
+                const esCajero = tipo === 'CAJERO';
+                numeroCaja.required = esCajero;
+                numeroCaja.disabled = !esCajero;
             }
         }
 
         const selectEl = document.getElementById('selectTipo');
+
         if (selectEl && !selectEl.disabled) {
             selectEl.addEventListener('change', actualizarCamposSegunTipo);
         }
-        window.addEventListener('DOMContentLoaded', actualizarCamposSegunTipo);
+
+        window.addEventListener('DOMContentLoaded', function () {
+            // En un alta nueva, comenzar sin tipo seleccionado.
+            // Si hubo errores de validación, conservar la selección del usuario.
+            if (selectEl
+                    && selectEl.dataset.nuevo === 'true'
+                    && selectEl.dataset.errores !== 'true') {
+                selectEl.value = '';
+            }
+            actualizarCamposSegunTipo();
+        });
+
 document.getElementById('empleadoForm').addEventListener('submit', function(event) {
 
     if (!validarFechaNacimiento()) {

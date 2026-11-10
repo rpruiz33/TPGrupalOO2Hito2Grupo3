@@ -5,6 +5,7 @@ import com.example.hito2grupo3.entities.*;
 import com.example.hito2grupo3.repositories.*;
 import com.example.hito2grupo3.services.IEmpleadoService;
 import com.example.hito2grupo3.services.IUsuarioService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,6 +113,21 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
             throw new IllegalArgumentException("Ya existe un usuario con el correo: " + email);
         }
 
+        // Validar la categoría antes de crear el usuario y enviar las credenciales.
+        // Todo empleado de Cocina debe tener una categoría válida asignada.
+        CategoriaCocina categoriaCocina = null;
+        if ("COCINERO".equalsIgnoreCase(dto.getTipo())) {
+            if (dto.getCategoriaCocinaId() == null) {
+                throw new IllegalArgumentException(
+                        "Debe seleccionar una categoría de cocina.");
+            }
+
+            categoriaCocina = categoriaCocinaRepository
+                    .findById(dto.getCategoriaCocinaId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "La categoría de cocina seleccionada no existe."));
+        }
+
         // Determinar rol del usuario
         String nombreRol = switch (dto.getTipo() != null ? dto.getTipo().toUpperCase() : "GENERAL") {
             case "CAJERO" -> "CAJERO";
@@ -160,10 +176,7 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
             cocinero.setEspecialidad(dto.getEspecialidad());
             cocinero.setLibretaSanitaria(dto.isLibretaSanitaria());
             cocinero.setBonoPeligrosidad(dto.getBonoPeligrosidad() != null ? dto.getBonoPeligrosidad() : BigDecimal.ZERO);
-            if (dto.getCategoriaCocinaId() != null) {
-                categoriaCocinaRepository.findById(dto.getCategoriaCocinaId())
-                        .ifPresent(cocinero::setCategoriaCocina);
-            }
+            cocinero.setCategoriaCocina(categoriaCocina);
             return cocineroRepository.save(cocinero);
         } else {
             Staff staff = new Staff();
@@ -230,9 +243,10 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
         if (staff instanceof Cajero c) {
             c.setTurno(dto.getTurno());
             c.setNumeroCaja(dto.getNumeroCaja());
-            if (dto.getPlusOadicional() != null) {
-                c.setPlusOadicional(dto.getPlusOadicional());
-            }
+          c.setPlusOadicional(
+        dto.getPlusOadicional() != null
+                ? dto.getPlusOadicional()
+                : BigDecimal.ZERO);
             return cajeroRepository.save(c);
         } else if (staff instanceof Cocinero k) {
             k.setEspecialidad(dto.getEspecialidad());
@@ -240,11 +254,17 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
             if (dto.getBonoPeligrosidad() != null) {
                 k.setBonoPeligrosidad(dto.getBonoPeligrosidad());
             }
-            if (dto.getCategoriaCocinaId() != null) {
-                k.setCategoriaCocina(categoriaCocinaRepository.findById(dto.getCategoriaCocinaId()).orElse(null));
-            } else {
-                k.setCategoriaCocina(null);
+            // No permitir que un empleado de Cocina quede sin categoría al editarlo.
+            if (dto.getCategoriaCocinaId() == null) {
+                throw new IllegalArgumentException(
+                        "Debe seleccionar una categoría de cocina.");
             }
+
+            CategoriaCocina categoriaCocina = categoriaCocinaRepository
+                    .findById(dto.getCategoriaCocinaId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "La categoría de cocina seleccionada no existe."));
+            k.setCategoriaCocina(categoriaCocina);
             return cocineroRepository.save(k);
         }
 

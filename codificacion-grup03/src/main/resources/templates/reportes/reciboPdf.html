@@ -221,7 +221,7 @@
                         <!-- Plus por categoría -->
                         <tr th:if="${recibo.plusCategoria != null and recibo.plusCategoria.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
 
-                            <td>Plus por categoría</td>
+                            <td>Plus/Adicional</td>
 
                             <td class="text-end"
                                 th:text="${'$ ' + #numbers.formatDecimal(recibo.plusCategoria, 1, 'POINT', 0, 'COMMA')}">

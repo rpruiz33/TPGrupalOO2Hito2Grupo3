@@ -139,7 +139,9 @@
                                id="patente"
                                name="patente"
                                class="form-control"
-                               maxlength="20"
+                               maxlength="10"
+pattern="[A-Za-z0-9\s-]{6,10}"
+title="Ingresá una patente de entre 6 y 10 caracteres alfanuméricos."
                                th:value="${patente}"
                                required>
                     </div>
@@ -316,21 +318,20 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="password"
-                           class="form-label text-white">
-                        Contraseña
-                    </label>
-                    <input type="password"
-                           id="password"
-                           name="password"
-                           class="form-control"
-                           minlength="8"
-                           autocomplete="new-password"
-                           required>
-                    <small class="text-white-50">
-                        Debe tener al menos 8 caracteres.
-                    </small>
-                </div>
+    <label for="password" class="form-label text-white">
+        Contraseña
+    </label>
+    <input type="password"
+           id="password"
+           name="password"
+           class="form-control"
+           minlength="8"
+           autocomplete="new-password">
+    <small class="text-white-50">
+        Para un responsable nuevo es obligatoria y debe tener al menos
+        8 caracteres. Si el responsable ya está registrado, dejala vacía.
+    </small>
+</div>
             </section>
 
             <!-- BOTONES -->
@@ -388,7 +389,28 @@
         const formulario = document.getElementById("formularioRegistro");
         const fechaNacimiento = document.getElementById("fechaNacimiento");
         const fechaIngreso = document.getElementById("fechaIngreso");
+function actualizarLimitesNacimiento() {
+    const hoy = new Date();
 
+    const fechaMinima = new Date(hoy);
+    fechaMinima.setFullYear(fechaMinima.getFullYear() - 100);
+
+    const fechaMaxima = new Date(hoy);
+    fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 18);
+
+    function formatoFecha(fecha) {
+        const anio = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+        const dia = String(fecha.getDate()).padStart(2, "0");
+
+        return `${anio}-${mes}-${dia}`;
+    }
+
+    fechaNacimiento.min = formatoFecha(fechaMinima);
+    fechaNacimiento.max = formatoFecha(fechaMaxima);
+}
+
+actualizarLimitesNacimiento();
         function validarFormatoFecha(campo) {
             campo.setCustomValidity("");
 

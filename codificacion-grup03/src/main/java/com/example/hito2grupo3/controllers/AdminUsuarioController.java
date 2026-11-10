@@ -8,7 +8,7 @@ import com.example.hito2grupo3.services.ICategoriaCocinaService;
 import com.example.hito2grupo3.services.IEmpleadoService;
 import com.example.hito2grupo3.services.IUnidadVentaService;
 import com.example.hito2grupo3.services.IUsuarioService;
-
+import com.example.hito2grupo3.configuration.SueldoProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,17 +30,19 @@ public class AdminUsuarioController {
     private final IEmpleadoService empleadoService;
     private final ICategoriaCocinaService categoriaCocinaService;
     private final IUnidadVentaService unidadVentaService;
-
+    private final SueldoProperties sueldoProperties;
     public AdminUsuarioController(
             IUsuarioService usuarioService,
             IEmpleadoService empleadoService,
             ICategoriaCocinaService categoriaCocinaService,
-            IUnidadVentaService unidadVentaService) {
+            IUnidadVentaService unidadVentaService,
+            SueldoProperties sueldoProperties) {
 
         this.usuarioService = usuarioService;
         this.empleadoService = empleadoService;
         this.categoriaCocinaService = categoriaCocinaService;
         this.unidadVentaService = unidadVentaService;
+        this.sueldoProperties = sueldoProperties;
     }
 
     @GetMapping
@@ -116,17 +118,18 @@ public class AdminUsuarioController {
         return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
-    @GetMapping("/nuevo")
-    public String mostrarFormularioAlta(Model model) {
+@GetMapping("/nuevo")
+public String mostrarFormularioAlta(Model model) {
 
-        EmpleadoDTO nuevoEmpleado = new EmpleadoDTO();
-        nuevoEmpleado.setTipo("GENERAL");
-        nuevoEmpleado.setFechaIngreso(LocalDate.now());
-        model.addAttribute("empleado", nuevoEmpleado);
-        model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
+    EmpleadoDTO nuevoEmpleado = new EmpleadoDTO();
+    nuevoEmpleado.setFechaIngreso(LocalDate.now());
+    nuevoEmpleado.setSueldo(sueldoProperties.baseOrDefault());
 
-        return "responsable/usuario-form";
-    }
+    model.addAttribute("empleado", nuevoEmpleado);
+    model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
+
+    return "responsable/usuario-form";
+}
 
     @PostMapping("/guardar")
     public String guardarEmpleado(
