@@ -260,6 +260,7 @@ Ubicación: `src/test/java/com/example/hito2grupo3/controllers/ResponsableReport
 - **Responsable:** administra la información de su unidad, empleados y platos.
 - **Empleado:** consulta su información y participa en la operatoria asignada.
 - **Cajero:** registra operaciones de caja y realiza cierres.
+- **Cocinero:** personal operativo de cocina asignado a una unidad de venta, con categoría culinaria específica (ej. Chef, Cocinero, Ayudante, Lavaplatos) y liquidación salarial que contempla el plus fijo correspondiente a su categoría.
 
 ## Casos de uso y responsables
 
