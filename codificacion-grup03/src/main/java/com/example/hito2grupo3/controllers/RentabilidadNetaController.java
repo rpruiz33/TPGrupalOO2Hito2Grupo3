@@ -161,6 +161,7 @@ public class RentabilidadNetaController {
         }
 
         model.addAttribute("festivalId", id);
+        model.addAttribute("festivalSeleccionado", fest);
         model.addAttribute("unidadVentaId", unidadVentaId);
         model.addAttribute("fechaDesde", desde);
         model.addAttribute("fechaHasta", hasta);
@@ -179,6 +180,14 @@ public class RentabilidadNetaController {
         if (fest != null && fest.getFechaInicio() != null && fest.getFechaFin() != null) {
             if (desde != null && desde.isBefore(fest.getFechaInicio())) {
                 model.addAttribute("error", "La fecha 'Desde' (" + desde + ") no puede ser anterior al inicio del festival (" + fest.getFechaInicio() + ").");
+                return VISTA_RENTABILIDAD;
+            }
+            if (desde != null && desde.isAfter(fest.getFechaFin())) {
+                model.addAttribute("error", "La fecha 'Desde' (" + desde + ") no puede ser posterior al cierre del festival (" + fest.getFechaFin() + ").");
+                return VISTA_RENTABILIDAD;
+            }
+            if (hasta != null && hasta.isBefore(fest.getFechaInicio())) {
+                model.addAttribute("error", "La fecha 'Hasta' (" + hasta + ") no puede ser anterior al inicio del festival (" + fest.getFechaInicio() + ").");
                 return VISTA_RENTABILIDAD;
             }
             if (hasta != null && hasta.isAfter(fest.getFechaFin())) {

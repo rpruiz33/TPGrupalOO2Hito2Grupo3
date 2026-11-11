@@ -173,5 +173,66 @@ class RentabilidadNetaServiceTest {
 
         assertEquals("Error al calcular canon", ex.getMessage());
     }
+
+    @Test
+    void calcularRentabilidadUnidadEntreFechas_fechaDesdeAnteriorAlFestival_lanzaExcepcion() {
+        // Festival: 2026-10-01 al 2026-10-20
+        LocalDate desde = LocalDate.of(2026, 9, 30); // 1 día antes del festival
+        LocalDate hasta = LocalDate.of(2026, 10, 10);
+
+        when(festivalRepository.findById(1L)).thenReturn(Optional.of(festival));
+        when(unidadVentaRepository.findById(10L)).thenReturn(Optional.of(foodTruck));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rentabilidadService.calcularRentabilidadUnidadEntreFechas(1L, 10L, desde, hasta)
+        );
+
+        assertTrue(ex.getMessage().contains("no puede ser anterior al inicio del festival"));
+    }
+
+    @Test
+    void calcularRentabilidadUnidadEntreFechas_fechaHastaPosteriorAlFestival_lanzaExcepcion() {
+        // Festival: 2026-10-01 al 2026-10-20
+        LocalDate desde = LocalDate.of(2026, 10, 5);
+        LocalDate hasta = LocalDate.of(2026, 10, 25); // 5 días después del cierre
+
+        when(festivalRepository.findById(1L)).thenReturn(Optional.of(festival));
+        when(unidadVentaRepository.findById(10L)).thenReturn(Optional.of(foodTruck));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rentabilidadService.calcularRentabilidadUnidadEntreFechas(1L, 10L, desde, hasta)
+        );
+
+        assertTrue(ex.getMessage().contains("no puede ser posterior al cierre del festival"));
+    }
+
+    @Test
+    void calcularRentabilidadUnidadEntreFechas_fechaDesdePosteriorAFechaHasta_lanzaExcepcion() {
+        LocalDate desde = LocalDate.of(2026, 10, 15);
+        LocalDate hasta = LocalDate.of(2026, 10, 5);
+
+        when(festivalRepository.findById(1L)).thenReturn(Optional.of(festival));
+        when(unidadVentaRepository.findById(10L)).thenReturn(Optional.of(foodTruck));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rentabilidadService.calcularRentabilidadUnidadEntreFechas(1L, 10L, desde, hasta)
+        );
+
+        assertTrue(ex.getMessage().contains("no puede ser posterior a la fecha 'Hasta'"));
+    }
+
+    @Test
+    void obtenerReporteRentabilidad_fechaFueraDeRango_lanzaExcepcion() {
+        LocalDate desde = LocalDate.of(2026, 9, 15);
+        LocalDate hasta = LocalDate.of(2026, 10, 10);
+
+        when(festivalRepository.findById(1L)).thenReturn(Optional.of(festival));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rentabilidadService.obtenerReporteRentabilidad(1L, null, desde, hasta)
+        );
+
+        assertTrue(ex.getMessage().contains("no puede ser anterior al inicio del festival"));
+    }
 }
 

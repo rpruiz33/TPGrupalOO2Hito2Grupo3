@@ -110,9 +110,7 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Unidad de venta con ID " + unidadVentaId + " no encontrada."));
 
-        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
-            throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta.");
-        }
+        validarFechasFestival(festival, fechaDesde, fechaHasta);
 
         // 1. Ingresos por pedidos activos (excluyendo anulados 'R')
         BigDecimal ingresos = pedidoRepository.sumarIngresosPorFestivalYUnidadYFechas(
@@ -195,9 +193,7 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
         Festival festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("Festival no encontrado con ID: " + festivalId));
 
-        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
-            throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta.");
-        }
+        validarFechasFestival(festival, fechaDesde, fechaHasta);
 
         List<ReporteRentabilidadNetaDTO> detalles = new ArrayList<>();
         BigDecimal totalIngresos = BigDecimal.ZERO;
@@ -259,6 +255,32 @@ public class RentabilidadNetaServiceImpl implements IRentabilidadNetaService {
     @Transactional(readOnly = true)
     public ReporteVentaDTO obtenerReporteVentaEntreFechas(Long festivalId) {
         return obtenerReporteVenta(festivalId);
+    }
+
+    private void validarFechasFestival(Festival festival, LocalDate fechaDesde, LocalDate fechaHasta) {
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+            throw new IllegalArgumentException(
+                    "La fecha 'Desde' (" + fechaDesde + ") no puede ser posterior a la fecha 'Hasta' (" + fechaHasta + ").");
+        }
+
+        if (festival != null && festival.getFechaInicio() != null && festival.getFechaFin() != null) {
+            if (fechaDesde != null && fechaDesde.isBefore(festival.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha 'Desde' (" + fechaDesde + ") no puede ser anterior al inicio del festival (" + festival.getFechaInicio() + ").");
+            }
+            if (fechaDesde != null && fechaDesde.isAfter(festival.getFechaFin())) {
+                throw new IllegalArgumentException(
+                        "La fecha 'Desde' (" + fechaDesde + ") no puede ser posterior al cierre del festival (" + festival.getFechaFin() + ").");
+            }
+            if (fechaHasta != null && fechaHasta.isBefore(festival.getFechaInicio())) {
+                throw new IllegalArgumentException(
+                        "La fecha 'Hasta' (" + fechaHasta + ") no puede ser anterior al inicio del festival (" + festival.getFechaInicio() + ").");
+            }
+            if (fechaHasta != null && fechaHasta.isAfter(festival.getFechaFin())) {
+                throw new IllegalArgumentException(
+                        "La fecha 'Hasta' (" + fechaHasta + ") no puede ser posterior al cierre del festival (" + festival.getFechaFin() + ").");
+            }
+        }
     }
 
     private String formatearPeriodo(LocalDate fechaDesde, LocalDate fechaHasta, Festival festival) {

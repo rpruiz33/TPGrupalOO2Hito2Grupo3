@@ -82,6 +82,8 @@
                     <div class="col-6 col-md-2 col-lg-2">
                         <label for="fechaDesde" class="form-label small fw-semibold text-secondary mb-1">Desde</label>
                         <input type="date" id="fechaDesde" name="fechaDesde" class="form-control control-epicentro"
+                               th:min="${festivalSeleccionado != null and festivalSeleccionado.fechaInicio != null ? #temporals.format(festivalSeleccionado.fechaInicio, 'yyyy-MM-dd') : null}"
+                               th:max="${festivalSeleccionado != null and festivalSeleccionado.fechaFin != null ? #temporals.format(festivalSeleccionado.fechaFin, 'yyyy-MM-dd') : null}"
                                th:value="${fechaDesde != null ? #temporals.format(fechaDesde, 'yyyy-MM-dd') : ''}">
                     </div>
 
@@ -89,6 +91,8 @@
                     <div class="col-6 col-md-2 col-lg-2">
                         <label for="fechaHasta" class="form-label small fw-semibold text-secondary mb-1">Hasta</label>
                         <input type="date" id="fechaHasta" name="fechaHasta" class="form-control control-epicentro"
+                               th:min="${festivalSeleccionado != null and festivalSeleccionado.fechaInicio != null ? #temporals.format(festivalSeleccionado.fechaInicio, 'yyyy-MM-dd') : null}"
+                               th:max="${festivalSeleccionado != null and festivalSeleccionado.fechaFin != null ? #temporals.format(festivalSeleccionado.fechaFin, 'yyyy-MM-dd') : null}"
                                th:value="${fechaHasta != null ? #temporals.format(fechaHasta, 'yyyy-MM-dd') : ''}">
                     </div>
 
@@ -291,8 +295,38 @@
                 };
             }
 
+            function actualizarLimites(opcion) {
+                if (opcion && opcion.value) {
+                    const f = fechasDeOpcion(opcion);
+                    if (f.inicio) {
+                        fechaDesde.min = f.inicio;
+                        fechaHasta.min = f.inicio;
+                    } else {
+                        fechaDesde.removeAttribute('min');
+                        fechaHasta.removeAttribute('min');
+                    }
+                    if (f.fin) {
+                        fechaDesde.max = f.fin;
+                        fechaHasta.max = f.fin;
+                    } else {
+                        fechaDesde.removeAttribute('max');
+                        fechaHasta.removeAttribute('max');
+                    }
+                } else {
+                    fechaDesde.removeAttribute('min');
+                    fechaDesde.removeAttribute('max');
+                    fechaHasta.removeAttribute('min');
+                    fechaHasta.removeAttribute('max');
+                }
+            }
+
+            if (selectFestival.selectedIndex >= 0) {
+                actualizarLimites(selectFestival.options[selectFestival.selectedIndex]);
+            }
+
             selectFestival.addEventListener('change', function () {
                 const opcion = selectFestival.options[selectFestival.selectedIndex];
+                actualizarLimites(opcion);
                 if (opcion && opcion.value) {
                     const f = fechasDeOpcion(opcion);
                     if (f.inicio) fechaDesde.value = f.inicio;
