@@ -4,6 +4,10 @@
 
 Aplicación web para la gestión de festivales gastronómicos, sus unidades de venta y el personal asociado. El sistema permite administrar la información de los festivales y de las unidades participantes, contemplando distintos tipos de unidades de venta, pedidos, caja, reportes y roles de usuario.
 
+> [!IMPORTANT]
+> **Estado del desarrollo y sincronización de ramas (`dev` y `main`):**
+> Todo el ciclo de desarrollo, la implementación de funcionalidades, los flujos de negocio y las pruebas unitarias fueron realizados y verificados exhaustivamente en la rama **`dev`**, donde el sistema funciona de manera completa e integral. Posteriormente, todo el contenido de `dev` fue **mergeado a la rama `main`** para la entrega final, por lo que ambas ramas se encuentran sincronizadas con la última versión operativa y los 19 tests automatizados pasando exitosamente.
+
 ## Integrantes
 
 | Integrante | Usuario de GitHub |
@@ -24,13 +28,16 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 - Maven para la gestión del proyecto y sus dependencias.
 - Visual Studio Code como entorno de desarrollo.
 
-## Diagrama de clases
+## Diagrama de clases y documentación adicional
 
-El modelo de dominio y diagrama de clases de la aplicación se encuentra versionado en el repositorio en formato vectorial:
+El modelo de dominio y la documentación de la aplicación se encuentran versionados en el repositorio:
 
-- 📄 [Diagrama de Clases UML (SVG)](./UML-final(15)(1)(3).svg)
+- 📄 [Diagrama de Clases UML (SVG)](./UML-final.svg)
+- 📐 [Diagrama editable en Draw.io (XML)](./UML-EpicentroGourmet-codigo.drawio)
+- 📑 [Consigna del Trabajo Práctico (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
+- 📊 [Planilla de Clases y Métodos Spring (Excel)](./clases%20y%20metodos%20spring%20.xlsx)
 
-![Diagrama de Clases UML](./UML-final(15)(1)(3).svg)
+![Diagrama de Clases UML](./UML-final.svg)
 
 ## Pull requests
 
@@ -38,10 +45,13 @@ Las funcionalidades y cambios del proyecto fueron integrados mediante pull reque
 
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
+| [#93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93) | Fixes con temporadas: validación obligatoria, cálculo automático según fecha (hemisferio sur), selector en formularios y ajuste de staff | Roberto Andrés Ruiz Pereira |
 | [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) | Mejorar liquidaciones, empleados y registro de unidades de venta | Leonel Soloaga |
 | [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | Sincronización de fechas al actualizar festival y corrección del ABM de festivales y liquidaciones | Leonel Alejandro Soloaga |
+| [#90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90) | Liquidación, recaudación y rentabilidad neta: liquidación por email, cálculo riguroso sin fallback a cero, selector de festival y restricción por rol | Roberto Andrés Ruiz Pereira |
 | [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) | fix liquidaciones mensuales y recibos individuales | Leonel Soloaga |
 | [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) | validaciones y seguridad de empleados y festivales | Leonel Soloaga |
+| [#85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85) | Plantillas de error HTTP personalizadas (400, 401, 403, 404, 500) y redirección de accesos denegados | Federico Matías Salvatierra |
 | [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga | Ana Belén Vázquez |
 | [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) | Baja lógica de unidades de venta | Ana Belén Vázquez |
 | [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) | ABM de festivales y baja lógica | Roberto Andrés Ruiz Pereira |
@@ -114,19 +124,44 @@ Antes de ejecutar la aplicación, se debe contar con:
 
 ## Configuración
 
-La aplicación obtiene la configuración sensible desde variables de entorno o desde un archivo `.env` ubicado en la carpeta `codificacion-grup03/`. No se deben subir credenciales reales al repositorio.
+La aplicación obtiene la configuración sensible desde variables de entorno o desde un archivo `.env` ubicado en la carpeta `codificacion-grup03/`. En el proyecto se incluye una plantilla de ejemplo lista para usar denominada `.envexample` (o `.env.example`). No se deben subir credenciales reales al repositorio.
 
-Crear el archivo `codificacion-grup03/.env` con una configuración similar a la siguiente:
+Para configurarlo rápidamente:
 
-```properties
-DB_URL=jdbc:mysql://localhost:3306/festivales
-DB_USERNAME=root
-DB_PASSWORD=tu_clave
-MAIL_USERNAME=tu_correo@gmail.com
-MAIL_PASSWORD=tu_clave_de_aplicacion
+```bash
+cd codificacion-grup03
+cp .envexample .env
 ```
 
-La base de datos `festivales` debe existir previamente en MySQL. Al iniciar, Hibernate actualiza el esquema y la aplicación carga los datos de `src/main/resources/CargaDatos.sql`.
+Y completar el archivo `codificacion-grup03/.env` con los valores de tu entorno:
+
+```properties
+# Base de datos MySQL
+DB_URL=jdbc:mysql://localhost:3306/ghsicilianotfi?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=tu_clave_aqui
+
+# Correo electrónico para notificaciones asíncronas (Gmail SMTP)
+MAIL_USERNAME=tu_correo@gmail.com
+MAIL_PASSWORD=tu_clave_de_aplicacion_16_caracteres
+```
+
+La base de datos `ghsicilianotfi` (o la que se configure en `DB_URL`) debe existir previamente en MySQL. Al iniciar la aplicación, Hibernate actualiza el esquema automáticamente y Spring Boot ejecuta la inicialización de roles y datos de `src/main/resources/CargaDatos.sql` a través de `DataCarga.java`.
+
+## Usuarios y credenciales de prueba
+
+Para facilitar la evaluación y prueba de todos los roles del sistema, la carga inicial (`CargaDatos.sql` y `DataCarga.java`) provee usuarios preconfigurados protegidos con BCrypt. La contraseña inicial común para todas las cuentas de prueba es:
+
+**Contraseña por defecto:** `Epicentro2026`
+
+| Email | Contraseña | Rol asignado | Descripción / Alcance |
+| --- | --- | --- | --- |
+| `admin@epicentro.com` | `Epicentro2026` | **ADMIN** | Administrador general (festivales, usuarios, reportes globales, categorías, etc.) |
+| `rpruiz33@gmail.com` | `Epicentro2026` | **ADMIN** | Administrador de contingencia / evaluación |
+| `responsable@epicentro.com` | `Epicentro2026` | **RESPONSABLE** | Responsable de unidad de venta (gestión de platos, empleados, ventas y reportes propios) |
+| `cajero@epicentro.com` | `Epicentro2026` | **CAJERO** | Cajero operativo (alta de pedidos y operaciones de caja) |
+| `cocinero@epicentro.com` | `Epicentro2026` | **COCINERO** | Cocinero (personal de cocina con categoría asignada) |
+| `empleado@epicentro.com` | `Epicentro2026` | **EMPLEADO** | Empleado general (consulta de dashboard y datos personales) |
 
 ## Ejecución
 
@@ -155,6 +190,55 @@ Una vez iniciada la aplicación, ingresar desde el navegador a:
 ```text
 http://localhost:8080
 ```
+
+## Pruebas automatizadas (Testing)
+
+El proyecto cuenta con una suite completa de **19 pruebas unitarias y de integración** automatizadas desarrolladas con **JUnit 5** y **Mockito**. Estas pruebas cubren la lógica crítica de negocio: cálculo de cánones comerciales, validación y ciclo de vida de unidades de venta, cálculo de rentabilidad neta real (deduciendo sueldos y costos de festival), liquidación de haberes con piso salarial mínimo garantizado y control de seguridad en reportes.
+
+Para ejecutar toda la suite de pruebas desde la terminal:
+
+```bash
+cd codificacion-grup03
+./mvnw test
+```
+
+### Detalle de las clases y los 19 tests implementados
+
+Los tests se encuentran ubicados en el directorio `src/test/java/com/example/hito2grupo3/` y están distribuidos en las siguientes 5 clases de prueba:
+
+#### 1. `UnidadVentaServiceTest` (4 tests)
+Ubicación: `src/test/java/com/example/hito2grupo3/services/UnidadVentaServiceTest.java`
+- `darDeBajaLogica_exitoso`: Verifica la baja lógica de una unidad de venta en base de datos sin eliminar físicamente el registro, preservando el histórico.
+- `darDeBajaLogica_idNulo_lanzaExcepcion`: Comprueba que dar de baja con un ID nulo arroje `IllegalArgumentException` sin ejecutar queries.
+- `reactivar_exitoso`: Valida la reactivación de una unidad de venta dada de baja previamente.
+- `reactivar_idNulo_lanzaExcepcion`: Asegura que el intento de reactivación con ID nulo lance `IllegalArgumentException`.
+
+#### 2. `CanonServiceTest` (5 tests)
+Ubicación: `src/test/java/com/example/hito2grupo3/services/CanonServiceTest.java`
+- `calcularCanonFoodTruckConElectricidad`: Verifica la fórmula de Food Truck con suministro eléctrico: `Superficie (m²) × Costo m² + Plus Eléctrico`.
+- `calcularCanonFoodTruckSinElectricidad`: Valida el canon de Food Truck sin plus cuando no requiere conexión eléctrica.
+- `calcularCanonPuestoDesarmable`: Valida la deducción por tiempo de montaje: `Superficie (m²) × Costo m² − (Minutos Montaje × Costo Minuto)`.
+- `calcularCanonPuestoDesarmableNoPuedeSerNegativo`: Asegura que ante penalizaciones altas de armado el canon resultante nunca sea negativo (piso en $0).
+- `calcularCanonConValoresPersonalizadosDeProperties`: Comprueba que los valores de cálculo se inyecten dinámicamente desde `CanonProperties` (`application.yml`).
+
+#### 3. `RentabilidadNetaServiceTest` (3 tests)
+Ubicación: `src/test/java/com/example/hito2grupo3/services/RentabilidadNetaServiceTest.java`
+- `calcularRentabilidadUnidadEntreFechas_sueldosYCanonCorrespondenAlPeriodo`: Valida el cálculo integral: `Ingresos − (Costos Platos + Sueldos Proporcionales + Canon Proporcional)`.
+- `calcularRentabilidadUnidadEntreFechas_errorEnLiquidacionNoSeReemplazaPorCero`: Garantiza que ante un fallo en la liquidación de personal la excepción se propague y no sea silenciada reemplazando sueldos por 0.
+- `calcularRentabilidadUnidadEntreFechas_errorEnCanonNoSeReemplazaPorCero`: Asegura que errores en el cálculo de canon lancen la excepción correspondiente en lugar de falsear la rentabilidad con canon en $0.
+
+#### 4. `LiquidacionServiceTest` (5 tests)
+Ubicación: `src/test/java/com/example/hito2grupo3/services/LiquidacionServiceTest.java`
+- `liquidarEmpleadoGenerico_exitosoConAntiguedad`: Valida la liquidación de empleados base (Responsable / Empleado general) con sueldo base garantizado ($100.000 mínimo) más adicional por antigüedad.
+- `liquidarEmpleado_rechazaBusquedaParcial`: Comprueba que la búsqueda para liquidación requiera el email exacto del usuario, rechazando búsquedas parciales por seguridad.
+- `liquidarCocinero_aplicaPlusYNoAntiguedad`: Verifica la regla del TP para cocineros: perciben sueldo base + plus de categoría de cocina, sin adicional de antigüedad.
+- `liquidarCajero_aplicaAntiguedadYNoPlus`: Verifica la regla para cajeros: perciben sueldo base + antigüedad, sin plus de cocina.
+- `liquidarPorUnidadEntreFechas_calculaProporcional`: Valida el cálculo proporcional de sueldos según los días trabajados en el período consultado (períodos de 15 días).
+
+#### 5. `ResponsableReportesTest` (2 tests)
+Ubicación: `src/test/java/com/example/hito2grupo3/controllers/ResponsableReportesTest.java`
+- `recaudacionResponsable_restringidaASuUnidadYPermiteSeleccionarFestival`: Valida que el responsable autenticado solo pueda consultar la recaudación de su propia unidad de venta, permitiendo filtrar por festival.
+- `rentabilidadResponsable_restringidaASuUnidadYPermiteSeleccionarFestival`: Comprueba que el reporte de rentabilidad neta esté aislado para el responsable, impidiendo la exposición del ranking del resto de las unidades.
 
 ## Casos de uso implementados
 
@@ -185,18 +269,20 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | --- | --- | --- |
 | Autenticación, registro y contraseña | Roberto Andrés Ruiz Pereira | [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) |
 | Gestión de festivales (Alta y ABM) | Roberto Andrés Ruiz Pereira | [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65), [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) |
+| Gestión y cálculo dinámico de temporadas en festivales | Roberto Andrés Ruiz Pereira | [#93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93) |
 | Baja lógica de unidades de venta desde el festival | Roberto Andrés Ruiz Pereira | [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) |
 | Gestión de categorías de cocina | Roberto Andrés Ruiz Pereira | [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) |
-| Liquidación de haberes y recibos | Roberto Andrés Ruiz Pereira | [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29), [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) |
-| Rentabilidad neta | Roberto Andrés Ruiz Pereira | [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) |
+| Liquidación de haberes y recibos | Roberto Andrés Ruiz Pereira | [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29), [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32), [#90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90) |
+| Rentabilidad neta y selector de festivales | Roberto Andrés Ruiz Pereira | [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42), [#90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90) |
 | Cierre y reapertura de caja | Roberto Andrés Ruiz Pereira | [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) |
-| Reporte de recaudación | Roberto Andrés Ruiz Pereira | [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) |
+| Reporte de recaudación | Roberto Andrés Ruiz Pereira | [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43), [#90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90) |
 | Gestión y alta de usuarios/roles | Federico Matías Salvatierra | [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) |
 | Gestión de festivales y unidades | Federico Matías Salvatierra | [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) |
 | Gestión del responsable | Federico Matías Salvatierra | [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) |
 | Cálculo de canon en perfil responsable | Federico Matías Salvatierra | [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) |
 | Validación y cálculo de cánones | Federico Matías Salvatierra | [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) |
 | Historial de asignaciones de empleados | Federico Matías Salvatierra | [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) |
+| Vistas de error HTTP personalizadas y control de acceso | Federico Matías Salvatierra | [#85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85) |
 | Registro de unidad de venta y responsable | Ana Belén Vázquez | [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) |
 | Modificación de unidad de venta | Ana Belén Vázquez | [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68), [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) |
 | Baja lógica de unidades de venta | Ana Belén Vázquez | [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) |
@@ -221,11 +307,14 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 #### 1. Roberto Andrés Ruiz Pereira ([@rpruiz33](https://github.com/rpruiz33))
 - **Casos de Uso Principales:**
   1. **ABM y Baja Lógica de Festivales** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Alta, edición con inmutabilidad de nombre, baja lógica sin romper histórico de pedidos.
-  2. **Liquidación de Haberes y Recibos PDF** ([PR #30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [PR #32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32)): Cálculo con proporcionalidad por días, antigüedad y categoría.
-  3. **Baja Lógica de Unidades de Venta desde el Festival** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Inhabilitación de una unidad de venta asociada a un festival sin eliminarla físicamente, conservando el historial de pedidos y la posibilidad de reactivarla. El administrador puede ver el estado (Activa / Inactiva) de cada unidad en la vista del festival y dar de baja o reactivar individualmente.
+  2. **Gestión y Determinación Automática de Temporadas de Festivales** ([PR #93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93)): Temporada obligatoria (`Invierno`, `Primavera`, `Verano`, `Otoño`), cálculo dinámico según fecha de inicio en hemisferio sur (`@PrePersist`, `@PreUpdate`, `@PostLoad`), selector interactivo en formularios, ajuste de la entidad `Staff` y visibilidad transversal en vistas de administración, responsable, cajero y reportes.
+  3. **Liquidación de Haberes, Personal por Email y Recibos PDF** ([PR #30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30), [PR #32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32), [PR #90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90)): Cálculo proporcional por días trabajados, plus por antigüedad y categoría de cocina, piso de sueldo base mínimo garantizado de $100.000, búsqueda estricta de usuarios por correo para liquidaciones individuales y exportación de recibos.
+  4. **Reporte de Rentabilidad Neta y Recaudación con Selector de Festival** ([PR #42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42), [PR #43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43), [PR #90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90)): Cálculo preciso de rentabilidad deduciendo costos de festival, sueldos y cánones devengados entre fechas, aislamiento de acceso para responsables de unidad y selector dinámico de festival en panel administrativo y de responsable para evitar métricas en cero.
+  5. **Baja Lógica de Unidades de Venta desde el Festival** ([PR #82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82)): Inhabilitación de una unidad de venta asociada a un festival sin eliminarla físicamente, conservando el historial de pedidos y la posibilidad de reactivarla individualmente.
 - **Validaciones de Carga de Datos:**
   1. **Validación de fechas del festival:** fecha de inicio y fin obligatorias, inicio anterior a fin con al menos 1 día de diferencia en backend y frontend ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
   2. **Validación de formato de patente en Food Trucks:** formato argentino alfanumérico estricto (`AAA123` o `AA123BB`) tanto en cliente como servidor ([PR #66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66)).
+  3. **Validación de temporada de festival:** obligatoriedad del campo con `@NotBlank` y correspondencia estricta mediante `@Pattern(regexp = "Invierno|Primavera|Verano|Otoño")` tanto en frontend como en el modelo de entidades ([PR #93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93)).
 
 #### 2. Ana Belén Vázquez ([@anavazquez141](https://github.com/anavazquez141))
 - **Casos de Uso Principales:**
@@ -253,6 +342,7 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 - **Casos de Uso Principales:**
   1. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
   2. **Cálculo y Visualización de Canon en Perfil Responsable** ([PR #58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58)): Visualización y desglose del canon comercial aplicable a la unidad.
+  3. **Plantillas de Error HTTP y Control de Accesos** ([PR #85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85)): Vistas de error personalizadas y estilizadas para códigos HTTP 400, 401, 403, 404 y 500, con redirección y controlador ante acceso denegado.
 - **Validaciones de Carga de Datos:**
   1. **Validación de canon positivo:** verificación estricta de que el canon calculado para cualquier unidad sea estrictamente mayor a cero ([PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
   2. **Validación de superficie y parámetros de unidad:** superficie mínima en m² y parámetros positivos de montaje y puestos ([PR #47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47), [PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
