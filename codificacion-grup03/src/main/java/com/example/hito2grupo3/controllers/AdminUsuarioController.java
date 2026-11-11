@@ -2,10 +2,12 @@
 package com.example.hito2grupo3.controllers;
 
 import com.example.hito2grupo3.dto.EmpleadoDTO;
+import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
 import com.example.hito2grupo3.services.ICategoriaCocinaService;
 import com.example.hito2grupo3.services.IEmpleadoService;
+import com.example.hito2grupo3.services.IFestivalService;
 import com.example.hito2grupo3.services.IUnidadVentaService;
 import com.example.hito2grupo3.services.IUsuarioService;
 import com.example.hito2grupo3.configuration.SueldoProperties;
@@ -18,8 +20,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.time.LocalDate;
 
 @Controller
@@ -30,18 +34,22 @@ public class AdminUsuarioController {
     private final IEmpleadoService empleadoService;
     private final ICategoriaCocinaService categoriaCocinaService;
     private final IUnidadVentaService unidadVentaService;
+    private final IFestivalService festivalService;
     private final SueldoProperties sueldoProperties;
+
     public AdminUsuarioController(
             IUsuarioService usuarioService,
             IEmpleadoService empleadoService,
             ICategoriaCocinaService categoriaCocinaService,
             IUnidadVentaService unidadVentaService,
+            IFestivalService festivalService,
             SueldoProperties sueldoProperties) {
 
         this.usuarioService = usuarioService;
         this.empleadoService = empleadoService;
         this.categoriaCocinaService = categoriaCocinaService;
         this.unidadVentaService = unidadVentaService;
+        this.festivalService = festivalService;
         this.sueldoProperties = sueldoProperties;
     }
 
@@ -119,13 +127,20 @@ public class AdminUsuarioController {
     }
 
 @GetMapping("/nuevo")
-public String mostrarFormularioAlta(Model model) {
+public String mostrarFormularioAlta(Authentication authentication, Model model) {
 
     EmpleadoDTO nuevoEmpleado = new EmpleadoDTO();
-    nuevoEmpleado.setFechaIngreso(LocalDate.now());
+    Festival festival = resolverFestivalParaResponsable(authentication);
+
+    LocalDate fechaInicial = LocalDate.now();
+    if (festival != null && festival.getFechaInicio() != null && fechaInicial.isBefore(festival.getFechaInicio())) {
+        fechaInicial = festival.getFechaInicio();
+    }
+    nuevoEmpleado.setFechaIngreso(fechaInicial);
     nuevoEmpleado.setSueldo(sueldoProperties.baseOrDefault());
 
     model.addAttribute("empleado", nuevoEmpleado);
+    model.addAttribute("festival", festival);
     model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
 
     return "responsable/usuario-form";
@@ -138,23 +153,12 @@ public String mostrarFormularioAlta(Model model) {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttrs) {
-        LocalDate hoy = LocalDate.now();
 
-        if (dto.getFechaIngreso() != null && dto.getFechaIngreso().isAfter(hoy)) {
-            result.rejectValue(
-                    "fechaIngreso",
-                    "fechaIngreso.invalida",
-                    "La fecha de ingreso no puede ser futura."
-            );
-        } else if (dto.getFechaNacimiento() != null && dto.getFechaIngreso() != null
-                && dto.getFechaIngreso().isBefore(dto.getFechaNacimiento().plusYears(18))) {
-            result.rejectValue(
-                    "fechaIngreso",
-                    "fechaIngreso.invalida",
-                    "La fecha de ingreso debe ser posterior a la mayoría de edad (18 años)."
-            );
-        }
+        Festival festival = resolverFestivalParaResponsable(authentication);
+        validarDatosEmpleado(dto, festival, result);
+
         if (result.hasErrors()) {
+            model.addAttribute("festival", festival);
             model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
         }
@@ -175,11 +179,13 @@ public String mostrarFormularioAlta(Model model) {
             );
 
         } catch (IllegalArgumentException e) {
+            model.addAttribute("festival", festival);
             model.addAttribute("error", e.getMessage());
             model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
             return "responsable/usuario-form";
 
         } catch (Exception e) {
+            model.addAttribute("festival", festival);
             model.addAttribute(
                     "error",
                     "Error inesperado al registrar el empleado: " + e.getMessage()
@@ -211,8 +217,10 @@ public String mostrarFormularioEdicion(
         }
 
         EmpleadoDTO dto = empleadoService.obtenerDtoPorId(staff.getId());
+        Festival festival = resolverFestivalParaResponsable(authentication);
 
         model.addAttribute("empleado", dto);
+        model.addAttribute("festival", festival);
         model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
 
         return "responsable/usuario-form";
@@ -247,8 +255,12 @@ public String actualizarEmpleado(
         return "redirect:/responsable/usuarios";
     }
 
+    Festival festival = resolverFestivalParaResponsable(authentication);
+    validarDatosEmpleado(dto, festival, result);
+
     if (result.hasErrors()) {
         dto.setId(staff.getId());
+        model.addAttribute("festival", festival);
         model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
         return "responsable/usuario-form";
     }
@@ -263,12 +275,14 @@ public String actualizarEmpleado(
 
     } catch (IllegalArgumentException e) {
         dto.setId(staff.getId());
+        model.addAttribute("festival", festival);
         model.addAttribute("error", e.getMessage());
         model.addAttribute("categoriasCocina", categoriaCocinaService.listarTodas());
         return "responsable/usuario-form";
 
     } catch (Exception e) {
         dto.setId(staff.getId());
+        model.addAttribute("festival", festival);
         model.addAttribute(
                 "error",
                 "Error inesperado al actualizar el empleado: " + e.getMessage()
@@ -279,6 +293,104 @@ public String actualizarEmpleado(
 
     return "redirect:/responsable/usuarios";
 }
+
+    private void validarDatosEmpleado(EmpleadoDTO dto, Festival festival, BindingResult result) {
+        LocalDate hoy = LocalDate.now();
+
+        // 1. DNI: numérico de 7 u 8 dígitos (máximo 8 números, sin puntos ni letras)
+        if (dto.getDni() != null && !dto.getDni().trim().matches("^[0-9]{7,8}$")) {
+            result.rejectValue(
+                    "dni",
+                    "dni.invalido",
+                    "El DNI debe contener 7 u 8 dígitos numéricos sin puntos ni letras."
+            );
+        }
+
+        // 2. Fecha de Nacimiento: mayor de 18 años
+        if (dto.getFechaNacimiento() != null) {
+            if (dto.getFechaNacimiento().isAfter(hoy.minusYears(18))) {
+                result.rejectValue(
+                        "fechaNacimiento",
+                        "fechaNacimiento.menorDeEdad",
+                        "El empleado debe ser mayor de 18 años."
+                );
+            } else if (dto.getFechaNacimiento().isBefore(hoy.minusYears(100))) {
+                result.rejectValue(
+                        "fechaNacimiento",
+                        "fechaNacimiento.edadExcesiva",
+                        "La edad no puede superar los 100 años."
+                );
+            }
+        }
+
+        // 3. Fecha de Ingreso: no puede ser antes de que empiece el festival
+        if (festival != null && festival.getFechaInicio() != null && dto.getFechaIngreso() != null) {
+            if (dto.getFechaIngreso().isBefore(festival.getFechaInicio())) {
+                result.rejectValue(
+                        "fechaIngreso",
+                        "fechaIngreso.anteriorAlFestival",
+                        "La fecha de ingreso no puede ser anterior al inicio del festival (" + festival.getFechaInicio() + " - " + festival.getNombre() + ")."
+                );
+            }
+        }
+
+        // 4. Coherencia entre nacimiento e ingreso (mayoría de edad al momento de ingresar)
+        if (dto.getFechaNacimiento() != null && dto.getFechaIngreso() != null
+                && dto.getFechaIngreso().isBefore(dto.getFechaNacimiento().plusYears(18))) {
+            result.rejectValue(
+                    "fechaIngreso",
+                    "fechaIngreso.invalida",
+                    "La fecha de ingreso debe ser posterior a la mayoría de edad (18 años)."
+            );
+        }
+    }
+
+    private Festival resolverFestivalParaResponsable(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        UnidadVenta unidad = unidadVentaService.buscarPorResponsableEmail(authentication.getName());
+        LocalDate hoy = LocalDate.now();
+
+        if (unidad != null) {
+            List<Festival> festUnidad = festivalService.buscarFestivalesActivosPorUnidadVenta(unidad.getId());
+            if (festUnidad != null && !festUnidad.isEmpty()) {
+                // 1. Festival en curso (hoy entre fechaInicio y fechaFin)
+                Optional<Festival> enCurso = festUnidad.stream()
+                        .filter(f -> f.getFechaInicio() != null && f.getFechaFin() != null
+                                && !hoy.isBefore(f.getFechaInicio()) && !hoy.isAfter(f.getFechaFin()))
+                        .findFirst();
+                if (enCurso.isPresent()) return enCurso.get();
+
+                // 2. Próximo festival (a iniciarse)
+                Optional<Festival> proximo = festUnidad.stream()
+                        .filter(f -> f.getFechaInicio() != null && !f.getFechaInicio().isBefore(hoy))
+                        .min(Comparator.comparing(Festival::getFechaInicio));
+                if (proximo.isPresent()) return proximo.get();
+
+                // 3. Más reciente
+                return festUnidad.stream()
+                        .filter(f -> f.getFechaInicio() != null)
+                        .max(Comparator.comparing(Festival::getFechaInicio))
+                        .orElse(festUnidad.get(0));
+            }
+        }
+
+        // Fallback global de festivales
+        List<Festival> todos = festivalService.listarTodos();
+        if (todos != null && !todos.isEmpty()) {
+            return todos.stream()
+                    .filter(f -> f.getFechaInicio() != null && f.getFechaFin() != null
+                            && !hoy.isBefore(f.getFechaInicio()) && !hoy.isAfter(f.getFechaFin()))
+                    .findFirst()
+                    .orElseGet(() -> todos.stream()
+                            .filter(f -> f.getFechaInicio() != null)
+                            .max(Comparator.comparing(Festival::getFechaInicio))
+                            .orElse(todos.get(0)));
+        }
+
+        return null;
+    }
 
 
 /*METODO DECLARADO PERO NO SE UTILIZA, NO ESTA IMPLEMENTADO

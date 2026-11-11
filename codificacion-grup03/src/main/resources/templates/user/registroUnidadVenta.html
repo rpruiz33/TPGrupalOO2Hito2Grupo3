@@ -258,6 +258,7 @@ title="Ingresá una patente de entre 6 y 10 caracteres alfanuméricos."
                            pattern="^[0-9]{7,8}$"
                            minlength="7"
                            maxlength="8"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);"
                            title="El DNI debe contener 7 u 8 dígitos numéricos, sin puntos ni letras."
                            th:value="${dni}"
                            required>
@@ -266,12 +267,13 @@ title="Ingresá una patente de entre 6 y 10 caracteres alfanuméricos."
                 <div class="mb-3">
                     <label for="fechaNacimiento"
                            class="form-label text-white">
-                        Fecha de nacimiento
+                        Fecha de nacimiento (mayor de 18 años)
                     </label>
                     <input type="date"
                            id="fechaNacimiento"
                            name="fechaNacimiento"
                            class="form-control"
+                           th:max="${#temporals.format(#temporals.createNow().minusYears(18), 'yyyy-MM-dd')}"
                            th:value="${fechaNacimiento}"
                            required>
                 </div>
