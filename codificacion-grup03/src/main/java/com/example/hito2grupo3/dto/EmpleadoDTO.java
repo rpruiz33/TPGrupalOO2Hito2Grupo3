@@ -40,7 +40,7 @@ public class EmpleadoDTO {
     private String apellido;
 
     @NotBlank(message = "El DNI es obligatorio")
-    @Pattern(regexp = "^[0-9]{7,8}$", message = "El DNI debe tener 7 u 8 dígitos numéricos sin puntos ni espacios")
+    @Pattern(regexp = "^[0-9]{7,8}$", message = "El DNI debe contener 7 u 8 dígitos numéricos sin puntos ni espacios")
     private String dni;
 
     @NotBlank(message = "El correo electrónico es obligatorio")
@@ -89,7 +89,7 @@ public class EmpleadoDTO {
     private boolean activo = true;
 
 // Validaciones para fechas 
-@AssertTrue(message = "El empleado debe tener entre 18 y 100 años de edad")
+@AssertTrue(message = "El empleado debe ser mayor de 18 años (tener entre 18 y 100 años de edad)")
 public boolean isMayorDeEdad() {
     if (fechaNacimiento == null) {
         return true;

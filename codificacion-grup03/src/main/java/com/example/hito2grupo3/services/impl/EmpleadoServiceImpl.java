@@ -102,6 +102,17 @@ public EmpleadoServiceImpl(StaffRepository staffRepository,
     @Override
     @Transactional
     public Staff crearEmpleado(EmpleadoDTO dto) {
+        // Validar formato de DNI
+        if (dto.getDni() == null || !dto.getDni().trim().matches("^[0-9]{7,8}$")) {
+            throw new IllegalArgumentException("El DNI debe contener 7 u 8 dígitos numéricos sin puntos ni letras.");
+        }
+
+        // Validar mayoría de edad
+        LocalDate hoy = LocalDate.now();
+        if (dto.getFechaNacimiento() != null && dto.getFechaNacimiento().isAfter(hoy.minusYears(18))) {
+            throw new IllegalArgumentException("El empleado debe ser mayor de 18 años.");
+        }
+
         // Validar DNI único
         if (staffRepository.findByDni(dto.getDni().trim()).isPresent()) {
             throw new IllegalArgumentException("Ya existe un empleado con el DNI: " + dto.getDni());

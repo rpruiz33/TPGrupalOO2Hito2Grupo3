@@ -82,10 +82,13 @@
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">DNI</label>
-                        <input type="text" class="form-control" th:errorclass="is-invalid" th:field="*{dni}" 
+                        <input type="text" id="dni" class="form-control" th:errorclass="is-invalid" th:field="*{dni}" 
                                placeholder="Ej. 35123456" required minlength="7" maxlength="8"
+                               inputmode="numeric"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);"
                                pattern="^[0-9]{7,8}$" title="El DNI debe contener 7 u 8 dígitos numéricos sin puntos ni letras">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                        <small class="text-muted">7 u 8 dígitos numéricos (máximo 8 números, sin puntos ni letras).</small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Correo Electrónico (Usuario de Acceso)</label>
@@ -103,14 +106,14 @@
                class="form-control"
                th:errorclass="is-invalid"
                th:field="*{fechaNacimiento}"
+               th:max="${#temporals.format(#temporals.createNow().minusYears(18), 'yyyy-MM-dd')}"
                required>
         <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaNacimiento')}"
              th:errors="*{fechaNacimiento}"></div>
         <div class="text-danger small mt-1"
              th:if="${#fields.hasErrors('mayorDeEdad')}"
              th:errors="*{mayorDeEdad}"></div>
-        <small class="text-muted">Edad permitida: entre 18 y 100 años.</small>
-        <div id="fechaNacimientoError"
+                <div id="fechaNacimientoError"
      class="text-danger small mt-1"
      aria-live="polite"></div>
     </div>
@@ -122,7 +125,8 @@
                class="form-control"
                th:errorclass="is-invalid"
                th:field="*{fechaIngreso}"
-               th:attr="data-nuevo=${empleado.id == null}"
+               th:attr="data-nuevo=${empleado.id == null},data-festival-inicio=${festival != null and festival.fechaInicio != null ? #temporals.format(festival.fechaInicio, 'yyyy-MM-dd') : ''},data-festival-nombre=${festival != null ? festival.nombre : ''}"
+               th:min="${festival != null and festival.fechaInicio != null ? #temporals.format(festival.fechaInicio, 'yyyy-MM-dd') : null}"
                required>
         <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaIngreso')}"
              th:errors="*{fechaIngreso}"></div>
@@ -130,7 +134,12 @@
              th:if="${#fields.hasErrors('fechaIngresoValida')}"
              th:errors="*{fechaIngresoValida}"></div>
         <small class="text-muted"
-                th:text="${empleado.id == null ? 'Desde hoy hasta un mes en adelante.' : 'Se conserva la fecha de ingreso registrada.'}"></small>
+               th:if="${festival != null and festival.fechaInicio != null}"
+               th:text="'No puede ser anterior al inicio del festival (' + ${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')} + ' - ' + ${festival.nombre} + ').'"></small>
+        <small class="text-muted"
+               th:unless="${festival != null and festival.fechaInicio != null}"
+               th:text="${empleado.id == null ? 'Fecha a partir de la cual ingresa a la unidad.' : 'Se conserva la fecha de ingreso registrada.'}"></small>
+        <div id="fechaIngresoError" class="text-danger small mt-1" aria-live="polite"></div>
     </div>
 
    
@@ -389,13 +398,14 @@ function validarFechaNacimiento() {
         modificarAnios(hoy, -18)
     );
 
-    if (
-        nacimiento.value < fechaMinima ||
-        nacimiento.value > fechaMaxima
-    ) {
-        error.textContent =
-            'El empleado debe tener entre 18 y 100 años de edad.';
+    if (nacimiento.value > fechaMaxima) {
+        error.textContent = 'El empleado debe ser mayor de 18 años.';
+        nacimiento.classList.add('is-invalid');
+        return false;
+    }
 
+    if (nacimiento.value < fechaMinima) {
+        error.textContent = 'La edad no puede superar los 100 años.';
         nacimiento.classList.add('is-invalid');
         return false;
     }
@@ -403,59 +413,77 @@ function validarFechaNacimiento() {
     return true;
 }
 
-function modificarMeses(fecha, cantidad) {
-    const resultado = new Date(
-        fecha.getFullYear(),
-        fecha.getMonth() + cantidad,
-        1
-    );
+function validarFechaIngreso() {
+    const ingreso = document.getElementById('fechaIngreso');
+    const error = document.getElementById('fechaIngresoError');
+    if (!ingreso || !error) return true;
 
-    const ultimoDia = new Date(
-        resultado.getFullYear(),
-        resultado.getMonth() + 1,
-        0
-    ).getDate();
+    error.textContent = '';
+    ingreso.classList.remove('is-invalid');
 
-    resultado.setDate(Math.min(fecha.getDate(), ultimoDia));
-    return resultado;
+    if (!ingreso.value) return true;
+
+    const festivalInicio = ingreso.dataset.festivalInicio;
+    const festivalNombre = ingreso.dataset.festivalNombre || 'el festival';
+
+    if (festivalInicio && ingreso.value < festivalInicio) {
+        error.textContent = 'La fecha de ingreso no puede ser anterior al inicio de ' + festivalNombre + ' (' + festivalInicio + ').';
+        ingreso.classList.add('is-invalid');
+        return false;
+    }
+
+    return true;
 }
 
 function actualizarLimitesFechas() {
     const ingreso = document.getElementById('fechaIngreso');
     if (!ingreso) return;
 
-    // En edición se conserva la fecha histórica sin imponer límites nuevos.
+    const festivalInicio = ingreso.dataset.festivalInicio;
+    if (festivalInicio) {
+        ingreso.min = festivalInicio;
+    }
+
     const esNuevo = ingreso.dataset.nuevo === 'true';
     if (!esNuevo) {
-        ingreso.removeAttribute('min');
-        ingreso.removeAttribute('max');
         return;
     }
 
-    const hoy = new Date();
-    const fechaHoy = formatearFechaLocal(hoy);
-
-    // En un alta nueva, si no hay fecha cargada, se completa con hoy.
-    if (!ingreso.value) {
-        ingreso.value = fechaHoy;
+    // En un alta nueva, si no hay fecha cargada o es anterior al inicio del festival, asignar la fecha válida inicial.
+    if (!ingreso.value || (festivalInicio && ingreso.value < festivalInicio)) {
+        const hoy = new Date();
+        const fechaHoy = formatearFechaLocal(hoy);
+        if (festivalInicio && fechaHoy < festivalInicio) {
+            ingreso.value = festivalInicio;
+        } else {
+            ingreso.value = fechaHoy;
+        }
     }
-
-    ingreso.min = fechaHoy;
-    ingreso.max = formatearFechaLocal(modificarMeses(hoy, 1));
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     actualizarLimitesFechas();
 
-    const nacimiento = document.getElementById('fechaNacimiento');
+    const dni = document.getElementById('dni');
+    if (dni) {
+        dni.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
+        });
+    }
 
+    const nacimiento = document.getElementById('fechaNacimiento');
     if (nacimiento) {
         nacimiento.addEventListener('change', function () {
             validarFechaNacimiento();
             actualizarLimitesFechas();
         });
-
         nacimiento.addEventListener('input', validarFechaNacimiento);
+    }
+
+    const ingreso = document.getElementById('fechaIngreso');
+    if (ingreso) {
+        ingreso.addEventListener('change', validarFechaIngreso);
+        ingreso.addEventListener('input', validarFechaIngreso);
     }
 });
         function getTipo() {
@@ -527,15 +555,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 document.getElementById('empleadoForm').addEventListener('submit', function(event) {
 
-    if (!validarFechaNacimiento()) {
+    const valNacimiento = validarFechaNacimiento();
+    const valIngreso = validarFechaIngreso();
+
+    if (!valNacimiento || !valIngreso) {
         event.preventDefault();
         return;
     }
 
     const btn = document.getElementById('btnSubmit');
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+    }
 });
     </script>
 </body>
