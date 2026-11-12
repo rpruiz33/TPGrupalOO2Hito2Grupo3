@@ -249,6 +249,7 @@ Ubicación: `src/test/java/com/example/hito2grupo3/controllers/ResponsableReport
 ## Casos de uso implementados
 
 - Inicio de sesión, registro y gestión de contraseñas.
+- Validación de edad mínima para usuarios (mayor de 18 años) y control de fechas de ingreso incompatibles con el festival.
 - Administración de usuarios y roles.
 - Administración de festivales.
 - Alta, modificación y consulta de unidades de venta.
