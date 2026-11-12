@@ -35,7 +35,7 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 - 📄 [Diagrama de Clases UML (SVG)](./UML.svg)
 - 📐 [Diagrama editable en Draw.io (XML)](./UML.drawio)
 - 📑 [Consigna del Trabajo Práctico (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
-- 📊 [Planilla de Clases y Métodos Spring (Excel)](./clases%20y%20metodos%20spring%20.xlsx)
+
 
 ![Diagrama de Clases UML](./UML.svg)
 
