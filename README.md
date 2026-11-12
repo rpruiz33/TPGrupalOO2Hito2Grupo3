@@ -45,6 +45,12 @@ Las funcionalidades y cambios del proyecto fueron integrados mediante pull reque
 
 | Pull request | Funcionalidad | Realizado por |
 | --- | --- | --- |
+| [#101](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/101) | Integración final de `dev` en `main` | Leonel Alejandro Soloaga |
+| [#99](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/99) | Eliminación de clases y métodos Spring `.xlsx` no utilizados | Leonel Alejandro Soloaga |
+| [#98](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/98) | Integración de cambios de `dev` | Leonel Alejandro Soloaga |
+| [#97](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/97) | Corrección del rol `empleado@epicentro.com` | Leonel Alejandro Soloaga |
+| [#96](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/96) | Integración de cambios de `dev` | Federico Matías Salvatierra |
+| [#95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95) | Validación de edad para usuarios | Federico Matías Salvatierra |
 | [#93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93) | Fixes con temporadas: validación obligatoria, cálculo automático según fecha (hemisferio sur), selector en formularios y ajuste de staff | Roberto Andrés Ruiz Pereira |
 | [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) | Mejorar liquidaciones, empleados y registro de unidades de venta | Leonel Soloaga |
 | [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | Sincronización de fechas al actualizar festival y corrección del ABM de festivales y liquidaciones | Leonel Alejandro Soloaga |
