@@ -32,12 +32,12 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 
 El modelo de dominio y la documentación de la aplicación se encuentran versionados en el repositorio:
 
-- 📄 [Diagrama de Clases UML (SVG)](./UML-final.svg)
-- 📐 [Diagrama editable en Draw.io (XML)](./UML-EpicentroGourmet-codigo.drawio)
+- 📄 [Diagrama de Clases UML (SVG)](./UML.svg)
+- 📐 [Diagrama editable en Draw.io (XML)](./UML.drawio)
 - 📑 [Consigna del Trabajo Práctico (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
 - 📊 [Planilla de Clases y Métodos Spring (Excel)](./clases%20y%20metodos%20spring%20.xlsx)
 
-![Diagrama de Clases UML](./UML-final.svg)
+![Diagrama de Clases UML](./UML.svg)
 
 ## Pull requests
 
