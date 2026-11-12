@@ -11,7 +11,7 @@ INSERT INTO roles (id, nombre) VALUES (1, 'ADMIN'), (2, 'RESPONSABLE'), (3, 'EMP
 
 INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) VALUES
 (1, 0, 'rpruiz33@gmail.com',      @hash_pw, 1),
-(2, 0, 'empleado@epicentro.com',  @hash_pw, 3), -- el rol definitivo se determina según su responsabilidad y subtipo
+(2, 0, 'empleado@epicentro.com',  @hash_pw, 3), -- Staff general: conserva exclusivamente el rol EMPLEADO
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
 (4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
 (5, 0, 'responsable@epicentro.com',  @hash_pw, 2),
@@ -171,7 +171,7 @@ CREATE TEMPORARY TABLE tmp_unidades (
 );
 
 INSERT INTO tmp_unidades VALUES
-('FT-0000101', 'La Trinchera Gourmet',    22.50, 'FT', 'AF101CD', 1, NULL, NULL, '34125890'),
+('FT-0000101', 'La Trinchera Gourmet',    22.50, 'FT', 'AF101CD', 1, NULL, NULL, '33412876'),
 ('PD-0000101', 'Sabores Criollos',        30.00, 'PD', NULL,     NULL, 3,    45,   '33412876'),
 ('FT-0000102', 'El Buen Sabor Rodante',   20.00, 'FT', 'AF102CD', 1, NULL, NULL, '32145698'),
 ('PD-0000102', 'La Esquina Dulce',        25.00, 'PD', NULL,     NULL, 2,    30,   '35478912'),
@@ -202,8 +202,8 @@ CREATE TEMPORARY TABLE tmp_empleados (
 );
 
 INSERT INTO tmp_empleados VALUES
--- U1: FT-0000101 (responsable empleado@epicentro.com)
-('C', 'Carlos',    'Benitez',   '34125890', '1988-04-12', '2024-05-01', 180000.00, 'Manana', 1,  12000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
+-- U1: FT-0000101 (responsable responsable@epicentro.com)
+('E', 'Carlos',    'Benitez',   '34125890', '1988-04-12', '2024-05-01', 180000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Mariana',   'Gomez',     '36781245', '1992-08-19', '2022-03-15', 145000.00, 'Tarde',  2,   8500.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('C', 'Lucas',     'Fernandez', '30456123', '1984-11-05', '2017-06-10', 165000.00, 'Noche',  3,  15000.00, NULL, NULL, NULL, NULL, 'FT-0000101'),
 ('K', 'Gonzalo',   'Perez',     '32987410', '1987-01-22', '2023-09-01', 175000.00, NULL, NULL, NULL, 'Carnes Rojas', 1, 16000.00, 'Parrillero', 'FT-0000101'),
