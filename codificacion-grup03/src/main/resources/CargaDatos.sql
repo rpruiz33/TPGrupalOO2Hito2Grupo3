@@ -15,7 +15,8 @@ INSERT INTO usuarios (id, debe_cambiar_password, email, password_hash, rol_id) V
 (3, 0, 'admin@epicentro.com',  @hash_pw, 1),
 (4, 0, 'cajero@epicentro.com',  @hash_pw, 4),
 (5, 0, 'responsable@epicentro.com',  @hash_pw, 2),
-(6, 0, 'cocinero@epicentro.com',     @hash_pw, 5);
+(6, 0, 'cocinero@epicentro.com',     @hash_pw, 5),
+(7, 0, 'responsable2@epicentro.com', @hash_pw, 2);
 -- #############################################################################
 -- PARTE 2: CARGA DE FESTIVAL, CATEGORÍAS, STAFF, UNIDADES Y RELACIONES
 -- #############################################################################
@@ -170,9 +171,11 @@ CREATE TEMPORARY TABLE tmp_unidades (
     dni_responsable VARCHAR(8)
 );
 
+-- FT-0000101 queda a cargo de Javier (responsable@epicentro.com).
+-- PD-0000101 queda a cargo del segundo responsable (responsable2@epicentro.com).
 INSERT INTO tmp_unidades VALUES
 ('FT-0000101', 'La Trinchera Gourmet',    22.50, 'FT', 'AF101CD', 1, NULL, NULL, '33412876'),
-('PD-0000101', 'Sabores Criollos',        30.00, 'PD', NULL,     NULL, 3,    45,   '33412876'),
+('PD-0000101', 'Sabores Criollos',        30.00, 'PD', NULL,     NULL, 3,    45,   '44876543'),
 ('FT-0000102', 'El Buen Sabor Rodante',   20.00, 'FT', 'AF102CD', 1, NULL, NULL, '32145698'),
 ('PD-0000102', 'La Esquina Dulce',        25.00, 'PD', NULL,     NULL, 2,    30,   '35478912'),
 ('FT-0000103', 'Burger Master Truck',     24.00, 'FT', 'AF103CD', 1, NULL, NULL, '31258741'),
@@ -210,8 +213,10 @@ INSERT INTO tmp_empleados VALUES
 ('K', 'Sofia',     'Navarro',   '38123654', '1994-06-30', '2020-02-15', 130000.00, NULL, NULL, NULL, 'Minutas',      1,  9500.00, 'Minutero',               'FT-0000101'),
 ('K', 'Esteban',   'Morales',   '28541236', '1981-03-14', '2016-01-10', 195000.00, NULL, NULL, NULL, 'Pizzas',       1, 22000.00, 'Pizzero',                'FT-0000101'),
 
--- U2: PD-0000101
-('E', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'PD-0000101'),
+-- Javier Martinez es el responsable de FT-0000101 y queda asociado al personal de esa unidad.
+('E', 'Javier',    'Martinez',  '33412876', '1988-10-09', '2024-08-01', 150000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'FT-0000101'),
+
+-- U2: PD-0000101 (responsable responsable2@epicentro.com)
 ('C', 'Camila',    'Alvarez',   '39542109', '1996-05-18', '2023-02-01', 120000.00, 'Tarde',  5,   6500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('C', 'Martin',    'Roldan',    '31876543', '1985-12-03', '2019-04-12', 160000.00, 'Noche',  6,  13500.00, NULL, NULL, NULL, NULL, 'PD-0000101'),
 ('K', 'Valentina', 'Romero',    '37456981', '1993-07-25', '2021-11-20', 140000.00, NULL, NULL, NULL, 'Parrilla',     1, 11000.00, 'Parrillero', 'PD-0000101'),
@@ -339,13 +344,30 @@ SET @user_cajero_id = (
     WHERE email = 'cajero@epicentro.com'
     LIMIT 1
 );
--- Asociar el usuario Responsable con Javier Martinez
+-- Asociar el usuario Responsable con Javier Martinez (responsable de FT-0000101).
 UPDATE staff s
 JOIN usuarios u
     ON u.email = 'responsable@epicentro.com'
 SET s.usuario_id = u.id
 WHERE s.dni = '33412876'
   AND (s.usuario_id IS NULL OR s.usuario_id = u.id);
+
+-- Crear el segundo responsable, asignado a PD-0000101.
+-- Datos ficticios de prueba para la cuenta responsable2@epicentro.com.
+INSERT INTO staff (nombre, apellido, dni, fecha_nacimiento, fecha_ingreso, sueldo, usuario_id)
+SELECT
+    'Lucia',
+    'Fernandez',
+    '44876543',
+    '1990-06-15',
+    '2024-08-01',
+    150000.00,
+    u.id
+FROM usuarios u
+WHERE u.email = 'responsable2@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM staff s WHERE s.dni = '44876543'
+  );
 INSERT INTO staff (
     nombre,
     apellido,
@@ -440,10 +462,10 @@ JOIN staff s ON s.usuario_id = u.id
 JOIN cocineros co ON co.id = s.id
 SET u.rol_id = 5;
 
--- El usuario vinculado a la unidad como responsable conserva el rol RESPONSABLE (id 2).
+-- Los usuarios vinculados a unidades como responsables conservan el rol RESPONSABLE (id 2).
 UPDATE usuarios
 SET rol_id = 2
-WHERE email = 'responsable@epicentro.com';
+WHERE email IN ('responsable@epicentro.com', 'responsable2@epicentro.com');
 
 -- 2.6 UNIDADES DE VENTA
 INSERT INTO unidades_venta (codigo, nombre_comercial, superficie_m2, responsable_id)
@@ -493,6 +515,20 @@ WHERE NOT EXISTS (
     SELECT 1 FROM unidad_venta_staff uvs
     WHERE uvs.unidad_venta_id = uv.id AND uvs.staff_id = s.id
 );
+
+-- Asociar tambien al segundo responsable como integrante de su unidad.
+INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
+SELECT uv.id, s.id
+FROM unidades_venta uv
+JOIN staff s ON s.dni = '44876543'
+JOIN usuarios u ON u.id = s.usuario_id
+WHERE uv.codigo = 'PD-0000101'
+  AND u.email = 'responsable2@epicentro.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM unidad_venta_staff uvs
+      WHERE uvs.unidad_venta_id = uv.id
+        AND uvs.staff_id = s.id
+  );
 
 -- Asignar a Mateo Sanchez (cocinero@epicentro.com) a La Trinchera Gourmet
 INSERT INTO unidad_venta_staff (unidad_venta_id, staff_id)
