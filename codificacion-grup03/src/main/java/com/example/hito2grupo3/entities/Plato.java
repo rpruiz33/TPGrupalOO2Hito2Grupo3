@@ -86,12 +86,5 @@ public class Plato {
         this.costoProduccion = costoProduccion;
     }
 
-    @AssertTrue(message = "El precio de venta debe ser mayor que el costo de producción")
-    public boolean isPrecioMayorAlCosto() {
-        if (precio == null || costoProduccion == null) {
-            return true;
-        }
-
-        return precio.compareTo(costoProduccion) > 0;
-    }
+    
 }
