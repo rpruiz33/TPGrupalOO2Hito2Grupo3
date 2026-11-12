@@ -289,6 +289,7 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | Gestión del responsable | Federico Matías Salvatierra | [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) |
 | Cálculo de canon en perfil responsable | Federico Matías Salvatierra | [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) |
 | Validación y cálculo de cánones | Federico Matías Salvatierra | [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) |
+| Validación de mayor de edad y fechas de ingreso | Federico Matías Salvatierra | [#95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95) |
 | Historial de asignaciones de empleados | Federico Matías Salvatierra | [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) |
 | Vistas de error HTTP personalizadas y control de acceso | Federico Matías Salvatierra | [#85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85) |
 | Registro de unidad de venta y responsable | Ana Belén Vázquez | [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) |
@@ -348,12 +349,14 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
 
 #### 4. Federico Matías Salvatierra ([@Fsalvatierra](https://github.com/Fsalvatierra))
 - **Casos de Uso Principales:**
-  1. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
-  2. **Cálculo y Visualización de Canon en Perfil Responsable** ([PR #58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58)): Visualización y desglose del canon comercial aplicable a la unidad.
-  3. **Plantillas de Error HTTP y Control de Accesos** ([PR #85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85)): Vistas de error personalizadas y estilizadas para códigos HTTP 400, 401, 403, 404 y 500, con redirección y controlador ante acceso denegado.
+  1. **Validación de mayor de edad y fechas de ingreso de usuarios** ([PR #95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95)): control de que el usuario sea mayor de 18 años y que la fecha de ingreso no sea posterior a la del festival.
+  2. **Historial de Asignaciones de Personal** ([PR #75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75)): Trazabilidad de asignaciones laborales de cocineros, cajeros y empleados por festival.
+  3. **Cálculo y Visualización de Canon en Perfil Responsable** ([PR #58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58)): Visualización y desglose del canon comercial aplicable a la unidad.
+  4. **Plantillas de Error HTTP y Control de Accesos** ([PR #85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85)): Vistas de error personalizadas y estilizadas para códigos HTTP 400, 401, 403, 404 y 500, con redirección y controlador ante acceso denegado.
 - **Validaciones de Carga de Datos:**
   1. **Validación de canon positivo:** verificación estricta de que el canon calculado para cualquier unidad sea estrictamente mayor a cero ([PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
   2. **Validación de superficie y parámetros de unidad:** superficie mínima en m² y parámetros positivos de montaje y puestos ([PR #47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47), [PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
+  3. **Validación de mayor de edad y fechas de ingreso:** edad mínima de 18 años y control de consistencia con el festival ([PR #95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95)).
 
 ## Estructura principal
 
