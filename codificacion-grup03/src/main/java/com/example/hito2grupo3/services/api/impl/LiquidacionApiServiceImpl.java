@@ -59,27 +59,6 @@ public class LiquidacionApiServiceImpl implements ILiquidacionApiService {
 
     @Override
     @Transactional(readOnly = true)
-    public ILiquidacionService.ResultadoLiquidacion simularLiquidaciones(LiquidacionRequestDTO request) {
-        validarReferencias(request);
-        return liquidacionService.liquidarSegunRol(
-                normalizar(request.getEmailEmpleado()),
-                request.getFestivalId(),
-                request.getUnidadVentaId(),
-                normalizar(request.getCodigoUnidad()),
-                true,
-                false);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public LiquidacionDTO obtenerPorId(Long id) {
-        LiquidacionHaberes entidad = liquidacionRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No existe la liquidación con id " + id + "."));
-        return mapearADto(entidad);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<LiquidacionDTO> buscarHistorialFiltrado(
             Long festivalId,
             Long unidadVentaId,

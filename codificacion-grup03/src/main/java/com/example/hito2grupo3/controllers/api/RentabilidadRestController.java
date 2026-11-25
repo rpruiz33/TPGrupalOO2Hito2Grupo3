@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.hito2grupo3.dto.ApiErrorDTO;
-import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteRentabilidadNetaDTO;
-import com.example.hito2grupo3.dto.api.DashboardResumenResponseDTO;
 import com.example.hito2grupo3.dto.api.RentabilidadRequestDTO;
 import com.example.hito2grupo3.services.api.IRentabilidadApiService;
 
@@ -31,11 +29,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
- * Hito 3 - API REST de Rentabilidad Neta, Recaudación y KPIs (rpruiz33).
+ * Hito 3 - API REST de Rentabilidad Neta (rpruiz33).
  */
 @RestController
 @RequestMapping(value = "/api/v1/rentabilidad", produces = "application/json")
-@Tag(name = "Rentabilidad y Recaudación", description = "Cálculo de rentabilidad neta, recaudación por unidad y métricas de dashboard")
+@Tag(name = "Rentabilidad Neta", description = "Cálculo y consulta filtrada de rentabilidad neta por unidad y festival")
 public class RentabilidadRestController {
 
     private final IRentabilidadApiService rentabilidadApiService;
@@ -102,48 +100,5 @@ public class RentabilidadRestController {
 
         return ResponseEntity.ok(rentabilidadApiService.buscarRentabilidadFiltrada(
                 festivalId, unidadVentaId, tipoUnidad, temporada, fechaDesde, fechaHasta, rentabilidadMinima));
-    }
-
-    @GetMapping("/recaudacion")
-    @Operation(
-            summary = "Consultar ranking de recaudación filtrado",
-            description = "Obtiene el ranking de recaudación por unidad filtrando por festival, unidad, temporada y tipo de unidad.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ranking de recaudación obtenido"),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<List<RankingUnidadDTO>> consultarRecaudacion(
-            @Parameter(description = "ID del festival", example = "1")
-            @RequestParam(required = false) Long festivalId,
-
-            @Parameter(description = "ID de la unidad de venta", example = "1")
-            @RequestParam(required = false) Long unidadVentaId,
-
-            @Parameter(description = "Temporada del festival", schema = @Schema(allowableValues = { "Invierno", "Primavera", "Verano", "Otoño" }))
-            @RequestParam(required = false) String temporada,
-
-            @Parameter(description = "Tipo de unidad de venta", schema = @Schema(allowableValues = { "FoodTruck", "PuestoDesarmable" }))
-            @RequestParam(required = false) String tipoUnidad) {
-
-        return ResponseEntity.ok(rentabilidadApiService.buscarRecaudacionFiltrada(
-                festivalId, unidadVentaId, temporada, tipoUnidad));
-    }
-
-    @GetMapping("/dashboard")
-    @Operation(
-            summary = "Resumen ejecutivo del dashboard administrativo",
-            description = "Consolida ingresos, costos y rentabilidad neta total del festival o temporada seleccionada.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Resumen consolidado obtenido", content = @Content(schema = @Schema(implementation = DashboardResumenResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "No existen festivales para los criterios indicados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<DashboardResumenResponseDTO> obtenerResumenDashboard(
-            @Parameter(description = "ID del festival seleccionado", example = "1")
-            @RequestParam(required = false) Long festivalId,
-
-            @Parameter(description = "Temporada a filtrar si no se especifica festivalId", schema = @Schema(allowableValues = { "Invierno", "Primavera", "Verano", "Otoño" }))
-            @RequestParam(required = false) String temporada) {
-
-        return ResponseEntity.ok(rentabilidadApiService.obtenerDashboardResumen(festivalId, temporada));
     }
 }

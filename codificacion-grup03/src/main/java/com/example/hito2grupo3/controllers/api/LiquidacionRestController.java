@@ -8,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +35,7 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping(value = "/api/v1/liquidaciones", produces = "application/json")
-@Tag(name = "Liquidaciones", description = "Cálculo, simulación, registro y consulta de liquidaciones de haberes")
+@Tag(name = "Liquidaciones", description = "Cálculo, registro y consulta filtrada de liquidaciones de haberes")
 public class LiquidacionRestController {
 
     private final ILiquidacionApiService liquidacionApiService;
@@ -69,20 +68,6 @@ public class LiquidacionRestController {
             @Valid @RequestBody LiquidacionRequestDTO request) {
         ILiquidacionService.ResultadoLiquidacion resumen = liquidacionApiService.registrarLiquidaciones(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(resumen);
-    }
-
-    @PostMapping("/simular")
-    @Operation(
-            summary = "Simular liquidación de haberes sin persistir",
-            description = "Ejecuta el cálculo completo de haberes (por festival, unidad o email exacto) sin grabar registros en base de datos.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Simulación calculada correctamente", content = @Content(schema = @Schema(implementation = ILiquidacionService.ResultadoLiquidacion.class))),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<ILiquidacionService.ResultadoLiquidacion> simularLiquidaciones(
-            @Valid @RequestBody LiquidacionRequestDTO request) {
-        return ResponseEntity.ok(liquidacionApiService.simularLiquidaciones(request));
     }
 
     @GetMapping
@@ -122,16 +107,5 @@ public class LiquidacionRestController {
 
         return ResponseEntity.ok(liquidacionApiService.buscarHistorialFiltrado(
                 festivalId, unidadVentaId, email, rol, fechaDesde, fechaHasta, montoMinimo, montoMaximo));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener detalle de una liquidación por ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Liquidación encontrada", content = @Content(schema = @Schema(implementation = LiquidacionDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Liquidación no encontrada", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<LiquidacionDTO> obtenerPorId(
-            @Parameter(description = "ID de la liquidación", example = "1") @PathVariable Long id) {
-        return ResponseEntity.ok(liquidacionApiService.obtenerPorId(id));
     }
 }

@@ -4,13 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.example.hito2grupo3.dto.RankingUnidadDTO;
 import com.example.hito2grupo3.dto.ReporteRentabilidadNetaDTO;
-import com.example.hito2grupo3.dto.api.DashboardResumenResponseDTO;
 import com.example.hito2grupo3.dto.api.RentabilidadRequestDTO;
 
 /**
- * Servicio REST para el cálculo de rentabilidad neta, recaudación y KPIs del dashboard.
+ * Servicio REST para el cálculo y consulta filtrada de rentabilidad neta.
  */
 public interface IRentabilidadApiService {
 
@@ -24,12 +22,4 @@ public interface IRentabilidadApiService {
             LocalDate fechaDesde,
             LocalDate fechaHasta,
             BigDecimal rentabilidadMinima);
-
-    List<RankingUnidadDTO> buscarRecaudacionFiltrada(
-            Long festivalId,
-            Long unidadVentaId,
-            String temporada,
-            String tipoUnidad);
-
-    DashboardResumenResponseDTO obtenerDashboardResumen(Long festivalId, String temporada);
 }

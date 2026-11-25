@@ -6,12 +6,8 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,11 +29,10 @@ import jakarta.validation.Valid;
 
 /**
  * Hito 3 - API REST de Festivales Gastronómicos (rpruiz33).
- * Expone ABM, baja lógica, cálculo automático de temporadas y asociación de unidades de venta.
  */
 @RestController
 @RequestMapping(value = "/api/v1/festivales", produces = "application/json")
-@Tag(name = "Festivales", description = "Gestión de festivales, temporadas, baja lógica y unidades habilitadas")
+@Tag(name = "Festivales", description = "Alta y consulta filtrada de festivales y temporadas")
 public class FestivalRestController {
 
     private final IFestivalApiService festivalApiService;
@@ -108,80 +103,5 @@ public class FestivalRestController {
 
         return ResponseEntity.ok(festivalApiService.buscarFiltrados(
                 nombre, temporada, activo, estado, fechaDesde, fechaHasta, unidadVentaId));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener detalle de un festival por ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Festival encontrado", content = @Content(schema = @Schema(implementation = FestivalDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> obtenerPorId(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id) {
-        return ResponseEntity.ok(festivalApiService.obtenerPorId(id));
-    }
-
-    @PutMapping("/{id}")
-    @Operation(
-            summary = "Actualizar fechas, temporada o unidades de un festival",
-            description = "Actualiza un festival existente respetando la regla de inmutabilidad del nombre.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Festival actualizado"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos o intento de modificar el nombre", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> actualizarFestival(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id,
-            @Valid @RequestBody FestivalDTO request) {
-        return ResponseEntity.ok(festivalApiService.actualizar(id, request));
-    }
-
-    @PatchMapping("/{id}/baja")
-    @Operation(summary = "Dar de baja lógica un festival", description = "Inactiva el festival sin eliminar sus pedidos ni datos históricos.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Festival dado de baja lógica"),
-            @ApiResponse(responseCode = "404", description = "Festival no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> darDeBaja(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id) {
-        return ResponseEntity.ok(festivalApiService.darDeBaja(id));
-    }
-
-    @PatchMapping("/{id}/reactivar")
-    @Operation(summary = "Reactivar un festival dado de baja")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Festival reactivado"),
-            @ApiResponse(responseCode = "404", description = "Festival no encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> reactivar(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id) {
-        return ResponseEntity.ok(festivalApiService.reactivar(id));
-    }
-
-    @PostMapping("/{id}/unidades/{unidadId}")
-    @Operation(summary = "Habilitar una unidad de venta en un festival")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Unidad habilitada en el festival"),
-            @ApiResponse(responseCode = "400", description = "La unidad se encuentra dada de baja", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> habilitarUnidad(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id,
-            @Parameter(description = "ID de la unidad de venta", example = "1") @PathVariable Long unidadId) {
-        return ResponseEntity.ok(festivalApiService.habilitarUnidad(id, unidadId));
-    }
-
-    @DeleteMapping("/{id}/unidades/{unidadId}")
-    @Operation(
-            summary = "Dar de baja / desasociar una unidad de venta desde un festival",
-            description = "Deshabilita la unidad únicamente dentro del festival indicado sin afectar otros festivales ni pedidos históricos.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Unidad desasociada del festival"),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-    })
-    public ResponseEntity<FestivalDTO> desasociarUnidad(
-            @Parameter(description = "ID del festival", example = "1") @PathVariable Long id,
-            @Parameter(description = "ID de la unidad de venta", example = "1") @PathVariable Long unidadId) {
-        return ResponseEntity.ok(festivalApiService.desasociarUnidad(id, unidadId));
     }
 }

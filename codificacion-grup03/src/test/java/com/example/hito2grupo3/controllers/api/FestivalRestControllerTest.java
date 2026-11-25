@@ -2,20 +2,15 @@ package com.example.hito2grupo3.controllers.api;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,42 +112,5 @@ class FestivalRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].temporada").value("Primavera"));
-    }
-
-    @Test
-    void obtenerPorId_noExistente_retorna404() throws Exception {
-        when(festivalApiService.obtenerPorId(99L))
-                .thenThrow(new NoSuchElementException("No existe el festival con id 99."));
-
-        mockMvc.perform(get("/api/v1/festivales/99"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
-    }
-
-    @Test
-    void actualizarBajaReactivarYUnidades_retorna200() throws Exception {
-        when(festivalApiService.actualizar(eq(1L), any())).thenReturn(festivalEjemplo);
-        when(festivalApiService.darDeBaja(1L)).thenReturn(festivalEjemplo);
-        when(festivalApiService.reactivar(1L)).thenReturn(festivalEjemplo);
-        when(festivalApiService.habilitarUnidad(1L, 5L)).thenReturn(festivalEjemplo);
-        when(festivalApiService.desasociarUnidad(1L, 5L)).thenReturn(festivalEjemplo);
-
-        String body = """
-                {
-                  "nombre": "Epicentro Gourmet Primavera",
-                  "temporada": "Primavera",
-                  "fechaInicio": "2026-11-01",
-                  "fechaFin": "2026-11-15"
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/festivales/1").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
-        mockMvc.perform(patch("/api/v1/festivales/1/baja")).andExpect(status().isOk());
-        mockMvc.perform(patch("/api/v1/festivales/1/reactivar")).andExpect(status().isOk());
-        mockMvc.perform(post("/api/v1/festivales/1/unidades/5")).andExpect(status().isOk());
-        mockMvc.perform(delete("/api/v1/festivales/1/unidades/5")).andExpect(status().isOk());
-
-        verify(festivalApiService).desasociarUnidad(1L, 5L);
     }
 }

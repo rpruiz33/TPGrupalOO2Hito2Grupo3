@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -71,9 +70,8 @@ class LiquidacionRestControllerTest {
     }
 
     @Test
-    void registrarYSimularLiquidacion_retornan201Y200() throws Exception {
+    void registrarLiquidacion_retorna201() throws Exception {
         when(liquidacionApiService.registrarLiquidaciones(any())).thenReturn(resumenEjemplo);
-        when(liquidacionApiService.simularLiquidaciones(any())).thenReturn(resumenEjemplo);
 
         String body = """
                 {
@@ -87,12 +85,6 @@ class LiquidacionRestControllerTest {
                         .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.totalGeneral").value(115000.00));
-
-        mockMvc.perform(post("/api/v1/liquidaciones/simular")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.diasFestival").value(15));
     }
 
     @Test
@@ -119,15 +111,5 @@ class LiquidacionRestControllerTest {
                         .param("montoMaximo", "200000"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].rol").value("Cajero"));
-    }
-
-    @Test
-    void obtenerPorId_existenteYNoExistente() throws Exception {
-        when(liquidacionApiService.obtenerPorId(10L)).thenReturn(liqEjemplo);
-        when(liquidacionApiService.obtenerPorId(99L))
-                .thenThrow(new NoSuchElementException("No existe la liquidación con id 99."));
-
-        mockMvc.perform(get("/api/v1/liquidaciones/10")).andExpect(status().isOk());
-        mockMvc.perform(get("/api/v1/liquidaciones/99")).andExpect(status().isNotFound());
     }
 }
