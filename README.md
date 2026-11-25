@@ -1,11 +1,14 @@
-# TP Grupal OO2 - Hito 2 - Grupo 03
+# TP Grupal OO2 - Hito 3 - Grupo 03
 
 ## Sistema de Gestión de Festivales Gastronómicos
 
 Aplicación web para la gestión de festivales gastronómicos, sus unidades de venta y el personal asociado. El sistema permite administrar la información de los festivales y de las unidades participantes, contemplando distintos tipos de unidades de venta, pedidos, caja, reportes y roles de usuario.
 
+> [!NOTE]
+> **Hito 3 – API REST:** el desarrollo de este hito se realiza en la rama **`api-rest`**. Cada integrante integra su controlador REST mediante un Pull Request a esa rama. Ver la sección [Hito 3: API REST con Swagger](#hito-3-api-rest-con-swagger) y la sección [ApiRest](#apirest).
+
 > [!IMPORTANT]
-> **Estado del desarrollo y sincronización de ramas (`dev` y `main`):**
+> **Estado del desarrollo y sincronización de ramas (`dev` y `main`) – Hito 2:**
 > Todo el ciclo de desarrollo, la implementación de funcionalidades, los flujos de negocio y las pruebas unitarias fueron realizados y verificados exhaustivamente en la rama **`dev`**, donde el sistema funciona de manera completa e integral. Posteriormente, todo el contenido de `dev` fue **mergeado a la rama `main`** para la entrega final, por lo que ambas ramas se encuentran sincronizadas con la última versión operativa y los 19 tests automatizados pasando exitosamente.
 
 ## Integrantes
@@ -27,6 +30,8 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 - MySQL como base de datos.
 - Maven para la gestión del proyecto y sus dependencias.
 - Visual Studio Code como entorno de desarrollo.
+- **(Hito 3)** Spring Web (`@RestController`) para la API REST.
+- **(Hito 3)** springdoc-openapi 3.0.3 (Swagger UI) para documentar y probar los endpoints.
 
 ## Diagrama de clases y documentación adicional
 
@@ -34,7 +39,8 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 
 - 📄 [Diagrama de Clases UML (SVG)](./UML.svg)
 - 📐 [Diagrama editable en Draw.io (XML)](./UML.drawio)
-- 📑 [Consigna del Trabajo Práctico (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
+- 📑 [Consigna del Trabajo Práctico - Hito 2 (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
+- 📑 [Consigna del Trabajo Práctico - Hito 3 (PDF)](./Trabajo_Practico_OO2_Hito_3_V2.pdf)
 
 
 ![Diagrama de Clases UML](./UML.svg)
@@ -56,6 +62,10 @@ Se incorporó el módulo REST bajo el paquete `com.example.hito2grupo3.controlle
 | `RentabilidadRestController` | `/api/v1/rentabilidad` | `POST /calcular`, `GET /` | `POST /calcular`: calcula rentabilidad neta real sin fallback a cero. `GET`: filtra por 7 parámetros (`festivalId`, `unidadVentaId`, `tipoUnidad`, `temporada`, `fechaDesde`, `fechaHasta`, `rentabilidadMinima`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 
 ## Pull requests
+
+Los Pull Requests del Hito 3 (rama `api-rest`) se detallan en la sección [ApiRest](#apirest).
+
+### Hito 2
 
 Las funcionalidades y cambios del proyecto fueron integrados mediante pull requests mergeadas en la rama `dev`:
 
@@ -213,6 +223,14 @@ Una vez iniciada la aplicación, ingresar desde el navegador a:
 http://localhost:8080
 ```
 
+Para probar la API REST (Hito 3) desde Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+La especificación OpenAPI en JSON está disponible en `http://localhost:8080/v3/api-docs`.
+
 ## Pruebas automatizadas (Testing)
 
 El proyecto cuenta con una suite completa de **19 pruebas unitarias y de integración** automatizadas desarrolladas con **JUnit 5** y **Mockito**. Estas pruebas cubren la lógica crítica de negocio: cálculo de cánones comerciales, validación y ciclo de vida de unidades de venta, cálculo de rentabilidad neta real (deduciendo sueldos y costos de festival), liquidación de haberes con piso salarial mínimo garantizado y control de seguridad en reportes.
@@ -285,7 +303,7 @@ Ubicación: `src/test/java/com/example/hito2grupo3/controllers/ResponsableReport
 - **Cajero:** registra operaciones de caja y realiza cierres.
 - **Cocinero:** personal operativo de cocina asignado a una unidad de venta, con categoría culinaria específica (ej. Chef, Cocinero, Ayudante, Lavaplatos) y liquidación salarial que contempla el plus fijo correspondiente a su categoría.
 
-## Casos de uso y responsables
+## Casos de uso y responsables (Hito 2)
 
 La asignación se detalla a continuación especificando por cada integrante sus **casos de uso (CU)** asignados con enlace a sus correspondientes Pull Requests, y las **2 validaciones de carga de datos** requeridas:
 
@@ -312,7 +330,7 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | Modificación de unidad de venta | Ana Belén Vázquez | [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68), [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) |
 | Baja lógica de unidades de venta | Ana Belén Vázquez | [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) |
 | Reporte de mayores cánones | Ana Belén Vázquez | [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) |
-| Ranking de unidades por recaudación (desc.) | Ana Belén Vázquez | Implementado sin PR. 
+| Ranking de unidades por recaudación (desc.) | Ana Belén Vázquez | Implementado sin PR. |
 | Alta y registro de pedidos | Leonel Alejandro Soloaga | [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27), [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) |
 | Funcionalidad y perfil de cajero | Leonel Alejandro Soloaga | [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) |
 | Gestión y ABM de platos | Leonel Alejandro Soloaga | [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) |
@@ -375,9 +393,172 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
   2. **Validación de superficie y parámetros de unidad:** superficie mínima en m² y parámetros positivos de montaje y puestos ([PR #47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47), [PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
   3. **Validación de mayor de edad y fechas de ingreso:** edad mínima de 18 años y control de consistencia con el festival ([PR #95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95)).
 
+## Hito 3: API REST con Swagger
+
+- **Branch:** `api-rest`
+- **Paquete:** `com.example.hito2grupo3.controllers.api`
+- **Base path:** `/api/v1`
+- **Documentación y pruebas:** Swagger UI en `http://localhost:8080/swagger-ui.html`
+
+Cada integrante desarrolla un controlador REST con al menos un endpoint **POST** y uno **GET**, y el GET filtra por al menos tres parámetros. Cada controlador se integra mediante un Pull Request a la rama `api-rest`.
+
+### Configuración realizada
+
+**Responsable:** Leonel Alejandro Soloaga ([@Le0oneL](https://github.com/Le0oneL)) – integración de Swagger, seguridad de la API y manejo de errores.
+
+| Archivo | Cambio |
+| --- | --- |
+| `pom.xml` | Dependencia `org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3`. |
+| `configuration/OpenApiConfig.java` | Bean `OpenAPI` con título, descripción y versión de la API ("Epicentro Gourmet - API REST", v1). |
+| `application.yml` | `springdoc.packages-to-scan: com.example.hito2grupo3.controllers.api` y `springdoc.paths-to-match: /api/**`, para que Swagger documente solo la API REST y no los controladores MVC. |
+| `configuration/SecurityConfiguration.java` | Cadena de seguridad propia para `/api/**` con CSRF deshabilitado; `/api/v1/**`, `/swagger-ui/**` y `/v3/api-docs/**` con acceso público. |
+| `controllers/api/ApiExceptionHandler.java` | `@RestControllerAdvice` limitado al paquete `api` que devuelve los errores en JSON con un formato uniforme (`ApiErrorDTO`). |
+
+### Manejo de errores de la API
+
+Todos los endpoints devuelven los errores con esta estructura:
+
+```json
+{
+  "timestamp": "20-11-2026 12:30",
+  "status": 400,
+  "error": "Bad Request",
+  "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+  "detalles": null
+}
+```
+
+| Excepción | HTTP |
+| --- | --- |
+| `MethodArgumentNotValidException` (Bean Validation) | 400 (con la lista de campos en `detalles`) |
+| `MissingServletRequestParameterException` (falta un parámetro obligatorio) | 400 |
+| `IllegalArgumentException`, `HttpMessageNotReadableException`, `MethodArgumentTypeMismatchException` | 400 |
+| `NoSuchElementException` | 404 |
+| `ResponseStatusException` | El status de la excepción |
+
+## ApiRest
+
+| Controlador | Método | Endpoint | Responsable | Pull Request |
+| --- | --- | --- | --- | --- |
+| `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+
+### PedidoRestController – `/api/v1/pedidos`
+
+**Responsable:** Leonel Alejandro Soloaga
+
+Controlador REST de pedidos (tag **Pedidos** en Swagger). Reutiliza `IPedidoService`, así que aplica las mismas reglas de negocio que el alta y el historial de pedidos de la aplicación web.
+
+#### POST `/api/v1/pedidos` – Registrar un pedido
+
+**Query param**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado (Staff) que registra el pedido |
+
+**Body (`PedidoAltaDTO`)**
+
+```json
+{
+  "fecha": "21-11-2026",
+  "festivalId": 1,
+  "unidadVentaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 2 },
+    { "platoId": 2, "cantidad": 1 }
+  ]
+}
+```
+
+**Validaciones**
+- `fecha`, `festivalId` y `unidadVentaId` son obligatorios; `items` debe tener al menos un plato y cada `cantidad` debe ser ≥ 1.
+- La fecha (formato `dd-MM-yyyy`) debe ser la del día.
+- El festival debe estar vigente y la unidad de venta habilitada en ese festival.
+- Los platos tienen que estar activos y pertenecer a la unidad.
+- El empleado tiene que ser **RESPONSABLE** o **CAJERO**, estar asignado a la unidad y estar activo.
+- El precio unitario se toma del plato al momento de la venta.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 201 Created | Pedido registrado. Header `Location: /api/v1/pedidos/{id}` y body `PedidoResponseDTO` (id, fecha, estado, festival, unidad, empleado, ítems con subtotal y total). |
+| 400 Bad Request | Datos inválidos o regla de negocio incumplida (`ApiErrorDTO`). |
+
+#### GET `/api/v1/pedidos` – Historial de pedidos filtrado
+
+Devuelve los pedidos ordenados del más reciente al más antiguo. Los filtros se pueden combinar y, si no se envía ninguno, se devuelven todos.
+
+| Parámetro | Tipo | Descripción |
+| --- | --- | --- |
+| `festivalId` | Long | Id del festival |
+| `unidadVentaId` | Long | Id de la unidad de venta |
+| `platoId` | Long | Trae los pedidos que incluyen ese plato |
+| `fechaDesde` | `dd-MM-yyyy` | Fecha de transacción desde |
+| `fechaHasta` | `dd-MM-yyyy` | Fecha de transacción hasta |
+| `estado` | `A` / `R` | A = activo, R = anulado |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos?festivalId=1&unidadVentaId=1&platoId=1&fechaDesde=01-11-2026&fechaHasta=30-11-2026&estado=A
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` (puede estar vacía). |
+| 400 Bad Request | Filtros inválidos: fechas invertidas, estado incorrecto o formato erróneo. |
+| 404 Not Found | El festival, la unidad o el plato indicados no existen. |
+
+#### GET `/api/v1/pedidos/historial` – Historial de pedidos del empleado
+
+Funciona igual que la página **Historial de pedidos** de la aplicación web, pero con los filtros resueltos en el servidor.
+
+**Reglas**
+- `staffId` es obligatorio: el empleado debe existir, estar activo (empleado y usuario) y tener rol **RESPONSABLE** o **CAJERO**.
+- El empleado debe estar asociado al menos a una unidad de venta y solo ve los pedidos de **sus** unidades.
+- El **RESPONSABLE** ve los pedidos de todos los festivales; el **CAJERO**, solo los de festivales vigentes.
+- Si se filtra por `unidadVentaId`, la unidad tiene que ser una de las del empleado.
+- Si se filtra por `pedidoId`, el pedido tiene que existir (si no, 404 "No existe el pedido N.º X") y pertenecer a una unidad del empleado (si no, 403 "pertenece a otra unidad de venta"). Si el pedido es de su unidad pero el empleado es cajero y el festival ya no está vigente, devuelve 403 "pertenece a un festival que no está vigente".
+
+**Query params**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado que consulta |
+| `pedidoId` | Long | No | N.º de pedido |
+| `unidadVentaId` | Long | No | Id de la unidad de venta (una de las del empleado) |
+| `festivalId` | Long | No | Id del festival |
+| `empleadoId` | Long | No | Id del empleado que registró el pedido (operador) |
+| `estado` | `A` / `R` | No | A = activo, R = anulado |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha de registro desde |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha de registro hasta |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos/historial?staffId=2&unidadVentaId=1&festivalId=1&estado=A&fechaDesde=01-11-2026&fechaHasta=30-11-2026
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` del empleado, del más reciente al más antiguo (puede estar vacía). |
+| 400 Bad Request | Falta `staffId` o hay filtros inválidos (fechas invertidas, estado incorrecto, formato). |
+| 403 Forbidden | Empleado inactivo, sin rol RESPONSABLE/CAJERO, sin unidad asociada, sin acceso a la unidad filtrada o pedido de otra unidad / de un festival no vigente. |
+| 404 Not Found | No existe el empleado, el pedido, la unidad, el festival o el empleado filtrado. |
+
 ## Estructura principal
 
 - `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
+- `src/main/java/com/example/hito2grupo3/controllers/api`: controladores REST del Hito 3 y manejador de errores de la API.
 - `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
 - `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
 - `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.
