@@ -59,6 +59,7 @@ Se incorporó el módulo REST bajo el paquete `com.example.hito2grupo3.controlle
 | `FestivalRestController` | `/api/v1/festivales` | `POST /`, `GET /` | `POST`: crea festival validando fechas y calculando temporada automáticamente. `GET`: filtra por 7 parámetros (`nombre`, `temporada`, `activo`, `estado`, `fechaDesde`, `fechaHasta`, `unidadVentaId`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | `/api/v1/liquidaciones` | `POST /`, `GET /` | `POST`: calcula y registra liquidaciones de haberes usando `SueldoProperties`. `GET`: filtra historial por 8 parámetros (`festivalId`, `unidadVentaId`, `email`, `rol`, `fechaDesde`, `fechaHasta`, `montoMinimo`, `montoMaximo`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | `/api/v1/rentabilidad` | `POST /calcular`, `GET /` | `POST /calcular`: calcula rentabilidad neta real sin fallback a cero. `GET`: filtra por 7 parámetros (`festivalId`, `unidadVentaId`, `tipoUnidad`, `temporada`, `fechaDesde`, `fechaHasta`, `rentabilidadMinima`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `PedidoRestController` | `/api/v1/pedidos` | `POST /`, `GET /` | `POST`: registra un nuevo pedido validando que la fecha sea la del día, el festival y la unidad de venta estén vigentes, y los platos pertenezcan a la unidad. `GET`: filtra historial de pedidos por múltiples parámetros como `festivalId`, `unidadVentaId`, `fechaDesde`, `fechaHasta`, etc. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 
 ## Pull requests
 
@@ -442,12 +443,12 @@ Todos los endpoints devuelven los errores con esta estructura:
 | `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
-| _Pendiente_ | POST | | _Integrante_ | |
-| _Pendiente_ | GET | | _Integrante_ | |
-| _Pendiente_ | POST | | _Integrante_ | |
-| _Pendiente_ | GET | | _Integrante_ | |
-| _Pendiente_ | POST | | _Integrante_ | |
-| _Pendiente_ | GET | | _Integrante_ | |
+| `FestivalRestController` | POST | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `FestivalRestController` | GET | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `LiquidacionRestController` | POST | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `LiquidacionRestController` | GET | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `RentabilidadRestController` | POST | `/api/v1/rentabilidad/calcular` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `RentabilidadRestController` | GET | `/api/v1/rentabilidad` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 
 ### PedidoRestController – `/api/v1/pedidos`
 
@@ -554,11 +555,195 @@ GET /api/v1/pedidos/historial?staffId=2&unidadVentaId=1&festivalId=1&estado=A&fe
 | 403 Forbidden | Empleado inactivo, sin rol RESPONSABLE/CAJERO, sin unidad asociada, sin acceso a la unidad filtrada o pedido de otra unidad / de un festival no vigente. |
 | 404 Not Found | No existe el empleado, el pedido, la unidad, el festival o el empleado filtrado. |
 
-## Estructura principal
+### FestivalRestController – `/api/v1/festivales`
 
-- `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
-- `src/main/java/com/example/hito2grupo3/controllers/api`: controladores REST del Hito 3 y manejador de errores de la API.
-- `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
-- `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
-- `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.
-- `src/main/resources/application.yml`: configuración de base de datos, correo, JPA y Thymeleaf.
+**Responsable:** Roberto Andrés Ruiz Pereira
+
+Controlador REST de festivales gastronómicos (tag **Festivales** en Swagger). Reutiliza `IFestivalApiService` para delegar la creación y la búsqueda filtrada sin duplicar la lógica de negocio.
+
+#### POST `/api/v1/festivales` – Crear un festival
+
+**Body (`FestivalDTO`)**
+
+```json
+{
+  "nombre": "Epicentro Gourmet Primavera 2026",
+  "temporada": "Primavera",
+  "fechaInicio": "2026-11-01",
+  "fechaFin": "2026-11-15",
+  "unidadesVentaIds": [1, 2]
+}
+```
+
+**Validaciones**
+- El nombre, la temporada y las fechas son obligatorias según las validaciones del DTO.
+- La temporada debe ser `Invierno`, `Primavera`, `Verano` u `Otoño`.
+- La fecha de inicio debe ser anterior a la fecha de fin.
+- La fecha de fin debe ser al menos un día posterior a la fecha de inicio.
+- Los identificadores de unidades de venta deben corresponder a unidades existentes y habilitadas.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 201 Created | Festival creado. Header `Location: /api/v1/festivales/{id}` y body `FestivalDTO`. |
+| 400 Bad Request | Datos inválidos, temporada incorrecta o rango de fechas incorrecto (`ApiErrorDTO`). |
+
+#### GET `/api/v1/festivales` – Listar y filtrar festivales
+
+Permite combinar los filtros disponibles para consultar los festivales registrados.
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `nombre` | String | No | Búsqueda parcial por nombre del festival. |
+| `temporada` | String | No | `Invierno`, `Primavera`, `Verano` u `Otoño`. |
+| `activo` | Boolean | No | Estado lógico: `true` activo o `false` dado de baja. |
+| `estado` | String | No | Estado operativo: `En curso`, `Próximo`, `Finalizado` o `Dado de baja`. |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha mínima de vigencia. |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha máxima de vigencia. |
+| `unidadVentaId` | Long | No | Id de una unidad de venta participante del festival. |
+
+Ejemplo:
+
+```text
+GET /api/v1/festivales?temporada=Primavera&activo=true&fechaDesde=01-11-2026&fechaHasta=30-11-2026
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `FestivalDTO` que coinciden con los filtros (puede estar vacía). |
+| 400 Bad Request | Fechas o filtros inválidos (`ApiErrorDTO`). |
+
+### LiquidacionRestController – `/api/v1/liquidaciones`
+
+**Responsable:** Roberto Andrés Ruiz Pereira
+
+Controlador REST de liquidaciones de haberes (tag **Liquidaciones** en Swagger). Utiliza `ILiquidacionApiService` para calcular y registrar liquidaciones o consultar el historial persistido.
+
+#### POST `/api/v1/liquidaciones` – Calcular y registrar liquidaciones
+
+**Body (`LiquidacionRequestDTO`)**
+
+```json
+{
+  "festivalId": 1,
+  "unidadVentaId": 1,
+  "emailEmpleado": null,
+  "codigoUnidad": null
+}
+```
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `festivalId` | Long | Sí | Id del festival sobre el cual se calculan las liquidaciones. |
+| `unidadVentaId` | Long | No | Limita el cálculo a una unidad de venta. |
+| `emailEmpleado` | String | No | Email exacto de un empleado específico. |
+| `codigoUnidad` | String | No | Código comercial de la unidad de venta. |
+
+**Validaciones**
+- `festivalId` es obligatorio y debe ser positivo.
+- Si se informa `unidadVentaId`, debe ser positivo.
+- Si se informa `emailEmpleado`, debe tener un formato de email válido.
+- Los filtros pueden combinarse para liquidar una unidad, un empleado o la totalidad del festival.
+- Se aplica el sueldo base mínimo configurado en `SueldoProperties`, la proporcionalidad por período, la antigüedad y el plus por categoría cuando corresponda.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 201 Created | Liquidaciones calculadas y persistidas. Devuelve `ResultadoLiquidacion`. |
+| 400 Bad Request | Parámetros inválidos o incumplimiento de una regla de negocio (`ApiErrorDTO`). |
+| 404 Not Found | El festival, la unidad o el empleado indicado no existe (`ApiErrorDTO`). |
+
+#### GET `/api/v1/liquidaciones` – Consultar historial de liquidaciones
+
+Devuelve el historial persistido combinando hasta ocho filtros opcionales.
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `festivalId` | Long | No | Id del festival. |
+| `unidadVentaId` | Long | No | Id de la unidad de venta. |
+| `email` | String | No | Búsqueda parcial por email del empleado. |
+| `rol` | String | No | `Cocinero`, `Cajero`, `Responsable` o `Empleado`. |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha mínima del período liquidado. |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha máxima del período liquidado. |
+| `montoMinimo` | BigDecimal | No | Monto neto mínimo. |
+| `montoMaximo` | BigDecimal | No | Monto neto máximo. |
+
+Ejemplo:
+
+```text
+GET /api/v1/liquidaciones?festivalId=1&unidadVentaId=1&rol=Cajero&fechaDesde=01-11-2026&fechaHasta=30-11-2026&montoMinimo=50000&montoMaximo=500000
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `LiquidacionDTO` que coinciden con los filtros (puede estar vacía). |
+| 400 Bad Request | Fechas, montos o filtros inválidos (`ApiErrorDTO`). |
+| 404 Not Found | El festival o la unidad indicada no existe (`ApiErrorDTO`). |
+
+### RentabilidadRestController – `/api/v1/rentabilidad`
+
+**Responsable:** Roberto Andrés Ruiz Pereira
+
+Controlador REST de rentabilidad neta (tag **Rentabilidad Neta** en Swagger). Utiliza `IRentabilidadApiService` para calcular ingresos menos costos de platos, sueldos proporcionales y cánones proporcionales.
+
+#### POST `/api/v1/rentabilidad/calcular` – Calcular rentabilidad neta
+
+**Body (`RentabilidadRequestDTO`)**
+
+```json
+{
+  "festivalId": 1,
+  "unidadVentaId": 1,
+  "fechaDesde": "01-11-2026",
+  "fechaHasta": "15-11-2026"
+}
+```
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `festivalId` | Long | Sí | Id del festival. |
+| `unidadVentaId` | Long | Sí | Id de la unidad de venta. |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha inicial; si se omite, usa el inicio del festival. |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha final; si se omite, usa el fin del festival. |
+
+**Validaciones**
+- `festivalId` y `unidadVentaId` son obligatorios y deben ser positivos.
+- Las fechas deben usar el formato `dd-MM-yyyy`.
+- `fechaDesde` no puede ser posterior a `fechaHasta`.
+- El cálculo no reemplaza silenciosamente sueldos o cánones por cero ante un error de cálculo.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Cálculo realizado y devuelto como `ReporteRentabilidadNetaDTO`. |
+| 400 Bad Request | Datos, rango de fechas o parámetros inválidos (`ApiErrorDTO`). |
+| 404 Not Found | El festival o la unidad indicada no existe (`ApiErrorDTO`). |
+
+#### GET `/api/v1/rentabilidad` – Consultar y filtrar rentabilidad neta
+
+Permite consultar análisis de rentabilidad combinando hasta siete filtros opcionales.
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `festivalId` | Long | No | Id del festival. |
+| `unidadVentaId` | Long | No | Id de la unidad de venta. |
+| `tipoUnidad` | String | No | `FoodTruck` o `PuestoDesarmable`. |
+| `temporada` | String | No | `Invierno`, `Primavera`, `Verano` u `Otoño`. |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha mínima del período analizado. |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha máxima del período analizado. |
+| `rentabilidadMinima` | BigDecimal | No | Rentabilidad neta mínima requerida. |
+
+Ejemplo:
+
+```text
+GET /api/v1/rentabilidad?festivalId=1&tipoUnidad=FoodTruck&temporada=Primavera&fechaDesde=01-11-2026&fechaHasta=30-11-2026&rentabilidadMinima=0
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `ReporteRentabilidadNetaDTO` que coinciden con los filtros (puede estar vacía). |
+| 400 Bad Request | Fechas, montos o filtros inválidos (`ApiErrorDTO`). |
+| 404 Not Found | El festival o la unidad indicada no existe (`ApiErrorDTO`). |
