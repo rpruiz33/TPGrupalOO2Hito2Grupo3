@@ -426,7 +426,7 @@ Todos los endpoints devuelven los errores con esta estructura:
 | --- | --- | --- | --- | --- |
 | `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
-| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/_) |
+| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | _Pendiente_ | POST | | _Integrante_ | |
 | _Pendiente_ | GET | | _Integrante_ | |
 | _Pendiente_ | POST | | _Integrante_ | |
