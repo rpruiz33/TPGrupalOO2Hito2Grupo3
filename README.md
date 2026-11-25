@@ -3,6 +3,14 @@
 ## Sistema de Gestión de Festivales Gastronómicos
 
 Aplicación web para la gestión de festivales gastronómicos, sus unidades de venta y el personal asociado. El sistema permite administrar la información de los festivales y de las unidades participantes, contemplando distintos tipos de unidades de venta, pedidos, caja, reportes y roles de usuario.
+
+> [!NOTE]
+> **Hito 3 – API REST:** el desarrollo de este hito se realiza en la rama **`api-rest`**. Cada integrante integra su controlador REST mediante un Pull Request a esa rama. Ver la sección [Hito 3: API REST con Swagger](#hito-3-api-rest-con-swagger) y la sección [ApiRest](#apirest).
+
+> [!IMPORTANT]
+> **Estado del desarrollo y sincronización de ramas (`dev` y `main`) – Hito 2:**
+> Todo el ciclo de desarrollo, la implementación de funcionalidades, los flujos de negocio y las pruebas unitarias fueron realizados y verificados exhaustivamente en la rama **`dev`**, donde el sistema funciona de manera completa e integral. Posteriormente, todo el contenido de `dev` fue **mergeado a la rama `main`** para la entrega final, por lo que ambas ramas se encuentran sincronizadas con la última versión operativa y los 19 tests automatizados pasando exitosamente.
+
 ## Integrantes
 
 | Integrante | Usuario de GitHub |
@@ -22,6 +30,8 @@ Aplicación web para la gestión de festivales gastronómicos, sus unidades de v
 - MySQL como base de datos.
 - Maven para la gestión del proyecto y sus dependencias.
 - Visual Studio Code como entorno de desarrollo.
+- **(Hito 3)** Spring Web (`@RestController`) para la API REST.
+- **(Hito 3)** springdoc-openapi 3.0.3 (Swagger UI) para documentar y probar los endpoints.
 
 ## Diagrama de clases y documentación adicional
 
@@ -29,12 +39,94 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 
 - 📄 [Diagrama de Clases UML (SVG)](./UML.svg)
 - 📐 [Diagrama editable en Draw.io (XML)](./UML.drawio)
-- 📑 [Consigna del Trabajo Práctico (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
+- 📑 [Consigna del Trabajo Práctico - Hito 2 (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
+- 📑 [Consigna del Trabajo Práctico - Hito 3 (PDF)](./Trabajo_Practico_OO2_Hito_3_V2.pdf)
 
 
 ![Diagrama de Clases UML](./UML.svg)
 
 ## Pull requests
+
+Los Pull Requests del Hito 3 (rama `api-rest`) se detallan en la sección [ApiRest](#apirest).
+
+### Hito 2
+
+Las funcionalidades y cambios del proyecto fueron integrados mediante pull requests mergeadas en la rama `dev`:
+
+| Pull request | Funcionalidad | Realizado por |
+| --- | --- | --- |
+| [#101](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/101) | Integración final de `dev` en `main` | Leonel Alejandro Soloaga |
+| [#99](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/99) | Eliminación de clases y métodos Spring `.xlsx` no utilizados | Leonel Alejandro Soloaga |
+| [#98](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/98) | Integración de cambios de `dev` | Leonel Alejandro Soloaga |
+| [#97](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/97) | Corrección del rol `empleado@epicentro.com` | Leonel Alejandro Soloaga |
+| [#96](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/96) | Integración de cambios de `dev` | Federico Matías Salvatierra |
+| [#95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95) | Validación de edad para usuarios | Federico Matías Salvatierra |
+| [#93](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/93) | Fixes con temporadas: validación obligatoria, cálculo automático según fecha (hemisferio sur), selector en formularios y ajuste de staff | Roberto Andrés Ruiz Pereira |
+| [#92](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/92) | Mejorar liquidaciones, empleados y registro de unidades de venta | Leonel Soloaga |
+| [#91](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/91) | Sincronización de fechas al actualizar festival y corrección del ABM de festivales y liquidaciones | Leonel Alejandro Soloaga |
+| [#90](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/90) | Liquidación, recaudación y rentabilidad neta: liquidación por email, cálculo riguroso sin fallback a cero, selector de festival y restricción por rol | Roberto Andrés Ruiz Pereira |
+| [#88](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/88) | fix liquidaciones mensuales y recibos individuales | Leonel Soloaga |
+| [#87](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/87) | validaciones y seguridad de empleados y festivales | Leonel Soloaga |
+| [#85](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/85) | Plantillas de error HTTP personalizadas (400, 401, 403, 404, 500) y redirección de accesos denegados | Federico Matías Salvatierra |
+| [#84](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/84) | Documentación de validaciones adicionales de carga | Ana Belén Vázquez |
+| [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) | Baja lógica de unidades de venta | Ana Belén Vázquez |
+| [#82](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/82) | ABM de festivales y baja lógica | Roberto Andrés Ruiz Pereira |
+| [#80](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/80) | Actualización funcional | Roberto Andrés Ruiz Pereira |
+| [#79](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/79) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#78](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/78) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#77](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/77) | Reversión de cambios de festivales | Roberto Andrés Ruiz Pereira |
+| [#76](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/76) | Cambios de ABM de festivales | Roberto Andrés Ruiz Pereira |
+| [#75](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/75) | Historial de asignaciones | Federico Matías Salvatierra |
+| [#74](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/74) | Separación de lógica de negocio de los controladores | Roberto Andrés Ruiz Pereira |
+| [#73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73) | Validación de cánones | Federico Matías Salvatierra |
+| [#72](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/72) | ABM de categorías de cocina | Roberto Andrés Ruiz Pereira |
+| [#71](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/71) | Validación de pedidos | Leonel Alejandro Soloaga |
+| [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) | Modificación de unidad de venta | Ana Belén Vázquez |
+| [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68) | Modificación de unidad de venta | Ana Belén Vázquez |
+| [#67](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/67) | Historial de pedidos con filtros | Leonel Alejandro Soloaga |
+| [#66](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/66) | Validaciones frontend y backend | Roberto Andrés Ruiz Pereira |
+| [#65](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/65) | ABM de festivales | Roberto Andrés Ruiz Pereira |
+| [#64](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/64) | Validaciones de liquidación | Roberto Andrés Ruiz Pereira |
+| [#63](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/63) | Dashboard del empleado | Leonel Alejandro Soloaga |
+| [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) | Reporte de cánones | Ana Belén Vázquez |
+| [#59](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/59) | Corrección de redirección del responsable | Ana Belén Vázquez |
+| [#58](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/58) | Cálculo de canon en el perfil del responsable | Federico Matías Salvatierra |
+| [#57](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/57) | Plato estrella | Leonel Alejandro Soloaga |
+| [#56](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/56) | Filtro de empleados | Leonel Alejandro Soloaga |
+| [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) | Modificación e inhabilitación de platos | Leonel Alejandro Soloaga |
+| [#54](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/54) | Baja lógica de empleados | Roberto Andrés Ruiz Pereira |
+| [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52) | Gestión de platos | Leonel Alejandro Soloaga |
+| [#47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47) | Gestión de festivales y unidades de venta | Federico Matías Salvatierra |
+| [#46](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/46) | Gestión del responsable | Federico Matías Salvatierra |
+| [#45](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/45) | Cierre de caja | Roberto Andrés Ruiz Pereira |
+| [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44) | Gestión de platos | Leonel Alejandro Soloaga |
+| [#43](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/43) | Reporte de recaudación | Roberto Andrés Ruiz Pereira |
+| [#42](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/42) | Rentabilidad neta | Roberto Andrés Ruiz Pereira |
+| [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) | Funcionalidad de cajero | Leonel Alejandro Soloaga |
+| [#39](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/39) | Ajustes de liquidación | Roberto Andrés Ruiz Pereira |
+| [#38](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/38) | Cambios generales | Roberto Andrés Ruiz Pereira |
+| [#37](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/37) | Ajustes de información | Roberto Andrés Ruiz Pereira |
+| [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) | Alta de pedidos | Leonel Alejandro Soloaga |
+| [#34](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/34) | Reporte de recaudación y unificación de estilos | Federico Matías Salvatierra |
+| [#33](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/33) | Registro de unidad de venta y responsable | Ana Belén Vázquez |
+| [#32](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/32) | Liquidaciones | Roberto Andrés Ruiz Pereira |
+| [#31](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/31) | Contraseña y registro | Roberto Andrés Ruiz Pereira |
+| [#30](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/30) | Servicios, vistas y entidades de liquidación | Roberto Andrés Ruiz Pereira |
+| [#29](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/29) | Liquidaciones | Roberto Andrés Ruiz Pereira |
+| [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27) | Alta de pedidos | Leonel Alejandro Soloaga |
+| [#26](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/26) | Creación de alta de pedidos | Leonel Alejandro Soloaga |
+| [#25](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/25) | Alta de usuarios desde administración | Federico Matías Salvatierra |
+| [#23](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/23) | Primera vista del índice de administración | Federico Matías Salvatierra |
+| [#22](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/22) | Correcciones de entidades | Roberto Andrés Ruiz Pereira |
+| [#21](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/21) | Entidades, relaciones y UML | Roberto Andrés Ruiz Pereira |
+| [#17](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/17) | Corrección del README | Roberto Andrés Ruiz Pereira |
+| [#16](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/16) | Actualización de desarrollo | Roberto Andrés Ruiz Pereira |
+| [#14](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/14) | Actualización de desarrollo | Roberto Andrés Ruiz Pereira |
+| [#10](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/10) | Prueba de funcionalidad | Roberto Andrés Ruiz Pereira |
+| [#9](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/9) | Notificaciones de correo para eventos | Roberto Andrés Ruiz Pereira |
+| [#5](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/5) | Diseño UML | Leonel Alejandro Soloaga |
+| [#2](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/2) | Prueba inicial | Federico Matías Salvatierra |
+
 Ver todas las pull requests en el [repositorio de GitHub](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls).
 
 ## Requisitos previos
@@ -115,6 +207,14 @@ Una vez iniciada la aplicación, ingresar desde el navegador a:
 http://localhost:8080
 ```
 
+Para probar la API REST (Hito 3) desde Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+La especificación OpenAPI en JSON está disponible en `http://localhost:8080/v3/api-docs`.
+
 ## Pruebas automatizadas (Testing)
 
 El proyecto cuenta con una suite completa de **19 pruebas unitarias y de integración** automatizadas desarrolladas con **JUnit 5** y **Mockito**. Estas pruebas cubren la lógica crítica de negocio: cálculo de cánones comerciales, validación y ciclo de vida de unidades de venta, cálculo de rentabilidad neta real (deduciendo sueldos y costos de festival), liquidación de haberes con piso salarial mínimo garantizado y control de seguridad en reportes.
@@ -187,7 +287,7 @@ Ubicación: `src/test/java/com/example/hito2grupo3/controllers/ResponsableReport
 - **Cajero:** registra operaciones de caja y realiza cierres.
 - **Cocinero:** personal operativo de cocina asignado a una unidad de venta, con categoría culinaria específica (ej. Chef, Cocinero, Ayudante, Lavaplatos) y liquidación salarial que contempla el plus fijo correspondiente a su categoría.
 
-## Casos de uso y responsables
+## Casos de uso y responsables (Hito 2)
 
 La asignación se detalla a continuación especificando por cada integrante sus **casos de uso (CU)** asignados con enlace a sus correspondientes Pull Requests, y las **2 validaciones de carga de datos** requeridas:
 
@@ -214,7 +314,7 @@ La asignación se detalla a continuación especificando por cada integrante sus 
 | Modificación de unidad de venta | Ana Belén Vázquez | [#68](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/68), [#69](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/69) |
 | Baja lógica de unidades de venta | Ana Belén Vázquez | [#83](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/83) |
 | Reporte de mayores cánones | Ana Belén Vázquez | [#60](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/60) |
-| Ranking de unidades por recaudación (desc.) | Ana Belén Vázquez | Implementado sin PR. 
+| Ranking de unidades por recaudación (desc.) | Ana Belén Vázquez | Implementado sin PR. |
 | Alta y registro de pedidos | Leonel Alejandro Soloaga | [#27](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/27), [#35](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/35) |
 | Funcionalidad y perfil de cajero | Leonel Alejandro Soloaga | [#41](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/41) |
 | Gestión y ABM de platos | Leonel Alejandro Soloaga | [#44](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/44), [#52](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/52), [#55](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/55) |
@@ -277,9 +377,172 @@ Conforme a la consigna de evaluación que exige **2 Casos de Uso y 2 Validacione
   2. **Validación de superficie y parámetros de unidad:** superficie mínima en m² y parámetros positivos de montaje y puestos ([PR #47](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/47), [PR #73](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/73)).
   3. **Validación de mayor de edad y fechas de ingreso:** edad mínima de 18 años y control de consistencia con el festival ([PR #95](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/95)).
 
+## Hito 3: API REST con Swagger
+
+- **Branch:** `api-rest`
+- **Paquete:** `com.example.hito2grupo3.controllers.api`
+- **Base path:** `/api/v1`
+- **Documentación y pruebas:** Swagger UI en `http://localhost:8080/swagger-ui.html`
+
+Cada integrante desarrolla un controlador REST con al menos un endpoint **POST** y uno **GET**, y el GET filtra por al menos tres parámetros. Cada controlador se integra mediante un Pull Request a la rama `api-rest`.
+
+### Configuración realizada
+
+**Responsable:** Leonel Alejandro Soloaga ([@Le0oneL](https://github.com/Le0oneL)) – integración de Swagger, seguridad de la API y manejo de errores.
+
+| Archivo | Cambio |
+| --- | --- |
+| `pom.xml` | Dependencia `org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3`. |
+| `configuration/OpenApiConfig.java` | Bean `OpenAPI` con título, descripción y versión de la API ("Epicentro Gourmet - API REST", v1). |
+| `application.yml` | `springdoc.packages-to-scan: com.example.hito2grupo3.controllers.api` y `springdoc.paths-to-match: /api/**`, para que Swagger documente solo la API REST y no los controladores MVC. |
+| `configuration/SecurityConfiguration.java` | Cadena de seguridad propia para `/api/**` con CSRF deshabilitado; `/api/v1/**`, `/swagger-ui/**` y `/v3/api-docs/**` con acceso público. |
+| `controllers/api/ApiExceptionHandler.java` | `@RestControllerAdvice` limitado al paquete `api` que devuelve los errores en JSON con un formato uniforme (`ApiErrorDTO`). |
+
+### Manejo de errores de la API
+
+Todos los endpoints devuelven los errores con esta estructura:
+
+```json
+{
+  "timestamp": "20-11-2026 12:30",
+  "status": 400,
+  "error": "Bad Request",
+  "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+  "detalles": null
+}
+```
+
+| Excepción | HTTP |
+| --- | --- |
+| `MethodArgumentNotValidException` (Bean Validation) | 400 (con la lista de campos en `detalles`) |
+| `MissingServletRequestParameterException` (falta un parámetro obligatorio) | 400 |
+| `IllegalArgumentException`, `HttpMessageNotReadableException`, `MethodArgumentTypeMismatchException` | 400 |
+| `NoSuchElementException` | 404 |
+| `ResponseStatusException` | El status de la excepción |
+
+## ApiRest
+
+| Controlador | Método | Endpoint | Responsable | Pull Request |
+| --- | --- | --- | --- | --- |
+| `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/_) |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+| _Pendiente_ | POST | | _Integrante_ | |
+| _Pendiente_ | GET | | _Integrante_ | |
+
+### PedidoRestController – `/api/v1/pedidos`
+
+**Responsable:** Leonel Alejandro Soloaga
+
+Controlador REST de pedidos (tag **Pedidos** en Swagger). Reutiliza `IPedidoService`, así que aplica las mismas reglas de negocio que el alta y el historial de pedidos de la aplicación web.
+
+#### POST `/api/v1/pedidos` – Registrar un pedido
+
+**Query param**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado (Staff) que registra el pedido |
+
+**Body (`PedidoAltaDTO`)**
+
+```json
+{
+  "fecha": "21-11-2026",
+  "festivalId": 1,
+  "unidadVentaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 2 },
+    { "platoId": 2, "cantidad": 1 }
+  ]
+}
+```
+
+**Validaciones**
+- `fecha`, `festivalId` y `unidadVentaId` son obligatorios; `items` debe tener al menos un plato y cada `cantidad` debe ser ≥ 1.
+- La fecha (formato `dd-MM-yyyy`) debe ser la del día.
+- El festival debe estar vigente y la unidad de venta habilitada en ese festival.
+- Los platos tienen que estar activos y pertenecer a la unidad.
+- El empleado tiene que ser **RESPONSABLE** o **CAJERO**, estar asignado a la unidad y estar activo.
+- El precio unitario se toma del plato al momento de la venta.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 201 Created | Pedido registrado. Header `Location: /api/v1/pedidos/{id}` y body `PedidoResponseDTO` (id, fecha, estado, festival, unidad, empleado, ítems con subtotal y total). |
+| 400 Bad Request | Datos inválidos o regla de negocio incumplida (`ApiErrorDTO`). |
+
+#### GET `/api/v1/pedidos` – Historial de pedidos filtrado
+
+Devuelve los pedidos ordenados del más reciente al más antiguo. Los filtros se pueden combinar y, si no se envía ninguno, se devuelven todos.
+
+| Parámetro | Tipo | Descripción |
+| --- | --- | --- |
+| `festivalId` | Long | Id del festival |
+| `unidadVentaId` | Long | Id de la unidad de venta |
+| `platoId` | Long | Trae los pedidos que incluyen ese plato |
+| `fechaDesde` | `dd-MM-yyyy` | Fecha de transacción desde |
+| `fechaHasta` | `dd-MM-yyyy` | Fecha de transacción hasta |
+| `estado` | `A` / `R` | A = activo, R = anulado |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos?festivalId=1&unidadVentaId=1&platoId=1&fechaDesde=01-11-2026&fechaHasta=30-11-2026&estado=A
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` (puede estar vacía). |
+| 400 Bad Request | Filtros inválidos: fechas invertidas, estado incorrecto o formato erróneo. |
+| 404 Not Found | El festival, la unidad o el plato indicados no existen. |
+
+#### GET `/api/v1/pedidos/historial` – Historial de pedidos del empleado
+
+Funciona igual que la página **Historial de pedidos** de la aplicación web, pero con los filtros resueltos en el servidor.
+
+**Reglas**
+- `staffId` es obligatorio: el empleado debe existir, estar activo (empleado y usuario) y tener rol **RESPONSABLE** o **CAJERO**.
+- El empleado debe estar asociado al menos a una unidad de venta y solo ve los pedidos de **sus** unidades.
+- El **RESPONSABLE** ve los pedidos de todos los festivales; el **CAJERO**, solo los de festivales vigentes.
+- Si se filtra por `unidadVentaId`, la unidad tiene que ser una de las del empleado.
+- Si se filtra por `pedidoId`, el pedido tiene que existir (si no, 404 "No existe el pedido N.º X") y pertenecer a una unidad del empleado (si no, 403 "pertenece a otra unidad de venta"). Si el pedido es de su unidad pero el empleado es cajero y el festival ya no está vigente, devuelve 403 "pertenece a un festival que no está vigente".
+
+**Query params**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado que consulta |
+| `pedidoId` | Long | No | N.º de pedido |
+| `unidadVentaId` | Long | No | Id de la unidad de venta (una de las del empleado) |
+| `festivalId` | Long | No | Id del festival |
+| `empleadoId` | Long | No | Id del empleado que registró el pedido (operador) |
+| `estado` | `A` / `R` | No | A = activo, R = anulado |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha de registro desde |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha de registro hasta |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos/historial?staffId=2&unidadVentaId=1&festivalId=1&estado=A&fechaDesde=01-11-2026&fechaHasta=30-11-2026
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` del empleado, del más reciente al más antiguo (puede estar vacía). |
+| 400 Bad Request | Falta `staffId` o hay filtros inválidos (fechas invertidas, estado incorrecto, formato). |
+| 403 Forbidden | Empleado inactivo, sin rol RESPONSABLE/CAJERO, sin unidad asociada, sin acceso a la unidad filtrada o pedido de otra unidad / de un festival no vigente. |
+| 404 Not Found | No existe el empleado, el pedido, la unidad, el festival o el empleado filtrado. |
+
 ## Estructura principal
 
 - `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
+- `src/main/java/com/example/hito2grupo3/controllers/api`: controladores REST del Hito 3 y manejador de errores de la API.
 - `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
 - `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
 - `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.

@@ -53,4 +53,15 @@ public interface IPedidoService {
             LocalDate fechaHasta,
             String estado);
 
+     // API REST: historial segun empleado y unidad
+     List<PedidoResponseDTO> buscarHistorialDelStaff(
+            Long staffId,
+            Long pedidoId,
+            Long unidadVentaId,
+            Long festivalId,
+            Long empleadoId,
+            String estado,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta);
+
 }

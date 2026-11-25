@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import com.example.hito2grupo3.dto.ApiErrorDTO;
 
 /**
@@ -45,6 +45,12 @@ public ResponseEntity<ApiErrorDTO> solicitudInvalida(Exception ex) {
     }
     return construir(HttpStatus.BAD_REQUEST, mensaje, null);
 }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiErrorDTO> parametroFaltante(MissingServletRequestParameterException ex) {
+        return construir(HttpStatus.BAD_REQUEST,
+                "Falta el parámetro obligatorio '" + ex.getParameterName() + "'.", null);
+    }
+    
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ApiErrorDTO> noEncontrado(NoSuchElementException ex) {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), null);

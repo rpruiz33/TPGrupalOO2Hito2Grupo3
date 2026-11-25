@@ -818,4 +818,121 @@ Staff staff = obtenerStaffHabilitado(staffId);
                                 .toList();
         }
 
+        // ==========================================
+        // HISTORIAL DEL EMPLEADO Y UNIDAD (API REST)
+        // ==========================================
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<PedidoResponseDTO> buscarHistorialDelStaff(
+                        Long staffId,
+                        Long pedidoId,
+                        Long unidadVentaId,
+                        Long festivalId,
+                        Long empleadoId,
+                        String estado,
+                        LocalDate fechaDesde,
+                        LocalDate fechaHasta) {
+
+
+                Staff staff = obtenerStaffHabilitado(staffId);
+                verificarRolPedidos(staff);
+
+                List<UnidadVenta> unidades = esResponsable(staff)
+                                ? unidadVentaRepository.buscarPorStaffAsignadoOResponsable(staff.getId())
+                                : unidadVentaRepository.buscarPorStaffAsignado(staff.getId());
+
+                if (unidades.isEmpty()) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.FORBIDDEN,
+                                        "El empleado no está asociado a ninguna unidad de venta.");
+                }
+
+                if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+                        throw new IllegalArgumentException(
+                                        "La fecha desde no puede ser posterior a la fecha hasta.");
+                }
+
+                String estadoNormalizado = null;
+                if (estado != null && !estado.isBlank()) {
+                        estadoNormalizado = estado.trim().toUpperCase();
+                        if (!estadoNormalizado.equals("A") && !estadoNormalizado.equals("R")) {
+                                throw new IllegalArgumentException(
+                                                "El estado debe ser A (activo) o R (anulado).");
+                        }
+                }
+
+                if (unidadVentaId != null) {
+                        if (!unidadVentaRepository.existsById(unidadVentaId)) {
+                                throw new NoSuchElementException(
+                                                "No existe la unidad de venta con id " + unidadVentaId + ".");
+                        }
+                        boolean asociado = unidades.stream()
+                                        .anyMatch(u -> Objects.equals(u.getId(), unidadVentaId));
+                        if (!asociado) {
+                                throw new ResponseStatusException(
+                                                HttpStatus.FORBIDDEN,
+                                                "No tenés acceso a esta unidad de venta.");
+                        }
+                }
+                if (festivalId != null && !festivalRepository.existsById(festivalId)) {
+                        throw new NoSuchElementException("No existe el festival con id " + festivalId + ".");
+                }
+                if (empleadoId != null && !staffRepository.existsById(empleadoId)) {
+                        throw new NoSuchElementException("No existe el empleado con id " + empleadoId + ".");
+                }
+
+                // Misma logica que por la web, unidades del cajero y solo festivales vigentes
+                List<Pedido> historial = obtenerHistorialPorStaff(staff.getId());
+
+                // Si se pide un pedido debe existir (404) y ser visible para el empleado (403)
+                if (pedidoId != null) {
+                        Pedido pedido = pedidoRepository.findById(pedidoId)
+                                        .orElseThrow(() -> new NoSuchElementException(
+                                                        "No existe el pedido N.º " + pedidoId + "."));
+
+                        boolean visible = historial.stream()
+                                        .anyMatch(p -> Objects.equals(p.getId(), pedidoId));
+
+                        if (!visible) {
+                                boolean esDeSuUnidad = pedido.getUnidadVenta() != null
+                                                && unidades.stream().anyMatch(u -> Objects.equals(
+                                                                u.getId(), pedido.getUnidadVenta().getId()));
+
+                                throw new ResponseStatusException(
+                                                HttpStatus.FORBIDDEN,
+                                                esDeSuUnidad
+                                                                ? "El pedido N.º " + pedidoId
+                                                                                + " pertenece a un festival que no está vigente."
+                                                                : "El pedido N.º " + pedidoId
+                                                                                + " pertenece a otra unidad de venta.");
+                        }
+                }
+
+                final String estadoFiltro = estadoNormalizado;
+
+                return historial
+                                .stream()
+                                .filter(p -> pedidoId == null
+                                                || Objects.equals(p.getId(), pedidoId))
+                                .filter(p -> unidadVentaId == null
+                                                || (p.getUnidadVenta() != null
+                                                                && Objects.equals(p.getUnidadVenta().getId(), unidadVentaId)))
+                                .filter(p -> festivalId == null
+                                                || (p.getFestival() != null
+                                                                && Objects.equals(p.getFestival().getId(), festivalId)))
+                                .filter(p -> empleadoId == null
+                                                || (p.getRegistradoPor() != null
+                                                                && Objects.equals(p.getRegistradoPor().getId(), empleadoId)))
+                                .filter(p -> estadoFiltro == null
+                                                || estadoFiltro.equalsIgnoreCase(p.getEstado()))
+                                .filter(p -> fechaDesde == null
+                                                || (p.getFechaRegistro() != null
+                                                                && !p.getFechaRegistro().toLocalDate().isBefore(fechaDesde)))
+                                .filter(p -> fechaHasta == null
+                                                || (p.getFechaRegistro() != null
+                                                                && !p.getFechaRegistro().toLocalDate().isAfter(fechaHasta)))
+                                .map(PedidoResponseDTO::desde)
+                                .toList();
+        }
 }
