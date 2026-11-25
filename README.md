@@ -39,8 +39,7 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 
 - 📄 [Diagrama de Clases UML (SVG)](./UML.svg)
 - 📐 [Diagrama editable en Draw.io (XML)](./UML.drawio)
-- 📑 [Consigna del Trabajo Práctico - Hito 2 (PDF)](./Trabajo%20Practico%20OO2%20Hito%202%20V2%20-%20Trabajo%20Practico%20OO2%20Hito%202%20V2.pdf)
-- 📑 [Consigna del Trabajo Práctico - Hito 3 (PDF)](./Trabajo_Practico_OO2_Hito_3_V2.pdf)
+-- 📑 [Consigna del Trabajo Práctico - Hito 3 (PDF)](./Trabajo%Practico%OO2%Hito%3%V2.pdf)
 
 
 ![Diagrama de Clases UML](./UML.svg)
