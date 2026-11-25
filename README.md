@@ -45,6 +45,22 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 
 ![Diagrama de Clases UML](./UML.svg)
 
+## ApiRest (Hito 3 - API REST con Swagger)
+
+Se incorporó el módulo REST bajo el paquete `com.example.hito2grupo3.controllers.api`, documentado e interactivo mediante **Swagger / OpenAPI 3** (`springdoc-openapi-starter-webmvc-ui`).
+
+- **Interfaz gráfica Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **Especificación OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+- **Rama de integración:** `api-rest`
+
+### Controladores y Endpoints desarrollados por Roberto Andrés Ruiz Pereira ([@rpruiz33](https://github.com/rpruiz33))
+
+| Controlador | Ruta Base | Endpoints | Filtros / Descripción | Pull Request |
+| --- | --- | --- | --- | --- |
+| `FestivalRestController` | `/api/v1/festivales` | `POST /`, `GET /` | `POST`: crea festival validando fechas y calculando temporada automáticamente. `GET`: filtra por 7 parámetros (`nombre`, `temporada`, `activo`, `estado`, `fechaDesde`, `fechaHasta`, `unidadVentaId`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `LiquidacionRestController` | `/api/v1/liquidaciones` | `POST /`, `GET /` | `POST`: calcula y registra liquidaciones de haberes usando `SueldoProperties`. `GET`: filtra historial por 8 parámetros (`festivalId`, `unidadVentaId`, `email`, `rol`, `fechaDesde`, `fechaHasta`, `montoMinimo`, `montoMaximo`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `RentabilidadRestController` | `/api/v1/rentabilidad` | `POST /calcular`, `GET /` | `POST /calcular`: calcula rentabilidad neta real sin fallback a cero. `GET`: filtra por 7 parámetros (`festivalId`, `unidadVentaId`, `tipoUnidad`, `temporada`, `fechaDesde`, `fechaHasta`, `rentabilidadMinima`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+
 ## Pull requests
 
 Los Pull Requests del Hito 3 (rama `api-rest`) se detallan en la sección [ApiRest](#apirest).

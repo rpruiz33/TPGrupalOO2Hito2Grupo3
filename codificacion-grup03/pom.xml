@@ -35,14 +35,12 @@
     		<artifactId>modelmapper</artifactId>
     		<version>3.2.0</version>
 		</dependency>
-		
-<!-- Swagger / OpenAPI (Hito 3 - API REST) -->
-<dependency>
-    <groupId>org.springdoc</groupId>
-    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-    <version>3.0.3</version>
-</dependency>
-
+		<!-- Swagger / OpenAPI (Hito 3 - API REST) -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.0.3</version>
+		</dependency>
 		<dependency>
     <groupId>org.projectlombok</groupId>
     <artifactId>lombok</artifactId>

@@ -4,11 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 
 /**
- * Configuración de Swagger / OpenAPI.
- * UI disponible en: http://localhost:8080/swagger-ui.html
+ * Configuración central de Swagger / OpenAPI 3 para la API REST del Hito 3.
+ * Interfaz gráfica disponible en: /swagger-ui.html
  */
 @Configuration
 public class OpenApiConfig {

@@ -24,213 +24,224 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-        private final UsuarioRepository usuarioRepo;
+    private final UsuarioRepository usuarioRepo;
 
-        public SecurityConfiguration(UsuarioRepository usuarioRepo) {
-                this.usuarioRepo = usuarioRepo;
-        }
- /**
-         * Cadena exclusiva para la API REST: sin login por formulario ni redirects.
-         * Si algo falla por seguridad devuelve 401/403 en lugar de redirigir a /login
-         * (Swagger seguía el redirect y mostraba 200 con el HTML del login).
-         */
-        @Bean
-        @Order(1)
-        SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-                return http
-                                .securityMatcher("/api/**")
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                                .exceptionHandling(ex -> ex
-                                                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                                                .accessDeniedHandler((req, res, e) -> res.sendError(HttpStatus.FORBIDDEN.value())))
-                                .build();
-        }
-        @Bean
-        @Order(2)
-        SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityConfiguration(UsuarioRepository usuarioRepo) {
+        this.usuarioRepo = usuarioRepo;
+    }
 
-                return http
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .cors(AbstractHttpConfigurer::disable)
+    /**
+     * Cadena exclusiva para la API REST: sin login por formulario ni redirects.
+     * Devuelve 401/403 en lugar de redirigir a /login para una correcta integración con Swagger.
+     */
+    @Bean
+    @Order(1)
+    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((req, res, e) -> res.sendError(HttpStatus.FORBIDDEN.value())))
+                .build();
+    }
 
-                                .authorizeHttpRequests(auth -> {
+    @Bean
+    @Order(2)
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                                        // Rutas públicas
-                                        auth.requestMatchers(
-                                                        "/", "/login", "/registro", "/error", "/acceso-denegado")
-                                                        .permitAll();
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
 
-                                        // Recursos estáticos
-                                        auth.requestMatchers(
-                                                        "/css/**",
-                                                        "/images/**",
-                                                        "/js/**",
-                                                        "/vendor/bootstrap/css/**",
-                                                        "/vendor/jquery/**",
-                                                        "/vendor/bootstrap/js/**",
-                                                        "/api/v1/**").permitAll();
-                                        // Swagger UI y documentación OpenAPI
-                                        auth.requestMatchers(
-                                                        "/swagger-ui.html",
-                                                        "/swagger-ui/**",
-                                                        "/v3/api-docs",
-                                                        "/v3/api-docs/**").permitAll();
+                .authorizeHttpRequests(auth -> {
 
-                                        // Acceso exclusivo para administradores
-                                        auth.requestMatchers("/admin/**")
-                                                        .hasRole("ADMIN");
-                                        // Acceso al reporte de rentabilidad neta (exclusivo admin)
-                                        auth.requestMatchers("/reportes/rentabilidad", "/reportes/rentabilidad/**")
-                                                        .hasRole("ADMIN");
-                                        auth.requestMatchers("/responsable/reportes/**")
-                                                        .hasRole("RESPONSABLE");
+                    // Rutas públicas
+                    auth.requestMatchers(
+                            "/", "/login", "/registro", "/error", "/acceso-denegado"
+                    ).permitAll();
 
-                                        // Acceso para responsables
-                                        auth.requestMatchers("/responsable/**")
-                                                        .hasRole("RESPONSABLE");
-                                        auth.requestMatchers("/plato-estrella")
-                                                        .hasRole("RESPONSABLE");
+                    // Recursos estáticos
+                    auth.requestMatchers(
+                            "/css/**",
+                            "/images/**",
+                            "/js/**",
+                            "/vendor/bootstrap/css/**",
+                            "/vendor/jquery/**",
+                            "/vendor/bootstrap/js/**",
+                            "/api/v1/**"
+                    ).permitAll();
 
-                                        // Cambio de contraseña para usuarios autenticados
-                                        auth.requestMatchers("/cambiar-password")
-                                                        .authenticated();
+                    // Swagger UI y documentación OpenAPI
+                    auth.requestMatchers(
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs",
+                            "/v3/api-docs/**"
+                    ).permitAll();
 
-                                        // Volver al menú según rol del usuario autenticado
-                                        auth.requestMatchers("/empleado/volver-al-menu")
-                                                        .authenticated();
+                    // Acceso exclusivo para administradores
+                    auth.requestMatchers("/admin/**")
+                            .hasRole("ADMIN");
+                        // Acceso al reporte de rentabilidad neta (exclusivo admin)
+                        auth.requestMatchers("/reportes/rentabilidad", "/reportes/rentabilidad/**")
+                                .hasRole("ADMIN");
+                        auth.requestMatchers("/responsable/reportes/**")
+                                .hasRole("RESPONSABLE");
 
-                                        // Historial de asignaciones: empleados, cajeros y cocineros
-                                        auth.requestMatchers("/empleado/historial-asignaciones")
-                                                        .hasAnyRole("EMPLEADO", "CAJERO", "COCINERO");
+                    // Acceso para responsables
+                    auth.requestMatchers("/responsable/**")
+                            .hasRole("RESPONSABLE");
+                    auth.requestMatchers("/plato-estrella")
+                            .hasRole("RESPONSABLE");
 
-                                        // Módulo de empleados y cocineros
-                                        auth.requestMatchers("/empleado/**")
-                                                        .hasAnyRole("EMPLEADO", "COCINERO");
+                    // Cambio de contraseña para usuarios autenticados
+                    auth.requestMatchers("/cambiar-password")
+                            .authenticated();
 
-                                        // Liquidaciones y recibos
-                                        auth.requestMatchers(
-                                                        "/liquidacion",
-                                                        "/liquidacion/**",
-                                                        "/reciboPdf/**",
-                                                        "/recibo-pdf/**").hasAnyRole(
-                                                                        "ADMIN",
-                                                                        "RESPONSABLE",
-                                                                        "EMPLEADO",
-                                                                        "CAJERO",
-                                                                        "COCINERO");
+                    // Volver al menú según rol del usuario autenticado
+                    auth.requestMatchers("/empleado/volver-al-menu")
+                            .authenticated();
 
-                                        // Mi información
-                                        auth.requestMatchers(
-                                                        "/mi-informacion").hasAnyRole(
-                                                                        "ADMIN",
-                                                                        "RESPONSABLE",
-                                                                        "EMPLEADO",
-                                                                        "CAJERO",
-                                                                        "COCINERO");
+                    // Historial de asignaciones: empleados, cajeros y cocineros
+                    auth.requestMatchers("/empleado/historial-asignaciones")
+                            .hasAnyRole("EMPLEADO", "CAJERO", "COCINERO");
 
-                                        // Acceso al módulo de cajeros
-                                        auth.requestMatchers("/cajero/**")
-                                                        .hasRole("CAJERO");
+                    // Módulo de empleados y cocineros
+                    auth.requestMatchers("/empleado/**")
+                            .hasAnyRole("EMPLEADO", "COCINERO");
 
-                                        // Acceso al historial y gestión de pedidos
-                                        auth.requestMatchers("/pedidos/**")
-                                                        .hasAnyRole(
-                                                                        "RESPONSABLE",
-                                                                        "CAJERO");
+                    // Liquidaciones y recibos
+                    auth.requestMatchers(
+                            "/liquidacion",
+                            "/liquidacion/**",
+                            "/reciboPdf/**",
+                            "/recibo-pdf/**"
+                    ).hasAnyRole(
+                            "ADMIN",
+                            "RESPONSABLE",
+                            "EMPLEADO",
+                            "CAJERO",
+                            "COCINERO"
+                    );
 
-                                        // Denegar cualquier ruta no declarada
-                                        auth.anyRequest().denyAll();
-                                })
+                    // Mi información
+                    auth.requestMatchers(
+                            "/mi-informacion"
+                    ).hasAnyRole(
+                            "ADMIN",
+                            "RESPONSABLE",
+                            "EMPLEADO",
+                            "CAJERO",
+                            "COCINERO"
+                    );
 
-                                .formLogin(login -> {
+                    // Acceso al módulo de cajeros
+                    auth.requestMatchers("/cajero/**")
+                            .hasRole("CAJERO");
 
-                                        login.loginPage("/login");
-                                        login.loginProcessingUrl("/loginprocess");
-                                        login.usernameParameter("email");
-                                        login.passwordParameter("password");
+                    // Acceso al historial y gestión de pedidos
+                    auth.requestMatchers("/pedidos/**")
+                            .hasAnyRole(
+                                    "RESPONSABLE",
+                                    "CAJERO"
+                            );
 
-                                        login.successHandler((request, response, authentication) -> {
+                    // Denegar cualquier ruta no declarada
+                    auth.anyRequest().denyAll();
+                })
 
-                                                String email = authentication.getName();
+                .formLogin(login -> {
 
-                                                Usuario usuario = usuarioRepo.findByEmail(email)
-                                                                .orElse(null);
+                    login.loginPage("/login");
+                    login.loginProcessingUrl("/loginprocess");
+                    login.usernameParameter("email");
+                    login.passwordParameter("password");
 
-                                                // Forzar el cambio de contraseña si corresponde
-                                                if (usuario != null && usuario.isDebeCambiarPassword()) {
-                                                        response.sendRedirect("/cambiar-password");
-                                                        return;
-                                                }
+                    login.successHandler((request, response, authentication) -> {
 
-                                                // Obtener el rol del usuario autenticado
-                                                String rol = authentication.getAuthorities().stream()
-                                                                .map(authority -> authority.getAuthority())
-                                                                .filter(authority -> authority.startsWith("ROLE_"))
-                                                                .findFirst()
-                                                                .orElse("");
+                        String email = authentication.getName();
 
-                                                // Redirigir según el rol
-                                                switch (rol) {
+                        Usuario usuario = usuarioRepo.findByEmail(email)
+                                .orElse(null);
 
-                                                        case "ROLE_ADMIN":
-                                                                response.sendRedirect("/admin/dashboard");
-                                                                break;
+                        // Forzar el cambio de contraseña si corresponde
+                        if (usuario != null && usuario.isDebeCambiarPassword()) {
+                            response.sendRedirect("/cambiar-password");
+                            return;
+                        }
 
-                                                        case "ROLE_RESPONSABLE":
-                                                                response.sendRedirect("/responsable/index");
-                                                                break;
+                        // Obtener el rol del usuario autenticado
+                        String rol = authentication.getAuthorities().stream()
+                                .map(authority -> authority.getAuthority())
+                                .filter(authority -> authority.startsWith("ROLE_"))
+                                .findFirst()
+                                .orElse("");
 
-                                                        case "ROLE_EMPLEADO":
-                                                                response.sendRedirect("/empleado/index");
-                                                                break;
+                        // Redirigir según el rol
+                        switch (rol) {
 
-                                                        case "ROLE_CAJERO":
-                                                                response.sendRedirect("/cajero/index");
-                                                                break;
+                            case "ROLE_ADMIN":
+                                response.sendRedirect("/admin/dashboard");
+                                break;
 
-                                                        case "ROLE_COCINERO":
-                                                                response.sendRedirect("/empleado/index");
-                                                                break;
+                            case "ROLE_RESPONSABLE":
+                                response.sendRedirect("/responsable/index");
+                                break;
 
-                                                        default:
-                                                                response.sendRedirect("/login?error=rol");
-                                                                break;
-                                                }
-                                        });
+                            case "ROLE_EMPLEADO":
+                                response.sendRedirect("/empleado/index");
+                                break;
 
-                                        login.failureUrl("/login?error=true");
-                                        login.permitAll();
-                                })
+                            case "ROLE_CAJERO":
+                                response.sendRedirect("/cajero/index");
+                                break;
 
-                                .logout(logout -> {
-                                        logout.logoutUrl("/logout");
-                                        logout.logoutSuccessUrl("/login?logout=true");
-                                        logout.permitAll();
-                                })
+                            case "ROLE_COCINERO":
+                                response.sendRedirect("/empleado/index");
+                                break;
 
-                                .exceptionHandling(ex -> ex
-                                                .accessDeniedPage("/acceso-denegado"))
+                            default:
+                                response.sendRedirect("/login?error=rol");
+                                break;
+                        }
+                    });
 
-                                .build();
-        }
+                    login.failureUrl("/login?error=true");
+                    login.permitAll();
+                })
 
-        @Bean
-        PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
+                .logout(logout -> {
+                    logout.logoutUrl("/logout");
+                    logout.logoutSuccessUrl("/login?logout=true");
+                    logout.permitAll();
+                })
 
-        @Bean
-        public UserDetailsService userDetailsService() {
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/acceso-denegado")
+                )
 
-                return email -> usuarioRepo.findByEmail(email)
-                                .map(u -> org.springframework.security.core.userdetails.User.builder()
-                                                .username(u.getEmail())
-                                                .password(u.getPasswordHash())
-                                                .roles(u.getRol().getNombre().replace("ROLE_", ""))
-                                                .disabled(!u.isActivo())
-                                                .build())
-                                .orElseThrow(() -> new UsernameNotFoundException("Email no encontrado"));
-        }
+                .build();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+
+        return email -> usuarioRepo.findByEmail(email)
+                .map(u -> org.springframework.security.core.userdetails.User.builder()
+                        .username(u.getEmail())
+                        .password(u.getPasswordHash())
+                        .roles(u.getRol().getNombre().replace("ROLE_", ""))
+                        .disabled(!u.isActivo())
+                        .build())
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Email no encontrado"));
+    }
 }
