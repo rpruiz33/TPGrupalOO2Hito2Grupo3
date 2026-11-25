@@ -39,6 +39,24 @@ El modelo de dominio y la documentación de la aplicación se encuentran version
 
 ![Diagrama de Clases UML](./UML.svg)
 
+## ApiRest (Hito 3 - API REST con Swagger)
+
+Se incorporó el módulo REST bajo el paquete `com.example.hito2grupo3.controllers.api`, documentado e interactivo mediante **Swagger / OpenAPI 3** (`springdoc-openapi-starter-webmvc-ui`).
+
+- **Interfaz gráfica Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **Especificación OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+- **Rama de integración:** `api-rest`
+
+### Controladores y Endpoints desarrollados por Roberto Andrés Ruiz Pereira ([@rpruiz33](https://github.com/rpruiz33))
+
+| Controlador | Ruta Base | Endpoints | Filtros / Descripción | Pull Request |
+| --- | --- | --- | --- | --- |
+| `FestivalRestController` | `/api/v1/festivales` | `POST /`, `GET /`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}/baja`, `PATCH /{id}/reactivar`, `POST /{id}/unidades/{unidadId}`, `DELETE /{id}/unidades/{unidadId}` | `GET /` filtra por 7 parámetros (`nombre`, `temporada`, `activo`, `estado`, `fechaDesde`, `fechaHasta`, `unidadVentaId`). `POST` crea festival con cálculo automático de temporada. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `CategoriaCocinaRestController` | `/api/v1/categorias-cocina` | `POST /`, `GET /`, `GET /{id}`, `PUT /{id}`, `PATCH /{id}/baja`, `PATCH /{id}/reactivar`, `POST /{id}/cocineros/{cocineroId}` | `GET /` filtra por 4 parámetros (`nombre`, `activa`, `plusMinimo`, `plusMaximo`). `POST` registra categoría y asigna cocineros. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `LiquidacionRestController` | `/api/v1/liquidaciones` | `POST /`, `POST /simular`, `GET /`, `GET /{id}` | `GET /` filtra por 8 parámetros (`festivalId`, `unidadVentaId`, `email`, `rol`, `fechaDesde`, `fechaHasta`, `montoMinimo`, `montoMaximo`). `POST` calcula y registra liquidaciones usando `SueldoProperties`. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `RentabilidadRestController` | `/api/v1/rentabilidad` | `POST /calcular`, `GET /`, `GET /recaudacion`, `GET /dashboard` | `GET /` filtra por 7 parámetros (`festivalId`, `unidadVentaId`, `tipoUnidad`, `temporada`, `fechaDesde`, `fechaHasta`, `rentabilidadMinima`). `POST /calcular` obtiene rentabilidad neta real sin fallback a cero. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `CierreCajaRestController` | `/api/v1/cajas` | `POST /cerrar`, `POST /reabrir`, `GET /`, `GET /{id}`, `GET /resumen` | `GET /` filtra por 6 parámetros (`cajeroId`, `unidadVentaId`, `estado`, `fechaDesde`, `fechaHasta`, `montoMinimo`). `POST` registra cierres y reaperturas justificadas. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+
 ## Pull requests
 
 Las funcionalidades y cambios del proyecto fueron integrados mediante pull requests mergeadas en la rama `dev`:
