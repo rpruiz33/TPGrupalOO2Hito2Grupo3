@@ -44,7 +44,9 @@ spring:
             required: true
           ssl:
             trust: smtp.gmail.com
-
+springdoc:
+  packages-to-scan: com.example.hito2grupo3.controllers.api
+  paths-to-match: /api/**
 canon:
   costo-por-m2: 500
   plus-electricidad-food-truck: 2000

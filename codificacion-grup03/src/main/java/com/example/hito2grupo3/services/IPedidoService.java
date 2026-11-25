@@ -1,13 +1,16 @@
 package com.example.hito2grupo3.services;
 
 import com.example.hito2grupo3.dto.PedidoAltaDTO;
+import com.example.hito2grupo3.dto.PedidoResponseDTO;
 import com.example.hito2grupo3.dto.PlatoDTO;
 import com.example.hito2grupo3.entities.Festival;
 import com.example.hito2grupo3.entities.Pedido;
 import com.example.hito2grupo3.entities.Plato;
 import com.example.hito2grupo3.entities.Staff;
 import com.example.hito2grupo3.entities.UnidadVenta;
+import com.example.hito2grupo3.dto.PedidoResponseDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -40,4 +43,14 @@ public interface IPedidoService {
     Map<String, Object> obtenerDatosHistorial(Long staffId);
 
     List<Festival> obtenerFestivalesPorUnidadYStaff(Long unidadId, Long staffId);
+
+     // API REST: historial de pedidos con filtros opcionales
+    List<PedidoResponseDTO> buscarHistorialFiltrado(
+            Long festivalId,
+            Long unidadVentaId,
+            Long platoId,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            String estado);
+
 }
