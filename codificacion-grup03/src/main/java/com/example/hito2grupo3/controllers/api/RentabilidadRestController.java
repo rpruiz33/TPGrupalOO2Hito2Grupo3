@@ -36,15 +36,12 @@ import jakarta.validation.Valid;
 @Tag(name = "Rentabilidad Neta", description = "Cálculo y consulta filtrada de rentabilidad neta por unidad y festival")
 public class RentabilidadRestController {
 
-    // Servicio encargado de calcular y filtrar la rentabilidad neta.
     private final IRentabilidadApiService rentabilidadApiService;
 
-    // Inyección del servicio REST utilizado por ambos endpoints.
     public RentabilidadRestController(IRentabilidadApiService rentabilidadApiService) {
         this.rentabilidadApiService = rentabilidadApiService;
     }
 
-    // POST: calcula la rentabilidad para una unidad dentro de un festival.
     @PostMapping("/calcular")
     @Operation(
             summary = "Calcular rentabilidad neta de una unidad en un festival",
@@ -69,7 +66,6 @@ public class RentabilidadRestController {
         return ResponseEntity.ok(rentabilidadApiService.calcularRentabilidadUnidad(request));
     }
 
-    // GET: consulta la rentabilidad neta filtrando por múltiples parámetros.
     @GetMapping
     @Operation(
             summary = "Consultar y filtrar rentabilidad neta",
