@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
- * Hito 3 - API REST de Festivales Gastronómicos (rpruiz33).
+ * Hito 3 - API REST de Festivales Gastronómicos Roberto Andres Ruiz Pereira (rpruiz33).
  */
 @RestController
 @RequestMapping(value = "/api/v1/festivales", produces = "application/json")
