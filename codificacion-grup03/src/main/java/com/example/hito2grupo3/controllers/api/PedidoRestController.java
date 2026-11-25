@@ -41,8 +41,10 @@ import jakarta.validation.Valid;
 @Tag(name = "Pedidos", description = "Alta e historial de pedidos de las unidades de venta")
 public class PedidoRestController {
 
+        // Servicio que aplica las reglas de negocio de pedidos y realiza las consultas.
         private final IPedidoService pedidoService;
 
+        // Inyección del servicio REST utilizado por todos los endpoints de pedidos.
         public PedidoRestController(IPedidoService pedidoService) {
                 this.pedidoService = pedidoService;
         }
@@ -51,6 +53,7 @@ public class PedidoRestController {
         // POST - ALTA DE PEDIDO
         // ==========================================
 
+        // POST: valida el pedido y delega su registro al servicio de dominio.
         @PostMapping
         @Operation(summary = "Registrar un pedido", description = "Da de alta un pedido con sus platos y cantidades. Aplica las mismas reglas "
                         + "que el alta desde la web: la fecha (formato dd-MM-yyyy) debe ser la actual, el festival debe estar "
@@ -88,6 +91,7 @@ public class PedidoRestController {
         // GET - HISTORIAL DE PEDIDOS CON FILTROS
         // ==========================================
 
+        // GET: devuelve el historial general aplicando los filtros recibidos.
         @GetMapping
         @Operation(summary = "Historial de pedidos filtrado", description = "Devuelve los pedidos ordenados del más reciente al más antiguo. "
                         + "Filtros principales: festival, unidad de venta y plato. "
@@ -136,6 +140,7 @@ public class PedidoRestController {
         // GET - HISTORIAL DEL EMPLEADO (Misma logica web)
         // ==========================================
 
+        // GET: aplica los permisos y filtros correspondientes al historial del empleado.
         @GetMapping("/historial")
         @Operation(summary = "Historial de pedidos del empleado", description = "Funciona igual que la página de historial: "
                         + "el empleado (staffId) debe existir, estar activo y ser RESPONSABLE o CAJERO asociado a una unidad de venta. "

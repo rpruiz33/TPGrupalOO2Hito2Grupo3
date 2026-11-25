@@ -38,12 +38,15 @@ import jakarta.validation.Valid;
 @Tag(name = "Liquidaciones", description = "Cálculo, registro y consulta filtrada de liquidaciones de haberes")
 public class LiquidacionRestController {
 
+    // Servicio encargado de calcular y consultar liquidaciones persistidas.
     private final ILiquidacionApiService liquidacionApiService;
 
+    // Inyección del servicio REST utilizado por ambos endpoints.
     public LiquidacionRestController(ILiquidacionApiService liquidacionApiService) {
         this.liquidacionApiService = liquidacionApiService;
     }
 
+    // POST: calcula las liquidaciones y devuelve HTTP 201 con el resumen generado.
     @PostMapping
     @Operation(
             summary = "Calcular y registrar liquidaciones de haberes",
@@ -70,6 +73,7 @@ public class LiquidacionRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resumen);
     }
 
+    // GET: devuelve el historial de liquidaciones según filtros aplicados.
     @GetMapping
     @Operation(
             summary = "Consultar historial de liquidaciones filtrado",

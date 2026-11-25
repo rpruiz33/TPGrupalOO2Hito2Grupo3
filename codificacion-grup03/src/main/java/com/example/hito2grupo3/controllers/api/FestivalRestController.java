@@ -35,12 +35,14 @@ import jakarta.validation.Valid;
 @Tag(name = "Festivales", description = "Alta y consulta filtrada de festivales y temporadas")
 public class FestivalRestController {
 
+    // Servicio encargado de crear festivales y aplicar los filtros de búsqueda.
     private final IFestivalApiService festivalApiService;
 
     public FestivalRestController(IFestivalApiService festivalApiService) {
         this.festivalApiService = festivalApiService;
     }
 
+    // Recibe los datos validados y delega el alta del festival al servicio.
     @PostMapping
     @Operation(
             summary = "Crear un nuevo festival gastronómico",
@@ -70,6 +72,7 @@ public class FestivalRestController {
                 .body(creado);
     }
 
+    // GET: combina hasta siete filtros opcionales y devuelve los festivales coincidentes.
     @GetMapping
     @Operation(
             summary = "Listar y filtrar festivales",

@@ -23,24 +23,29 @@ import lombok.Setter;
 @Schema(description = "Parámetros para calcular la rentabilidad neta de una unidad en un festival")
 public class RentabilidadRequestDTO {
 
+    // Identifica el festival cuyo período se utilizará para el cálculo.
     @NotNull(message = "El ID del festival es obligatorio")
     @Positive(message = "El ID del festival debe ser positivo")
     @Schema(description = "ID del festival a analizar", example = "1")
     private Long festivalId;
 
+    // Identifica la unidad de venta sobre la que se calcula la rentabilidad.
     @NotNull(message = "El ID de la unidad de venta es obligatorio")
     @Positive(message = "El ID de la unidad de venta debe ser positivo")
     @Schema(description = "ID de la unidad de venta a analizar", example = "1")
     private Long unidadVentaId;
 
+    // Inicio opcional del rango; si se omite se usa la fecha inicial del festival.
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Schema(description = "Fecha desde (opcional, por defecto fecha de inicio del festival)", example = "01-11-2026")
     private LocalDate fechaDesde;
 
+    // Fin opcional del rango; si se omite se usa la fecha final del festival.
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Schema(description = "Fecha hasta (opcional, por defecto fecha de fin del festival)", example = "15-11-2026")
     private LocalDate fechaHasta;
 
+    // Valida que el rango tenga coherencia cuando ambas fechas fueron informadas.
     @AssertTrue(message = "La fecha desde no puede ser posterior a la fecha hasta")
     @Schema(hidden = true)
     public boolean isRangoValido() {
