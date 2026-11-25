@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,6 +25,7 @@ public class PedidoAltaDTO {
     @NotNull(message = "La fecha del pedido es obligatoria")
     @PastOrPresent(message = "La fecha del pedido no puede ser futura")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate fecha;
 
     @NotNull(message = "Debe seleccionar un festival")

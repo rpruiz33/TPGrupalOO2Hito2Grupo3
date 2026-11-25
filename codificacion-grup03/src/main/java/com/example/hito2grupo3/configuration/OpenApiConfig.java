@@ -19,13 +19,8 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Epicentro Gourmet - API REST")
-                        .description("Grupo 3 - Hito 3 - Orientación a Objetos II (UNLa). "
-                                + "Documentación interactiva de los endpoints REST para gestión de "
-                                + "festivales, categorías de cocina, liquidaciones, rentabilidad neta y cierres de caja.")
-                        .version("v1")
-                        .contact(new Contact()
-                                .name("Equipo Grupo 03 - Epicentro Gourmet")
-                                .url("https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3")));
+                        .description("Grupo 3 - Hito 3 - Orientación a Objetos II. "
+                                + "Endpoints REST del sistema de gestión de festivales.")
+                        .version("v1"));
     }
 }
-

@@ -3,29 +3,32 @@ package com.example.hito2grupo3.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "Respuesta de error de la API")
+public class ApiErrorDTO {
 
-/**
- * DTO estándar para respuestas de error en la API REST.
- */
-@Schema(description = "Estructura estándar de error devuelta por la API REST")
-public record ApiErrorDTO(
-        @Schema(description = "Fecha y hora del error", example = "25-11-2026 11:30")
-        @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
-        LocalDateTime timestamp,
+@JsonFormat(pattern = "dd-MM-yyyy HH:mm")
+@Schema(type = "string", example = "20-11-2026 12:30")
+private LocalDateTime timestamp;
 
-        @Schema(description = "Código de estado HTTP", example = "400")
-        int status,
+    @Schema(example = "400")
+    private int status;
 
-        @Schema(description = "Nombre del error HTTP", example = "Bad Request")
-        String error,
+    @Schema(example = "Bad Request")
+    private String error;
 
-        @Schema(description = "Mensaje descriptivo del error", example = "La fecha de inicio debe ser anterior a la de fin.")
-        String mensaje,
+    @Schema(example = "La unidad de venta no está habilitada para ese festival.")
+    private String mensaje;
 
-        @Schema(description = "Lista opcional de errores de validación por campo")
-        List<String> detalles) {
+    @Schema(description = "Errores de validación por campo, si los hay")
+    private List<String> detalles;
 }
-
