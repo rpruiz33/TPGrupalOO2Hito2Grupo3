@@ -49,12 +49,14 @@ body,
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  border: 1.5px solid #111111;
   border-radius: 6px;
 }
 
 /* Texto institucional al lado del isotipo */
 .swagger-ui .topbar .topbar-wrapper .link::after {
-  content: "Lic. Sistemas - OO2 Grupo 3";
+  content: "Lic. Sistemas - Cátedra Orientación a Objetos 2\AGrupo 3";
+  white-space: pre;
   color: var(--unla-blanco);
   font-weight: 700;
   font-size: 1.15rem;
@@ -64,18 +66,21 @@ body,
 /* Buscador / URL definition en la barra superior */
 .swagger-ui .topbar .download-url-wrapper input[type="text"],
 .swagger-ui .topbar .download-url-wrapper .select-label select {
-  border: 2px solid var(--unla-bordo-fondo);
+  background-color: var(--unla-blanco) !important;
+  color: var(--unla-bordo-fondo) !important;
+  font-weight: 700 !important;
+  border: 2px solid var(--unla-bordo-fondo) !important;
 }
 
 .swagger-ui .topbar .download-url-wrapper .download-url-button {
-  background-color: var(--unla-bordo-fondo);
-  color: var(--unla-blanco);
-  font-weight: 600;
-  border: 1px solid var(--unla-blanco);
+  background-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  font-weight: 700 !important;
+  border: 2px solid var(--unla-blanco) !important;
 }
 
 .swagger-ui .topbar .download-url-wrapper .download-url-button:hover {
-  background-color: var(--unla-bordo-hover);
+  background-color: var(--unla-bordo-hover) !important;
 }
 
 /* --- Título y cabecera de la API --- */
@@ -84,12 +89,14 @@ body,
   font-weight: 800;
 }
 
+.swagger-ui .info .title small,
 .swagger-ui .info .title small.version-stamp {
-  background-color: var(--unla-bordo-logo);
+  background-color: var(--unla-bordo-logo) !important;
+  border: 1px solid var(--unla-blanco);
 }
 
 .swagger-ui .info .title small pre {
-  color: var(--unla-blanco);
+  color: var(--unla-blanco) !important;
 }
 
 .swagger-ui .info p,
@@ -167,16 +174,61 @@ body,
   font-weight: 800 !important;
 }
 
-.swagger-ui .opblock .opblock-section-header {
+/* GET: estilo blanco con acento bordó UNLa */
+.swagger-ui .opblock.opblock-get .opblock-summary {
+  background-color: var(--unla-blanco) !important;
+  border-bottom: 1px solid var(--unla-borde);
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background-color: var(--unla-blanco) !important;
+  color: var(--unla-bordo-fondo) !important;
+  border: 2px solid var(--unla-bordo-logo) !important;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-path,
+.swagger-ui .opblock.opblock-get .opblock-summary-description {
+  color: var(--unla-bordo-fondo) !important;
+}
+
+/* POST: estilo bordó UNLa con texto blanco */
+.swagger-ui .opblock.opblock-post .opblock-summary {
+  background-color: var(--unla-bordo-logo) !important;
+  border-bottom: 1px solid var(--unla-bordo-fondo);
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  border: 1px solid var(--unla-blanco) !important;
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-path,
+.swagger-ui .opblock.opblock-post .opblock-summary-description {
+  color: var(--unla-blanco) !important;
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary svg.arrow {
+  fill: var(--unla-blanco) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header,
+.swagger-ui .opblock.opblock-post .opblock-section-header {
   background-color: var(--unla-gris-fondo) !important;
   box-shadow: none;
-  border-bottom: 1px solid var(--unla-borde);
+  border-top: 1px solid var(--unla-bordo-logo) !important;
+  border-bottom: 1px solid var(--unla-bordo-logo) !important;
 }
 
 .swagger-ui .opblock .opblock-section-header h4,
 .swagger-ui .opblock .opblock-section-header label {
   color: var(--unla-bordo-fondo) !important;
   font-weight: 700 !important;
+}
+
+.swagger-ui .opblock .tab-header .tab-item.active h4 span::after,
+.swagger-ui .opblock.opblock-post .tab-header .tab-item.active h4 span::after {
+  background: var(--unla-bordo-logo) !important;
 }
 
 .swagger-ui .opblock-body p,
@@ -255,24 +307,30 @@ body,
   color: var(--unla-blanco) !important;
 }
 
-/* Mantener los bloques de código JSON legibles */
-.swagger-ui .opblock-body pre.microlight,
+/* Bloques de código JSON en paleta UNLa */
+.swagger-ui .opblock-body pre.microlight {
+  background-color: #3b0613 !important;
+  color: var(--unla-blanco) !important;
+  border: 2px solid var(--unla-bordo-logo) !important;
+  border-radius: 6px;
+}
+
 .swagger-ui .opblock-body pre.microlight span {
-  background-color: #242528 !important;
-  color: #f8fafc !important;
+  background-color: transparent !important;
+  color: var(--unla-blanco) !important;
 }
 
 .swagger-ui .opblock-body pre.microlight .hljs-attr {
-  color: #93c5fd !important;
+  color: #fde68a !important;
 }
 
 .swagger-ui .opblock-body pre.microlight .hljs-string {
-  color: #86efac !important;
+  color: #fbcfe8 !important;
 }
 
 .swagger-ui .opblock-body pre.microlight .hljs-number,
 .swagger-ui .opblock-body pre.microlight .hljs-literal {
-  color: #fca5a5 !important;
+  color: #fecaca !important;
 }
 
 .swagger-ui .btn.try-out__btn,
@@ -288,15 +346,17 @@ body,
   background-color: var(--unla-bordo-fondo) !important;
 }
 
-.swagger-ui .btn.execute {
-  background-color: var(--unla-bordo-logo);
-  border-color: var(--unla-bordo-fondo);
-  color: var(--unla-blanco);
-  font-weight: 600;
+.swagger-ui .btn.execute,
+.swagger-ui .btn.btn-clear {
+  background-color: var(--unla-bordo-logo) !important;
+  border-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  font-weight: 700 !important;
 }
 
-.swagger-ui .btn.execute:hover {
-  background-color: var(--unla-bordo-fondo);
+.swagger-ui .btn.execute:hover,
+.swagger-ui .btn.btn-clear:hover {
+  background-color: var(--unla-bordo-fondo) !important;
 }
 
 /* --- Sección Schemas / Modelos / DTOs --- */
@@ -312,17 +372,55 @@ body,
   font-weight: 700 !important;
 }
 
-.swagger-ui section.models .model-container {
-  background-color: var(--unla-gris-fondo) !important;
+.swagger-ui section.models .model-container,
+.swagger-ui section.models .model-box,
+.swagger-ui section.models .json-schema-2020-12,
+.swagger-ui section.models .json-schema-2020-12-accordion {
+  background-color: var(--unla-bordo-suave) !important;
+  border: 1px solid var(--unla-borde) !important;
+  border-radius: 6px;
 }
 
 .swagger-ui .model-title,
 .swagger-ui section.models .model,
 .swagger-ui section.models span,
-.swagger-ui section.models td {
+.swagger-ui section.models td,
+.swagger-ui section.models p,
+.swagger-ui section.models .json-schema-2020-12__title {
   color: var(--unla-gris-oscuro) !important;
 }
 
-.swagger-ui .model-title {
+.swagger-ui section.models button,
+.swagger-ui section.models .json-schema-2020-12-expand-deep-button,
+.swagger-ui section.models .model-box-control {
+  background-color: var(--unla-blanco) !important;
+  color: var(--unla-bordo-fondo) !important;
+  border: 1px solid var(--unla-bordo-logo) !important;
+  border-radius: 4px;
   font-weight: 700 !important;
+}
+
+.swagger-ui .model-title,
+.swagger-ui section.models .json-schema-2020-12__title {
+  color: var(--unla-bordo-fondo) !important;
+  font-weight: 700 !important;
+}
+
+.swagger-ui section.models .prop-type,
+.swagger-ui section.models .json-schema-2020-12__attribute,
+.swagger-ui section.models .json-schema-2020-12-keyword__name {
+  color: var(--unla-bordo-logo) !important;
+  font-weight: 700 !important;
+}
+
+.swagger-ui section.models .prop-format,
+.swagger-ui section.models .json-schema-2020-12__attribute--primary {
+  background-color: var(--unla-bordo-logo) !important;
+  color: var(--unla-blanco) !important;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.swagger-ui section.models svg {
+  fill: var(--unla-bordo-fondo) !important;
 }
