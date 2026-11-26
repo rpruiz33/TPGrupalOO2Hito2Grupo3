@@ -275,20 +275,30 @@ body,
   color: #fca5a5 !important;
 }
 
-.swagger-ui .btn.try-out__btn {
-  border-color: var(--unla-bordo-fondo);
-  color: var(--unla-bordo-fondo);
+.swagger-ui .btn.try-out__btn,
+.swagger-ui .btn.try-out__btn span {
+  background-color: var(--unla-bordo-logo) !important;
+  border-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  font-weight: 700 !important;
 }
 
-.swagger-ui .btn.execute {
-  background-color: var(--unla-bordo-logo);
-  border-color: var(--unla-bordo-fondo);
-  color: var(--unla-blanco);
-  font-weight: 600;
+.swagger-ui .btn.try-out__btn:hover,
+.swagger-ui .btn.try-out__btn:hover span {
+  background-color: var(--unla-bordo-fondo) !important;
 }
 
-.swagger-ui .btn.execute:hover {
-  background-color: var(--unla-bordo-fondo);
+.swagger-ui .btn.execute,
+.swagger-ui .btn.btn-clear {
+  background-color: var(--unla-bordo-logo) !important;
+  border-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  font-weight: 700 !important;
+}
+
+.swagger-ui .btn.execute:hover,
+.swagger-ui .btn.btn-clear:hover {
+  background-color: var(--unla-bordo-fondo) !important;
 }
 
 /* --- Sección Schemas / Modelos / DTOs --- */
