@@ -1,17 +1,29 @@
 package com.example.hito2grupo3.configuration;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springdoc.core.properties.SwaggerUiConfigProperties;
+import org.springdoc.core.properties.SwaggerUiOAuthProperties;
+import org.springdoc.core.providers.ObjectMapperProvider;
+import org.springdoc.webmvc.ui.SwaggerIndexPageTransformer;
+import org.springdoc.webmvc.ui.SwaggerIndexTransformer;
+import org.springdoc.webmvc.ui.SwaggerWelcomeCommon;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.resource.ResourceTransformerChain;
+import org.springframework.web.servlet.resource.TransformedResource;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Configuración central de Swagger / OpenAPI 3 para la API REST del Hito 3.
@@ -70,6 +82,36 @@ public class OpenApiConfig {
                 }
             }
             return operation;
+        };
+    }
+
+    /**
+     * Inyecta la hoja de estilos institucional de la UNLa en el index.html de Swagger UI.
+     */
+    @Bean
+    public SwaggerIndexTransformer swaggerIndexTransformer(
+            SwaggerUiConfigProperties swaggerUiConfig,
+            SwaggerUiOAuthProperties swaggerUiOAuthConfig,
+            SwaggerWelcomeCommon swaggerWelcomeCommon,
+            ObjectMapperProvider objectMapperProvider) {
+        return new SwaggerIndexPageTransformer(
+                swaggerUiConfig, swaggerUiOAuthConfig, swaggerWelcomeCommon, objectMapperProvider) {
+            @Override
+            public Resource transform(
+                    HttpServletRequest request,
+                    Resource resource,
+                    ResourceTransformerChain transformerChain) throws IOException {
+                Resource transformed = super.transform(request, resource, transformerChain);
+                if (resource.getFilename() != null && resource.getFilename().equals("index.html")) {
+                    String html = new String(transformed.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                    String link = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/swagger-unla.css\" />";
+                    if (!html.contains("/css/swagger-unla.css")) {
+                        html = html.replace("</head>", link + "\n</head>");
+                    }
+                    return new TransformedResource(resource, html.getBytes(StandardCharsets.UTF_8));
+                }
+                return transformed;
+            }
         };
     }
 }

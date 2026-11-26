@@ -1,0 +1,194 @@
+/* ==========================================================================
+   Tema Swagger UI - Identidad Visual UNLa (Lic. en Sistemas)
+   ========================================================================== */
+:root {
+  --unla-bordo-fondo: #59081b;      /* Color exacto del fondo de la imagen */
+  --unla-bordo-logo: #820d28;       /* Color exacto del cuadrado del isotipo */
+  --unla-bordo-hover: #6e0a21;
+  --unla-bordo-suave: #fbf2f4;
+  --unla-blanco: #ffffff;
+  --unla-gris-oscuro: #242528;
+  --unla-gris-fondo: #f6f7f9;
+  --unla-borde: #dcdde1;
+}
+
+html,
+body,
+.swagger-ui {
+  background-color: var(--unla-bordo-fondo) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* --- Barra superior (Topbar) --- */
+.swagger-ui .topbar {
+  background-color: var(--unla-bordo-logo) !important;
+  border-bottom: 4px solid var(--unla-blanco);
+  padding: 10px 0;
+}
+
+.swagger-ui .topbar .topbar-wrapper .link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Ocultamos el SVG por defecto de Swagger */
+.swagger-ui .topbar .topbar-wrapper .link svg,
+.swagger-ui .topbar .topbar-wrapper .link img {
+  display: none;
+}
+
+/* Insertamos el isotipo de la UNLa antes del texto */
+.swagger-ui .topbar .topbar-wrapper .link::before {
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background-image: url("/images/unla-logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 6px;
+}
+
+/* Texto institucional al lado del isotipo */
+.swagger-ui .topbar .topbar-wrapper .link::after {
+  content: "Lic. Sistemas - OO2 Grupo 3";
+  color: var(--unla-blanco);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.3px;
+}
+
+/* Buscador / URL definition en la barra superior */
+.swagger-ui .topbar .download-url-wrapper input[type="text"],
+.swagger-ui .topbar .download-url-wrapper .select-label select {
+  border: 2px solid var(--unla-bordo-fondo);
+}
+
+.swagger-ui .topbar .download-url-wrapper .download-url-button {
+  background-color: var(--unla-bordo-fondo);
+  color: var(--unla-blanco);
+  font-weight: 600;
+  border: 1px solid var(--unla-blanco);
+}
+
+.swagger-ui .topbar .download-url-wrapper .download-url-button:hover {
+  background-color: var(--unla-bordo-hover);
+}
+
+/* --- Título y cabecera de la API --- */
+.swagger-ui .info .title {
+  color: var(--unla-blanco) !important;
+  font-weight: 800;
+}
+
+.swagger-ui .info .title small.version-stamp {
+  background-color: var(--unla-bordo-logo);
+}
+
+.swagger-ui .info .title small pre {
+  color: var(--unla-blanco);
+}
+
+.swagger-ui .info p,
+.swagger-ui .info li,
+.swagger-ui .info .base-url {
+  color: var(--unla-bordo-suave) !important;
+}
+
+.swagger-ui .info a {
+  color: var(--unla-blanco) !important;
+  text-decoration: underline;
+}
+
+/* --- Contenedor de Servidores y Botón Authorize --- */
+.swagger-ui .scheme-container {
+  background-color: var(--unla-bordo-logo) !important;
+  border-top: 2px solid var(--unla-blanco);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.swagger-ui .scheme-container .schemes > label,
+.swagger-ui .servers-title {
+  color: var(--unla-blanco) !important;
+}
+
+.swagger-ui .btn.authorize {
+  color: var(--unla-bordo-logo);
+  border-color: var(--unla-blanco);
+  background-color: var(--unla-blanco);
+}
+
+.swagger-ui .btn.authorize svg {
+  fill: var(--unla-bordo-logo);
+}
+
+.swagger-ui .btn.authorize:hover {
+  background-color: var(--unla-bordo-suave);
+}
+
+/* --- Controladores (Tags) --- */
+.swagger-ui .opblock-tag {
+  border-bottom: 2px solid var(--unla-bordo-logo);
+  color: var(--unla-blanco) !important;
+  font-weight: 700;
+}
+
+.swagger-ui .opblock-tag small {
+  color: var(--unla-bordo-suave) !important;
+}
+
+.swagger-ui .opblock-tag svg.arrow {
+  fill: var(--unla-blanco) !important;
+}
+
+.swagger-ui .opblock-tag:hover {
+  background-color: var(--unla-bordo-hover) !important;
+}
+
+/* --- Operaciones y Botones de Ejecución --- */
+.swagger-ui .opblock {
+  background-color: var(--unla-blanco) !important;
+  color: var(--unla-gris-oscuro);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-description {
+  color: var(--unla-gris-oscuro) !important;
+}
+
+.swagger-ui .btn.try-out__btn {
+  border-color: var(--unla-bordo-fondo);
+  color: var(--unla-bordo-fondo);
+}
+
+.swagger-ui .btn.execute {
+  background-color: var(--unla-bordo-logo);
+  border-color: var(--unla-bordo-fondo);
+  color: var(--unla-blanco);
+  font-weight: 600;
+}
+
+.swagger-ui .btn.execute:hover {
+  background-color: var(--unla-bordo-fondo);
+}
+
+/* --- Sección Schemas / Modelos / DTOs --- */
+.swagger-ui section.models {
+  background-color: var(--unla-blanco);
+  border: 1px solid var(--unla-borde);
+  border-radius: 6px;
+}
+
+.swagger-ui section.models h4 {
+  color: var(--unla-bordo-fondo);
+  border-bottom: 2px solid var(--unla-bordo-logo);
+}
+
+.swagger-ui .model-title {
+  color: var(--unla-gris-oscuro);
+}

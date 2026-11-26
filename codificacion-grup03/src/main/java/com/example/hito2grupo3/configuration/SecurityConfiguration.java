@@ -79,7 +79,9 @@ public class SecurityConfiguration {
                             "/swagger-ui.html",
                             "/swagger-ui/**",
                             "/v3/api-docs",
-                            "/v3/api-docs/**"
+                            "/v3/api-docs/**",
+                            "/css/swagger-unla.css",
+                            "/images/unla-logo.png"
                     ).permitAll();
 
                     // Acceso exclusivo para administradores
