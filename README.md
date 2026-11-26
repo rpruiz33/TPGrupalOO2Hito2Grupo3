@@ -59,6 +59,7 @@ Se incorporó el módulo REST bajo el paquete `com.example.hito2grupo3.controlle
 | `FestivalRestController` | `/api/v1/festivales` | `POST /`, `GET /` | `POST`: crea festival validando fechas y calculando temporada automáticamente. `GET`: filtra por 7 parámetros (`nombre`, `temporada`, `activo`, `estado`, `fechaDesde`, `fechaHasta`, `unidadVentaId`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | `/api/v1/liquidaciones` | `POST /`, `GET /` | `POST`: calcula y registra liquidaciones de haberes usando `SueldoProperties`. `GET`: filtra historial por 8 parámetros (`festivalId`, `unidadVentaId`, `email`, `rol`, `fechaDesde`, `fechaHasta`, `montoMinimo`, `montoMaximo`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | `/api/v1/rentabilidad` | `POST /calcular`, `GET /` | `POST /calcular`: calcula rentabilidad neta real sin fallback a cero. `GET`: filtra por 7 parámetros (`festivalId`, `unidadVentaId`, `tipoUnidad`, `temporada`, `fechaDesde`, `fechaHasta`, `rentabilidadMinima`). | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+| `PedidoRestController` | `/api/v1/pedidos` | `POST /`, `GET /` | `POST`: registra un nuevo pedido validando que la fecha sea la del día, el festival y la unidad de venta estén vigentes, y los platos pertenezcan a la unidad. `GET`: filtra historial de pedidos por múltiples parámetros como `festivalId`, `unidadVentaId`, `fechaDesde`, `fechaHasta`, etc. | [PR a `api-rest` (rama `API-Roberto`)](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 
 ## Pull requests
 
@@ -439,12 +440,126 @@ Todos los endpoints devuelven los errores con esta estructura:
 
 | Controlador | Método | Endpoint | Responsable | Pull Request |
 | --- | --- | --- | --- | --- |
+| `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `FestivalRestController` | POST | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `FestivalRestController` | GET | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | POST | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | GET | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | POST | `/api/v1/rentabilidad/calcular` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | GET | `/api/v1/rentabilidad` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+
+### Personalización de Swagger UI (Identidad Visual UNLa)
+
+- **Hoja de estilos institucional** (`static/css/swagger-unla.css`) con paleta bordó UNLa (`#59081b` / `#820d28`), isotipo UNLa y encabezado **`Lic. Sistemas - OO2 Grupo 3`**.
+- **`OpenApiConfig`:** inyección del CSS mediante `SwaggerIndexTransformer` y generación de fechas dinámicas válidas para `POST /api/v1/rentabilidad/calcular` con `OperationCustomizer`.
+- **Ejemplos y esquemas OpenAPI 3:** anotaciones `@Schema` en `FestivalDTO`, `LiquidacionDTO` y `ReporteRentabilidadNetaDTO`, junto con ejemplos JSON diferenciados para respuestas `200`, `201`, `400` y `404`.
+
+### PedidoRestController – `/api/v1/pedidos`
+
+**Responsable:** Leonel Alejandro Soloaga
+
+Controlador REST de pedidos (tag **Pedidos** en Swagger). Reutiliza `IPedidoService`, así que aplica las mismas reglas de negocio que el alta y el historial de pedidos de la aplicación web.
+
+#### POST `/api/v1/pedidos` – Registrar un pedido
+
+**Query param**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado (Staff) que registra el pedido |
+
+**Body (`PedidoAltaDTO`)**
+
+```json
+{
+  "fecha": "21-11-2026",
+  "festivalId": 1,
+  "unidadVentaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 2 },
+    { "platoId": 2, "cantidad": 1 }
+  ]
+}
+```
+
+**Validaciones**
+- `fecha`, `festivalId` y `unidadVentaId` son obligatorios; `items` debe tener al menos un plato y cada `cantidad` debe ser ≥ 1.
+- La fecha (formato `dd-MM-yyyy`) debe ser la del día.
+- El festival debe estar vigente y la unidad de venta habilitada en ese festival.
+- Los platos tienen que estar activos y pertenecer a la unidad.
+- El empleado tiene que ser **RESPONSABLE** o **CAJERO**, estar asignado a la unidad y estar activo.
+- El precio unitario se toma del plato al momento de la venta.
+
+**Respuestas**
+
+| Código | Descripción |
+| --- | --- |
+| 201 Created | Pedido registrado. Header `Location: /api/v1/pedidos/{id}` y body `PedidoResponseDTO` (id, fecha, estado, festival, unidad, empleado, ítems con subtotal y total). |
+| 400 Bad Request | Datos inválidos o regla de negocio incumplida (`ApiErrorDTO`). |
+
+#### GET `/api/v1/pedidos` – Historial de pedidos filtrado
+
+Devuelve los pedidos ordenados del más reciente al más antiguo. Los filtros se pueden combinar y, si no se envía ninguno, se devuelven todos.
+
+| Parámetro | Tipo | Descripción |
+| --- | --- | --- |
+| `festivalId` | Long | Id del festival |
+| `unidadVentaId` | Long | Id de la unidad de venta |
+| `platoId` | Long | Trae los pedidos que incluyen ese plato |
+| `fechaDesde` | `dd-MM-yyyy` | Fecha de transacción desde |
+| `fechaHasta` | `dd-MM-yyyy` | Fecha de transacción hasta |
+| `estado` | `A` / `R` | A = activo, R = anulado |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos?festivalId=1&unidadVentaId=1&platoId=1&fechaDesde=01-11-2026&fechaHasta=30-11-2026&estado=A
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` (puede estar vacía). |
+| 400 Bad Request | Filtros inválidos: fechas invertidas, estado incorrecto o formato erróneo. |
+| 404 Not Found | El festival, la unidad o el plato indicados no existen. |
+
+#### GET `/api/v1/pedidos/historial` – Historial de pedidos del empleado
+
+Funciona igual que la página **Historial de pedidos** de la aplicación web, pero con los filtros resueltos en el servidor.
+
+**Reglas**
+- `staffId` es obligatorio: el empleado debe existir, estar activo (empleado y usuario) y tener rol **RESPONSABLE** o **CAJERO**.
+- El empleado debe estar asociado al menos a una unidad de venta y solo ve los pedidos de **sus** unidades.
+- El **RESPONSABLE** ve los pedidos de todos los festivales; el **CAJERO**, solo los de festivales vigentes.
+- Si se filtra por `unidadVentaId`, la unidad tiene que ser una de las del empleado.
+- Si se filtra por `pedidoId`, el pedido tiene que existir (si no, 404 "No existe el pedido N.º X") y pertenecer a una unidad del empleado (si no, 403 "pertenece a otra unidad de venta"). Si el pedido es de su unidad pero el empleado es cajero y el festival ya no está vigente, devuelve 403 "pertenece a un festival que no está vigente".
+
+**Query params**
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+| --- | --- | --- | --- |
+| `staffId` | Long | Sí | Id del empleado que consulta |
+| `pedidoId` | Long | No | N.º de pedido |
+| `unidadVentaId` | Long | No | Id de la unidad de venta (una de las del empleado) |
+| `festivalId` | Long | No | Id del festival |
+| `empleadoId` | Long | No | Id del empleado que registró el pedido (operador) |
+| `estado` | `A` / `R` | No | A = activo, R = anulado |
+| `fechaDesde` | `dd-MM-yyyy` | No | Fecha de registro desde |
+| `fechaHasta` | `dd-MM-yyyy` | No | Fecha de registro hasta |
+
+Ejemplo:
+
+```text
+GET /api/v1/pedidos/historial?staffId=2&unidadVentaId=1&festivalId=1&estado=A&fechaDesde=01-11-2026&fechaHasta=30-11-2026
+```
+
+| Código | Descripción |
+| --- | --- |
+| 200 OK | Lista de `PedidoResponseDTO` del empleado, del más reciente al más antiguo (puede estar vacía). |
+| 400 Bad Request | Falta `staffId` o hay filtros inválidos (fechas invertidas, estado incorrecto, formato). |
+| 403 Forbidden | Empleado inactivo, sin rol RESPONSABLE/CAJERO, sin unidad asociada, sin acceso a la unidad filtrada o pedido de otra unidad / de un festival no vigente. |
+| 404 Not Found | No existe el empleado, el pedido, la unidad, el festival o el empleado filtrado. |
 
 ### FestivalRestController – `/api/v1/festivales`
 
@@ -635,6 +750,15 @@ GET /api/v1/rentabilidad?festivalId=1&tipoUnidad=FoodTruck&temporada=Primavera&f
 
 | Código | Descripción |
 | --- | --- |
-| 200 OK | Lista de `ReporteRentabilidadNetaDTO` que coinciden con los filtros (puede estar vacía). |
-| 400 Bad Request | Fechas, montos o filtros inválidos (`ApiErrorDTO`). |
-| 404 Not Found | El festival o la unidad indicada no existe (`ApiErrorDTO`). |
+| 200 OK | Lista de `ReporteRentabilidadNetaDTO` que cumplen con los filtros (puede estar vacía). |
+| 400 Bad Request | Filtros inválidos, como fechas invertidas (`ApiErrorDTO`). |
+| 404 Not Found | El festival o la unidad de venta indicados no existen (`ApiErrorDTO`). |
+
+## Estructura principal
+
+- `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
+- `src/main/java/com/example/hito2grupo3/controllers/api`: controladores REST del Hito 3 y manejador de errores de la API.
+- `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
+- `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
+- `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.
+- `src/main/resources/application.yml`: configuración de base de datos, correo, JPA y Thymeleaf.
