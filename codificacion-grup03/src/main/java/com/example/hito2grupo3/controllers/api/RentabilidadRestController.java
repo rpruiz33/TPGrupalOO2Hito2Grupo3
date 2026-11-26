@@ -48,20 +48,44 @@ public class RentabilidadRestController {
             description = "Calcula ingresos totales, costo de platos, sueldos proporcionales y canon proporcional "
                     + "para determinar la rentabilidad neta sin fallbacks silenciosos a cero.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Cálculo realizado exitosamente", content = @Content(schema = @Schema(implementation = ReporteRentabilidadNetaDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Rango de fechas inválido", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "200", description = "Cálculo realizado exitosamente",
+                    content = @Content(schema = @Schema(implementation = ReporteRentabilidadNetaDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Rango de fechas inválido",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+                                      "detalles": null
+                                    }"""))),
+            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 404,
+                                      "error": "Not Found",
+                                      "mensaje": "No existe el festival con id 99.",
+                                      "detalles": null
+                                    }""")))
     })
     public ResponseEntity<ReporteRentabilidadNetaDTO> calcularRentabilidad(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Parámetros de cálculo de rentabilidad",
                     required = true,
-                    content = @Content(examples = @ExampleObject(value = """
-                            {
-                              "festivalId": 1,
-                              "unidadVentaId": 1
-                            }
-                            """)))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RentabilidadRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Cálculo de rentabilidad",
+                                    value = """
+                                            {
+                                              "festivalId": 1,
+                                              "unidadVentaId": 1
+                                            }
+                                            """)))
             @Valid @RequestBody RentabilidadRequestDTO request) {
         return ResponseEntity.ok(rentabilidadApiService.calcularRentabilidadUnidad(request));
     }
@@ -73,8 +97,26 @@ public class RentabilidadRestController {
                     + "festival, unidad de venta, tipo de unidad, temporada, rango de fechas y rentabilidad mínima.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de análisis de rentabilidad"),
-            @ApiResponse(responseCode = "400", description = "Filtros inválidos", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "400", description = "Filtros inválidos",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+                                      "detalles": null
+                                    }"""))),
+            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 404,
+                                      "error": "Not Found",
+                                      "mensaje": "No existe la unidad de venta con id 99.",
+                                      "detalles": null
+                                    }""")))
     })
     public ResponseEntity<List<ReporteRentabilidadNetaDTO>> consultarRentabilidad(
             @Parameter(description = "ID del festival", example = "1")

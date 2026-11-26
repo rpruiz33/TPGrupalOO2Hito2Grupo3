@@ -51,20 +51,44 @@ public class LiquidacionRestController {
                     + "Se puede filtrar por unidad de venta, código comercial o email exacto del empleado. "
                     + "Aplica sueldo base mínimo de SueldoProperties, proporcionalidad quincenal, antigüedad o plus por categoría.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Liquidaciones calculadas y registradas", content = @Content(schema = @Schema(implementation = ILiquidacionService.ResultadoLiquidacion.class))),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos o regla de negocio incumplida", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "201", description = "Liquidaciones calculadas y registradas",
+                    content = @Content(schema = @Schema(implementation = ILiquidacionService.ResultadoLiquidacion.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos o regla de negocio incumplida",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "Error de validación",
+                                      "detalles": ["El ID del festival es obligatorio"]
+                                    }"""))),
+            @ApiResponse(responseCode = "404", description = "Festival o unidad no encontrados",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 404,
+                                      "error": "Not Found",
+                                      "mensaje": "No existe el festival con id 99.",
+                                      "detalles": null
+                                    }""")))
     })
     public ResponseEntity<ILiquidacionService.ResultadoLiquidacion> registrarLiquidaciones(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Criterios de liquidación",
                     required = true,
-                    content = @Content(examples = @ExampleObject(value = """
-                            {
-                              "festivalId": 1,
-                              "unidadVentaId": 1
-                            }
-                            """)))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LiquidacionRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Liquidación por festival y unidad",
+                                    value = """
+                                            {
+                                              "festivalId": 1,
+                                              "unidadVentaId": 1
+                                            }
+                                            """)))
             @Valid @RequestBody LiquidacionRequestDTO request) {
         ILiquidacionService.ResultadoLiquidacion resumen = liquidacionApiService.registrarLiquidaciones(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(resumen);
@@ -77,8 +101,26 @@ public class LiquidacionRestController {
                     + "festival, unidad de venta, email, rol, rango de fechas y rango de montos.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de liquidaciones encontradas"),
-            @ApiResponse(responseCode = "400", description = "Filtros de fecha o monto inválidos", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Festival o unidad indicados no existen", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "400", description = "Filtros de fecha o monto inválidos",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+                                      "detalles": null
+                                    }"""))),
+            @ApiResponse(responseCode = "404", description = "Festival o unidad indicados no existen",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 404,
+                                      "error": "Not Found",
+                                      "mensaje": "No existe el festival con id 99.",
+                                      "detalles": null
+                                    }""")))
     })
     public ResponseEntity<List<LiquidacionDTO>> buscarHistorial(
             @Parameter(description = "ID del festival", example = "1")

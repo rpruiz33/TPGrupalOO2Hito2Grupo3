@@ -349,41 +349,4 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     Optional<Pedido> obtenerDetallePorId(
             @Param("pedidoId") Long pedidoId);
 
-  // ============================
-    // HISTORIAL FILTRADO (API REST - Hito 3)
-    // ============================
-
-    /**
-     * Historial de pedidos con filtros opcionales.
-     * Un filtro en null no se aplica.
-     * El filtro por plato devuelve los pedidos que contienen ese plato
-     * (con todos sus ítems, no sólo el filtrado).
-     */
-    @Query("""
-            SELECT DISTINCT p
-            FROM Pedido p
-            LEFT JOIN FETCH p.festival f
-            LEFT JOIN FETCH p.unidadVenta u
-            LEFT JOIN FETCH p.registradoPor
-            LEFT JOIN FETCH p.items ip
-            LEFT JOIN FETCH ip.plato
-            WHERE (:festivalId IS NULL OR f.id = :festivalId)
-              AND (:unidadVentaId IS NULL OR u.id = :unidadVentaId)
-              AND (:platoId IS NULL OR EXISTS (
-                        SELECT 1 FROM ItemPedido i2
-                        WHERE i2.pedido = p AND i2.plato.id = :platoId))
-              AND (:fechaDesde IS NULL OR p.fechaTransaccion >= :fechaDesde)
-              AND (:fechaHasta IS NULL OR p.fechaTransaccion <= :fechaHasta)
-              AND (:estado IS NULL OR p.estado = :estado)
-            ORDER BY p.fechaTransaccion DESC, p.id DESC
-            """)
-    List<Pedido> buscarHistorialFiltrado(
-            @Param("festivalId") Long festivalId,
-            @Param("unidadVentaId") Long unidadVentaId,
-            @Param("platoId") Long platoId,
-            @Param("fechaDesde") LocalDate fechaDesde,
-            @Param("fechaHasta") LocalDate fechaHasta,
-            @Param("estado") String estado);
-
-
 }
