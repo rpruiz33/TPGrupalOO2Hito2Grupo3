@@ -275,9 +275,17 @@ body,
   color: #fca5a5 !important;
 }
 
-.swagger-ui .btn.try-out__btn {
-  border-color: var(--unla-bordo-fondo);
-  color: var(--unla-bordo-fondo);
+.swagger-ui .btn.try-out__btn,
+.swagger-ui .btn.try-out__btn span {
+  background-color: var(--unla-bordo-logo) !important;
+  border-color: var(--unla-bordo-fondo) !important;
+  color: var(--unla-blanco) !important;
+  font-weight: 700 !important;
+}
+
+.swagger-ui .btn.try-out__btn:hover,
+.swagger-ui .btn.try-out__btn:hover span {
+  background-color: var(--unla-bordo-fondo) !important;
 }
 
 .swagger-ui .btn.execute {
