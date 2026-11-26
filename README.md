@@ -442,13 +442,19 @@ Todos los endpoints devuelven los errores con esta estructura:
 | --- | --- | --- | --- | --- |
 | `PedidoRestController` | POST | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `PedidoRestController` | GET | `/api/v1/pedidos` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
-| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#_](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
+| `PedidoRestController` | GET | `/api/v1/pedidos/historial` | Leonel Alejandro Soloaga | [#104](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pull/104) |
 | `FestivalRestController` | POST | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `FestivalRestController` | GET | `/api/v1/festivales` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | POST | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `LiquidacionRestController` | GET | `/api/v1/liquidaciones` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | POST | `/api/v1/rentabilidad/calcular` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
 | `RentabilidadRestController` | GET | `/api/v1/rentabilidad` | Roberto Andrés Ruiz Pereira | [Ver Pull Requests](https://github.com/rpruiz33/TPGrupalOO2Hito2Grupo3/pulls) |
+
+### Personalización de Swagger UI (Identidad Visual UNLa)
+
+- **Hoja de estilos institucional** (`static/css/swagger-unla.css`) con paleta bordó UNLa (`#59081b` / `#820d28`), isotipo UNLa y encabezado **`Lic. Sistemas - OO2 Grupo 3`**.
+- **`OpenApiConfig`:** inyección del CSS mediante `SwaggerIndexTransformer` y generación de fechas dinámicas válidas para `POST /api/v1/rentabilidad/calcular` con `OperationCustomizer`.
+- **Ejemplos y esquemas OpenAPI 3:** anotaciones `@Schema` en `FestivalDTO`, `LiquidacionDTO` y `ReporteRentabilidadNetaDTO`, junto con ejemplos JSON diferenciados para respuestas `200`, `201`, `400` y `404`.
 
 ### PedidoRestController – `/api/v1/pedidos`
 
@@ -744,6 +750,15 @@ GET /api/v1/rentabilidad?festivalId=1&tipoUnidad=FoodTruck&temporada=Primavera&f
 
 | Código | Descripción |
 | --- | --- |
-| 200 OK | Lista de `ReporteRentabilidadNetaDTO` que coinciden con los filtros (puede estar vacía). |
-| 400 Bad Request | Fechas, montos o filtros inválidos (`ApiErrorDTO`). |
-| 404 Not Found | El festival o la unidad indicada no existe (`ApiErrorDTO`). |
+| 200 OK | Lista de `ReporteRentabilidadNetaDTO` que cumplen con los filtros (puede estar vacía). |
+| 400 Bad Request | Filtros inválidos, como fechas invertidas (`ApiErrorDTO`). |
+| 404 Not Found | El festival o la unidad de venta indicados no existen (`ApiErrorDTO`). |
+
+## Estructura principal
+
+- `src/main/java`: controladores, entidades, servicios, repositorios, DTOs y configuración.
+- `src/main/java/com/example/hito2grupo3/controllers/api`: controladores REST del Hito 3 y manejador de errores de la API.
+- `src/main/resources/templates`: vistas HTML renderizadas con Thymeleaf.
+- `src/main/resources/static`: hojas de estilo, JavaScript, imágenes y librerías frontend.
+- `src/main/resources/CargaDatos.sql`: datos iniciales de la aplicación.
+- `src/main/resources/application.yml`: configuración de base de datos, correo, JPA y Thymeleaf.

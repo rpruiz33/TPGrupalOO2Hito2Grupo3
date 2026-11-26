@@ -47,22 +47,37 @@ public class FestivalRestController {
             description = "Registra un festival validando nombre, rango de fechas (fin al menos 1 día posterior al inicio) "
                     + "y temporada (Invierno, Primavera, Verano, Otoño).")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Festival creado correctamente", content = @Content(schema = @Schema(implementation = FestivalDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos o rango de fechas incorrecto", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "201", description = "Festival creado correctamente",
+                    content = @Content(schema = @Schema(implementation = FestivalDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o rango de fechas incorrecto",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "Error de validación",
+                                      "detalles": ["La fecha de inicio debe ser anterior o igual a la fecha de finalización"]
+                                    }""")))
     })
     public ResponseEntity<FestivalDTO> crearFestival(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Datos del festival a crear",
                     required = true,
-                    content = @Content(examples = @ExampleObject(value = """
-                            {
-                              "nombre": "Epicentro Gourmet Primavera 2026",
-                              "temporada": "Primavera",
-                              "fechaInicio": "2026-11-01",
-                              "fechaFin": "2026-11-15",
-                              "unidadesVentaIds": [1, 2]
-                            }
-                            """)))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = FestivalDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Festival de ejemplo",
+                                    value = """
+                                            {
+                                              "nombre": "Epicentro Gourmet Primavera 2026",
+                                              "temporada": "Primavera",
+                                              "fechaInicio": "2026-11-01",
+                                              "fechaFin": "2026-11-15",
+                                              "unidadesVentaIds": [1, 2]
+                                            }
+                                            """)))
             @Valid @RequestBody FestivalDTO request) {
         FestivalDTO creado = festivalApiService.crear(request);
         return ResponseEntity
@@ -77,7 +92,16 @@ public class FestivalRestController {
                     + "estado operativo, rango de fechas y unidad de venta participante.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de festivales que coinciden con los filtros"),
-            @ApiResponse(responseCode = "400", description = "Rango de fechas inválido", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+            @ApiResponse(responseCode = "400", description = "Rango de fechas inválido",
+                    content = @Content(schema = @Schema(implementation = ApiErrorDTO.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "26-11-2026 11:00",
+                                      "status": 400,
+                                      "error": "Bad Request",
+                                      "mensaje": "La fecha desde no puede ser posterior a la fecha hasta.",
+                                      "detalles": null
+                                    }""")))
     })
     public ResponseEntity<List<FestivalDTO>> listarFestivales(
             @Parameter(description = "Búsqueda parcial por nombre del festival", example = "Epicentro")

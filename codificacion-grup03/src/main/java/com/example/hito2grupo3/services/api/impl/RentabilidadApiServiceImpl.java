@@ -55,8 +55,15 @@ public class RentabilidadApiServiceImpl implements IRentabilidadApiService {
             throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta.");
         }
 
+        LocalDate[] rango = acotarAlFestival(festival, desde, hasta);
+        if (rango == null) {
+            throw new IllegalArgumentException(
+                    "El rango de fechas no se superpone con el período del festival ("
+                            + festival.getFechaInicio() + " al " + festival.getFechaFin() + ").");
+        }
+
         return rentabilidadNetaService.calcularRentabilidadUnidadEntreFechas(
-                festival.getId(), request.getUnidadVentaId(), desde, hasta);
+                festival.getId(), request.getUnidadVentaId(), rango[0], rango[1]);
     }
 
     @Override
@@ -93,9 +100,8 @@ public class RentabilidadApiServiceImpl implements IRentabilidadApiService {
                     || !fest.getTemporada().toLowerCase(Locale.ROOT).equals(temporadaNorm))) {
                 continue;
             }
-            LocalDate desde = fechaDesde != null ? fechaDesde : fest.getFechaInicio();
-            LocalDate hasta = fechaHasta != null ? fechaHasta : fest.getFechaFin();
-            if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            LocalDate[] rango = acotarAlFestival(fest, fechaDesde, fechaHasta);
+            if (rango == null) {
                 continue;
             }
 
@@ -105,7 +111,7 @@ public class RentabilidadApiServiceImpl implements IRentabilidadApiService {
                     continue;
                 }
                 ReporteRentabilidadNetaDTO dto = rentabilidadNetaService.calcularRentabilidadUnidadEntreFechas(
-                        fest.getId(), uv.getId(), desde, hasta);
+                        fest.getId(), uv.getId(), rango[0], rango[1]);
 
                 if (tipoNorm != null && (dto.getTipoUnidad() == null
                         || !dto.getTipoUnidad().toLowerCase(Locale.ROOT).equals(tipoNorm))) {
@@ -119,6 +125,29 @@ public class RentabilidadApiServiceImpl implements IRentabilidadApiService {
             }
         }
         return resultados;
+    }
+
+    /**
+     * Acota el rango solicitado al período real del festival.
+     * Devuelve {@code null} si no hay superposición.
+     */
+    private LocalDate[] acotarAlFestival(Festival festival, LocalDate fechaDesde, LocalDate fechaHasta) {
+        LocalDate inicio = festival.getFechaInicio();
+        LocalDate fin = festival.getFechaFin();
+
+        LocalDate desde = fechaDesde != null ? fechaDesde : inicio;
+        LocalDate hasta = fechaHasta != null ? fechaHasta : fin;
+
+        if (inicio != null && (desde == null || desde.isBefore(inicio))) {
+            desde = inicio;
+        }
+        if (fin != null && (hasta == null || hasta.isAfter(fin))) {
+            hasta = fin;
+        }
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            return null;
+        }
+        return new LocalDate[] { desde, hasta };
     }
 
     private Festival buscarFestivalOExcepcion(Long id) {
