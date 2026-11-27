@@ -54,7 +54,10 @@ body,
 
 /* Texto institucional al lado del isotipo */
 .swagger-ui .topbar .topbar-wrapper .link::after {
-  content: "Lic. Sistemas - OO2 Grupo 3";
+
+  content: "Licenciatura en Sistemas\A catedra Orientación a Objetos 2";
+  white-space: pre;
+
   color: var(--unla-blanco);
   font-weight: 700;
   font-size: 1.15rem;
